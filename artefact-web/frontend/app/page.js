@@ -1,9 +1,33 @@
 import { generateOrganizationSchema } from '@/lib/seo'
+import Navbar from '@/components/landing/Navbar'
+import Hero from '@/components/landing/Hero'
+import AboutSection from '@/components/landing/AboutSection'
+import ConvocatoriaSection from '@/components/landing/ConvocatoriaSection'
+import CalendarSection from '@/components/landing/CalendarSection'
+import ContactSection from '@/components/landing/ContactSection'
+import Footer from '@/components/landing/Footer'
 
 export const metadata = {
-  title: 'Inicio',
-  description: 'Bienvenido a ARTEFACT, la feria de arte que conecta artistas emergentes con coleccionistas y amantes del arte.',
+  title: 'ARTEFACT 2027 - Feria de Arte Contemporáneo',
+  description: 'Descubre el talento emergente de artistas locales. ARTEFACT es una feria de arte que conecta artistas emergentes con coleccionistas y amantes del arte. Convocatoria abierta para Febrero 2027.',
+  keywords: 'feria de arte, arte contemporáneo, artistas emergentes, exposición de arte, CDMX, convocatoria artistas',
 }
+
+/**
+ * Landing Page Principal
+ *
+ * Componentes integrados:
+ * - Navbar: Navegación sticky
+ * - Hero: Hero section con CTA
+ * - AboutSection: Información + Ubicación
+ * - ConvocatoriaSection: Info de fases + descarga PDF + registro
+ * - CalendarSection: Timeline de eventos
+ * - ContactSection: Formulario de contacto
+ * - Footer: Footer con links y redes
+ *
+ * TODOS LOS DATOS SON HARDCODEADOS POR AHORA
+ * Ver comentarios en cada componente para estructura de BDD futura
+ */
 
 export default function Home() {
   const organizationSchema = generateOrganizationSchema()
@@ -16,40 +40,29 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
       />
 
-      <main className="min-h-screen">
-        <section className="container mx-auto px-4 py-16">
-          <h1 className="text-4xl md:text-6xl font-bold text-center mb-8">
-            Bienvenido a ARTEFACT
-          </h1>
-          <p className="text-xl text-center text-gray-600 max-w-2xl mx-auto">
-            La feria de arte que conecta artistas emergentes con coleccionistas y amantes del arte.
-          </p>
+      {/* Navbar */}
+      <Navbar />
 
-          {/* Aquí irá el contenido principal */}
-          <div className="mt-16 grid md:grid-cols-3 gap-8">
-            <div className="p-6 border rounded-lg">
-              <h2 className="text-2xl font-semibold mb-4">Artistas</h2>
-              <p className="text-gray-600">
-                Descubre talento emergente y obras únicas de artistas locales.
-              </p>
-            </div>
+      {/* Main Content */}
+      <main>
+        {/* Hero Section */}
+        <Hero />
 
-            <div className="p-6 border rounded-lg">
-              <h2 className="text-2xl font-semibold mb-4">Eventos</h2>
-              <p className="text-gray-600">
-                Participa en nuestras ferias y eventos especiales durante el año.
-              </p>
-            </div>
+        {/* About Section (incluye Ubicación) */}
+        <AboutSection />
 
-            <div className="p-6 border rounded-lg">
-              <h2 className="text-2xl font-semibold mb-4">Inscripciones</h2>
-              <p className="text-gray-600">
-                ¿Eres artista? Conoce nuestros paquetes y forma parte de ARTEFACT.
-              </p>
-            </div>
-          </div>
-        </section>
+        {/* Convocatoria Section */}
+        <ConvocatoriaSection />
+
+        {/* Calendar Section */}
+        <CalendarSection />
+
+        {/* Contact Section */}
+        <ContactSection />
       </main>
+
+      {/* Footer */}
+      <Footer />
     </>
   )
 }

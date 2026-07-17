@@ -36,6 +36,42 @@ export const isAdmin = (req, res, next) => {
 }
 
 /**
+ * Middleware para verificar si el usuario es curador
+ */
+export const isCurador = (req, res, next) => {
+  if (!req.user || req.user.role !== 'curador') {
+    return res.status(403).json({
+      error: 'Acceso denegado. Se requieren permisos de curador.'
+    })
+  }
+  next()
+}
+
+/**
+ * Middleware para verificar si el usuario es admin o curador
+ */
+export const isAdminOrCurador = (req, res, next) => {
+  if (!req.user || (req.user.role !== 'admin' && req.user.role !== 'curador')) {
+    return res.status(403).json({
+      error: 'Acceso denegado. Se requieren permisos de administrador o curador.'
+    })
+  }
+  next()
+}
+
+/**
+ * Middleware para verificar si el usuario es artista
+ */
+export const isArtista = (req, res, next) => {
+  if (!req.user || req.user.role !== 'artista') {
+    return res.status(403).json({
+      error: 'Acceso denegado. Se requieren permisos de artista.'
+    })
+  }
+  next()
+}
+
+/**
  * Middleware opcional de autenticación (no falla si no hay token)
  */
 export const optionalAuth = (req, res, next) => {

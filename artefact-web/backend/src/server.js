@@ -10,12 +10,11 @@ import { dirname, join } from 'path'
 dotenv.config()
 
 // Importar rutas
-import artistasRoutes from './routes/artistas.routes.js'
-import obrasRoutes from './routes/obras.routes.js'
-import eventosRoutes from './routes/eventos.routes.js'
-import inscripcionesRoutes from './routes/inscripciones.routes.js'
-import paquetesRoutes from './routes/paquetes.routes.js'
 import authRoutes from './routes/auth.routes.js'
+import artistasRoutes from './routes/artistas.routes.js'
+import fasesRoutes from './routes/fases.routes.js'
+import curadoresRoutes from './routes/curadores.routes.js'
+import votacionesRoutes from './routes/votaciones.routes.js'
 
 // Configuración de __dirname para ES modules
 const __filename = fileURLToPath(import.meta.url)
@@ -27,12 +26,28 @@ const PORT = process.env.PORT || 4000
 // Middlewares
 app.use(helmet()) // Seguridad headers
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    process.env.FRONTEND_URL
+  ].filter(Boolean),
   credentials: true
 }))
 app.use(morgan('dev')) // Logging
 app.use(express.json()) // Parse JSON
 app.use(express.urlencoded({ extended: true }))
+
+// Debug middleware - log all requests
+app.use((req, res, next) => {
+  if (req.path === '/api/auth/login') {
+    console.log('=== LOGIN REQUEST DEBUG ===')
+    console.log('Body:', req.body)
+    console.log('Content-Type:', req.headers['content-type'])
+    console.log('Method:', req.method)
+    console.log('==========================')
+  }
+  next()
+})
 
 // Servir archivos estáticos (imágenes subidas)
 app.use('/uploads', express.static(join(__dirname, '../uploads')))
@@ -49,10 +64,9 @@ app.get('/health', (req, res) => {
 // Rutas de la API
 app.use('/api/auth', authRoutes)
 app.use('/api/artistas', artistasRoutes)
-app.use('/api/obras', obrasRoutes)
-app.use('/api/eventos', eventosRoutes)
-app.use('/api/inscripciones', inscripcionesRoutes)
-app.use('/api/paquetes', paquetesRoutes)
+app.use('/api/fases', fasesRoutes)
+app.use('/api/curadores', curadoresRoutes)
+app.use('/api/votaciones', votacionesRoutes)
 
 // Ruta 404
 app.use('*', (req, res) => {
