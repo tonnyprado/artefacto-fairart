@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1928.04 1915.69">
+  <defs>
+    <style>
+      .cls-1 {
+        letter-spacing: -.05em;
+      }
+
+      .cls-2 {
+        letter-spacing: -.07em;
+      }
+
+      .cls-3 {
+        font-family: InterTight-BlackItalic, 'Inter Tight';
+        font-size: 129.84px;
+        font-style: italic;
+        font-weight: 800;
+      }
+
+      .cls-3, .cls-4 {
+        fill: #fff;
+        mix-blend-mode: overlay;
+      }
+
+      .cls-5 {
+        letter-spacing: -.16em;
+      }
+
+      .cls-6 {
+        letter-spacing: -.14em;
+      }
+
+      .cls-7 {
+        fill: url(#radial-gradient);
+      }
+
+      .cls-8 {
+        isolation: isolate;
+      }
+
+      .cls-9 {
+        fill: url(#radial-gradient-2);
+      }
+
+      .cls-10 {
+        letter-spacing: -.05em;
+      }
+
+      .cls-11 {
+        letter-spacing: 2.73em;
+      }
+
+      .cls-12 {
+        fill: #b93232;
+      }
+
+      .cls-13 {
+        letter-spacing: -.08em;
+      }
+    </style>
+    <radialGradient id="radial-gradient" cx="966.16" cy="958.09" fx="966.16" fy="958.09" r="961.89" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#b93232"/>
+      <stop offset=".23" stop-color="#b93434" stop-opacity="1"/>
+      <stop offset=".32" stop-color="#bc3d3d" stop-opacity=".99"/>
+      <stop offset=".38" stop-color="#c24d4d" stop-opacity=".97"/>
+      <stop offset=".42" stop-color="#c96363" stop-opacity=".95"/>
+      <stop offset=".47" stop-color="#d38181" stop-opacity=".92"/>
+      <stop offset=".5" stop-color="#e0a5a5" stop-opacity=".89"/>
+      <stop offset=".53" stop-color="#eecfcf" stop-opacity=".85"/>
+      <stop offset=".56" stop-color="#fff" stop-opacity=".8"/>
+      <stop offset=".58" stop-color="#e0e6f4" stop-opacity=".83"/>
+      <stop offset=".61" stop-color="#b2c0e3" stop-opacity=".88"/>
+      <stop offset=".65" stop-color="#8ba0d5" stop-opacity=".91"/>
+      <stop offset=".69" stop-color="#6b86c9" stop-opacity=".95"/>
+      <stop offset=".74" stop-color="#5271c0" stop-opacity=".97"/>
+      <stop offset=".79" stop-color="#4163ba" stop-opacity=".99"/>
+      <stop offset=".86" stop-color="#365bb7" stop-opacity="1"/>
+      <stop offset="1" stop-color="#3459b6"/>
+    </radialGradient>
+    <radialGradient id="radial-gradient-2" cx="966.16" cy="958.09" fx="966.16" fy="958.09" r="961.89" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#b93232"/>
+      <stop offset=".24" stop-color="#b93333"/>
+      <stop offset=".32" stop-color="#bb3a3a"/>
+      <stop offset=".39" stop-color="#bf4646"/>
+      <stop offset=".44" stop-color="#c55757"/>
+      <stop offset=".48" stop-color="#cd6d6d"/>
+      <stop offset=".52" stop-color="#d68888"/>
+      <stop offset=".55" stop-color="#e1a9a9"/>
+      <stop offset=".58" stop-color="#eecece"/>
+      <stop offset=".61" stop-color="#fcf7f7"/>
+      <stop offset=".61" stop-color="#fff"/>
+      <stop offset=".61" stop-color="#f9fafd"/>
+      <stop offset=".63" stop-color="#d0d8ee"/>
+      <stop offset=".65" stop-color="#abbae0"/>
+      <stop offset=".67" stop-color="#8a9fd5"/>
+      <stop offset=".7" stop-color="#6f89cb"/>
+      <stop offset=".72" stop-color="#5977c3"/>
+      <stop offset=".76" stop-color="#4869bd"/>
+      <stop offset=".79" stop-color="#3c60b9"/>
+      <stop offset=".85" stop-color="#355ab6"/>
+      <stop offset="1" stop-color="#3459b6"/>
+    </radialGradient>
+  </defs>
+  <g class="cls-8">
+    <g id="Layer_6" data-name="Layer 6">
+      <rect class="cls-12" x="4.27" y="-3.79" width="1923.77" height="1923.77"/>
+      <rect class="cls-7" x="4.27" y="-3.79" width="1923.77" height="1923.77"/>
+      <rect class="cls-9" x="4.27" y="-3.79" width="1923.77" height="1923.77"/>
+    </g>
+    <g id="Layer_7" data-name="Layer 7">
+      <text class="cls-3" transform="translate(244.09 1455.3)"><tspan class="cls-1" x="0" y="0">ÉTI</tspan><tspan class="cls-2" x="178.37" y="0">C</tspan><tspan class="cls-13" x="265.38" y="0">A</tspan><tspan class="cls-1" x="355.25" y="0">S</tspan><tspan class="cls-11" x="431.93" y="0"> </tspan><tspan class="cls-1" x="809.82" y="0">CRE</tspan><tspan class="cls-6" x="1048.93" y="0">A</tspan><tspan class="cls-1" x="1130.49" y="0">TI</tspan><tspan class="cls-5" x="1237.89" y="0">V</tspan><tspan class="cls-13" x="1317.49" y="0">A</tspan><tspan class="cls-10" x="1407.35" y="0">S</tspan></text>
+    </g>
+    <g id="Layer_3" data-name="Layer 3">
+      <path class="cls-4" d="M1362.13,573.29v98.15c0,8.45-6.85,15.31-15.31,15.31h-122.99c-12.74,0-19.9,14.66-12.08,24.71l136.51,175.36c7.83,10.05.66,24.71-12.08,24.71h-154.46c-8.45,0-15.31-6.85-15.31-15.31v-194.08c0-8.45-6.85-15.31-15.31-15.31h-44.82c-4.29,0-8.38-1.8-11.28-4.96l-99.6-108.5c-5.41-5.89-1.23-15.39,6.77-15.39h344.63c8.45,0,15.31,6.85,15.31,15.31Z"/>
+      <path class="cls-4" d="M1065.89,884.67l-187.19-202.5c-5.1-5.52-5.15-14.02-.1-19.6l75.48-83.43c7.37-8.14,1.59-21.16-9.39-21.16h-317.09c-12.37,0-18.8,14.74-10.38,23.81l112.28,120.92c10.46,11.26,2.47,29.57-12.9,29.57h-89.8c-9.68,0-17.53,7.85-17.53,17.53v143.07c0,10.3,8.35,18.64,18.64,18.64h113c10.61,0,19.17-8.68,19.02-19.29l-2.06-147.43c-.03-2.29,1.82-4.17,4.11-4.17h0c1.15,0,2.24.48,3.02,1.32l147.48,159.41c5.99,6.47,14.41,10.16,23.23,10.16h118.43c13.95,0,21.22-16.61,11.75-26.86ZM833.54,667.18l-50.32,48.64c-9.71,9.39-25.93,2.51-25.93-11v-103.96c0-17.41,21.43-25.69,33.13-12.8l44.1,48.56c7.97,8.78,7.54,22.31-.99,30.55Z"/>
+      <path class="cls-4" d="M1391.81,575.17v320.46c0,9.14,7.41,16.54,16.54,16.54h270.59c7.37,0,10-9.75,3.63-13.45l-144.64-84.13c-11.03-6.42-10.95-22.38.14-28.68l126.65-71.99c11.12-6.32,6.63-23.29-6.16-23.29h-188.87c-16.95,0-22.93-22.45-8.24-30.89l144.27-82.84c8.7-4.99,5.15-18.28-4.87-18.28h-192.51c-9.14,0-16.54,7.41-16.54,16.54Z"/>
+      <path class="cls-4" d="M367.92,1296.37h-100.63c-12.81,0-23.19-10.38-23.19-23.19v-307.92c0-12.1,9.81-21.92,21.92-21.92h234.04c7.74,0,10.35,10.34,3.54,14.02l-189.26,102c-12.5,6.74-7.72,25.71,6.49,25.71h90.33c8.2,0,10.94,10.96,3.71,14.82l-74.63,39.85c-6.1,3.25-8.81,10.55-6.31,16.99l46.77,121.04c3.46,8.96-3.15,18.6-12.76,18.6Z"/>
+      <path class="cls-4" d="M574.71,902.08v-336.06c0-8.59-10.53-12.72-16.37-6.42l-311.71,336.06c-5.61,6.05-1.32,15.87,6.93,15.87h148.49c5.22,0,9.45-4.23,9.45-9.45v-157.88c0-5.22,4.23-9.45,9.45-9.45h115.86c6.22,0,10.74,5.9,9.12,11.9l-41.18,152.97c-1.62,6,2.91,11.9,9.12,11.9h51.39c5.22,0,9.45-4.23,9.45-9.45Z"/>
+      <path class="cls-4" d="M753.46,1286.6v-336.06c0-8.59-10.53-12.72-16.37-6.42l-311.71,336.06c-5.61,6.05-1.32,15.87,6.93,15.87h148.49c5.22,0,9.45-4.23,9.45-9.45v-157.88c0-5.22,4.23-9.45,9.45-9.45h115.86c6.22,0,10.74,5.9,9.12,11.9l-41.18,152.97c-1.62,6,2.91,11.9,9.12,11.9h51.39c5.22,0,9.45-4.23,9.45-9.45Z"/>
+      <path class="cls-4" d="M789.99,962.84v313.38c0,10.95,8.88,19.83,19.83,19.83h108.79c11.52,0,18.72-12.46,12.96-22.44l-83.65-145.09c-3.55-6.16-3.53-13.75.05-19.89l87.13-149.47c4.17-7.16-.99-16.15-9.28-16.15h-116c-10.95,0-19.83,8.88-19.83,19.83Z"/>
+      <path class="cls-4" d="M1157.99,1283.48v-199.74c0-6.94,5.63-12.57,12.57-12.57h179.01c6.94,0,12.57-5.63,12.57-12.57v-103.04c0-6.94-5.63-12.57-12.57-12.57h-379.08c-8.65,0-13.13,10.32-7.22,16.64l100.44,107.38c2.38,2.54,5.7,3.98,9.18,3.98h35.37c10.46,0,16.34,12.02,9.92,20.28l-143.45,184.48c-6.42,8.25-.54,20.28,9.92,20.28h160.78c6.94,0,12.57-5.63,12.57-12.57Z"/>
+      <path class="cls-4" d="M1733.81,1259.23l-80.47-293.77c-3.53-12.88-15.23-21.8-28.58-21.8h-203.32c-16.37,0-29.63,13.27-29.63,29.63v293.77c0,16.37,13.27,29.63,29.63,29.63h283.79c19.55,0,33.75-18.6,28.58-37.46ZM1590.87,1264.68c-30.3,8.68-73.33-48.77-96.1-128.3-22.77-79.53-16.67-151.04,13.63-159.72,30.3-8.68,73.33,48.77,96.1,128.3,22.77,79.53,16.67,151.04-13.63,159.72Z"/>
+    </g>
+  </g>
+</svg>
