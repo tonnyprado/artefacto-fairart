@@ -1,0 +1,95 @@
+'use client';
+import { useState } from 'react';
+import SectionHeader from './SectionHeader';
+import { COLORS, FONTS, container } from './theme';
+
+const DATOS = [
+  { label: 'Email', value: 'info@artefact.com.mx', href: 'mailto:info@artefact.com.mx' },
+  { label: 'Teléfono', value: '+52 55 1234 5678', href: 'tel:+525512345678' },
+  { label: 'WhatsApp', value: '+52 55 1234 5678', href: 'https://wa.me/525512345678' },
+  { label: 'Dirección', value: 'Av. Reforma 123, Cuauhtémoc, CDMX' },
+];
+
+const REDES = [
+  { label: 'Instagram ↗', href: 'https://instagram.com/artefact' },
+  { label: 'Facebook ↗', href: 'https://facebook.com/artefact' },
+  { label: 'X ↗', href: 'https://twitter.com/artefact' },
+];
+
+const inputStyle = { border: `2px solid ${COLORS.black}`, background: COLORS.creamDark, padding: 14, fontFamily: FONTS.body, fontSize: 15 };
+const labelStyle = { display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' };
+
+export default function ContactSection({ onSubmit }) {
+  const [status, setStatus] = useState('idle'); // idle | sending | sent
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const data = Object.fromEntries(new FormData(form));
+    setStatus('sending');
+    try {
+      if (onSubmit) await onSubmit(data); // conecta aquí tu API real
+      else await new Promise((r) => setTimeout(r, 1200)); // demo
+      setStatus('sent');
+      form.reset();
+    } catch {
+      setStatus('idle');
+    }
+  };
+
+  return (
+    <section id="contacto" style={{ scrollMarginTop: 88, background: COLORS.red, color: COLORS.black, padding: '150px 24px 96px' }}>
+      <div style={container}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 20, borderBottom: `3px solid ${COLORS.black}`, paddingBottom: 20 }}>
+          <span style={{ fontFamily: FONTS.display, fontSize: 22, color: COLORS.cream }}>04</span>
+          <h2 style={{ margin: 0, fontFamily: FONTS.display, fontSize: 'clamp(40px,5vw,64px)', letterSpacing: '0.02em', textTransform: 'uppercase', color: COLORS.cream }}>Contacto</h2>
+        </div>
+        <p style={{ margin: '40px 0 56px', maxWidth: 640, fontSize: 20, lineHeight: 1.6 }}>¿Tienes dudas? Contáctanos y con gusto te atenderemos</p>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '0.9fr 1.1fr', gap: 48, alignItems: 'start' }}>
+          <div>
+            {DATOS.map((d) => (
+              <div key={d.label} style={{ borderTop: `2px solid ${COLORS.black}`, padding: '22px 0', display: 'grid', gridTemplateColumns: '130px 1fr', gap: 16, alignItems: 'baseline' }}>
+                <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: COLORS.cream }}>{d.label}</div>
+                {d.href
+                  ? <a href={d.href} target={d.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer" style={{ fontSize: 17, fontWeight: 500, color: COLORS.black, textDecoration: 'none' }}>{d.value}</a>
+                  : <div style={{ fontSize: 17, fontWeight: 500, lineHeight: 1.5 }}>{d.value}</div>}
+              </div>
+            ))}
+            <div style={{ borderTop: `2px solid ${COLORS.black}`, borderBottom: `2px solid ${COLORS.black}`, padding: '22px 0', display: 'grid', gridTemplateColumns: '130px 1fr', gap: 16, alignItems: 'baseline' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: COLORS.cream }}>Síguenos</div>
+              <div style={{ display: 'flex', gap: 20, fontSize: 15, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                {REDES.map((r) => <a key={r.label} href={r.href} target="_blank" rel="noopener noreferrer" style={{ color: COLORS.black, textDecoration: 'none' }}>{r.label}</a>)}
+              </div>
+            </div>
+            <img src="/assets/monogram-a-black.svg" alt="" style={{ width: 120, marginTop: 48 }} />
+          </div>
+
+          <div style={{ border: `2px solid ${COLORS.black}`, background: COLORS.cream, padding: 40 }}>
+            <h3 style={{ margin: '0 0 28px', fontFamily: FONTS.display, fontSize: 26, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Envíanos un mensaje</h3>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
+                <label style={labelStyle}>Nombre completo<input name="nombre" required placeholder="Tu nombre" style={inputStyle} /></label>
+                <label style={labelStyle}>Email<input name="email" type="email" required placeholder="tu@email.com" style={inputStyle} /></label>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
+                <label style={labelStyle}>Teléfono<input name="telefono" type="tel" placeholder="55 1234 5678" style={inputStyle} /></label>
+                <label style={labelStyle}>Asunto<input name="asunto" required placeholder="Motivo de tu mensaje" style={inputStyle} /></label>
+              </div>
+              <label style={labelStyle}>Mensaje<textarea name="mensaje" required rows={5} placeholder="Escribe tu mensaje aquí..." style={{ ...inputStyle, resize: 'vertical' }} /></label>
+              <button type="submit" disabled={status === 'sending'}
+                style={{ background: COLORS.red, color: COLORS.cream, border: 'none', padding: 18, fontFamily: FONTS.body, fontWeight: 700, fontSize: 14, letterSpacing: '0.12em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                {status === 'sending' ? 'Enviando...' : 'Enviar Mensaje'}
+              </button>
+            </form>
+            {status === 'sent' && (
+              <div style={{ marginTop: 18, border: `2px solid ${COLORS.black}`, background: COLORS.creamDark, padding: '16px 20px', fontSize: 15, fontWeight: 600 }}>
+                ¡Mensaje enviado! Te responderemos pronto.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

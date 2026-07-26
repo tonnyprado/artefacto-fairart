@@ -1,11 +1,5 @@
 import { generateOrganizationSchema } from '@/lib/seo'
-import Navbar from '@/components/landing/Navbar'
-import Hero from '@/components/landing/Hero'
-import AboutSection from '@/components/landing/AboutSection'
-import ConvocatoriaSection from '@/components/landing/ConvocatoriaSection'
-import CalendarSection from '@/components/landing/CalendarSection'
-import ContactSection from '@/components/landing/ContactSection'
-import Footer from '@/components/landing/Footer'
+import { LandingArtefacto } from '@/components/artefacto'
 
 export const metadata = {
   title: 'ARTEFACT 2027 - Feria de Arte Contemporáneo',
@@ -16,17 +10,16 @@ export const metadata = {
 /**
  * Landing Page Principal
  *
- * Componentes integrados:
- * - Navbar: Navegación sticky
- * - Hero: Hero section con CTA
+ * Ahora usando el componente LandingArtefacto que orquesta:
+ * - Hero con fondo de letras animadas
+ * - Navbar transparente con iconos-letra
  * - AboutSection: Información + Ubicación
  * - ConvocatoriaSection: Info de fases + descarga PDF + registro
  * - CalendarSection: Timeline de eventos
  * - ContactSection: Formulario de contacto
  * - Footer: Footer con links y redes
- *
- * TODOS LOS DATOS SON HARDCODEADOS POR AHORA
- * Ver comentarios en cada componente para estructura de BDD futura
+ * - Transiciones flip-clock entre secciones
+ * - Smooth scroll con Lenis
  */
 
 export default function Home() {
@@ -40,29 +33,8 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
       />
 
-      {/* Navbar */}
-      <Navbar />
-
-      {/* Main Content */}
-      <main>
-        {/* Hero Section */}
-        <Hero />
-
-        {/* About Section (incluye Ubicación) */}
-        <AboutSection />
-
-        {/* Convocatoria Section */}
-        <ConvocatoriaSection />
-
-        {/* Calendar Section */}
-        <CalendarSection />
-
-        {/* Contact Section */}
-        <ContactSection />
-      </main>
-
-      {/* Footer */}
-      <Footer />
+      {/* Landing completa con transiciones SPA */}
+      <LandingArtefacto />
     </>
   )
 }
