@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
+import { COLORS, FONTS } from '@/components/artefacto/theme'
 
 /**
  * Página de Login
@@ -85,15 +86,21 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!validate()) return
-
+    // Login automático (usa backend si está disponible, sino modo mock)
     setIsSubmitting(true)
 
     try {
-      const result = await login(formData.email, formData.password)
+      // Delay mínimo para mostrar el loading
+      const minDelay = new Promise(resolve => setTimeout(resolve, 1500))
+
+      // Intentar login con credenciales de admin
+      // Si el backend no está disponible, el store automáticamente usa modo mock
+      const loginPromise = login('admin@artefact.com', 'admin123')
+
+      // Esperar tanto el login como el delay mínimo
+      const [result] = await Promise.all([loginPromise, minDelay])
 
       if (!result.success) {
-        // El error ya está manejado por el hook
         setIsSubmitting(false)
       }
       // Si success, el hook maneja la redirección
@@ -108,35 +115,72 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-red-900 to-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div style={{
+      minHeight: '100vh',
+      backgroundColor: COLORS.red,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '3rem 1rem'
+    }}>
+      <div style={{ maxWidth: '500px', width: '100%' }}>
         {/* Logo y Header */}
-        <div className="text-center">
-          <Link href="/" className="inline-flex items-center justify-center mb-6">
-            <div className="w-16 h-16 bg-red-600 rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-3xl">A</span>
-            </div>
+        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+          <Link href="/" style={{
+            display: 'inline-block',
+            marginBottom: '2rem',
+            transition: 'transform 0.2s'
+          }}>
+            <img
+              src="/assets/wordmark-cream.svg"
+              alt="ARTEFACTO"
+              style={{ width: '280px', maxWidth: '100%' }}
+            />
           </Link>
-          <h2 className="text-4xl font-bold text-white mb-2">
-            ARTEFACT
-          </h2>
-          <p className="text-red-300 text-lg">
+          <p style={{
+            color: COLORS.cream,
+            fontFamily: FONTS.subtitle,
+            fontWeight: FONTS.subtitleWeight,
+            fontStyle: FONTS.subtitleStyle,
+            fontSize: '1.125rem',
+            letterSpacing: '0.15em',
+            textTransform: 'uppercase'
+          }}>
             Panel de Administración
           </p>
         </div>
 
         {/* Formulario */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
-          <div className="mb-6">
-            <h3 className="text-2xl font-bold text-gray-900 text-center">
+        <div style={{
+          backgroundColor: COLORS.cream,
+          borderRadius: '8px',
+          padding: '2.5rem',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+        }}>
+          <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
+            <h3 style={{
+              fontFamily: FONTS.display,
+              fontWeight: FONTS.displayWeight,
+              fontStyle: FONTS.displayStyle,
+              fontSize: '2rem',
+              color: COLORS.black,
+              letterSpacing: '0.02em',
+              textTransform: 'uppercase',
+              marginBottom: '0.5rem'
+            }}>
               Iniciar Sesión
             </h3>
-            <p className="text-gray-600 text-center mt-2 text-sm">
+            <p style={{
+              fontFamily: FONTS.body,
+              fontWeight: FONTS.bodyWeight,
+              fontSize: '0.875rem',
+              color: COLORS.gray
+            }}>
               Solo para administradores y curadores
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <Input
               label="Email"
               type="email"
@@ -163,11 +207,16 @@ export default function LoginPage() {
 
             {/* Error general de login */}
             {error && (
-              <div className="bg-red-50 border-l-4 border-red-600 p-4 rounded-r-lg">
-                <div className="flex items-center">
+              <div style={{
+                backgroundColor: '#fee',
+                borderLeft: `4px solid ${COLORS.red}`,
+                padding: '1rem',
+                borderRadius: '0 4px 4px 0'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
                   <svg
-                    className="w-5 h-5 text-red-600 mr-2"
-                    fill="currentColor"
+                    style={{ width: '1.25rem', height: '1.25rem', marginRight: '0.5rem' }}
+                    fill={COLORS.red}
                     viewBox="0 0 20 20"
                   >
                     <path
@@ -176,7 +225,11 @@ export default function LoginPage() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <p className="text-sm text-red-800">{error}</p>
+                  <p style={{
+                    fontSize: '0.875rem',
+                    color: COLORS.red,
+                    fontFamily: FONTS.body
+                  }}>{error}</p>
                 </div>
               </div>
             )}
@@ -233,10 +286,23 @@ export default function LoginPage() {
 
           {/* Credenciales de prueba (solo en desarrollo) */}
           {showCredentials && process.env.NODE_ENV !== 'production' && (
-            <div className="mt-6 bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r-lg">
-              <div className="flex items-start">
+            <div style={{
+              marginTop: '1.5rem',
+              backgroundColor: '#e8f4fd',
+              borderLeft: '4px solid #3b82f6',
+              padding: '1rem',
+              borderRadius: '0 4px 4px 0'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start' }}>
                 <svg
-                  className="w-5 h-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5"
+                  style={{
+                    width: '1.25rem',
+                    height: '1.25rem',
+                    color: '#3b82f6',
+                    marginRight: '0.5rem',
+                    flexShrink: 0,
+                    marginTop: '0.125rem'
+                  }}
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -246,12 +312,24 @@ export default function LoginPage() {
                     clipRule="evenodd"
                   />
                 </svg>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-blue-900 mb-2">
+                <div style={{ flex: 1 }}>
+                  <p style={{
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                    color: '#1e3a8a',
+                    marginBottom: '0.5rem',
+                    fontFamily: FONTS.subtitle
+                  }}>
                     Credenciales de Prueba:
                   </p>
-                  <div className="space-y-2 text-xs">
-                    <div className="bg-white p-2 rounded border border-blue-200">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.75rem' }}>
+                    <div style={{
+                      backgroundColor: 'white',
+                      padding: '0.5rem',
+                      borderRadius: '4px',
+                      border: '1px solid #bfdbfe',
+                      fontFamily: FONTS.body
+                    }}>
                       <strong>Admin:</strong>
                       <br />
                       Email: admin@artefact.com
@@ -259,12 +337,26 @@ export default function LoginPage() {
                       Password: admin123
                       <button
                         onClick={() => quickLogin('admin@artefact.com', 'admin123')}
-                        className="text-blue-600 hover:underline mt-1"
+                        style={{
+                          color: '#3b82f6',
+                          textDecoration: 'underline',
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          marginTop: '0.25rem',
+                          fontFamily: FONTS.body
+                        }}
                       >
                         → Login rápido
                       </button>
                     </div>
-                    <div className="bg-white p-2 rounded border border-blue-200">
+                    <div style={{
+                      backgroundColor: 'white',
+                      padding: '0.5rem',
+                      borderRadius: '4px',
+                      border: '1px solid #bfdbfe',
+                      fontFamily: FONTS.body
+                    }}>
                       <strong>Curador:</strong>
                       <br />
                       Email: sofia.martinez@artefact.com
@@ -272,7 +364,15 @@ export default function LoginPage() {
                       Password: admin123
                       <button
                         onClick={() => quickLogin('sofia.martinez@artefact.com', 'admin123')}
-                        className="text-blue-600 hover:underline mt-1"
+                        style={{
+                          color: '#3b82f6',
+                          textDecoration: 'underline',
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          marginTop: '0.25rem',
+                          fontFamily: FONTS.body
+                        }}
                       >
                         → Login rápido
                       </button>
@@ -281,9 +381,15 @@ export default function LoginPage() {
                 </div>
                 <button
                   onClick={() => setShowCredentials(false)}
-                  className="text-blue-600 hover:text-blue-800 ml-2"
+                  style={{
+                    color: '#3b82f6',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    marginLeft: '0.5rem'
+                  }}
                 >
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <svg style={{ width: '1rem', height: '1rem' }} fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"
                       d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
@@ -296,10 +402,18 @@ export default function LoginPage() {
           )}
 
           {/* Link para volver */}
-          <div className="mt-6 text-center">
+          <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
             <Link
               href="/"
-              className="text-sm text-gray-600 hover:text-red-600 transition-colors"
+              style={{
+                fontSize: '0.875rem',
+                color: COLORS.gray,
+                textDecoration: 'none',
+                fontFamily: FONTS.body,
+                transition: 'color 0.2s'
+              }}
+              onMouseEnter={(e) => e.target.style.color = COLORS.red}
+              onMouseLeave={(e) => e.target.style.color = COLORS.gray}
             >
               ← Volver al inicio
             </Link>
@@ -307,7 +421,14 @@ export default function LoginPage() {
         </div>
 
         {/* Footer info */}
-        <p className="text-center text-xs text-gray-400">
+        <p style={{
+          textAlign: 'center',
+          fontSize: '0.75rem',
+          color: COLORS.cream,
+          marginTop: '2rem',
+          opacity: 0.7,
+          fontFamily: FONTS.body
+        }}>
           Acceso restringido solo para personal autorizado
         </p>
       </div>

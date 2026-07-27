@@ -23,25 +23,16 @@ export default function LogoRevealLoader({ onComplete }) {
   const logoRef = useRef(null);
 
   useEffect(() => {
-    // Verificar si ya se mostró el loader en esta sesión
-    const hasLoaded = sessionStorage.getItem('artefacto-loaded');
-
-    if (hasLoaded) {
-      setIsLoading(false);
-      onComplete?.();
-      return;
-    }
-
+    // Siempre mostrar el loader (sin sessionStorage)
     // Animación del loader
     const tl = gsap.timeline({
       onComplete: () => {
         // Fade out del loader
         gsap.to(loaderRef.current, {
           opacity: 0,
-          duration: 0.5,
+          duration: 0.8,
           ease: 'power2.inOut',
           onComplete: () => {
-            sessionStorage.setItem('artefacto-loaded', 'true');
             setIsLoading(false);
             onComplete?.(); // Notificar que terminó para que Hero inicie animación
           },
@@ -56,21 +47,21 @@ export default function LogoRevealLoader({ onComplete }) {
       clipPath: 'inset(50% 50% 50% 50%)',
     });
 
-    // Secuencia de animación (sin barra de progreso)
+    // Secuencia de animación
     tl.to(logoRef.current, {
       scale: 1,
       opacity: 1,
       clipPath: 'inset(0% 0% 0% 0%)',
-      duration: 1.0,
+      duration: 1.2,
       ease: 'expo.out',
       delay: 0.3,
     })
     .to(logoRef.current, {
       scale: 0.95,
-      duration: 0.3,
+      duration: 0.4,
       ease: 'power2.inOut',
     })
-    .to({}, { duration: 0.1 }); // Pausa breve antes de cerrar
+    .to({}, { duration: 0.3 }); // Pausa breve antes de cerrar
 
     return () => {
       tl.kill();

@@ -11,6 +11,7 @@ import { useCuradoresStore } from '@/stores/curadoresStore'
 import ArtistasTable from '@/components/admin/ArtistasTable'
 import FasesControl from '@/components/admin/FasesControl'
 import CuradoresTable from '@/components/admin/CuradoresTable'
+import { COLORS, FONTS } from '@/components/artefacto/theme'
 
 /**
  * Dashboard de Admin
@@ -33,6 +34,60 @@ const TABS = [
   { id: 'curadores', label: 'Curadores', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' }
 ]
 
+const cardStyle = {
+  backgroundColor: 'white',
+  padding: '1.5rem',
+  borderRadius: '8px',
+  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+  transition: 'box-shadow 0.2s',
+  border: `2px solid ${COLORS.creamDark}`
+}
+
+const StatCard = ({ icon, label, value, details, iconBg }) => (
+  <div style={cardStyle}>
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: '1rem'
+    }}>
+      <div style={{
+        width: '3rem',
+        height: '3rem',
+        backgroundColor: iconBg,
+        borderRadius: '8px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        {icon}
+      </div>
+    </div>
+    <p style={{
+      fontSize: '0.875rem',
+      color: COLORS.gray,
+      marginBottom: '0.25rem',
+      fontFamily: FONTS.body
+    }}>{label}</p>
+    <p style={{
+      fontSize: '2rem',
+      fontFamily: FONTS.display,
+      fontWeight: FONTS.displayWeight,
+      fontStyle: FONTS.displayStyle,
+      color: COLORS.black
+    }}>{value}</p>
+    <div style={{
+      display: 'flex',
+      gap: '0.5rem',
+      marginTop: '0.5rem',
+      fontSize: '0.75rem',
+      fontFamily: FONTS.body
+    }}>
+      {details}
+    </div>
+  </div>
+)
+
 function AdminDashboardContent() {
   const { user, logout } = useAuth()
   const [activeTab, setActiveTab] = useState('dashboard')
@@ -44,14 +99,45 @@ function AdminDashboardContent() {
   const faseActiva = useFasesStore(state => state.getFaseActiva())
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div style={{ minHeight: '100vh', backgroundColor: COLORS.cream }}>
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
+      <header style={{
+        backgroundColor: COLORS.red,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 10
+      }}>
+        <div style={{
+          maxWidth: '1240px',
+          margin: '0 auto',
+          padding: '1.5rem 1rem'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '1.5rem',
+            flexWrap: 'wrap',
+            gap: '1rem'
+          }}>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Panel de Administración</h1>
-              <p className="text-sm text-gray-600">Bienvenido, {user?.nombre}</p>
+              <h1 style={{
+                fontFamily: FONTS.display,
+                fontWeight: FONTS.displayWeight,
+                fontStyle: FONTS.displayStyle,
+                fontSize: 'clamp(1.5rem, 3vw, 2rem)',
+                color: COLORS.cream,
+                letterSpacing: '0.02em',
+                textTransform: 'uppercase',
+                marginBottom: '0.25rem'
+              }}>Panel de Administración</h1>
+              <p style={{
+                fontFamily: FONTS.body,
+                fontWeight: FONTS.bodyWeight,
+                fontSize: '0.875rem',
+                color: COLORS.creamDark
+              }}>Bienvenido, {user?.nombre}</p>
             </div>
             <Button variant="secondary" onClick={logout}>
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,20 +148,37 @@ function AdminDashboardContent() {
           </div>
 
           {/* Tabs Navigation */}
-          <nav className="flex space-x-1 border-b border-gray-200">
+          <nav style={{
+            display: 'flex',
+            gap: '0.25rem',
+            borderBottom: `2px solid ${COLORS.creamDark}`,
+            overflowX: 'auto'
+          }}>
             {TABS.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`
-                  flex items-center px-4 py-2 font-medium text-sm transition-colors border-b-2
-                  ${activeTab === tab.id
-                    ? 'border-red-600 text-red-600'
-                    : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
-                  }
-                `}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '0.75rem 1rem',
+                  fontFamily: FONTS.subtitle,
+                  fontWeight: FONTS.subtitleWeight,
+                  fontStyle: FONTS.subtitleStyle,
+                  fontSize: '0.875rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  transition: 'all 0.2s',
+                  border: 'none',
+                  borderBottom: activeTab === tab.id ? `3px solid ${COLORS.cream}` : '3px solid transparent',
+                  backgroundColor: 'transparent',
+                  color: activeTab === tab.id ? COLORS.cream : COLORS.creamDark,
+                  cursor: 'pointer',
+                  marginBottom: '-2px',
+                  whiteSpace: 'nowrap'
+                }}
               >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg style={{ width: '1.25rem', height: '1.25rem', marginRight: '0.5rem' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={tab.icon} />
                 </svg>
                 {tab.label}
@@ -86,90 +189,125 @@ function AdminDashboardContent() {
       </header>
 
       {/* Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main style={{
+        maxWidth: '1240px',
+        margin: '0 auto',
+        padding: '2rem 1rem'
+      }}>
         {/* Dashboard Tab */}
         {activeTab === 'dashboard' && (
-          <div className="space-y-8">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500 mb-1">Total Artistas</p>
-                <p className="text-3xl font-bold text-gray-900">{artistasStats.total}</p>
-                <div className="flex gap-2 mt-2 text-xs">
-                  <span className="text-green-600">✓ {artistasStats.aprobados} aprobados</span>
-                  <span className="text-yellow-600">⏳ {artistasStats.pendientes} pendientes</span>
-                </div>
-              </div>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+              gap: '1.5rem'
+            }}>
+              <StatCard
+                icon={
+                  <svg style={{ width: '1.5rem', height: '1.5rem', color: COLORS.red }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                }
+                label="Total Artistas"
+                value={artistasStats.total}
+                iconBg={COLORS.red + '20'}
+                details={
+                  <>
+                    <span style={{ color: '#10b981' }}>✓ {artistasStats.aprobados} aprobados</span>
+                    <span style={{ color: '#f59e0b' }}>⏳ {artistasStats.pendientes} pendientes</span>
+                  </>
+                }
+              />
 
-              <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                    </svg>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500 mb-1">Total Fases</p>
-                <p className="text-3xl font-bold text-gray-900">{fasesStats.total}</p>
-                <div className="flex gap-2 mt-2 text-xs">
-                  <span className="text-green-600">✓ {fasesStats.activas} activas</span>
-                  <span className="text-gray-600">◉ {fasesStats.finalizadas} finalizadas</span>
-                </div>
-              </div>
+              <StatCard
+                icon={
+                  <svg style={{ width: '1.5rem', height: '1.5rem', color: '#3b82f6' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                  </svg>
+                }
+                label="Total Fases"
+                value={fasesStats.total}
+                iconBg="#3b82f620"
+                details={
+                  <>
+                    <span style={{ color: '#10b981' }}>✓ {fasesStats.activas} activas</span>
+                    <span style={{ color: '#6b7280' }}>◉ {fasesStats.finalizadas} finalizadas</span>
+                  </>
+                }
+              />
 
-              <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500 mb-1">Curadores</p>
-                <p className="text-3xl font-bold text-gray-900">{curadoresStats.total}</p>
-                <div className="flex gap-2 mt-2 text-xs">
-                  <span className="text-green-600">✓ {curadoresStats.activos} activos</span>
-                  <span className="text-gray-600">◉ {curadoresStats.total_votaciones} votos</span>
-                </div>
-              </div>
+              <StatCard
+                icon={
+                  <svg style={{ width: '1.5rem', height: '1.5rem', color: '#a855f7' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                }
+                label="Curadores"
+                value={curadoresStats.total}
+                iconBg="#a855f720"
+                details={
+                  <>
+                    <span style={{ color: '#10b981' }}>✓ {curadoresStats.activos} activos</span>
+                    <span style={{ color: '#6b7280' }}>◉ {curadoresStats.total_votaciones} votos</span>
+                  </>
+                }
+              />
 
-              <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500 mb-1">Inscripciones Totales</p>
-                <p className="text-3xl font-bold text-gray-900">{fasesStats.total_artistas_inscritos}</p>
-                <p className="text-xs text-gray-600 mt-2">En todas las fases</p>
-              </div>
+              <StatCard
+                icon={
+                  <svg style={{ width: '1.5rem', height: '1.5rem', color: '#10b981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                }
+                label="Inscripciones Totales"
+                value={fasesStats.total_artistas_inscritos}
+                iconBg="#10b98120"
+                details={
+                  <span style={{ color: COLORS.gray }}>En todas las fases</span>
+                }
+              />
             </div>
 
             {/* Fase Activa */}
             {faseActiva && (
-              <div className="bg-gradient-to-r from-red-50 to-orange-50 border-l-4 border-red-600 p-6 rounded-r-lg">
-                <div className="flex items-start">
-                  <svg className="w-6 h-6 text-red-600 mr-3 mt-1" fill="currentColor" viewBox="0 0 20 20">
+              <div style={{
+                background: `linear-gradient(to right, ${COLORS.red}20, ${COLORS.red}10)`,
+                borderLeft: `4px solid ${COLORS.red}`,
+                padding: '1.5rem',
+                borderRadius: '0 8px 8px 0'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
+                  <svg style={{ width: '1.5rem', height: '1.5rem', color: COLORS.red, marginTop: '0.25rem' }} fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                   </svg>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-red-900 mb-2">Fase Activa</h3>
-                    <p className="text-sm text-red-800">
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{
+                      fontFamily: FONTS.subtitle,
+                      fontWeight: FONTS.subtitleWeight,
+                      color: COLORS.black,
+                      marginBottom: '0.5rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
+                    }}>Fase Activa</h3>
+                    <p style={{
+                      fontSize: '0.875rem',
+                      color: COLORS.gray,
+                      fontFamily: FONTS.body
+                    }}>
                       <strong>{faseActiva.nombre}</strong> - {faseActiva.inscripciones_abiertas ? 'Inscripciones abiertas' : 'Votaciones abiertas'}
                     </p>
-                    <div className="mt-3 flex gap-3 text-sm">
-                      <span className="text-red-700">📊 {faseActiva.total_inscritos} inscritos</span>
-                      <span className="text-red-700">🎯 {faseActiva.total_seleccionados} seleccionados</span>
-                      <span className="text-red-700">👥 {faseActiva.total_curadores} curadores</span>
+                    <div style={{
+                      marginTop: '0.75rem',
+                      display: 'flex',
+                      gap: '1rem',
+                      fontSize: '0.875rem',
+                      fontFamily: FONTS.body,
+                      flexWrap: 'wrap'
+                    }}>
+                      <span style={{ color: COLORS.gray }}>📊 {faseActiva.total_inscritos} inscritos</span>
+                      <span style={{ color: COLORS.gray }}>🎯 {faseActiva.total_seleccionados} seleccionados</span>
+                      <span style={{ color: COLORS.gray }}>👥 {faseActiva.total_curadores} curadores</span>
                     </div>
                   </div>
                   <Button size="sm" onClick={() => setActiveTab('fases')}>
@@ -180,71 +318,105 @@ function AdminDashboardContent() {
             )}
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div
-                onClick={() => setActiveTab('artistas')}
-                className="bg-white p-6 rounded-lg shadow cursor-pointer hover:shadow-lg transition-all group"
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-gray-900 group-hover:text-red-600 transition-colors">
-                    Gestionar Artistas
-                  </h3>
-                  <svg className="w-5 h-5 text-gray-400 group-hover:text-red-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '1.5rem'
+            }}>
+              {[
+                { id: 'artistas', title: 'Gestionar Artistas', desc: 'Ver, aprobar o rechazar solicitudes de artistas' },
+                { id: 'fases', title: 'Controlar Fases', desc: 'Abrir/cerrar inscripciones y votaciones' },
+                { id: 'curadores', title: 'Administrar Curadores', desc: 'Agregar, editar o desactivar curadores' }
+              ].map(action => (
+                <div
+                  key={action.id}
+                  onClick={() => setActiveTab(action.id)}
+                  style={{
+                    ...cardStyle,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.12)'
+                    e.currentTarget.style.transform = 'translateY(-2px)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)'
+                    e.currentTarget.style.transform = 'translateY(0)'
+                  }}
+                >
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '0.75rem'
+                  }}>
+                    <h3 style={{
+                      fontFamily: FONTS.subtitle,
+                      fontWeight: FONTS.subtitleWeight,
+                      fontStyle: FONTS.subtitleStyle,
+                      color: COLORS.black,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      fontSize: '1rem'
+                    }}>
+                      {action.title}
+                    </h3>
+                    <svg style={{ width: '1.25rem', height: '1.25rem', color: COLORS.gray }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                  <p style={{
+                    fontSize: '0.875rem',
+                    color: COLORS.gray,
+                    fontFamily: FONTS.body
+                  }}>
+                    {action.desc}
+                  </p>
                 </div>
-                <p className="text-sm text-gray-600">
-                  Ver, aprobar o rechazar solicitudes de artistas
-                </p>
-              </div>
-
-              <div
-                onClick={() => setActiveTab('fases')}
-                className="bg-white p-6 rounded-lg shadow cursor-pointer hover:shadow-lg transition-all group"
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-gray-900 group-hover:text-red-600 transition-colors">
-                    Controlar Fases
-                  </h3>
-                  <svg className="w-5 h-5 text-gray-400 group-hover:text-red-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
-                <p className="text-sm text-gray-600">
-                  Abrir/cerrar inscripciones y votaciones
-                </p>
-              </div>
-
-              <div
-                onClick={() => setActiveTab('curadores')}
-                className="bg-white p-6 rounded-lg shadow cursor-pointer hover:shadow-lg transition-all group"
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-gray-900 group-hover:text-red-600 transition-colors">
-                    Administrar Curadores
-                  </h3>
-                  <svg className="w-5 h-5 text-gray-400 group-hover:text-red-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
-                <p className="text-sm text-gray-600">
-                  Agregar, editar o desactivar curadores
-                </p>
-              </div>
+              ))}
             </div>
 
             {/* User Info */}
-            <div className="bg-blue-50 border-l-4 border-blue-600 p-6 rounded-r-lg">
-              <div className="flex items-start">
-                <svg className="w-6 h-6 text-blue-600 mr-3 mt-1" fill="currentColor" viewBox="0 0 20 20">
+            <div style={{
+              backgroundColor: '#e8f4fd',
+              borderLeft: '4px solid #3b82f6',
+              padding: '1.5rem',
+              borderRadius: '0 8px 8px 0'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                <svg style={{ width: '1.5rem', height: '1.5rem', color: '#3b82f6', marginTop: '0.25rem' }} fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                 </svg>
                 <div>
-                  <h3 className="font-semibold text-blue-900 mb-2">Información de Sesión</h3>
-                  <div className="text-sm text-blue-800 space-y-1">
+                  <h3 style={{
+                    fontFamily: FONTS.subtitle,
+                    fontWeight: 600,
+                    color: '#1e3a8a',
+                    marginBottom: '0.5rem'
+                  }}>Información de Sesión</h3>
+                  <div style={{
+                    fontSize: '0.875rem',
+                    color: '#1e40af',
+                    fontFamily: FONTS.body,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.25rem'
+                  }}>
                     <p><strong>Usuario:</strong> {user?.nombre} {user?.apellido}</p>
                     <p><strong>Email:</strong> {user?.email}</p>
-                    <p><strong>Rol:</strong> <span className="inline-block px-2 py-1 bg-blue-200 rounded text-xs uppercase">{user?.role}</span></p>
+                    <p>
+                      <strong>Rol:</strong>{' '}
+                      <span style={{
+                        display: 'inline-block',
+                        padding: '0.25rem 0.5rem',
+                        backgroundColor: '#bfdbfe',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
+                        textTransform: 'uppercase',
+                        fontWeight: 600
+                      }}>{user?.role}</span>
+                    </p>
                   </div>
                 </div>
               </div>
