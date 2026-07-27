@@ -8,8 +8,23 @@ export const COLORS = {
 };
 
 export const FONTS = {
-  display: "'Anton', sans-serif",
-  body: "'Archivo', sans-serif",
+  // Títulos principales, portadas, cifras destacadas
+  display: "'Inter Tight', sans-serif",
+  displayWeight: 900,
+  displayStyle: 'italic',
+
+  // Subtítulos, kickers, etiquetas de sección
+  subtitle: "'Inter Tight', sans-serif",
+  subtitleWeight: 500,
+  subtitleStyle: 'italic',
+
+  // Cuerpo de texto, párrafos, listas
+  body: "'Inter Tight', sans-serif",
+  bodyWeight: 300,
+
+  // Frases destacadas, highlights conceptuales, notas curatoriales
+  highlight: "'EB Garamond', serif",
+  highlightStyle: 'italic',
 };
 
 // Encabezado numerado de sección (01, 02, ...)
@@ -19,8 +34,13 @@ export const sectionHeaderStyle = (dark = false) => ({
 });
 
 export const h2Style = {
-  margin: 0, fontFamily: FONTS.display, fontSize: 'clamp(40px,5vw,64px)',
-  letterSpacing: '0.02em', textTransform: 'uppercase',
+  margin: 0,
+  fontFamily: FONTS.display,
+  fontWeight: FONTS.displayWeight,
+  fontStyle: FONTS.displayStyle,
+  fontSize: 'clamp(40px,5vw,64px)',
+  letterSpacing: '0.02em',
+  textTransform: 'uppercase',
 };
 
 export const container = { maxWidth: 1240, margin: '0 auto' };

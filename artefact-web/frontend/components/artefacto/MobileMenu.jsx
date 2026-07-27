@@ -12,7 +12,7 @@ import { COLORS } from './theme';
 */
 
 const menuItems = [
-  { label: 'Acerca de', href: '#about' },
+  { label: 'Conoce Más', href: '#about' },
   { label: 'Calendario', href: '#calendario' },
   { label: 'Convocatoria', href: '#convocatoria' },
   { label: 'Contacto', href: '#contacto' },

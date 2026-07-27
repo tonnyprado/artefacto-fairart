@@ -1,0 +1,26 @@
+Vamos a hacer un cambio grande a CONOCE MÁS sección. Vamos a dividir por "bloques" toda esta sección, cada "bloque" es una vista completa en toda la
+    pantalla entonces una sección tiene varios bloques uno solo, por ejemplo Hero tiene solo 1 bloque, entonces ahorita esta sección el titulo de ARTEFACTO
+  se
+    encuentra en el primer bloque, el segundo bloque es esta descripción que basicamente sustituye  al parrafo que tenemos en esa segundo bloque: "ARTE FACTO
+  La Feria
+  Es una exposición de arte independiente que reúne alrededor de 50 artistas nacionales e
+  internacionales seleccionados desde curaduría específica. A diferencia de las ferias tradicionales
+  basadas en booths individuales, ARTE FACTO funciona como una exposición integral: el Comité
+  Curatorial define la selección y el orden conceptual de las obras, fortalecido por el diseño museográfico." de ahi el tercer bloque tiene toda esta foto de
+  fondo en todo este bloque artefact-web/docs/basicfiles/idk1.png esta foto va a barcar dos bloques, en este primer bloque (o sea bloque 3) tenemos la
+  aparición de ese background con un efecto gris para que este texto se pueda ver: "Como proyecto filosófico a largo plazo, ARTE FACTO se posiciona como un
+  catalizador y
+  habilitador de proyectos de arte y disciplinas creativas que fomenta el esparcimiento de los
+  saberes técnicos, conceptuales, los procesos y el valor de ser un agente creativo en el contexto
+  contemporáneo. Siendo su proyecto protagonista, La Feria, en el marco de la semana del arte
+  en Ciudad de México, ARTE FACTO invita a artistas a participar y sembrar una comunidad de
+  creadores sensibles y apasionados por la praxis artística." puedes resumirlo o hacerlo más chico este parrafo que tenga este toque de importancia o algo
+  asi, el siguiente bloque (bloque 4) tiene este texto: "Como desarrollo y sostenibilidad de las éticas creativas, el proyecto generará eventos,
+  convocatorias y experiencias satélite a lo largo del año. Estas iniciativas buscan fomentar
+  disciplinas creativas variadas —desde diseño industrial, cine y arquitectura hasta joyería,
+  entre otras— según el ímpetu y deseo de la comunidad. Todo ello desde la colaboración y el
+  entendimiento de que todxs compartimos una misma pasión por las artes y su creación." de ahi el fondo desaparece junto a los parrafos pasando a bloque 5 y
+  apareciendo un contenedor de color azul que forma parte de la paleta de colores, un texto grande al centro: "La convocatoria abierta de ARTE FACTO comienza
+  en agosto y tendrá término en noviembre." de ahi aparece -> "Durante este periodo, la convocatoria se distribuirá en 3 fases de misma duración" y de ahi
+  desaparece este texto y aparece "FASES" en grande con 3 puntos abajo tambien animados suabes con lenis: fase 1, fase 2 y fase 3 con fechas y de ahi bloque 6 CRONOGRAMA Y FECHAS y aparece también la imagen del cronograma que esa luego te la pongo. de ahi bloque 7 con UBICACIÓN titulo en grande y de fondo imagen del recinto con efecto gris para que se vea el titulo, 
+  bloque 8 persiste el background de bloque 7 pero desaparece en fade el efecto gris y aparece del lado derecho de la pantalla encima del background un mapa de google con forma de circulo, apuntando a la ubicación y del lado derecho aparece la dirección y titulo del recinto y un botón de navegación que te manda a una nueva pestaña dirigiendote al recinto. 

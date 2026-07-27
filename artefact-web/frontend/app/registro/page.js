@@ -1,14 +1,34 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { gsap } from 'gsap'
 import Button from '@/components/ui/Button'
 import ProgressBar from '@/components/ui/ProgressBar'
 import Step1DatosPersonales from '@/components/registro/Step1DatosPersonales'
 import Step2InfoArtistica from '@/components/registro/Step2InfoArtistica'
 import Step3Documentos from '@/components/registro/Step3Documentos'
 import Step4Confirmacion from '@/components/registro/Step4Confirmacion'
+
+const COLORS = {
+  red: '#B83030',
+  black: '#141210',
+  cream: '#F4EDE4',
+  creamDark: '#E8DED1',
+  gray: '#6B6B6B',
+}
+
+const FONTS = {
+  display: 'ivypresto-display, Georgia, serif',
+  displayWeight: 600,
+  displayStyle: 'italic',
+  subtitle: 'ivypresto-display, Georgia, serif',
+  subtitleWeight: 600,
+  subtitleStyle: 'italic',
+  body: 'acumin-pro, sans-serif',
+  bodyWeight: 400,
+}
 
 /**
  * Página de Registro de Artistas
@@ -37,6 +57,13 @@ import Step4Confirmacion from '@/components/registro/Step4Confirmacion'
 export default function RegistroPage() {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
+
+  const handleVolver = () => {
+    router.push('/#convocatoria')
+    setTimeout(() => {
+      window.location.href = '/#convocatoria'
+    }, 100)
+  }
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
   const [errors, setErrors] = useState({})
@@ -142,93 +169,318 @@ export default function RegistroPage() {
     setIsSubmitting(true)
 
     try {
-      // HARDCODED: Simulación del envío
-      // En producción:
-      // 1. Upload archivos a Cloudinary
-      // 2. POST a /api/artistas con data + URLs de archivos
-      // 3. Backend crea artista e inscribe a fase activa
-      // 4. Envía email de confirmación
+      // Crear FormData para enviar a la API
+      const formDataToSend = new FormData()
 
-      console.log('Enviando registro:', formData)
+      // Datos personales
+      formDataToSend.append('nombre', formData.nombre)
+      formDataToSend.append('apellido', formData.apellido)
+      formDataToSend.append('email', formData.email)
+      formDataToSend.append('telefono', formData.telefono)
+      formDataToSend.append('fecha_nacimiento', formData.fecha_nacimiento)
+      formDataToSend.append('pais', formData.pais)
+      formDataToSend.append('ciudad', formData.ciudad)
+      formDataToSend.append('codigo_postal', formData.codigo_postal || '')
+      formDataToSend.append('direccion', formData.direccion)
 
-      // Simular API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      // Información artística
+      formDataToSend.append('categoria', formData.categoria)
+      formDataToSend.append('bio', formData.bio)
 
-      // TODO: Implementar llamada real a API
-      // const formDataToSend = new FormData()
-      // formDataToSend.append('nombre', formData.nombre)
-      // ... resto de campos
-      // formDataToSend.append('foto', formData.foto)
-      // formDataToSend.append('cv', formData.documentos.cv)
-      // etc.
-      //
-      // const response = await fetch('/api/artistas', {
-      //   method: 'POST',
-      //   body: formDataToSend
-      // })
+      // Redes sociales
+      formDataToSend.append('instagram', formData.redes_sociales?.instagram || '')
+      formDataToSend.append('facebook', formData.redes_sociales?.facebook || '')
+      formDataToSend.append('website', formData.redes_sociales?.website || '')
+      formDataToSend.append('portfolio_web', formData.redes_sociales?.portfolio || '')
+
+      // Archivos
+      if (formData.foto) {
+        formDataToSend.append('foto', formData.foto)
+      }
+      if (formData.documentos?.cv) {
+        formDataToSend.append('cv', formData.documentos.cv)
+      }
+      if (formData.documentos?.portfolio) {
+        formDataToSend.append('portfolio', formData.documentos.portfolio)
+      }
+      if (formData.documentos?.identificacion) {
+        formDataToSend.append('identificacion', formData.documentos.identificacion)
+      }
+
+      // Enviar a la API
+      const response = await fetch('/api/artistas', {
+        method: 'POST',
+        body: formDataToSend,
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Error al enviar el registro')
+      }
 
       setSubmitSuccess(true)
     } catch (error) {
       console.error('Error al enviar registro:', error)
-      setErrors({ submit: 'Hubo un error al enviar tu registro. Intenta de nuevo.' })
+      setErrors({ submit: error.message || 'Hubo un error al enviar tu registro. Intenta de nuevo.' })
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  // Pantalla de éxito
-  if (submitSuccess) {
+  // Pantalla de éxito animada
+  const SuccessScreen = () => {
+    const containerRef = useRef(null)
+    const titleRef = useRef(null)
+    const letterRefs = useRef([])
+
+    useEffect(() => {
+      if (!containerRef.current) return
+
+      const letters = letterRefs.current.filter(Boolean)
+
+      // Animación de entrada
+      gsap.fromTo(
+        containerRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.6, ease: 'power2.out' }
+      )
+
+      // Animación de las letras con efecto de rebote
+      gsap.fromTo(
+        letters,
+        {
+          y: -100,
+          opacity: 0,
+          rotation: -15,
+          scale: 0
+        },
+        {
+          y: 0,
+          opacity: 1,
+          rotation: 0,
+          scale: 1,
+          duration: 0.8,
+          stagger: 0.08,
+          ease: 'elastic.out(1, 0.5)',
+          delay: 0.3
+        }
+      )
+
+      // Animación flotante continua de las letras
+      letters.forEach((letter, index) => {
+        gsap.to(letter, {
+          y: '+=15',
+          rotation: '+=5',
+          duration: 2 + Math.random(),
+          repeat: -1,
+          yoyo: true,
+          ease: 'power1.inOut',
+          delay: index * 0.1
+        })
+      })
+    }, [])
+
+    const message = "¡GRACIAS POR INSCRIBIRTE!"
+    const words = message.split(' ')
+
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
-        <div className="max-w-md w-full">
-          <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg
-                className="w-8 h-8 text-green-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              ¡Registro Exitoso!
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Tu inscripción ha sido recibida. Recibirás un email de confirmación
-              con los siguientes pasos.
+      <div
+        ref={containerRef}
+        style={{
+          minHeight: '100vh',
+          background: COLORS.red,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '48px 24px',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+      >
+        {/* Decoración de fondo */}
+        <div style={{
+          position: 'absolute',
+          top: '10%',
+          left: '5%',
+          width: 100,
+          height: 100,
+          opacity: 0.1,
+        }}>
+          <img src="/assets/glyph-x-white.svg" alt="" style={{ width: '100%', height: '100%' }} />
+        </div>
+        <div style={{
+          position: 'absolute',
+          bottom: '10%',
+          right: '5%',
+          width: 120,
+          height: 120,
+          opacity: 0.1,
+        }}>
+          <img src="/assets/glyph-e-white.svg" alt="" style={{ width: '100%', height: '100%' }} />
+        </div>
+
+        <div style={{
+          maxWidth: 900,
+          width: '100%',
+          textAlign: 'center'
+        }}>
+          {/* Título animado con letras individuales */}
+          <div style={{
+            marginBottom: 48,
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '8px 16px',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
+            {words.map((word, wordIndex) => (
+              <div key={wordIndex} style={{ display: 'flex', gap: 4 }}>
+                {word.split('').map((char, charIndex) => (
+                  <span
+                    key={`${wordIndex}-${charIndex}`}
+                    ref={(el) => letterRefs.current.push(el)}
+                    style={{
+                      fontFamily: FONTS.display,
+                      fontWeight: FONTS.displayWeight,
+                      fontStyle: FONTS.displayStyle,
+                      fontSize: 'clamp(32px, 6vw, 72px)',
+                      color: COLORS.cream,
+                      display: 'inline-block',
+                      letterSpacing: '0.02em',
+                      textTransform: 'uppercase'
+                    }}
+                  >
+                    {char}
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+
+          {/* Contenido */}
+          <div style={{
+            background: COLORS.black,
+            padding: '40px 48px',
+            maxWidth: 600,
+            margin: '0 auto 32px',
+          }}>
+            <p style={{
+              margin: '0 0 24px',
+              fontSize: 18,
+              lineHeight: 1.7,
+              color: COLORS.cream,
+              fontFamily: FONTS.body,
+            }}>
+              Tu inscripción ha sido recibida exitosamente. Recibirás un email de confirmación con los siguientes pasos.
             </p>
-            <div className="bg-blue-50 border-l-4 border-blue-600 p-4 mb-6 text-left">
-              <p className="text-sm text-blue-800">
-                <strong>¿Qué sigue?</strong><br />
-                Tu información será revisada por nuestro equipo de curaduría.
-                Los resultados de la votación se notificarán por email al cierre
-                de la fase actual.
+            <div style={{
+              background: 'rgba(244,237,228,0.1)',
+              padding: '24px',
+              borderLeft: `4px solid ${COLORS.red}`
+            }}>
+              <p style={{
+                margin: 0,
+                fontSize: 15,
+                lineHeight: 1.6,
+                color: 'rgba(244,237,228,0.9)',
+                fontFamily: FONTS.body,
+              }}>
+                <strong style={{ color: COLORS.cream, fontWeight: 700 }}>¿Qué sigue?</strong><br />
+                Tu información será revisada por nuestro equipo de curaduría. Los resultados de la votación se notificarán por email al cierre de la fase actual.
               </p>
             </div>
-            <Link href="/">
-              <Button className="w-full">Volver al Inicio</Button>
-            </Link>
           </div>
+
+          {/* Botón */}
+          <Link
+            href="/"
+            style={{
+              display: 'inline-block',
+              background: COLORS.cream,
+              color: COLORS.black,
+              padding: '18px 40px',
+              fontFamily: FONTS.body,
+              fontWeight: 700,
+              fontSize: 14,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              textDecoration: 'none',
+              transition: 'all 0.3s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = COLORS.creamDark
+              e.target.style.transform = 'scale(1.05)'
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = COLORS.cream
+              e.target.style.transform = 'scale(1)'
+            }}
+          >
+            Volver al Inicio
+          </Link>
         </div>
       </div>
     )
   }
 
+  if (submitSuccess) {
+    return <SuccessScreen />
+  }
+
+  // Refs para animaciones
+  const formCardRef = useRef(null)
+  const prevStepRef = useRef(currentStep)
+
+  // Animar transición entre pasos
+  useEffect(() => {
+    if (formCardRef.current && prevStepRef.current !== currentStep) {
+      // Animación de salida y entrada
+      gsap.fromTo(
+        formCardRef.current,
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          ease: 'power2.out'
+        }
+      )
+      prevStepRef.current = currentStep
+    }
+  }, [currentStep])
+
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="max-w-3xl mx-auto">
+    <div style={{
+      minHeight: '100vh',
+      background: COLORS.cream,
+      padding: '80px 24px 60px',
+    }}>
+      <div style={{ maxWidth: 900, margin: '0 auto' }}>
         {/* Header */}
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center text-red-600 hover:text-red-700 mb-4">
+        <div style={{ textAlign: 'center', marginBottom: 48 }}>
+          <button
+            onClick={handleVolver}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              color: COLORS.red,
+              marginBottom: 24,
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: FONTS.body,
+              fontSize: 14,
+              fontWeight: 600,
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => e.target.style.transform = 'translateX(-4px)'}
+            onMouseLeave={(e) => e.target.style.transform = 'translateX(0)'}
+          >
             <svg
-              className="w-5 h-5 mr-2"
+              style={{ width: 20, height: 20, marginRight: 8 }}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -240,21 +492,49 @@ export default function RegistroPage() {
                 d="M10 19l-7-7m0 0l7-7m-7 7h18"
               />
             </svg>
-            Volver al inicio
-          </Link>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            Volver a Convocatoria
+          </button>
+
+          <h1 style={{
+            margin: '0 0 12px',
+            fontFamily: FONTS.display,
+            fontWeight: FONTS.displayWeight,
+            fontStyle: FONTS.displayStyle,
+            fontSize: 'clamp(32px, 5vw, 48px)',
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            color: COLORS.black,
+          }}>
             Registro de Artistas
           </h1>
-          <p className="text-lg text-gray-600">ARTEFACT 2027</p>
+          <p style={{
+            margin: 0,
+            fontSize: 18,
+            color: COLORS.gray,
+            fontFamily: FONTS.body,
+            fontWeight: 600,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+          }}>
+            ARTE FACTO 2027
+          </p>
         </div>
 
         {/* Progress Bar */}
-        <div className="mb-8">
+        <div style={{ marginBottom: 40 }}>
           <ProgressBar steps={steps} currentStep={currentStep} />
         </div>
 
         {/* Form Card */}
-        <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
+        <div
+          ref={formCardRef}
+          style={{
+            background: COLORS.red,
+            padding: '48px',
+            marginBottom: 32,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+          }}
+        >
           {/* Steps */}
           {currentStep === 1 && (
             <Step1DatosPersonales
@@ -282,11 +562,43 @@ export default function RegistroPage() {
           )}
 
           {/* Navigation Buttons */}
-          <div className="mt-8 flex justify-between items-center">
+          <div style={{
+            marginTop: 48,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: 16,
+          }}>
             {currentStep > 1 && (
-              <Button variant="ghost" onClick={handleBack}>
+              <button
+                onClick={handleBack}
+                style={{
+                  background: 'transparent',
+                  color: COLORS.cream,
+                  border: `2px solid ${COLORS.cream}`,
+                  padding: '16px 32px',
+                  fontFamily: FONTS.body,
+                  fontWeight: 700,
+                  fontSize: 14,
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = COLORS.cream
+                  e.target.style.color = COLORS.black
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'transparent'
+                  e.target.style.color = COLORS.cream
+                }}
+              >
                 <svg
-                  className="w-5 h-5 mr-2"
+                  style={{ width: 20, height: 20 }}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -299,13 +611,40 @@ export default function RegistroPage() {
                   />
                 </svg>
                 Anterior
-              </Button>
+              </button>
             )}
             {currentStep < 4 ? (
-              <Button onClick={handleNext} className="ml-auto">
+              <button
+                onClick={handleNext}
+                style={{
+                  marginLeft: 'auto',
+                  background: COLORS.black,
+                  color: COLORS.cream,
+                  border: 'none',
+                  padding: '16px 32px',
+                  fontFamily: FONTS.body,
+                  fontWeight: 700,
+                  fontSize: 14,
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = COLORS.cream
+                  e.target.style.color = COLORS.black
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = COLORS.black
+                  e.target.style.color = COLORS.cream
+                }}
+              >
                 Siguiente
                 <svg
-                  className="w-5 h-5 ml-2"
+                  style={{ width: 20, height: 20 }}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -317,23 +656,56 @@ export default function RegistroPage() {
                     d="M9 5l7 7-7 7"
                   />
                 </svg>
-              </Button>
+              </button>
             ) : (
-              <Button
+              <button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="ml-auto"
+                style={{
+                  marginLeft: 'auto',
+                  background: COLORS.black,
+                  color: COLORS.cream,
+                  border: 'none',
+                  padding: '16px 32px',
+                  fontFamily: FONTS.body,
+                  fontWeight: 700,
+                  fontSize: 14,
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  transition: 'all 0.2s ease',
+                  opacity: isSubmitting ? 0.7 : 1,
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSubmitting) {
+                    e.target.style.background = COLORS.cream
+                    e.target.style.color = COLORS.black
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSubmitting) {
+                    e.target.style.background = COLORS.black
+                    e.target.style.color = COLORS.cream
+                  }
+                }}
               >
                 {isSubmitting ? (
                   <>
                     <svg
-                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      style={{
+                        width: 20,
+                        height: 20,
+                        animation: 'spin 1s linear infinite'
+                      }}
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
                     >
                       <circle
-                        className="opacity-25"
+                        style={{ opacity: 0.25 }}
                         cx="12"
                         cy="12"
                         r="10"
@@ -341,7 +713,7 @@ export default function RegistroPage() {
                         strokeWidth="4"
                       ></circle>
                       <path
-                        className="opacity-75"
+                        style={{ opacity: 0.75 }}
                         fill="currentColor"
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       ></path>
@@ -352,7 +724,7 @@ export default function RegistroPage() {
                   <>
                     Enviar Inscripción
                     <svg
-                      className="w-5 h-5 ml-2"
+                      style={{ width: 20, height: 20 }}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -366,25 +738,61 @@ export default function RegistroPage() {
                     </svg>
                   </>
                 )}
-              </Button>
+              </button>
             )}
           </div>
 
           {errors.submit && (
-            <p className="mt-4 text-sm text-red-600 text-center">{errors.submit}</p>
+            <p style={{
+              marginTop: 24,
+              fontSize: 14,
+              color: COLORS.cream,
+              textAlign: 'center',
+              fontFamily: FONTS.body,
+            }}>
+              {errors.submit}
+            </p>
           )}
         </div>
 
         {/* Help Box */}
-        <div className="bg-white rounded-xl shadow p-6 text-center">
-          <p className="text-sm text-gray-600">
+        <div style={{
+          background: COLORS.black,
+          padding: '24px 32px',
+          textAlign: 'center',
+        }}>
+          <p style={{
+            margin: 0,
+            fontSize: 14,
+            color: COLORS.cream,
+            fontFamily: FONTS.body,
+          }}>
             ¿Tienes dudas?{' '}
-            <Link href="/#contacto" className="text-red-600 hover:underline">
+            <Link
+              href="/#contacto"
+              style={{
+                color: COLORS.red,
+                textDecoration: 'underline',
+                fontWeight: 600,
+              }}
+            >
               Contáctanos
             </Link>
           </p>
         </div>
       </div>
+
+      {/* CSS para animación de spin */}
+      <style jsx>{`
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
     </div>
   )
 }

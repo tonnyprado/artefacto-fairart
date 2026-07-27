@@ -6,7 +6,7 @@ import AboutSection from './AboutSection';
 import ConvocatoriaSection from './ConvocatoriaSection';
 import CalendarSection from './CalendarSection';
 import ContactSection from './ContactSection';
-import Footer from './Footer';
+import FooterParallax from './FooterParallax';
 import Navbar from './Navbar';
 import ScrollTransition from './ScrollTransition';
 import LogoRevealLoader from './LogoRevealLoader';
@@ -30,12 +30,23 @@ export default function LandingArtefacto() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [loaderComplete, setLoaderComplete] = useState(false);
   const [heroExiting, setHeroExiting] = useState(false);
+  const [skipLoader, setSkipLoader] = useState(false);
   const busy = useRef(false);
   const screenRef = useRef(screen);
   screenRef.current = screen;
   const lenis = useRef(null);
   const lastScrollTime = useRef(0);
   const scrollCooldown = 1800; // Cooldown de 1.8s entre transiciones de scroll
+
+  // Detectar hash en el cliente después de la hidratación
+  useEffect(() => {
+    const hash = window.location.hash.slice(1);
+    if (hash && ORDER.includes(hash) && hash !== 'hero') {
+      setSkipLoader(true);
+      setLoaderComplete(true);
+      setScreen(hash);
+    }
+  }, []);
 
   const handleLoaderComplete = () => {
     setLoaderComplete(true);
@@ -45,6 +56,13 @@ export default function LandingArtefacto() {
     if (busy.current || target === screenRef.current) return;
     busy.current = true;
     setMenuOpen(false);
+
+    // Actualizar URL hash
+    if (target === 'hero') {
+      window.history.pushState(null, '', '/');
+    } else {
+      window.history.pushState(null, '', `#${target}`);
+    }
 
     const fromColor = SCREEN_COLORS[screenRef.current];
     const toColor = SCREEN_COLORS[target];
@@ -124,11 +142,21 @@ export default function LandingArtefacto() {
   };
 
   useEffect(() => {
-    // Lenis smooth scroll (opcional)
+    // Lenis smooth scroll con configuración más pesada/lenta
     (async () => {
       try {
         const { default: Lenis } = await import('lenis');
-        lenis.current = new Lenis({ autoRaf: true });
+        lenis.current = new Lenis({
+          autoRaf: true,
+          duration: 2.0,           // Duración más larga (default: 1.2)
+          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Easing suave
+          lerp: 0.08,              // Interpolación más lenta (default: 0.1, menor = más suave/lento)
+          wheelMultiplier: 0.6,    // Reduce velocidad del scroll con rueda (default: 1)
+          touchMultiplier: 1.5,    // Ajuste para touch
+          smoothWheel: true,       // Suavizar scroll de rueda
+          syncTouch: false,
+          syncTouchLerp: 0.1,
+        });
       } catch { /* lenis no instalado — scroll nativo */ }
     })();
     // Click delegado sobre anchors #seccion (no afectado por cooldown)
@@ -195,18 +223,18 @@ export default function LandingArtefacto() {
 
   return (
     <main>
-      <LogoRevealLoader onComplete={handleLoaderComplete} />
+      {!skipLoader && <LogoRevealLoader onComplete={handleLoaderComplete} />}
       {screen === 'hero' && <HeroArtefacto startAnimation={loaderComplete} exitAnimation={heroExiting} />}
       {screen !== 'hero' && <Navbar screen={screen} onOpenMenu={() => setMenuOpen(true)} />}
 
       <div className={fxClass} style={show('about')}><AboutSection /></div>
-      <div className={fxClass} style={show('calendario')}><CalendarSection /></div>
+      <div className={fxClass} style={show('calendario')}><CalendarSection isActive={screen === 'calendario'} /></div>
       <div className={fxClass} style={show('convocatoria')}>
         <ConvocatoriaSection />
       </div>
       <div className={fxClass} style={show('contacto')}>
         <ContactSection />
-        <Footer />
+        <FooterParallax />
       </div>
 
       <MobileMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />

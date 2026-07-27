@@ -13,7 +13,7 @@ export default function Navbar({ screen, onOpenMenu }) {
   const suf = rojo ? 'white' : 'red';
   const labelCol = rojo ? COLORS.cream : COLORS.black;
   const left = [
-    { src: `/assets/glyph-a-${suf}.svg`, label: 'Acerca de', href: '#about' },
+    { src: `/assets/glyph-a-${suf}.svg`, label: 'Conoce Más', href: '#about' },
     { src: `/assets/glyph-r-${suf}.svg`, label: 'Convocatoria', href: '#convocatoria' },
   ];
   const right = [

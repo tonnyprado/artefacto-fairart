@@ -1,33 +1,62 @@
-import { cn } from '@/lib/utils'
+const COLORS = {
+  red: '#B83030',
+  black: '#141210',
+  cream: '#F4EDE4',
+  creamDark: '#E8DED1',
+  gray: '#6B6B6B',
+}
+
+const FONTS = {
+  body: 'acumin-pro, sans-serif',
+}
 
 /**
  * Progress Bar para formulario multi-step
  */
-
 export default function ProgressBar({ steps, currentStep }) {
   return (
-    <div className="w-full">
+    <div style={{ width: '100%' }}>
       {/* Steps */}
-      <div className="flex items-center justify-between mb-2">
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 16
+      }}>
         {steps.map((step, index) => {
           const stepNumber = index + 1
           const isActive = stepNumber === currentStep
           const isCompleted = stepNumber < currentStep
 
           return (
-            <div key={index} className="flex-1 flex items-center">
+            <div key={index} style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
               {/* Step Circle */}
-              <div className="flex flex-col items-center flex-1">
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                flex: 1
+              }}>
                 <div
-                  className={cn(
-                    'w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all',
-                    isCompleted && 'bg-green-600 text-white',
-                    isActive && 'bg-red-600 text-white ring-4 ring-red-100',
-                    !isActive && !isCompleted && 'bg-gray-200 text-gray-500'
-                  )}
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 700,
+                    fontSize: 15,
+                    fontFamily: FONTS.body,
+                    transition: 'all 0.3s ease',
+                    background: isCompleted ? COLORS.black : isActive ? COLORS.red : 'rgba(20,18,16,0.2)',
+                    color: isCompleted || isActive ? COLORS.cream : COLORS.gray,
+                    border: isActive ? `3px solid ${COLORS.black}` : 'none',
+                    boxShadow: isActive ? '0 0 0 4px rgba(184,48,48,0.2)' : 'none'
+                  }}
                 >
                   {isCompleted ? (
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <svg style={{ width: 20, height: 20 }} fill="currentColor" viewBox="0 0 20 20">
                       <path
                         fillRule="evenodd"
                         d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -39,12 +68,18 @@ export default function ProgressBar({ steps, currentStep }) {
                   )}
                 </div>
                 <span
-                  className={cn(
-                    'text-xs mt-2 font-medium hidden sm:block text-center',
-                    isActive && 'text-red-600',
-                    isCompleted && 'text-green-600',
-                    !isActive && !isCompleted && 'text-gray-500'
-                  )}
+                  style={{
+                    fontSize: 11,
+                    marginTop: 8,
+                    fontWeight: 600,
+                    fontFamily: FONTS.body,
+                    textAlign: 'center',
+                    letterSpacing: '0.06em',
+                    textTransform: 'uppercase',
+                    color: isActive ? COLORS.red : isCompleted ? COLORS.black : COLORS.gray,
+                    transition: 'all 0.3s ease',
+                  }}
+                  className="hidden sm:block"
                 >
                   {step}
                 </span>
@@ -52,12 +87,19 @@ export default function ProgressBar({ steps, currentStep }) {
 
               {/* Line connector (except for last step) */}
               {index < steps.length - 1 && (
-                <div className="flex-1 h-0.5 mx-2 -mt-8">
+                <div style={{
+                  flex: 1,
+                  height: 3,
+                  marginLeft: 8,
+                  marginRight: 8,
+                  marginTop: -32
+                }}>
                   <div
-                    className={cn(
-                      'h-full transition-all',
-                      stepNumber < currentStep ? 'bg-green-600' : 'bg-gray-200'
-                    )}
+                    style={{
+                      height: '100%',
+                      transition: 'all 0.3s ease',
+                      background: stepNumber < currentStep ? COLORS.black : 'rgba(20,18,16,0.2)'
+                    }}
                   />
                 </div>
               )}
@@ -67,11 +109,19 @@ export default function ProgressBar({ steps, currentStep }) {
       </div>
 
       {/* Progress percentage */}
-      <div className="mt-4">
-        <div className="w-full bg-gray-200 rounded-full h-2">
+      <div style={{ marginTop: 24 }}>
+        <div style={{
+          width: '100%',
+          background: 'rgba(20,18,16,0.15)',
+          height: 6
+        }}>
           <div
-            className="bg-red-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
+            style={{
+              background: COLORS.red,
+              height: 6,
+              transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+              width: `${((currentStep - 1) / (steps.length - 1)) * 100}%`
+            }}
           />
         </div>
       </div>

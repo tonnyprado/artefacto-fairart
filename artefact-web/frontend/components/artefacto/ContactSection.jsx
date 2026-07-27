@@ -1,19 +1,16 @@
 'use client';
 import { useState } from 'react';
-import SectionHeader from './SectionHeader';
 import { COLORS, FONTS, container } from './theme';
 
 const DATOS = [
-  { label: 'Email', value: 'info@artefact.com.mx', href: 'mailto:info@artefact.com.mx' },
-  { label: 'Teléfono', value: '+52 55 1234 5678', href: 'tel:+525512345678' },
-  { label: 'WhatsApp', value: '+52 55 1234 5678', href: 'https://wa.me/525512345678' },
-  { label: 'Dirección', value: 'Av. Reforma 123, Cuauhtémoc, CDMX' },
+  { label: 'Email General', value: 'convocatoria@artefacto.mx', href: 'mailto:convocatoria@artefacto.mx' },
+  { label: 'Email Curatorial', value: 'artefacto.curatorial@gmail.com', href: 'mailto:artefacto.curatorial@gmail.com' },
+  { label: 'Ubicación', value: 'Centro Cultural Estación Indianilla, Claudio Bernard 111, Col. Doctores, Cuauhtémoc, 06720 CDMX' },
 ];
 
 const REDES = [
-  { label: 'Instagram ↗', href: 'https://instagram.com/artefact' },
-  { label: 'Facebook ↗', href: 'https://facebook.com/artefact' },
-  { label: 'X ↗', href: 'https://twitter.com/artefact' },
+  { label: 'Instagram ↗', href: 'https://instagram.com/artefacto' },
+  { label: 'Facebook ↗', href: 'https://facebook.com/artefacto' },
 ];
 
 const inputStyle = { border: `2px solid ${COLORS.black}`, background: COLORS.creamDark, padding: 14, fontFamily: FONTS.body, fontSize: 15 };
@@ -40,11 +37,18 @@ export default function ContactSection({ onSubmit }) {
   return (
     <section id="contacto" style={{ scrollMarginTop: 88, background: COLORS.red, color: COLORS.black, padding: '150px 24px 96px' }}>
       <div style={container}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 20, borderBottom: `3px solid ${COLORS.black}`, paddingBottom: 20 }}>
-          <span style={{ fontFamily: FONTS.display, fontSize: 22, color: COLORS.cream }}>04</span>
-          <h2 style={{ margin: 0, fontFamily: FONTS.display, fontSize: 'clamp(40px,5vw,64px)', letterSpacing: '0.02em', textTransform: 'uppercase', color: COLORS.cream }}>Contacto</h2>
-        </div>
-        <p style={{ margin: '40px 0 56px', maxWidth: 640, fontSize: 20, lineHeight: 1.6 }}>¿Tienes dudas? Contáctanos y con gusto te atenderemos</p>
+        <h2 style={{
+          margin: '0 0 48px',
+          fontFamily: FONTS.display,
+          fontWeight: FONTS.displayWeight,
+          fontStyle: FONTS.displayStyle,
+          fontSize: 'clamp(40px,6vw,72px)',
+          letterSpacing: '0.04em',
+          textTransform: 'uppercase',
+          color: COLORS.cream,
+          textAlign: 'center'
+        }}>Contacto</h2>
+        <p style={{ margin: '0 auto 56px', maxWidth: 640, fontSize: 20, lineHeight: 1.6, textAlign: 'center' }}>¿Tienes dudas? Contáctanos y con gusto te atenderemos</p>
 
         <div style={{ display: 'grid', gridTemplateColumns: '0.9fr 1.1fr', gap: 48, alignItems: 'start' }}>
           <div>
@@ -66,7 +70,15 @@ export default function ContactSection({ onSubmit }) {
           </div>
 
           <div style={{ border: `2px solid ${COLORS.black}`, background: COLORS.cream, padding: 40 }}>
-            <h3 style={{ margin: '0 0 28px', fontFamily: FONTS.display, fontSize: 26, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Envíanos un mensaje</h3>
+            <h3 style={{
+              margin: '0 0 28px',
+              fontFamily: FONTS.display,
+              fontWeight: FONTS.displayWeight,
+              fontStyle: FONTS.displayStyle,
+              fontSize: 26,
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase'
+            }}>Envíanos un mensaje</h3>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
                 <label style={labelStyle}>Nombre completo<input name="nombre" required placeholder="Tu nombre" style={inputStyle} /></label>
