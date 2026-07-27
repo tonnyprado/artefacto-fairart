@@ -4,11 +4,13 @@
   Tipos de transición:
   - "flip-clock": Transición con overlay de letras animadas (usado para hero)
   - "scroll": Transición suave scroll-to-next-page (usado entre otras secciones)
+  - "curved-wipe": Transición tipo OSMO con barrido curvo (usado entre secciones intermedias)
 */
 
 export const TRANSITION_TYPES = {
   FLIP_CLOCK: 'flip-clock',
   SCROLL: 'scroll',
+  CURVED_WIPE: 'curved-wipe',
 };
 
 export const TRANSITION_TIMINGS = {
@@ -21,6 +23,11 @@ export const TRANSITION_TIMINGS = {
     out: 550,      // Tiempo de preview peek (400ms + 150ms pausa)
     in: 700,       // Tiempo de subida completa
     total: 1250,   // Tiempo total de la transición
+  },
+  'curved-wipe': {
+    out: 800,      // Tiempo del barrido curvo entrante
+    in: 700,       // Tiempo del barrido curvo saliente
+    total: 1500,   // Tiempo total de la transición
   },
 };
 
@@ -36,8 +43,8 @@ export function getTransitionType(from, to) {
     return TRANSITION_TYPES.FLIP_CLOCK;
   }
 
-  // Para todas las demás transiciones, usar scroll
-  return TRANSITION_TYPES.SCROLL;
+  // Para transiciones entre secciones intermedias (X → X), usar curved-wipe
+  return TRANSITION_TYPES.CURVED_WIPE;
 }
 
 /**

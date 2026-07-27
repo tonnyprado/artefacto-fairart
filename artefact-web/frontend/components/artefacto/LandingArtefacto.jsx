@@ -9,9 +9,11 @@ import ContactSection from './ContactSection';
 import FooterParallax from './FooterParallax';
 import Navbar from './Navbar';
 import ScrollTransition from './ScrollTransition';
+import CurvedWipeTransition from './CurvedWipeTransition';
 import LogoRevealLoader from './LogoRevealLoader';
 import MobileMenu from './MobileMenu';
 import { COLORS } from './theme';
+import { getTransitionType, getTransitionTimings, TRANSITION_TYPES } from './transitions';
 
 /*
   Orquestador SPA: una sección visible a la vez, transición flip-clock entre secciones.
@@ -24,7 +26,8 @@ const SCREEN_COLORS = { hero: COLORS.red, about: COLORS.cream, calendario: COLOR
 
 export default function LandingArtefacto() {
   const [screen, setScreen] = useState('hero');
-  const [scrollTransition, setScrollTransition] = useState(null); // 'in' | 'out' | null (scroll)
+  const [transitionPhase, setTransitionPhase] = useState(null); // 'in' | 'out' | null - fase de transición actual
+  const [transitionType, setTransitionType] = useState(null); // 'flip-clock' | 'scroll' | 'curved-wipe' | null
   const [fx, setFx] = useState(null);           // 'out' | 'in' | null
   const [ovColor, setOvColor] = useState(COLORS.red);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -67,77 +70,60 @@ export default function LandingArtefacto() {
     const fromColor = SCREEN_COLORS[screenRef.current];
     const toColor = SCREEN_COLORS[target];
     const fromHero = screenRef.current === 'hero';
-    const toHero = target === 'hero';
 
-    // Tiempos de transición
-    const heroExitTime = 800; // Tiempo para que las letras del Hero desaparezcan
-    const scrollOutTime = 550; // Preview de siguiente sección
-    const scrollInTime = 700;  // Subida completa
+    // Determinar tipo de transición y obtener timings
+    const transType = getTransitionType(screenRef.current, target);
+    const timings = getTransitionTimings(transType);
+
+    setTransitionType(transType);
+    setOvColor(toColor);
 
     if (fromHero) {
-      // Saliendo del Hero: animar letras hacia afuera, luego scroll transition
+      // Saliendo del Hero: animar letras hacia afuera primero (800ms)
+      const heroExitTime = 800;
       setHeroExiting(true);
       setFx('out');
 
       setTimeout(() => {
-        setOvColor(toColor);
-        setScrollTransition('out');
+        // Luego iniciar la transición normal
+        setTransitionPhase('out');
 
         setTimeout(() => {
           lenis.current?.scrollTo?.(0, { immediate: true });
           window.scrollTo(0, 0);
           setScreen(target);
           setHeroExiting(false);
-          setScrollTransition('in');
+          setTransitionPhase('in');
           setFx('in');
 
           setTimeout(() => {
-            setScrollTransition(null);
+            setTransitionPhase(null);
+            setTransitionType(null);
             setFx(null);
             busy.current = false;
-          }, scrollInTime);
-        }, scrollOutTime);
+          }, timings.in);
+        }, timings.out);
       }, heroExitTime);
 
-    } else if (toHero) {
-      // Yendo al Hero: scroll transition, luego Hero hace flipIn automáticamente
-      setOvColor(toColor);
-      setScrollTransition('out');
-      setFx('out');
-
-      setTimeout(() => {
-        lenis.current?.scrollTo?.(0, { immediate: true });
-        window.scrollTo(0, 0);
-        setScreen(target);
-        setScrollTransition('in');
-        setFx('in');
-
-        setTimeout(() => {
-          setScrollTransition(null);
-          setFx(null);
-          busy.current = false;
-        }, scrollInTime);
-      }, scrollOutTime);
-
     } else {
-      // Entre otras secciones: solo scroll transition
-      setOvColor(toColor);
-      setScrollTransition('out');
+      // Para todas las demás transiciones (toHero y X → X)
+      setTransitionPhase('out');
       setFx('out');
 
       setTimeout(() => {
         lenis.current?.scrollTo?.(0, { immediate: true });
         window.scrollTo(0, 0);
         setScreen(target);
-        setScrollTransition('in');
+        setTransitionPhase('in');
         setFx('in');
 
         setTimeout(() => {
-          setScrollTransition(null);
+          setTransitionPhase(null);
+          setTransitionType(null);
           setFx(null);
           busy.current = false;
-        }, scrollInTime);
-      }, scrollOutTime);
+        }, timings.in);
+      }, timings.out);
     }
   };
 
@@ -238,7 +224,17 @@ export default function LandingArtefacto() {
       </div>
 
       <MobileMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
-      <ScrollTransition phase={scrollTransition} color={ovColor} />
+
+      {/* Renderizar el componente de transición apropiado según el tipo */}
+      {transitionType === TRANSITION_TYPES.SCROLL && (
+        <ScrollTransition phase={transitionPhase} color={ovColor} />
+      )}
+      {transitionType === TRANSITION_TYPES.CURVED_WIPE && (
+        <CurvedWipeTransition phase={transitionPhase} color={ovColor} />
+      )}
+      {transitionType === TRANSITION_TYPES.FLIP_CLOCK && (
+        <ScrollTransition phase={transitionPhase} color={ovColor} />
+      )}
     </main>
   );
 }

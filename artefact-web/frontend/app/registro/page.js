@@ -10,6 +10,7 @@ import Step1DatosPersonales from '@/components/registro/Step1DatosPersonales'
 import Step2InfoArtistica from '@/components/registro/Step2InfoArtistica'
 import Step3Documentos from '@/components/registro/Step3Documentos'
 import Step4Confirmacion from '@/components/registro/Step4Confirmacion'
+import { usePageTransition } from '@/components/artefacto/TransitionLink'
 
 const COLORS = {
   red: '#B83030',
@@ -56,13 +57,13 @@ const FONTS = {
 
 export default function RegistroPage() {
   const router = useRouter()
+  const transition = usePageTransition()
   const [currentStep, setCurrentStep] = useState(1)
 
   const handleVolver = () => {
-    router.push('/#convocatoria')
-    setTimeout(() => {
-      window.location.href = '/#convocatoria'
-    }, 100)
+    transition.navigateTo('/#convocatoria', {
+      color: '#B83030', // COLORS.red
+    })
   }
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
@@ -393,8 +394,8 @@ export default function RegistroPage() {
           </div>
 
           {/* Botón */}
-          <Link
-            href="/"
+          <button
+            onClick={() => transition.navigateTo('/', { color: COLORS.cream })}
             style={{
               display: 'inline-block',
               background: COLORS.cream,
@@ -406,6 +407,8 @@ export default function RegistroPage() {
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
               textDecoration: 'none',
+              border: 'none',
+              cursor: 'pointer',
               transition: 'all 0.3s ease',
             }}
             onMouseEnter={(e) => {
@@ -418,7 +421,7 @@ export default function RegistroPage() {
             }}
           >
             Volver al Inicio
-          </Link>
+          </button>
         </div>
       </div>
     )
@@ -768,16 +771,22 @@ export default function RegistroPage() {
             fontFamily: FONTS.body,
           }}>
             ¿Tienes dudas?{' '}
-            <Link
-              href="/#contacto"
+            <button
+              onClick={() => transition.navigateTo('/#contacto', { color: COLORS.black })}
               style={{
                 color: COLORS.red,
                 textDecoration: 'underline',
                 fontWeight: 600,
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: FONTS.body,
+                fontSize: 14,
+                padding: 0,
               }}
             >
               Contáctanos
-            </Link>
+            </button>
           </p>
         </div>
       </div>

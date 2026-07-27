@@ -1,6 +1,7 @@
 'use client';
-import Link from 'next/link';
 import { COLORS, FONTS, container } from './theme';
+import { useTextScramble } from './useTextScramble';
+import TransitionLink from './TransitionLink';
 
 const FASES_DATA = [
   {
@@ -91,6 +92,12 @@ const btn = (bg, color) => ({
 });
 
 export default function ConvocatoriaSection({ edicion = '2027', abierta = true, urlRegistro = '/registro' }) {
+  // Hook para scramble del título principal
+  const titleScramble = useTextScramble('Convocatoria', {
+    duration: 1200,
+    delay: 400,
+  });
+
   const sectionTitle = (title, mt = 80) => ({
     margin: `${mt}px 0 24px`,
     fontFamily: FONTS.display,
@@ -136,18 +143,21 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
           position: 'relative'
         }}
       >
-        <h1 style={{
-          margin: 0,
-          fontFamily: FONTS.display,
-          fontWeight: FONTS.displayWeight,
-          fontStyle: FONTS.displayStyle,
-          fontSize: 'clamp(48px, 10vw, 120px)',
-          letterSpacing: '0.04em',
-          textTransform: 'uppercase',
-          color: COLORS.cream,
-          textAlign: 'center',
-          lineHeight: 1
-        }}>
+        <h1
+          ref={titleScramble.ref}
+          style={{
+            margin: 0,
+            fontFamily: FONTS.display,
+            fontWeight: FONTS.displayWeight,
+            fontStyle: FONTS.displayStyle,
+            fontSize: 'clamp(48px, 10vw, 120px)',
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            color: COLORS.cream,
+            textAlign: 'center',
+            lineHeight: 1
+          }}
+        >
           Convocatoria
         </h1>
 
@@ -556,7 +566,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
           </p>
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
             <a href="/pdfs/Convocatoria_ARTEFACTO.pdf" download style={btn(COLORS.cream, COLORS.black)}>Descargar Convocatoria</a>
-            <Link href={urlRegistro} style={btn(COLORS.red, COLORS.cream)}>{abierta ? 'Registrarse Ahora' : 'Inscripciones Cerradas'}</Link>
+            <TransitionLink href={urlRegistro} style={btn(COLORS.red, COLORS.cream)}>{abierta ? 'Registrarse Ahora' : 'Inscripciones Cerradas'}</TransitionLink>
           </div>
         </div>
 

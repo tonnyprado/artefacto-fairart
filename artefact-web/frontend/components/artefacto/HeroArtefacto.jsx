@@ -1,7 +1,9 @@
 'use client'; // (Next.js App Router; inofensivo en Vite/CRA)
-import { useMemo } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
 import { LETTERS } from './letters';
 import { COLORS, FONTS } from './theme';
+import { useTextScrambleMultiple } from './useTextScramble';
 
 /*
   HeroArtefacto — hero full-screen con:
@@ -29,6 +31,35 @@ const POS_STYLE = {
 };
 
 export default function HeroArtefacto({ links = DEFAULT_LINKS, rows = 26, cols = 64, startAnimation = true, exitAnimation = false }) {
+  const heroRef = useRef(null);
+
+  // Text scramble para los botones de navegación
+  // Botones flipIn: delay 2.4s + duration 0.7s = terminan a los 3.1s
+  const navLabels = links.map(link => link.label);
+  const navScrambleRefs = useTextScrambleMultiple(navLabels, {
+    duration: 600,
+    staggerDelay: 100,
+    initialDelay: 3200, // Empezar después de que termine flipIn (3.1s + 0.1s)
+    trigger: startAnimation && !exitAnimation,
+  });
+
+  // Text scramble para el texto de convocatoria
+  // Texto flipIn: delay 3.2s + duration 0.7s = termina a los 3.9s
+  const convocatoriaScrambleRefs = useTextScrambleMultiple(['Convocatoria abierta', 'Agosto - Noviembre 2026'], {
+    duration: 700,
+    staggerDelay: 150,
+    initialDelay: 4000, // Empezar después de que termine flipIn (3.9s + 0.1s)
+    trigger: startAnimation && !exitAnimation,
+  });
+
+  // Text scramble para Éticas y Creativas
+  // Logo flipIn: delay 2.9s + duration 0.7s = termina a los 3.6s
+  const logoTextScrambleRefs = useTextScrambleMultiple(['Éticas', 'Creativas'], {
+    duration: 600,
+    staggerDelay: 120,
+    initialDelay: 3700, // Empezar después de que termine flipIn (3.6s + 0.1s)
+    trigger: startAnimation && !exitAnimation,
+  });
 
   // Data URIs de las 16 letras (una sola vez)
   const letterUrls = useMemo(
@@ -49,6 +80,121 @@ export default function HeroArtefacto({ links = DEFAULT_LINKS, rows = 26, cols =
     }));
   }, [letterUrls, rows, cols]);
 
+  // Efecto de proximidad con el mouse (OPTIMIZADO)
+  useEffect(() => {
+    if (!heroRef.current || exitAnimation) return;
+
+    // Esperar a que terminen las animaciones de entrada
+    const delay = startAnimation ? 4000 : 0;
+
+    const timeoutId = setTimeout(() => {
+      const letters = gsap.utils.toArray('.artefacto-letter');
+
+      // IMPORTANTE: Limpiar las animaciones CSS y resetear transforms
+      letters.forEach((letter) => {
+        letter.style.animation = 'none';
+        gsap.set(letter, { clearProps: 'all' });
+      });
+
+      // Cachear posiciones DESPUÉS de limpiar animaciones CSS
+      const letterData = letters.map((letter) => {
+        const r = letter.getBoundingClientRect();
+        return {
+          element: letter,
+          x: r.left + r.width / 2,
+          y: r.top + r.height / 2
+        };
+      });
+
+      console.log('Proximity effect optimized and ready. Letters:', letters.length);
+
+      const radius = 200;
+      const maxScale = 2.5;
+      const dur = 0.35;
+      let rafId = null;
+      const affectedLetters = new Set();
+
+      const handleMouseMove = (e) => {
+        if (rafId) return;
+
+        rafId = requestAnimationFrame(() => {
+          const mx = e.clientX;
+          const my = e.clientY;
+          const currentAffected = new Set();
+
+          // Solo procesar letras en un área grande alrededor del cursor
+          letterData.forEach(({ element, x, y }) => {
+            const dx = mx - x;
+            const dy = my - y;
+            const d = Math.sqrt(dx * dx + dy * dy);
+
+            if (d < radius) {
+              const p = gsap.utils.clamp(0, 1, gsap.utils.mapRange(0, radius, 1, 0, d));
+              gsap.to(element, {
+                scale: 1 + (maxScale - 1) * p,
+                overwrite: 'auto',
+                ease: 'power2.out',
+                duration: 0.2
+              });
+              currentAffected.add(element);
+            }
+          });
+
+          // Resetear letras que ya no están afectadas
+          affectedLetters.forEach((letter) => {
+            if (!currentAffected.has(letter)) {
+              gsap.to(letter, {
+                scale: 1,
+                duration: 0.3,
+                overwrite: 'auto',
+                ease: 'power2.out'
+              });
+            }
+          });
+
+          affectedLetters.clear();
+          currentAffected.forEach((letter) => affectedLetters.add(letter));
+
+          rafId = null;
+        });
+      };
+
+      const handleMouseLeave = () => {
+        if (rafId) {
+          cancelAnimationFrame(rafId);
+          rafId = null;
+        }
+
+        affectedLetters.forEach((letter) => {
+          gsap.to(letter, {
+            scale: 1,
+            duration: dur * 2,
+            overwrite: 'auto',
+            ease: 'power2.out'
+          });
+        });
+        affectedLetters.clear();
+      };
+
+      const hero = heroRef.current;
+      if (hero) {
+        hero.addEventListener('mousemove', handleMouseMove);
+        hero.addEventListener('mouseleave', handleMouseLeave);
+      }
+
+      return () => {
+        if (rafId) cancelAnimationFrame(rafId);
+        if (hero) {
+          hero.removeEventListener('mousemove', handleMouseMove);
+          hero.removeEventListener('mouseleave', handleMouseLeave);
+        }
+      };
+    }, delay);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [exitAnimation, startAnimation]);
 
   const getAnimation = (baseDelay) => {
     if (exitAnimation) return `flipOut 0.4s cubic-bezier(0.6,0.2,0.8,0.4) both`;
@@ -82,32 +228,50 @@ export default function HeroArtefacto({ links = DEFAULT_LINKS, rows = 26, cols =
   });
 
   return (
-    <header id="hero" className="artefacto-hero"
-      style={{ position: 'relative', height: '100vh', minHeight: 640, backgroundColor: COLORS.red, overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '0.8vh 0', overflow: 'hidden', opacity: (!startAnimation && !exitAnimation) ? 0 : undefined }}>
-        {bgRows.map((row, r) => (
-          <div key={r} style={{ display: 'flex', gap: '0.35vh', height: '3.1vh', flex: 'none', marginLeft: row.offset, perspective: 600 }}>
-            {row.letters.map((l, i) => {
-              let letterAnim = 'none';
-              if (exitAnimation) {
-                letterAnim = `flipOut 0.4s cubic-bezier(0.6,0.2,0.8,0.4) ${l.delay * 0.3}s both`;
-              } else if (startAnimation) {
-                letterAnim = `flipIn 0.6s cubic-bezier(0.3,0.8,0.4,1) ${l.delay}s both`;
-              }
-              return (
-                <img key={i} src={l.src} alt="" draggable={false} className="artefacto-letter"
-                  style={{ height: '100%', width: 'auto', flex: 'none', transition: 'opacity 0.25s', userSelect: 'none', transformOrigin: 'center bottom', animation: letterAnim }} />
-              );
-            })}
-          </div>
-        ))}
-      </div>
+    <>
+      <style>{`
+        .artefacto-navword {
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .artefacto-navword:hover {
+          font-style: normal !important;
+          font-weight: 700 !important;
+          transform: translateY(-2px);
+          letter-spacing: 0.02em;
+        }
+      `}</style>
+      <header id="hero" className="artefacto-hero" ref={heroRef}
+        style={{ position: 'relative', height: '100vh', minHeight: 640, backgroundColor: COLORS.red, overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '0.8vh 0', overflow: 'hidden', opacity: (!startAnimation && !exitAnimation) ? 0 : undefined }}>
+          {bgRows.map((row, r) => (
+            <div key={r} style={{ display: 'flex', gap: '0.35vh', height: '3.1vh', flex: 'none', marginLeft: row.offset, perspective: 600 }}>
+              {row.letters.map((l, i) => {
+                let letterAnim = 'none';
+                if (exitAnimation) {
+                  letterAnim = `flipOut 0.4s cubic-bezier(0.6,0.2,0.8,0.4) ${l.delay * 0.3}s both`;
+                } else if (startAnimation) {
+                  letterAnim = `flipIn 0.6s cubic-bezier(0.3,0.8,0.4,1) ${l.delay}s both`;
+                }
+                return (
+                  <img
+                    key={i}
+                    src={l.src}
+                    alt=""
+                    draggable={false}
+                    className="artefacto-letter"
+                    style={{ height: '100%', width: 'auto', flex: 'none', userSelect: 'none', transformOrigin: 'center bottom', animation: letterAnim }}
+                  />
+                );
+              })}
+            </div>
+          ))}
+        </div>
 
-      {links.map((lnk, i) => (
-        <a key={i} href={lnk.href} className="artefacto-navword" style={navStyle(lnk.pos)}>
-          {lnk.label}
-        </a>
-      ))}
+        {links.map((lnk, i) => (
+          <a key={i} href={lnk.href} className="artefacto-navword" style={navStyle(lnk.pos)}>
+            <span ref={navScrambleRefs[i]?.ref}>{lnk.label}</span>
+          </a>
+        ))}
 
       <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', zIndex: 2, display: 'flex', alignItems: 'center', gap: 'clamp(32px, 4vw, 64px)' }}>
         <div style={{
@@ -125,7 +289,8 @@ export default function HeroArtefacto({ links = DEFAULT_LINKS, rows = 26, cols =
           animation: getAnimation(3.2),
           transformOrigin: 'center bottom'
         }}>
-          Convocatoria abierta<br />Agosto - Noviembre 2026
+          <span ref={convocatoriaScrambleRefs[0]?.ref}>Convocatoria abierta</span><br />
+          <span ref={convocatoriaScrambleRefs[1]?.ref}>Agosto - Noviembre 2026</span>
         </div>
 
         <div style={{ width: 'min(420px,42vw)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.4vh', opacity: (!startAnimation && !exitAnimation) ? 0 : undefined, animation: getAnimation(2.9), transformOrigin: 'center bottom' }}>
@@ -142,10 +307,12 @@ export default function HeroArtefacto({ links = DEFAULT_LINKS, rows = 26, cols =
             letterSpacing: '0.28em',
             textTransform: 'uppercase'
           }}>
-            <span>Éticas</span><span>Creativas</span>
+            <span ref={logoTextScrambleRefs[0]?.ref}>Éticas</span>
+            <span ref={logoTextScrambleRefs[1]?.ref}>Creativas</span>
           </div>
         </div>
       </div>
-    </header>
+      </header>
+    </>
   );
 }
