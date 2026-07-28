@@ -85,11 +85,13 @@ app.use((err, req, res, next) => {
   })
 })
 
-// Iniciar servidor
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en puerto ${PORT}`)
-  console.log(`📍 Entorno: ${process.env.NODE_ENV}`)
-  console.log(`🔗 Health check: http://localhost:${PORT}/health`)
-})
+// Iniciar servidor solo si no está en Vercel (serverless)
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Servidor corriendo en puerto ${PORT}`)
+    console.log(`📍 Entorno: ${process.env.NODE_ENV}`)
+    console.log(`🔗 Health check: http://localhost:${PORT}/health`)
+  })
+}
 
 export default app
