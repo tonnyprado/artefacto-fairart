@@ -85,7 +85,7 @@ export default function HeroArtefacto({ links = DEFAULT_LINKS, rows = 26, cols =
     if (!heroRef.current || exitAnimation) return;
 
     // Esperar a que terminen las animaciones de entrada
-    const delay = startAnimation ? 4000 : 0;
+    const delay = startAnimation ? 2500 : 0;
 
     const timeoutId = setTimeout(() => {
       const letters = gsap.utils.toArray('.artefacto-letter');
