@@ -12,6 +12,7 @@ import ScrollTransition from './ScrollTransition';
 import CurvedWipeTransition from './CurvedWipeTransition';
 import LogoRevealLoader from './LogoRevealLoader';
 import MobileMenu from './MobileMenu';
+import CustomCursor from './CustomCursor';
 import { COLORS } from './theme';
 import { getTransitionType, getTransitionTimings, TRANSITION_TYPES } from './transitions';
 
@@ -235,6 +236,8 @@ export default function LandingArtefacto() {
       {transitionType === TRANSITION_TYPES.FLIP_CLOCK && (
         <ScrollTransition phase={transitionPhase} color={ovColor} />
       )}
+
+      <CustomCursor />
     </main>
   );
 }

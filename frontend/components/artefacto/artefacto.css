@@ -26,6 +26,51 @@ body {
   /* Asegurar que el scroll funcione sin barra visible */
   overflow-x: hidden;
   overflow-y: scroll;
+  /* Ocultar cursor por defecto para usar cursor personalizado */
+  cursor: none;
+}
+
+/* Cursor personalizado */
+.custom-cursor {
+  position: fixed;
+  width: 12px;
+  height: 12px;
+  background: rgba(244, 237, 228, 0.9);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: transform 0.2s ease-out, opacity 0.15s ease-out, width 0.2s ease-out, height 0.2s ease-out;
+  mix-blend-mode: difference;
+}
+
+.custom-cursor.hovering {
+  width: 20px;
+  height: 20px;
+  background: rgba(244, 237, 228, 0.7);
+}
+
+.custom-cursor.clicking {
+  animation: cursorClick 0.4s ease-out;
+}
+
+@keyframes cursorClick {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.8);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Restaurar cursor en elementos interactivos */
+a, button, input, textarea, select, [role="button"] {
+  cursor: none;
 }
 
 @keyframes flipIn {

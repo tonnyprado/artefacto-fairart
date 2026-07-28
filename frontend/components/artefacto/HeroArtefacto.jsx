@@ -1,5 +1,5 @@
 'use client'; // (Next.js App Router; inofensivo en Vite/CRA)
-import { useMemo, useEffect, useRef } from 'react';
+import { useMemo, useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { LETTERS } from './letters';
 import { COLORS, FONTS } from './theme';
@@ -30,8 +30,48 @@ const POS_STYLE = {
   'bottom-right': { top: '88.48vh', right: 36 },
 };
 
-export default function HeroArtefacto({ links = DEFAULT_LINKS, rows = 26, cols = 64, startAnimation = true, exitAnimation = false }) {
+export default function HeroArtefacto({ links = DEFAULT_LINKS, startAnimation = true, exitAnimation = false }) {
   const heroRef = useRef(null);
+
+  // Calcular rows y cols dinámicamente basándose en el viewport
+  const calculateGridSize = () => {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    // Altura de cada letra: 3.1vh, gap: 0.35vh = 3.45vh por fila
+    const letterHeight = vh * 0.0345; // 3.45vh en pixels
+    const rows = Math.ceil(vh / letterHeight) + 2; // +2 para overflow
+
+    // Ancho aproximado de cada letra basado en aspect ratio del SVG
+    const letterWidth = letterHeight * 0.8; // Aspect ratio aproximado
+    const cols = Math.ceil(vw / letterWidth) + 10; // +10 para offset negativo
+
+    return { rows, cols };
+  };
+
+  const [gridSize, setGridSize] = useState({ rows: 26, cols: 64 });
+
+  useEffect(() => {
+    // Calcular tamaño inicial
+    setGridSize(calculateGridSize());
+
+    // Recalcular en resize con debounce
+    let resizeTimer;
+    const handleResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        setGridSize(calculateGridSize());
+      }, 200);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimer);
+    };
+  }, []);
+
+  const { rows, cols } = gridSize;
 
   // Text scramble para los botones de navegación
   // Botones flipIn: delay 2.4s + duration 0.7s = terminan a los 3.1s
@@ -61,9 +101,11 @@ export default function HeroArtefacto({ links = DEFAULT_LINKS, rows = 26, cols =
     trigger: startAnimation && !exitAnimation,
   });
 
-  // Data URIs de las 16 letras (una sola vez)
+  // Data URIs solo de A, R, T, E (letras 53, 54, 55, 56)
   const letterUrls = useMemo(
-    () => Object.values(LETTERS).map((svg) => `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`),
+    () => [53, 54, 55, 56].map((id) =>
+      `data:image/svg+xml;utf8,${encodeURIComponent(LETTERS[id])}`
+    ),
     []
   );
 
@@ -80,7 +122,7 @@ export default function HeroArtefacto({ links = DEFAULT_LINKS, rows = 26, cols =
     }));
   }, [letterUrls, rows, cols]);
 
-  // Efecto de proximidad con el mouse (OPTIMIZADO)
+  // Efecto de proximidad con el mouse (SPATIAL PARTITIONING)
   useEffect(() => {
     if (!heroRef.current || exitAnimation) return;
 
@@ -96,56 +138,90 @@ export default function HeroArtefacto({ links = DEFAULT_LINKS, rows = 26, cols =
         gsap.set(letter, { clearProps: 'all' });
       });
 
-      // Cachear posiciones DESPUÉS de limpiar animaciones CSS
+      // Spatial partitioning: dividir la pantalla en grid
+      const cellSize = 200; // Tamaño de cada celda
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const gridCols = Math.ceil(vw / cellSize);
+      const gridRows = Math.ceil(vh / cellSize);
+      const spatialGrid = {};
+
+      // Cachear posiciones y asignar a celdas del spatial grid
       const letterData = letters.map((letter) => {
         const r = letter.getBoundingClientRect();
-        return {
-          element: letter,
-          x: r.left + r.width / 2,
-          y: r.top + r.height / 2
-        };
+        const x = r.left + r.width / 2;
+        const y = r.top + r.height / 2;
+
+        // Calcular celda del grid
+        const gridX = Math.floor(x / cellSize);
+        const gridY = Math.floor(y / cellSize);
+        const cellKey = `${gridX},${gridY}`;
+
+        // Agregar a spatial grid
+        if (!spatialGrid[cellKey]) spatialGrid[cellKey] = [];
+        const data = { element: letter, x, y };
+        spatialGrid[cellKey].push(data);
+
+        return data;
       });
 
-      console.log('Proximity effect optimized and ready. Letters:', letters.length);
-
-      const radius = 200;
+      const radius = 150;
       const maxScale = 2.5;
       const dur = 0.35;
       let rafId = null;
       const affectedLetters = new Set();
+      let lastTime = 0;
+      const throttleMs = 32; // ~30fps
 
       const handleMouseMove = (e) => {
-        if (rafId) return;
+        const now = performance.now();
+        if (rafId || (now - lastTime) < throttleMs) return;
 
+        lastTime = now;
         rafId = requestAnimationFrame(() => {
           const mx = e.clientX;
           const my = e.clientY;
           const currentAffected = new Set();
 
-          // Solo procesar letras en un área grande alrededor del cursor
-          letterData.forEach(({ element, x, y }) => {
-            const dx = mx - x;
-            const dy = my - y;
-            const d = Math.sqrt(dx * dx + dy * dy);
+          // Calcular qué celdas del grid están cerca del cursor
+          const mouseCellX = Math.floor(mx / cellSize);
+          const mouseCellY = Math.floor(my / cellSize);
+          const radiusSquared = radius * radius;
 
-            if (d < radius) {
-              const p = gsap.utils.clamp(0, 1, gsap.utils.mapRange(0, radius, 1, 0, d));
-              gsap.to(element, {
-                scale: 1 + (maxScale - 1) * p,
-                overwrite: 'auto',
-                ease: 'power2.out',
-                duration: 0.2
+          // Solo checkear celdas vecinas (3x3 grid alrededor del cursor)
+          for (let dy = -1; dy <= 1; dy++) {
+            for (let dx = -1; dx <= 1; dx++) {
+              const cellKey = `${mouseCellX + dx},${mouseCellY + dy}`;
+              const cellLetters = spatialGrid[cellKey];
+
+              if (!cellLetters) continue;
+
+              cellLetters.forEach(({ element, x, y }) => {
+                const deltaX = mx - x;
+                const deltaY = my - y;
+                const dSquared = deltaX * deltaX + deltaY * deltaY;
+
+                if (dSquared < radiusSquared) {
+                  const d = Math.sqrt(dSquared);
+                  const p = gsap.utils.clamp(0, 1, gsap.utils.mapRange(0, radius, 1, 0, d));
+                  gsap.to(element, {
+                    scale: 1 + (maxScale - 1) * p,
+                    overwrite: 'auto',
+                    ease: 'power2.out',
+                    duration: 0.15
+                  });
+                  currentAffected.add(element);
+                }
               });
-              currentAffected.add(element);
             }
-          });
+          }
 
           // Resetear letras que ya no están afectadas
           affectedLetters.forEach((letter) => {
             if (!currentAffected.has(letter)) {
               gsap.to(letter, {
                 scale: 1,
-                duration: 0.3,
+                duration: 0.25,
                 overwrite: 'auto',
                 ease: 'power2.out'
               });
@@ -178,7 +254,7 @@ export default function HeroArtefacto({ links = DEFAULT_LINKS, rows = 26, cols =
 
       const hero = heroRef.current;
       if (hero) {
-        hero.addEventListener('mousemove', handleMouseMove);
+        hero.addEventListener('mousemove', handleMouseMove, { passive: true });
         hero.addEventListener('mouseleave', handleMouseLeave);
       }
 
@@ -194,7 +270,7 @@ export default function HeroArtefacto({ links = DEFAULT_LINKS, rows = 26, cols =
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [exitAnimation, startAnimation]);
+  }, [exitAnimation, startAnimation, rows, cols]);
 
   const getAnimation = (baseDelay) => {
     if (exitAnimation) return `flipOut 0.4s cubic-bezier(0.6,0.2,0.8,0.4) both`;
