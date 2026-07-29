@@ -16,14 +16,15 @@ export default function CustomCursor() {
     let cursorX = 0;
     let cursorY = 0;
     let rafId;
+    let lastInteractiveState = false;
 
-    // Smooth follow effect
+    // Smooth follow effect con delay mínimo
     const updateCursor = () => {
       const dx = mouseX - cursorX;
       const dy = mouseY - cursorY;
 
-      cursorX += dx * 0.15; // Suavidad del seguimiento
-      cursorY += dy * 0.15;
+      cursorX += dx * 0.8; // Mucho más rápido que antes (0.15 -> 0.8)
+      cursorY += dy * 0.8;
 
       cursor.style.left = `${cursorX}px`;
       cursor.style.top = `${cursorY}px`;
@@ -37,8 +38,13 @@ export default function CustomCursor() {
 
       // Detectar si está sobre elemento interactivo
       const target = e.target;
-      const isInteractive = target.closest('a, button, input, textarea, select, [role="button"]');
-      setIsHovering(!!isInteractive);
+      const isInteractive = !!target.closest('a, button, input, textarea, select, [role="button"]');
+
+      // Solo actualizar estado si cambió para evitar re-renders innecesarios
+      if (isInteractive !== lastInteractiveState) {
+        lastInteractiveState = isInteractive;
+        setIsHovering(isInteractive);
+      }
     };
 
     const handleMouseDown = () => {

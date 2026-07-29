@@ -171,7 +171,7 @@ export default function HeroArtefacto({ links = DEFAULT_LINKS, startAnimation = 
       let rafId = null;
       const affectedLetters = new Set();
       let lastTime = 0;
-      const throttleMs = 32; // ~30fps
+      const throttleMs = 50; // ~20fps para mejor rendimiento
 
       const handleMouseMove = (e) => {
         const now = performance.now();

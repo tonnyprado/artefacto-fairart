@@ -40,7 +40,7 @@ export default function LandingArtefacto() {
   screenRef.current = screen;
   const lenis = useRef(null);
   const lastScrollTime = useRef(0);
-  const scrollCooldown = 1800; // Cooldown de 1.8s entre transiciones de scroll
+  const scrollCooldown = 800; // Cooldown de 0.8s entre transiciones de scroll
 
   // Detectar hash en el cliente después de la hidratación
   useEffect(() => {
@@ -129,16 +129,16 @@ export default function LandingArtefacto() {
   };
 
   useEffect(() => {
-    // Lenis smooth scroll con configuración más pesada/lenta
+    // Lenis smooth scroll con configuración optimizada
     (async () => {
       try {
         const { default: Lenis } = await import('lenis');
         lenis.current = new Lenis({
           autoRaf: true,
-          duration: 2.0,           // Duración más larga (default: 1.2)
+          duration: 1.2,           // Duración estándar más responsiva
           easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Easing suave
-          lerp: 0.08,              // Interpolación más lenta (default: 0.1, menor = más suave/lento)
-          wheelMultiplier: 0.6,    // Reduce velocidad del scroll con rueda (default: 1)
+          lerp: 0.15,              // Interpolación más rápida para mejor respuesta
+          wheelMultiplier: 1.0,    // Velocidad normal del scroll (más responsivo)
           touchMultiplier: 1.5,    // Ajuste para touch
           smoothWheel: true,       // Suavizar scroll de rueda
           syncTouch: false,
@@ -168,8 +168,8 @@ export default function LandingArtefacto() {
       const i = ORDER.indexOf(screenRef.current);
       if (i < 0) return;
 
-      // Threshold más alto para evitar activación accidental
-      const scrollThreshold = 50;
+      // Threshold optimizado para mejor respuesta
+      const scrollThreshold = 20;
 
       // Scroll down: siguiente sección
       if (e.deltaY > scrollThreshold) {

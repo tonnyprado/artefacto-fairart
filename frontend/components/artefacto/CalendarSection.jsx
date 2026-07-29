@@ -84,20 +84,16 @@ const TimelineEvent = ({ event, index }) => {
       style={{
         position: 'relative',
         width: 320,
+        height: 0, // Sin altura, solo sirve como contenedor
         flexShrink: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
       }}
     >
-      {/* Contenido del evento - completamente separado de la línea */}
+      {/* Contenido del evento */}
       <div
         style={{
           position: 'absolute',
-          // Si isTop, poner el texto arriba de donde comienza la línea
-          // Si !isTop, poner el texto abajo de donde termina la línea
-          top: isTop ? -(lineHeight + 130) : (circleSize / 2 + lineHeight + 30),
+          // Si isTop, poner el texto arriba; si !isTop, poner abajo
+          top: isTop ? -(lineHeight + circleSize / 2 + 30) : (circleSize / 2 + lineHeight + 30),
           left: '50%',
           transform: 'translateX(-50%)',
           width: 260,
@@ -151,11 +147,11 @@ const TimelineEvent = ({ event, index }) => {
         </p>
       </div>
 
-      {/* Línea vertical conectando al círculo - nunca atraviesa el texto */}
+      {/* Línea vertical conectando al círculo */}
       <div
         style={{
           position: 'absolute',
-          top: isTop ? -lineHeight : circleSize / 2,
+          top: isTop ? -lineHeight : 0,
           left: '50%',
           transform: 'translateX(-50%)',
           width: 3,
@@ -165,9 +161,13 @@ const TimelineEvent = ({ event, index }) => {
         }}
       />
 
-      {/* Círculo */}
+      {/* Círculo - centrado perfectamente en la línea horizontal */}
       <div
         style={{
+          position: 'absolute',
+          top: 0,
+          left: '50%',
+          transform: 'translate(-50%, -50%)', // Centrar perfectamente en la línea
           width: circleSize,
           height: circleSize,
           borderRadius: '50%',
@@ -295,20 +295,20 @@ export default function CalendarSection({ eventos = EVENTOS, isActive = true }) 
             position: 'relative',
           }}
         >
-          {/* Línea horizontal punteada */}
+          {/* Línea horizontal de puntitos */}
           <div
             style={{
               position: 'absolute',
               top: '50%',
               left: 0,
               right: 0,
-              height: 4,
+              height: 6,
               background: `repeating-linear-gradient(
                 to right,
                 ${COLORS.black} 0,
-                ${COLORS.black} 24px,
-                transparent 24px,
-                transparent 48px
+                ${COLORS.black} 6px,
+                transparent 6px,
+                transparent 18px
               )`,
               transform: 'translateY(-50%)',
               zIndex: 0,
