@@ -11,69 +11,28 @@ import { COLORS, FONTS, container } from './theme';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Letras de ARTEFACTO
-const ARTEFACTO_LETTERS = [
-  { letter: 'A', svg: '/assets/glyph-a-red.svg' },
-  { letter: 'R', svg: '/assets/glyph-r-red.svg' },
-  { letter: 'T', svg: '/assets/glyph-t-red.svg' },
-  { letter: 'E', svg: '/assets/glyph-e-red.svg' },
-  { letter: 'F', svg: '/assets/glyph-f-red.svg' },
-  { letter: 'A', svg: '/assets/glyph-a-red.svg' },
-  { letter: 'C', svg: '/assets/glyph-c-red.svg' },
-  { letter: 'T', svg: '/assets/glyph-t-red.svg' },
-  { letter: 'O', svg: '/assets/glyph-o-red.svg' },
-];
-
-const ALL_LETTER_SVGS = [
-  '/assets/glyph-a-red.svg',
-  '/assets/glyph-a-white.svg',
-  '/assets/glyph-c-red.svg',
-  '/assets/glyph-c-white.svg',
-  '/assets/glyph-e-red.svg',
-  '/assets/glyph-e-white.svg',
-  '/assets/glyph-f-red.svg',
-  '/assets/glyph-o-red.svg',
-  '/assets/glyph-o-white.svg',
-  '/assets/glyph-r-red.svg',
-  '/assets/glyph-r-white.svg',
-  '/assets/glyph-t-red.svg',
-  '/assets/glyph-t-white.svg',
-];
-
 /**
  * Nueva sección CONOCE MÁS con 8 bloques fullscreen
  */
 export default function ConoceMasSection() {
   const titleRef = useRef(null);
-  const letterImgsRef = useRef([]);
   const block2Ref = useRef(null);
   const block3Ref = useRef(null);
   const block4Ref = useRef(null);
   const sectionRef = useRef(null);
-  const hasInitialized = useRef(false);
 
   useEffect(() => {
     const title = titleRef.current;
-    const letterImgs = letterImgsRef.current.filter(Boolean);
     const block2 = block2Ref.current;
     const block3 = block3Ref.current;
     const block4 = block4Ref.current;
 
-    if (!title || letterImgs.length === 0) return;
-
-    let scrambleInterval = null;
+    if (!title) return;
 
     const initAnimations = () => {
       // Resetear estados iniciales
-      gsap.set(title, { opacity: 0, y: 40 });
+      gsap.set(title, { opacity: 0, scale: 0.8, y: 40 });
       gsap.set([block2, block3, block4].filter(Boolean), { opacity: 0, y: 60 });
-
-      // Resetear letras a sus valores finales
-      letterImgs.forEach((img, index) => {
-        img.src = ARTEFACTO_LETTERS[index].svg;
-      });
-
-      let hasScrambled = false;
 
       // Limpiar ScrollTriggers anteriores
       ScrollTrigger.getAll().forEach((trigger) => {
@@ -85,51 +44,21 @@ export default function ConoceMasSection() {
         }
       });
 
-      // Animación del título ARTEFACTO con SVG scramble
+      // Animación del logo ARTEFACTO
       gsap.fromTo(
         title,
-        { opacity: 0, y: 40 },
+        { opacity: 0, scale: 0.8, y: 40 },
         {
           scrollTrigger: {
             trigger: title,
             start: 'top bottom-=100',
             end: 'top center',
             scrub: true,
-            onUpdate: (self) => {
-              const progress = self.progress;
-
-              if (progress > 0 && !hasScrambled && !scrambleInterval) {
-                hasScrambled = true;
-                let scrambleDuration = 0;
-                const maxDuration = 1500;
-
-                scrambleInterval = setInterval(() => {
-                  scrambleDuration += 60;
-                  const scrambleProgress = Math.min(scrambleDuration / maxDuration, 1);
-
-                  letterImgs.forEach((img, index) => {
-                    const finalSvg = ARTEFACTO_LETTERS[index].svg;
-
-                    if (scrambleProgress < 1) {
-                      if (Math.random() > scrambleProgress) {
-                        const randomSvg = ALL_LETTER_SVGS[Math.floor(Math.random() * ALL_LETTER_SVGS.length)];
-                        img.src = randomSvg;
-                      } else {
-                        img.src = finalSvg;
-                      }
-                    } else {
-                      img.src = finalSvg;
-                      clearInterval(scrambleInterval);
-                      scrambleInterval = null;
-                    }
-                  });
-                }, 60);
-              }
-            },
           },
           opacity: 1,
+          scale: 1,
           y: 0,
-          ease: 'none',
+          ease: 'power2.out',
         }
       );
 
@@ -177,13 +106,9 @@ export default function ConoceMasSection() {
     }
 
     // Inicializar inmediatamente también
-    if (!hasInitialized.current) {
-      hasInitialized.current = true;
-      initAnimations();
-    }
+    initAnimations();
 
     return () => {
-      if (scrambleInterval) clearInterval(scrambleInterval);
       observer.disconnect();
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
@@ -198,7 +123,7 @@ export default function ConoceMasSection() {
         background: COLORS.cream,
       }}
     >
-      {/* BLOQUE 1: Título ARTEFACTO */}
+      {/* BLOQUE 1: Logo ARTEFACTO grande */}
       <FullScreenBlock backgroundColor={COLORS.cream} animate={false}>
         <div
           ref={titleRef}
@@ -206,23 +131,17 @@ export default function ConoceMasSection() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 'clamp(6px, 1vw, 16px)',
-            flexWrap: 'nowrap',
           }}
         >
-          {ARTEFACTO_LETTERS.map((item, idx) => (
-            <img
-              key={`${item.letter}-${idx}`}
-              ref={(el) => (letterImgsRef.current[idx] = el)}
-              src={item.svg}
-              alt={item.letter}
-              style={{
-                height: 'clamp(50px, 8vw, 100px)',
-                width: 'auto',
-                objectFit: 'contain',
-              }}
-            />
-          ))}
+          <img
+            src="/assets/wordmark-black.svg"
+            alt="ARTEFACTO"
+            style={{
+              width: 'min(800px, 80vw)',
+              height: 'auto',
+              display: 'block',
+            }}
+          />
         </div>
       </FullScreenBlock>
 

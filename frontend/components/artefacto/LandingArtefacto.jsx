@@ -211,7 +211,7 @@ export default function LandingArtefacto() {
   return (
     <main>
       {!skipLoader && <LogoRevealLoader onComplete={handleLoaderComplete} />}
-      {screen === 'hero' && <HeroArtefacto startAnimation={loaderComplete} exitAnimation={heroExiting} />}
+      {screen === 'hero' && <HeroArtefacto startAnimation={loaderComplete} exitAnimation={heroExiting} onOpenMenu={() => setMenuOpen(true)} />}
       {screen !== 'hero' && <Navbar screen={screen} onOpenMenu={() => setMenuOpen(true)} />}
 
       <div className={fxClass} style={show('about')}><AboutSection /></div>

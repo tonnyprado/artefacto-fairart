@@ -30,7 +30,7 @@ const POS_STYLE = {
   'bottom-right': { top: '88.48vh', right: 36 },
 };
 
-export default function HeroArtefacto({ links = DEFAULT_LINKS, startAnimation = true, exitAnimation = false }) {
+export default function HeroArtefacto({ links = DEFAULT_LINKS, startAnimation = true, exitAnimation = false, onOpenMenu }) {
   const heroRef = useRef(null);
 
   // Calcular rows y cols dinámicamente basándose en el viewport
@@ -315,6 +315,42 @@ export default function HeroArtefacto({ links = DEFAULT_LINKS, startAnimation = 
           transform: translateY(-2px);
           letter-spacing: 0.02em;
         }
+        .hero-nav-mobile {
+          display: none;
+        }
+        .hero-center-container {
+          display: flex;
+          align-items: center;
+          gap: clamp(32px, 4vw, 64px);
+        }
+        .hero-convocatoria-text {
+          order: 1;
+        }
+        .hero-logo-container {
+          order: 2;
+        }
+        @media (max-width: 760px) {
+          .hero-nav-desktop {
+            display: none !important;
+          }
+          .hero-nav-mobile {
+            display: block !important;
+          }
+          .hero-center-container {
+            flex-direction: column !important;
+            gap: 24px !important;
+            padding: 0 20px;
+          }
+          .hero-convocatoria-text {
+            order: 2 !important;
+            text-align: center !important;
+            max-width: 100% !important;
+          }
+          .hero-logo-container {
+            order: 1 !important;
+            width: min(340px, 85vw) !important;
+          }
+        }
       `}</style>
       <header id="hero" className="artefacto-hero" ref={heroRef}
         style={{ position: 'relative', height: '100vh', minHeight: 640, backgroundColor: COLORS.red, overflow: 'hidden' }}>
@@ -343,14 +379,47 @@ export default function HeroArtefacto({ links = DEFAULT_LINKS, startAnimation = 
           ))}
         </div>
 
-        {links.map((lnk, i) => (
-          <a key={i} href={lnk.href} className="artefacto-navword" style={navStyle(lnk.pos)}>
-            <span ref={navScrambleRefs[i]?.ref}>{lnk.label}</span>
-          </a>
-        ))}
+        {/* Botones de navegación desktop */}
+        <div className="hero-nav-desktop">
+          {links.map((lnk, i) => (
+            <a key={i} href={lnk.href} className="artefacto-navword" style={navStyle(lnk.pos)}>
+              <span ref={navScrambleRefs[i]?.ref}>{lnk.label}</span>
+            </a>
+          ))}
+        </div>
 
-      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', zIndex: 2, display: 'flex', alignItems: 'center', gap: 'clamp(32px, 4vw, 64px)' }}>
-        <div style={{
+        {/* Botón de menú mobile */}
+        <button
+          className="hero-nav-mobile"
+          onClick={onOpenMenu}
+          aria-label="Menú"
+          style={{
+            position: 'absolute',
+            top: 20,
+            right: 20,
+            background: 'none',
+            border: 'none',
+            cursor: 'none',
+            padding: 8,
+            zIndex: 3,
+            opacity: (!startAnimation && !exitAnimation) ? 0 : undefined,
+            animation: getAnimation(2.4),
+            transformOrigin: 'center',
+          }}
+        >
+          <img
+            src="/assets/glyph-x-white.svg"
+            alt="Menú"
+            style={{
+              width: 40,
+              height: 40,
+              display: 'block',
+            }}
+          />
+        </button>
+
+      <div className="hero-center-container" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', zIndex: 2 }}>
+        <div className="hero-convocatoria-text" style={{
           color: COLORS.cream,
           fontFamily: FONTS.subtitle,
           fontWeight: FONTS.subtitleWeight,
@@ -369,7 +438,7 @@ export default function HeroArtefacto({ links = DEFAULT_LINKS, startAnimation = 
           <span ref={convocatoriaScrambleRefs[1]?.ref}>Agosto - Noviembre 2026</span>
         </div>
 
-        <div style={{ width: 'min(420px,42vw)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.4vh', opacity: (!startAnimation && !exitAnimation) ? 0 : undefined, animation: getAnimation(2.9), transformOrigin: 'center bottom' }}>
+        <div className="hero-logo-container" style={{ width: 'min(420px,42vw)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.4vh', opacity: (!startAnimation && !exitAnimation) ? 0 : undefined, animation: getAnimation(2.9), transformOrigin: 'center bottom' }}>
           <img src="/assets/wordmark-cream.svg" alt="ARTEFACTO" style={{ width: '100%', display: 'block' }} />
           <div style={{
             width: '100%',

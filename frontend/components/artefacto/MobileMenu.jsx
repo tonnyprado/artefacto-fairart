@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { COLORS } from './theme';
 
@@ -24,11 +24,21 @@ export default function MobileMenu({ isOpen, onClose }) {
   const logoRef = useRef(null);
   const itemsRef = useRef([]);
   const closeRef = useRef(null);
+  const [shouldRender, setShouldRender] = useState(false);
 
   useEffect(() => {
-    if (!menuRef.current) return;
+    if (isOpen) {
+      setShouldRender(true);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!menuRef.current || !shouldRender) return;
 
     if (isOpen) {
+      // Mostrar el menú inmediatamente
+      menuRef.current.style.display = 'flex';
+
       // Animación de entrada
       const tl = gsap.timeline();
 
@@ -71,12 +81,13 @@ export default function MobileMenu({ isOpen, onClose }) {
         ease: 'back.out(2)',
       }, '-=0.5');
 
-    } else if (menuRef.current.style.display !== 'none') {
+    } else {
       // Animación de salida
       const tl = gsap.timeline({
         onComplete: () => {
           if (menuRef.current) {
             menuRef.current.style.display = 'none';
+            setShouldRender(false);
           }
         },
       });
@@ -103,9 +114,9 @@ export default function MobileMenu({ isOpen, onClose }) {
         ease: 'expo.inOut',
       }, '-=0.2');
     }
-  }, [isOpen]);
+  }, [isOpen, shouldRender]);
 
-  if (!isOpen) return null;
+  if (!shouldRender) return null;
 
   return (
     <div

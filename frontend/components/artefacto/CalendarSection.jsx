@@ -325,6 +325,7 @@ export default function CalendarSection({ eventos = EVENTOS, isActive = true }) 
               paddingRight: '50vw', // Padding extra para que el último evento llegue al centro
               position: 'relative',
               zIndex: 1,
+              height: 0, // Sin altura para que los elementos se posicionen desde el centro
             }}
           >
             {eventos.map((ev, i) => (
