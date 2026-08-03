@@ -88,7 +88,8 @@ const btn = (bg, color) => ({
   textTransform: 'uppercase',
   textDecoration: 'none',
   display: 'inline-block',
-  transition: 'all 0.2s ease'
+  transition: 'all 0.2s ease',
+  borderRadius: 16
 });
 
 export default function ConvocatoriaSection({ edicion = '2027', abierta = true, urlRegistro = '/registro' }) {
@@ -248,7 +249,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
         <h3 style={subsectionTitle(40)}>Cronograma y Fechas</h3>
         <div style={{ marginTop: 24, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
           {FASES_DATA.map((fase) => (
-            <div key={fase.num} style={{ background: 'rgba(0,0,0,0.2)', padding: 24, border: `2px solid ${COLORS.black}` }}>
+            <div key={fase.num} style={{ background: 'rgba(0,0,0,0.2)', padding: 24, border: `2px solid ${COLORS.black}`, borderRadius: 16 }}>
               <div style={{ fontFamily: FONTS.display, fontSize: 48, lineHeight: 1, color: COLORS.cream, marginBottom: 12 }}>{fase.num}</div>
               <h4 style={{ margin: '0 0 16px', fontFamily: FONTS.subtitle, fontSize: 20, letterSpacing: '0.06em', textTransform: 'uppercase', color: COLORS.cream }}>{fase.title}</h4>
               <p style={{ margin: '8px 0', fontSize: 14, color: 'rgba(244,237,228,0.85)' }}>

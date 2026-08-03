@@ -1,21 +1,221 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import FileUpload from '@/components/ui/FileUpload'
 
 /**
  * Paso 3: Upload de Documentos
  *
+ * CAMBIO IMPORTANTE: Portfolio ahora acepta MÚLTIPLES IMÁGENES individuales con metadata
+ * en lugar de un solo PDF.
+ *
  * CAMPOS QUE VAN A BASE DE DATOS:
  * - Tabla: artistas
- *   - documentos JSONB -- {cv_url, portfolio_url, identificacion_url, foto_url}
+ *   - documentos JSONB -- {cv_url, identificacion_url, portfolio_images: []}
  *   - foto VARCHAR(500) -- URL de foto de perfil
  *
  * PROCESO:
- * 1. Usuario sube archivo
- * 2. Frontend guarda archivo temporalmente
+ * 1. Usuario sube archivos individuales
+ * 2. Frontend guarda archivos temporalmente con metadata
  * 3. Al enviar formulario, se suben a Cloudinary
  * 4. URLs de Cloudinary se guardan en BDD
  */
+
+/**
+ * Componente para subir múltiples imágenes del portfolio con metadata
+ */
+function PortfolioImageUpload({ images, onChange, error }) {
+  const [currentImages, setCurrentImages] = useState(images || [])
+
+  useEffect(() => {
+    setCurrentImages(images || [])
+  }, [images])
+
+  const handleAddImage = (e) => {
+    const files = Array.from(e.target.files)
+    const MAX_SIZE = 5 * 1024 * 1024 // 5MB
+    const MAX_IMAGES = 15
+
+    // Validar límite de imágenes
+    if (currentImages.length >= MAX_IMAGES) {
+      alert(`Solo puedes subir un máximo de ${MAX_IMAGES} imágenes`)
+      return
+    }
+
+    const remainingSlots = MAX_IMAGES - currentImages.length
+    const filesToProcess = files.slice(0, remainingSlots)
+
+    if (files.length > remainingSlots) {
+      alert(`Solo puedes agregar ${remainingSlots} imagen(es) más. Máximo ${MAX_IMAGES} imágenes permitidas.`)
+    }
+
+    const validFiles = filesToProcess.filter(file => {
+      if (file.size > MAX_SIZE) {
+        alert(`${file.name} excede el límite de 5MB`)
+        return false
+      }
+      if (!file.type.startsWith('image/')) {
+        alert(`${file.name} no es una imagen válida`)
+        return false
+      }
+      return true
+    })
+
+    const newImages = validFiles.map(file => ({
+      id: `img-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      file,
+      preview: URL.createObjectURL(file),
+      titulo: '',
+      alto_cm: '',
+      ancho_cm: ''
+    }))
+
+    const updated = [...currentImages, ...newImages]
+    setCurrentImages(updated)
+    onChange(updated)
+  }
+
+  const handleRemoveImage = (id) => {
+    const imageToRemove = currentImages.find(img => img.id === id)
+    if (imageToRemove?.preview) {
+      URL.revokeObjectURL(imageToRemove.preview)
+    }
+
+    const updated = currentImages.filter(img => img.id !== id)
+    setCurrentImages(updated)
+    onChange(updated)
+  }
+
+  const handleUpdateMetadata = (id, field, value) => {
+    const updated = currentImages.map(img =>
+      img.id === id ? { ...img, [field]: value } : img
+    )
+    setCurrentImages(updated)
+    onChange(updated)
+  }
+
+  // Cleanup: Liberar URLs de blob cuando el componente se desmonte
+  useEffect(() => {
+    return () => {
+      currentImages.forEach(img => {
+        if (img.preview && img.preview.startsWith('blob:')) {
+          URL.revokeObjectURL(img.preview)
+        }
+      })
+    }
+  }, [currentImages])
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className="block text-sm font-semibold text-gray-900 mb-2">
+          Portfolio de Obras *
+        </label>
+        <p className="text-sm text-gray-600 mb-3">
+          Sube entre 5 y 15 imágenes de tus obras. Incluye las dimensiones reales de cada pieza.
+        </p>
+
+        {/* Botón de upload */}
+        <label className={`inline-flex items-center px-6 py-3 text-white transition-all rounded-lg ${
+          currentImages.length >= 15
+            ? 'bg-gray-400 cursor-not-allowed'
+            : 'bg-gray-900 cursor-pointer hover:bg-gray-700'
+        }`}>
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          {currentImages.length >= 15 ? 'Límite Alcanzado' : 'Agregar Imágenes'}
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={handleAddImage}
+            disabled={currentImages.length >= 15}
+            className="hidden"
+          />
+        </label>
+
+        <p className="text-xs text-gray-500 mt-2">
+          {currentImages.length} de 15 imágenes • Formatos: JPG, PNG • Máximo 5MB por imagen
+        </p>
+      </div>
+
+      {/* Grid de imágenes */}
+      {currentImages.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {currentImages.map((img) => (
+            <div key={img.id} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+              <div className="relative mb-3">
+                <img
+                  src={img.preview}
+                  alt="Preview"
+                  className="w-full h-48 object-cover rounded"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleRemoveImage(img.id)}
+                  className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition-colors"
+                  title="Eliminar imagen"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Metadata */}
+              <div className="space-y-2">
+                <input
+                  type="text"
+                  value={img.titulo}
+                  onChange={(e) => handleUpdateMetadata(img.id, 'titulo', e.target.value)}
+                  placeholder="Título de la obra *"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900"
+                />
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <input
+                      type="number"
+                      value={img.alto_cm}
+                      onChange={(e) => handleUpdateMetadata(img.id, 'alto_cm', e.target.value)}
+                      placeholder="Alto (cm) *"
+                      min="1"
+                      step="0.1"
+                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900"
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="number"
+                      value={img.ancho_cm}
+                      onChange={(e) => handleUpdateMetadata(img.id, 'ancho_cm', e.target.value)}
+                      placeholder="Ancho (cm) *"
+                      min="1"
+                      step="0.1"
+                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900"
+                    />
+                  </div>
+                </div>
+
+                {/* Validación visual */}
+                {(!img.titulo || !img.alto_cm || !img.ancho_cm) && (
+                  <p className="text-xs text-red-600">
+                    * Completa todos los campos
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {error && (
+        <p className="text-sm text-red-600">{error}</p>
+      )}
+    </div>
+  )
+}
 
 export default function Step3Documentos({ formData, updateFormData, errors }) {
   const handleFileChange = (fieldName, file) => {
@@ -29,6 +229,10 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
 
   const handleFotoChange = (file) => {
     updateFormData({ foto: file })
+  }
+
+  const handlePortfolioImagesChange = (images) => {
+    updateFormData({ portfolio_images: images })
   }
 
   return (
@@ -66,16 +270,11 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
         helperText="Formato: PDF, DOC, DOCX. Incluye tu trayectoria, exposiciones, premios, estudios, etc."
       />
 
-      {/* Portfolio Digital */}
-      <FileUpload
-        label="Portfolio Digital"
-        accept=".pdf,image/*"
-        maxSize={20}
-        required
-        value={formData.documentos?.portfolio}
-        onChange={(file) => handleFileChange('portfolio', file)}
-        error={errors?.portfolio}
-        helperText="Formato: PDF o imágenes. Mínimo 5 obras representativas de tu trabajo. Si son varias imágenes, súbelas en un PDF."
+      {/* Portfolio de Obras (MÚLTIPLES IMÁGENES) */}
+      <PortfolioImageUpload
+        images={formData.portfolio_images || []}
+        onChange={handlePortfolioImagesChange}
+        error={errors?.portfolio_images}
       />
 
       {/* Identificación Oficial */}
@@ -90,7 +289,7 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
         helperText="Formato: JPG, PNG, PDF. INE, pasaporte o cédula profesional vigente."
       />
 
-      <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r-lg">
+      <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r-2xl">
         <div className="flex">
           <svg
             className="w-5 h-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5"
@@ -112,6 +311,9 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
                 Tu portfolio debe mostrar obra reciente (últimos 2-3 años)
               </li>
               <li>
+                Las dimensiones de las obras son necesarias para el Paso 5 (diseño de layout)
+              </li>
+              <li>
                 Los documentos serán revisados por el equipo de curaduría
               </li>
             </ul>
@@ -119,7 +321,7 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
         </div>
       </div>
 
-      <div className="bg-green-50 border-l-4 border-green-600 p-4 rounded-r-lg">
+      <div className="bg-green-50 border-l-4 border-green-600 p-4 rounded-r-2xl">
         <div className="flex">
           <svg
             className="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5"
@@ -137,8 +339,9 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
             <ul className="list-disc list-inside space-y-1">
               <li>Incluye variedad de obras que muestren tu estilo</li>
               <li>Fotografías de alta calidad con buena iluminación</li>
-              <li>Incluye título, técnica, dimensiones y año de cada obra</li>
+              <li>Incluye el título y dimensiones exactas de cada obra</li>
               <li>Ordena las obras de forma que cuenten una historia</li>
+              <li>Las dimensiones serán usadas para diseñar tu espacio en la feria</li>
             </ul>
           </div>
         </div>

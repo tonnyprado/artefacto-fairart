@@ -245,4 +245,36 @@ export const votacionesApi = {
     api.delete(`/votaciones/${id}`)
 }
 
+/**
+ * Paquetes API
+ */
+export const paquetesApi = {
+  getAll: () =>
+    api.get('/paquetes?activo=true'),
+
+  getById: (id) =>
+    api.get(`/paquetes/${id}`)
+}
+
+/**
+ * Layouts API
+ */
+export const layoutsApi = {
+  uploadCanvas: async (imageBlob) => {
+    const formData = new FormData()
+    formData.append('layout', imageBlob, 'layout-canvas.png')
+
+    const response = await fetch(`${API_BASE_URL}/layouts/upload`, {
+      method: 'POST',
+      body: formData
+    })
+
+    if (!response.ok) {
+      throw new Error('Error al subir layout')
+    }
+
+    return response.json()
+  }
+}
+
 export default api

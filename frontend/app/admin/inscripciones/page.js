@@ -30,18 +30,18 @@ export default function InscripcionesAdmin() {
           <input
             type="text"
             placeholder="Buscar artista..."
-            className="border rounded px-4 py-2"
+            className="border rounded-2xl px-4 py-2"
           />
-          <select className="border rounded px-4 py-2">
+          <select className="border rounded-2xl px-4 py-2">
             <option>Todos los estados</option>
             <option>Pendiente</option>
             <option>Aprobada</option>
             <option>Rechazada</option>
           </select>
-          <select className="border rounded px-4 py-2">
+          <select className="border rounded-2xl px-4 py-2">
             <option>Todos los eventos</option>
           </select>
-          <select className="border rounded px-4 py-2">
+          <select className="border rounded-2xl px-4 py-2">
             <option>Todos los paquetes</option>
           </select>
         </div>

@@ -82,7 +82,7 @@ export default function AboutSection() {
 
         {/* Mission */}
         <div className="mb-16 max-w-4xl mx-auto">
-          <div className="bg-white rounded-xl shadow-md p-8 md:p-12 border-l-4 border-red-600">
+          <div className="bg-white rounded-3xl shadow-md p-8 md:p-12 border-l-4 border-red-600">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">Nuestra Misión</h3>
             <p className="text-lg text-gray-600 leading-relaxed">
               {aboutData.mission}
@@ -120,7 +120,7 @@ export default function AboutSection() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Location Info */}
-            <div className="bg-white rounded-xl shadow-md p-8">
+            <div className="bg-white rounded-3xl shadow-md p-8">
               <div className="mb-6">
                 <div className="flex items-start mb-4">
                   <div className="text-2xl mr-4">📍</div>
@@ -164,7 +164,7 @@ export default function AboutSection() {
             </div>
 
             {/* Google Maps */}
-            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+            <div className="bg-white rounded-3xl shadow-md overflow-hidden">
               <div className="relative w-full h-full min-h-[400px]">
                 <iframe
                   src={aboutData.location.mapEmbedUrl}

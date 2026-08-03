@@ -10,6 +10,7 @@ import Step1DatosPersonales from '@/components/registro/Step1DatosPersonales'
 import Step2InfoArtistica from '@/components/registro/Step2InfoArtistica'
 import Step3Documentos from '@/components/registro/Step3Documentos'
 import Step4Confirmacion from '@/components/registro/Step4Confirmacion'
+import Step5Paquetes from '@/components/registro/Step5Paquetes'
 import { usePageTransition } from '@/components/artefacto/TransitionLink'
 
 const COLORS = {
@@ -93,14 +94,19 @@ export default function RegistroPage() {
 
     // Paso 3: Documentos
     foto: null,
+    portfolio_images: [], // Array de imágenes con metadata
     documentos: {
       cv: null,
-      portfolio: null,
       identificacion: null
-    }
+    },
+
+    // Paso 5: Paquetes
+    paquete_id: null,
+    layout_canvas_url: null,
+    layout_canvas_data: {}
   })
 
-  const steps = ['Datos Personales', 'Info Artística', 'Documentos', 'Confirmar']
+  const steps = ['Datos Personales', 'Info Artística', 'Documentos', 'Paquetes', 'Confirmar']
 
   const updateFormData = (newData) => {
     setFormData((prev) => ({
@@ -135,14 +141,34 @@ export default function RegistroPage() {
       case 3:
         if (!formData.foto) newErrors.foto = 'Foto de perfil es requerida'
         if (!formData.documentos?.cv) newErrors.cv = 'CV artístico es requerido'
-        if (!formData.documentos?.portfolio)
-          newErrors.portfolio = 'Portfolio es requerido'
+
+        // Validar portfolio_images (múltiples imágenes con metadata)
+        if (!formData.portfolio_images || formData.portfolio_images.length < 5) {
+          newErrors.portfolio_images = 'Debes subir al menos 5 imágenes de obras'
+        } else if (formData.portfolio_images.length > 15) {
+          newErrors.portfolio_images = 'Máximo 15 imágenes permitidas'
+        } else {
+          // Validar que todas las imágenes tengan metadata completa
+          const sinMetadataCompleta = formData.portfolio_images.filter(
+            img => !img.titulo || !img.alto_cm || !img.ancho_cm
+          )
+          if (sinMetadataCompleta.length > 0) {
+            newErrors.portfolio_images = `${sinMetadataCompleta.length} imagen(es) sin título o dimensiones completas`
+          }
+        }
+
         if (!formData.documentos?.identificacion)
           newErrors.identificacion = 'Identificación es requerida'
         break
 
       case 4:
-        // Validar términos (esto se maneja en el paso 4)
+        if (!formData.paquete_id) newErrors.paquete_id = 'Debes seleccionar un paquete'
+        if (!formData.layout_canvas_url)
+          newErrors.layout = 'Debes guardar el layout del canvas'
+        break
+
+      case 5:
+        // Validar términos (esto se maneja en el paso 5)
         break
     }
 
@@ -201,11 +227,30 @@ export default function RegistroPage() {
       if (formData.documentos?.cv) {
         formDataToSend.append('cv', formData.documentos.cv)
       }
-      if (formData.documentos?.portfolio) {
-        formDataToSend.append('portfolio', formData.documentos.portfolio)
-      }
       if (formData.documentos?.identificacion) {
         formDataToSend.append('identificacion', formData.documentos.identificacion)
+      }
+
+      // Portfolio images (múltiples imágenes con metadata)
+      if (formData.portfolio_images && formData.portfolio_images.length > 0) {
+        formData.portfolio_images.forEach((img, index) => {
+          formDataToSend.append(`portfolio_image_${index}`, img.file)
+          formDataToSend.append(`portfolio_image_${index}_titulo`, img.titulo)
+          formDataToSend.append(`portfolio_image_${index}_alto_cm`, img.alto_cm)
+          formDataToSend.append(`portfolio_image_${index}_ancho_cm`, img.ancho_cm)
+        })
+        formDataToSend.append('portfolio_images_count', formData.portfolio_images.length)
+      }
+
+      // Paso 5: Paquetes y Layout
+      if (formData.paquete_id) {
+        formDataToSend.append('paquete_id', formData.paquete_id)
+      }
+      if (formData.layout_canvas_url) {
+        formDataToSend.append('layout_canvas_url', formData.layout_canvas_url)
+      }
+      if (formData.layout_canvas_data) {
+        formDataToSend.append('layout_canvas_data', JSON.stringify(formData.layout_canvas_data))
       }
 
       // Enviar a la API
@@ -561,6 +606,13 @@ export default function RegistroPage() {
             />
           )}
           {currentStep === 4 && (
+            <Step5Paquetes
+              formData={formData}
+              updateFormData={updateFormData}
+              errors={errors}
+            />
+          )}
+          {currentStep === 5 && (
             <Step4Confirmacion formData={formData} errors={errors} />
           )}
 
@@ -616,7 +668,7 @@ export default function RegistroPage() {
                 Anterior
               </button>
             )}
-            {currentStep < 4 ? (
+            {currentStep < 5 ? (
               <button
                 onClick={handleNext}
                 style={{

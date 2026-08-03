@@ -72,6 +72,11 @@ export default function LandingArtefacto() {
     const toColor = SCREEN_COLORS[target];
     const fromHero = screenRef.current === 'hero';
 
+    // Detectar dirección de navegación
+    const currentIndex = ORDER.indexOf(screenRef.current);
+    const targetIndex = ORDER.indexOf(target);
+    const isNavigatingUp = targetIndex < currentIndex;
+
     // Determinar tipo de transición y obtener timings
     const transType = getTransitionType(screenRef.current, target);
     const timings = getTransitionTimings(transType);
@@ -90,12 +95,16 @@ export default function LandingArtefacto() {
         setTransitionPhase('out');
 
         setTimeout(() => {
-          lenis.current?.scrollTo?.(0, { immediate: true });
-          window.scrollTo(0, 0);
           setScreen(target);
           setHeroExiting(false);
           setTransitionPhase('in');
           setFx('in');
+
+          // Siempre al inicio cuando sales del hero
+          setTimeout(() => {
+            lenis.current?.scrollTo?.(0, { immediate: true });
+            window.scrollTo(0, 0);
+          }, 0);
 
           setTimeout(() => {
             setTransitionPhase(null);
@@ -112,11 +121,28 @@ export default function LandingArtefacto() {
       setFx('out');
 
       setTimeout(() => {
-        lenis.current?.scrollTo?.(0, { immediate: true });
-        window.scrollTo(0, 0);
         setScreen(target);
         setTransitionPhase('in');
         setFx('in');
+
+        // Posicionar scroll según la dirección
+        // Usar requestAnimationFrame para esperar a que el DOM se actualice
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            if (isNavigatingUp) {
+              // Navegando hacia arriba: scroll al final de la página
+              const scrollHeight = document.documentElement.scrollHeight;
+              const windowHeight = window.innerHeight;
+              const scrollTo = Math.max(0, scrollHeight - windowHeight);
+              lenis.current?.scrollTo?.(scrollTo, { immediate: true });
+              window.scrollTo(0, scrollTo);
+            } else {
+              // Navegando hacia abajo: scroll al inicio
+              lenis.current?.scrollTo?.(0, { immediate: true });
+              window.scrollTo(0, 0);
+            }
+          });
+        });
 
         setTimeout(() => {
           setTransitionPhase(null);

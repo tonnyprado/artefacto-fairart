@@ -25,7 +25,7 @@ export default function Step4Confirmacion({ formData, errors }) {
       </div>
 
       {/* Resumen de Datos */}
-      <div className="bg-gray-50 rounded-xl p-6 space-y-4">
+      <div className="bg-gray-50 rounded-3xl p-6 space-y-4">
         {/* Datos Personales */}
         <div>
           <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
@@ -320,7 +320,7 @@ export default function Step4Confirmacion({ formData, errors }) {
         )}
       </div>
 
-      <div className="bg-green-50 border-l-4 border-green-600 p-4 rounded-r-lg">
+      <div className="bg-green-50 border-l-4 border-green-600 p-4 rounded-r-2xl">
         <div className="flex">
           <svg
             className="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5"

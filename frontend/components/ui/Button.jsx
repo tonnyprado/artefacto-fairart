@@ -24,7 +24,7 @@ export default function Button({
   onClick,
   ...props
 }) {
-  const baseStyles = 'inline-flex items-center justify-center font-semibold transition-all duration-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed'
+  const baseStyles = 'inline-flex items-center justify-center font-semibold transition-all duration-200 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed'
 
   const variants = {
     primary: 'bg-red-600 text-white hover:bg-red-700 active:bg-red-800',

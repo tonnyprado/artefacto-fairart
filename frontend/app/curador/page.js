@@ -191,7 +191,7 @@ function CuradorDashboardContent() {
           <div className="space-y-8">
             {/* Fase activa alert */}
             {faseActiva && faseActiva.votaciones_abiertas && (
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-l-4 border-purple-600 p-6 rounded-r-lg">
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-l-4 border-purple-600 p-6 rounded-r-2xl">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <h3 className="font-semibold text-purple-900 mb-2">
@@ -328,7 +328,7 @@ function CuradorDashboardContent() {
             </div>
 
             {/* User Info */}
-            <div className="bg-purple-50 border-l-4 border-purple-600 p-6 rounded-r-lg">
+            <div className="bg-purple-50 border-l-4 border-purple-600 p-6 rounded-r-2xl">
               <div className="flex items-start">
                 <svg className="w-6 h-6 text-purple-600 mr-3 mt-1" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />

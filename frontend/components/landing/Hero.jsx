@@ -74,10 +74,11 @@ export default function Hero() {
     >
       {/* Background Image con Overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-red-900 via-gray-900 to-black">
-        {/* Pattern overlay */}
-        <div className="absolute inset-0 opacity-10">
+        {/* Pattern overlay - ARTEFACTO text pattern */}
+        <div className="absolute inset-0 opacity-[0.08]">
           <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='400' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='0' y='40' fill='%23ffffff' font-size='48' font-weight='900' font-family='system-ui, -apple-system, sans-serif' letter-spacing='8'%3EARTEFACTO%3C/text%3E%3Ctext x='200' y='120' fill='%23ffffff' font-size='48' font-weight='900' font-family='system-ui, -apple-system, sans-serif' letter-spacing='8'%3EARTEFACTO%3C/text%3E%3Ctext x='0' y='200' fill='%23ffffff' font-size='48' font-weight='900' font-family='system-ui, -apple-system, sans-serif' letter-spacing='8'%3EARTEFACTO%3C/text%3E%3C/svg%3E")`,
+            backgroundSize: '400px 200px'
           }} />
         </div>
       </div>
@@ -124,15 +125,15 @@ export default function Hero() {
 
           {/* Stats */}
           <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6">
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
               <div className="text-4xl font-bold text-white mb-2">3</div>
               <div className="text-gray-300 text-sm">Fases de Selección</div>
             </div>
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6">
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
               <div className="text-4xl font-bold text-white mb-2">20%</div>
               <div className="text-gray-300 text-sm">Artistas Seleccionados</div>
             </div>
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6">
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
               <div className="text-4xl font-bold text-white mb-2">2027</div>
               <div className="text-gray-300 text-sm">Próxima Edición</div>
             </div>

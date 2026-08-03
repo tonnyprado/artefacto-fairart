@@ -5,14 +5,12 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import FullScreenBlock from './FullScreenBlock';
 import ImageBackgroundBlock from './ImageBackgroundBlock';
 import ConvocatoriaBlock from './ConvocatoriaBlock';
-import CronogramaBlock from './CronogramaBlock';
-import UbicacionBlock from './UbicacionBlock';
 import { COLORS, FONTS, container } from './theme';
 
 gsap.registerPlugin(ScrollTrigger);
 
 /**
- * Nueva sección CONOCE MÁS con 8 bloques fullscreen
+ * Nueva sección CONOCE MÁS con 5 bloques fullscreen
  */
 export default function ConoceMasSection() {
   const titleRef = useRef(null);
@@ -119,7 +117,6 @@ export default function ConoceMasSection() {
       id="conoce-mas"
       ref={sectionRef}
       style={{
-        scrollMarginTop: 88,
         background: COLORS.cream,
       }}
     >
@@ -220,12 +217,6 @@ export default function ConoceMasSection() {
 
       {/* BLOQUE 5: Convocatoria (fondo azul) */}
       <ConvocatoriaBlock />
-
-      {/* BLOQUE 6: Cronograma */}
-      <CronogramaBlock />
-
-      {/* BLOQUES 7-8: Ubicación */}
-      <UbicacionBlock backgroundImage="/assets/estacion-indianilla-bg.png" />
     </section>
   );
 }

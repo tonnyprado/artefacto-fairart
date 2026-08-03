@@ -147,7 +147,7 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
         placeholder="Calle, número, colonia"
       />
 
-      <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r-lg">
+      <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r-2xl">
         <div className="flex">
           <svg
             className="w-5 h-5 text-blue-600 mr-2 flex-shrink-0"

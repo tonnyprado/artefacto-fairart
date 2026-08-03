@@ -9,7 +9,7 @@ export default function Card({ children, className, hover = false, ...props }) {
   return (
     <div
       className={cn(
-        'bg-white rounded-lg shadow-md p-6 border border-gray-100',
+        'bg-white rounded-2xl shadow-md p-6 border border-gray-100',
         hover && 'transition-all hover:shadow-lg hover:-translate-y-1',
         className
       )}

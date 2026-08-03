@@ -131,7 +131,7 @@ export default function Step2InfoArtistica({ formData, updateFormData, errors })
         </div>
       </div>
 
-      <div className="bg-yellow-50 border-l-4 border-yellow-600 p-4 rounded-r-lg">
+      <div className="bg-yellow-50 border-l-4 border-yellow-600 p-4 rounded-r-2xl">
         <div className="flex">
           <svg
             className="w-5 h-5 text-yellow-600 mr-2 flex-shrink-0"

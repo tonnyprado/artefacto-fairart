@@ -36,6 +36,11 @@ export default function CustomCursor() {
       mouseX = e.clientX;
       mouseY = e.clientY;
 
+      // Asegurar que el cursor sea visible
+      if (!isVisible) {
+        setIsVisible(true);
+      }
+
       // Detectar si está sobre elemento interactivo
       const target = e.target;
       const isInteractive = !!target.closest('a, button, input, textarea, select, [role="button"]');
@@ -63,23 +68,24 @@ export default function CustomCursor() {
       setIsVisible(false);
     };
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener('mouseup', handleMouseUp);
+    // Usar window en vez de document para mejor compatibilidad
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mouseup', handleMouseUp);
     document.addEventListener('mouseenter', handleMouseEnter);
     document.addEventListener('mouseleave', handleMouseLeave);
 
     updateCursor();
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mousedown', handleMouseDown);
-      document.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('mouseup', handleMouseUp);
       document.removeEventListener('mouseenter', handleMouseEnter);
       document.removeEventListener('mouseleave', handleMouseLeave);
       cancelAnimationFrame(rafId);
     };
-  }, []);
+  }, [isVisible]);
 
   return (
     <div

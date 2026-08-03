@@ -3,25 +3,25 @@ export default function ArtistasAdmin() {
     <div>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Artistas y Obras</h1>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        <button className="bg-blue-600 text-white px-4 py-2 rounded-2xl hover:bg-blue-700">
           Agregar Artista
         </button>
       </div>
 
       {/* Filtros */}
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
+      <div className="bg-white rounded-2xl shadow p-6 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <input
             type="text"
             placeholder="Buscar artista..."
-            className="border rounded px-4 py-2"
+            className="border rounded-2xl px-4 py-2"
           />
-          <select className="border rounded px-4 py-2">
+          <select className="border rounded-2xl px-4 py-2">
             <option>Todos los estados</option>
             <option>Activo</option>
             <option>Inactivo</option>
           </select>
-          <select className="border rounded px-4 py-2">
+          <select className="border rounded-2xl px-4 py-2">
             <option>Todas las categorías</option>
             <option>Pintura</option>
             <option>Escultura</option>
@@ -31,7 +31,7 @@ export default function ArtistasAdmin() {
       </div>
 
       {/* Tabla de artistas */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-white rounded-2xl shadow overflow-hidden">
         <table className="w-full">
           <thead className="bg-gray-50 border-b">
             <tr>

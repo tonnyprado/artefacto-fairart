@@ -38,10 +38,13 @@ body {
   background: rgba(244, 237, 228, 0.9);
   border-radius: 50%;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 999999;
   transform: translate(-50%, -50%);
   transition: transform 0.2s ease-out, opacity 0.15s ease-out, width 0.2s ease-out, height 0.2s ease-out;
   mix-blend-mode: difference;
+  /* Optimizaciones de performance */
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 .custom-cursor.hovering {

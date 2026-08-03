@@ -275,7 +275,7 @@ export default function ContactSection() {
 
           {/* Contact Form */}
           <div>
-            <div className="bg-white rounded-xl shadow-lg p-8">
+            <div className="bg-white rounded-3xl shadow-lg p-8">
               <h3 className="text-2xl font-bold text-gray-900 mb-6">
                 Envíanos un mensaje
               </h3>

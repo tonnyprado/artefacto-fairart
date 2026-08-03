@@ -136,7 +136,11 @@ export const createArtista = async (req, res) => {
       bio,
       foto,
       redes_sociales,
-      documentos
+      documentos,
+      paquete_id,
+      layout_canvas_url,
+      layout_canvas_data,
+      portfolio_images_count
     } = req.body
 
     // Validaciones básicas
@@ -156,6 +160,42 @@ export const createArtista = async (req, res) => {
       })
     }
 
+    // Procesar portfolio_images si existen
+    const portfolioImages = []
+    const count = parseInt(portfolio_images_count) || 0
+
+    if (count > 0) {
+      for (let i = 0; i < count; i++) {
+        const titulo = req.body[`portfolio_image_${i}_titulo`]
+        const alto_cm = req.body[`portfolio_image_${i}_alto_cm`]
+        const ancho_cm = req.body[`portfolio_image_${i}_ancho_cm`]
+
+        // En mock data, simulamos la URL de Cloudinary
+        // TODO: Cuando se conecte Cloudinary real, aquí se subirá el archivo req.files[`portfolio_image_${i}`]
+        const mockImageUrl = `https://res.cloudinary.com/demo/image/upload/portfolio/obra_${i}_${Date.now()}.jpg`
+
+        portfolioImages.push({
+          id: `img-${Date.now()}-${i}`,
+          titulo: titulo || `Obra ${i + 1}`,
+          alto_cm: parseFloat(alto_cm) || 0,
+          ancho_cm: parseFloat(ancho_cm) || 0,
+          url: mockImageUrl
+        })
+      }
+    }
+
+    // Parsear layout_canvas_data si viene como string
+    let parsedLayoutData = {}
+    if (layout_canvas_data) {
+      try {
+        parsedLayoutData = typeof layout_canvas_data === 'string'
+          ? JSON.parse(layout_canvas_data)
+          : layout_canvas_data
+      } catch (e) {
+        console.error('Error parsing layout_canvas_data:', e)
+      }
+    }
+
     // Crear artista
     const nuevoArtista = {
       id: getNextId.artista(),
@@ -170,7 +210,13 @@ export const createArtista = async (req, res) => {
       bio: bio || null,
       foto: foto || null,
       redes_sociales: redes_sociales || {},
-      documentos: documentos || {},
+      documentos: {
+        ...(documentos || {}),
+        portfolio_images: portfolioImages
+      },
+      paquete_id: paquete_id ? parseInt(paquete_id) : null,
+      layout_canvas_url: layout_canvas_url || null,
+      layout_canvas_data: parsedLayoutData,
       aprobado: false,
       estado_registro: 'pendiente',
       created_at: now(),

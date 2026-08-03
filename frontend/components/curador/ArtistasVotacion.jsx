@@ -142,7 +142,7 @@ export default function ArtistasVotacion() {
   return (
     <div className="space-y-6">
       {/* Header con progreso */}
-      <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-l-4 border-purple-600 p-6 rounded-r-lg">
+      <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-l-4 border-purple-600 p-6 rounded-r-2xl">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <h3 className="font-semibold text-purple-900 mb-2">

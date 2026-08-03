@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { COLORS, FONTS, container } from './theme';
+import UbicacionBlock from './UbicacionBlock';
 
 const DATOS = [
   { label: 'Email General', value: 'convocatoria@artefacto.mx', href: 'mailto:convocatoria@artefacto.mx' },
@@ -13,7 +14,7 @@ const REDES = [
   { label: 'Facebook ↗', href: 'https://facebook.com/artefacto' },
 ];
 
-const inputStyle = { border: `2px solid ${COLORS.black}`, background: COLORS.creamDark, padding: 14, fontFamily: FONTS.body, fontSize: 15 };
+const inputStyle = { border: `2px solid ${COLORS.black}`, background: COLORS.creamDark, padding: 14, fontFamily: FONTS.body, fontSize: 15, borderRadius: 16 };
 const labelStyle = { display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' };
 
 export default function ContactSection({ onSubmit }) {
@@ -50,7 +51,7 @@ export default function ContactSection({ onSubmit }) {
           }
         }
       `}</style>
-      <section id="contacto" style={{ scrollMarginTop: 88, background: COLORS.red, color: COLORS.black, padding: '150px 24px 96px' }}>
+      <section id="contacto" style={{ background: COLORS.red, color: COLORS.black, padding: '150px 24px 96px' }}>
         <div style={container}>
           <h2 style={{
             margin: '0 0 48px',
@@ -84,7 +85,7 @@ export default function ContactSection({ onSubmit }) {
             <img src="/assets/monogram-a-black.svg" alt="" style={{ width: 120, marginTop: 48 }} />
           </div>
 
-          <div style={{ border: `2px solid ${COLORS.black}`, background: COLORS.cream, padding: 40 }}>
+          <div style={{ border: `2px solid ${COLORS.black}`, background: COLORS.cream, padding: 40, borderRadius: 16 }}>
             <h3 style={{
               margin: '0 0 28px',
               fontFamily: FONTS.display,
@@ -105,12 +106,12 @@ export default function ContactSection({ onSubmit }) {
               </div>
               <label style={labelStyle}>Mensaje<textarea name="mensaje" required rows={5} placeholder="Escribe tu mensaje aquí..." style={{ ...inputStyle, resize: 'vertical' }} /></label>
               <button type="submit" disabled={status === 'sending'}
-                style={{ background: COLORS.red, color: COLORS.cream, border: 'none', padding: 18, fontFamily: FONTS.body, fontWeight: 700, fontSize: 14, letterSpacing: '0.12em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                style={{ background: COLORS.red, color: COLORS.cream, border: 'none', padding: 18, fontFamily: FONTS.body, fontWeight: 700, fontSize: 14, letterSpacing: '0.12em', textTransform: 'uppercase', cursor: 'pointer', borderRadius: 16 }}>
                 {status === 'sending' ? 'Enviando...' : 'Enviar Mensaje'}
               </button>
             </form>
             {status === 'sent' && (
-              <div style={{ marginTop: 18, border: `2px solid ${COLORS.black}`, background: COLORS.creamDark, padding: '16px 20px', fontSize: 15, fontWeight: 600 }}>
+              <div style={{ marginTop: 18, border: `2px solid ${COLORS.black}`, background: COLORS.creamDark, padding: '16px 20px', fontSize: 15, fontWeight: 600, borderRadius: 16 }}>
                 ¡Mensaje enviado! Te responderemos pronto.
               </div>
             )}
@@ -118,6 +119,9 @@ export default function ContactSection({ onSubmit }) {
         </div>
         </div>
       </section>
+
+      {/* Sección de Ubicación */}
+      <UbicacionBlock backgroundImage="/assets/estacion-indianilla-bg.png" />
     </>
   );
 }

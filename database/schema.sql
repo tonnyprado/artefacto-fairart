@@ -39,6 +39,9 @@ CREATE TABLE IF NOT EXISTS artistas (
   slug VARCHAR(255) UNIQUE NOT NULL,
   redes_sociales JSONB DEFAULT '{}', -- {instagram, facebook, website, etc.}
   documentos JSONB DEFAULT '{}', -- {cv, portfolio, identificacion, etc.}
+  paquete_id INTEGER REFERENCES paquetes(id) ON DELETE SET NULL, -- Paquete seleccionado por el artista
+  layout_canvas_url VARCHAR(500), -- URL de la imagen del layout del canvas (en Cloudinary)
+  layout_canvas_data JSONB DEFAULT '{}', -- Datos del layout: posiciones de obras, dimensiones, escala
   estado VARCHAR(50) DEFAULT 'pendiente' CHECK (estado IN ('pendiente', 'aprobado', 'rechazado')),
   notas_admin TEXT, -- Notas internas del admin
   activo BOOLEAN DEFAULT true,
@@ -99,6 +102,9 @@ CREATE TABLE IF NOT EXISTS paquetes (
   nombre VARCHAR(255) NOT NULL,
   descripcion TEXT NOT NULL,
   precio DECIMAL(10, 2) NOT NULL,
+  metros_lineales DECIMAL(5, 2) NOT NULL DEFAULT 3.0, -- Metros lineales de pared
+  altura_pared DECIMAL(5, 2) NOT NULL DEFAULT 2.4, -- Altura de la pared en metros
+  obras_maximas INTEGER NOT NULL DEFAULT 10, -- Número máximo de obras permitidas
   beneficios JSONB DEFAULT '[]',
   activo BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

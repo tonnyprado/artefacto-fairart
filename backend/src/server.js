@@ -15,6 +15,8 @@ import artistasRoutes from './routes/artistas.routes.js'
 import fasesRoutes from './routes/fases.routes.js'
 import curadoresRoutes from './routes/curadores.routes.js'
 import votacionesRoutes from './routes/votaciones.routes.js'
+import paquetesRoutes from './routes/paquetes.routes.js'
+import layoutsRoutes from './routes/layouts.routes.js'
 
 // Configuración de __dirname para ES modules
 const __filename = fileURLToPath(import.meta.url)
@@ -67,6 +69,8 @@ app.use('/api/artistas', artistasRoutes)
 app.use('/api/fases', fasesRoutes)
 app.use('/api/curadores', curadoresRoutes)
 app.use('/api/votaciones', votacionesRoutes)
+app.use('/api/paquetes', paquetesRoutes)
+app.use('/api/layouts', layoutsRoutes)
 
 // Ruta 404
 app.use('*', (req, res) => {

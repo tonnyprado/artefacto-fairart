@@ -18,6 +18,7 @@ let nextFaseId = 3
 let nextCuradorId = 3
 let nextVotacionId = 7
 let nextArtistaFaseId = 7
+let nextPaqueteId = 4
 
 // USUARIOS (Admin y Curadores)
 // Password: admin123 (hasheado con bcrypt)
@@ -256,6 +257,76 @@ export const artistas_fases = [
   { id: 6, artista_id: 2, fase_id: 2, created_at: '2027-02-16T10:00:00Z' }
 ]
 
+// PAQUETES
+export const paquetes = [
+  {
+    id: 1,
+    nombre: 'Paquete Básico',
+    descripcion: 'Ideal para artistas emergentes que desean mostrar sus primeras obras en ARTEFACT',
+    precio: 1500.00,
+    metros_lineales: 3.0,
+    altura_pared: 2.4,
+    obras_maximas: 8,
+    beneficios: [
+      'Espacio de 3 metros lineales de pared',
+      'Altura de 2.4 metros',
+      'Iluminación profesional LED',
+      'Tarjeta de presentación junto a las obras',
+      'Mención en catálogo digital',
+      'Acceso a inauguración'
+    ],
+    activo: true,
+    created_at: '2027-01-10T10:00:00Z',
+    updated_at: '2027-01-10T10:00:00Z'
+  },
+  {
+    id: 2,
+    nombre: 'Paquete Profesional',
+    descripcion: 'Para artistas establecidos con trayectoria reconocida que buscan mayor espacio de exhibición',
+    precio: 2800.00,
+    metros_lineales: 5.0,
+    altura_pared: 2.8,
+    obras_maximas: 15,
+    beneficios: [
+      'Espacio de 5 metros lineales de pared',
+      'Altura de 2.8 metros',
+      'Iluminación premium con spotlights dirigibles',
+      'Página completa en catálogo impreso',
+      'Sesión fotográfica profesional de las obras',
+      'Promoción en redes sociales de ARTEFACT',
+      'Invitaciones VIP para la inauguración (5)',
+      'Video time-lapse del montaje'
+    ],
+    activo: true,
+    created_at: '2027-01-10T10:00:00Z',
+    updated_at: '2027-01-10T10:00:00Z'
+  },
+  {
+    id: 3,
+    nombre: 'Paquete Premium',
+    descripcion: 'Espacio exclusivo para artistas de alto reconocimiento con propuestas ambiciosas',
+    precio: 4500.00,
+    metros_lineales: 8.0,
+    altura_pared: 3.0,
+    obras_maximas: 25,
+    beneficios: [
+      'Espacio de 8 metros lineales de pared',
+      'Altura de 3 metros',
+      'Iluminación de museo con sistema de control',
+      'Stand personalizado con diseño arquitectónico',
+      'Portada del catálogo impreso',
+      'Video promocional de 2 minutos',
+      'Conferencia de prensa con medios especializados',
+      'Cocktail privado de inauguración (20 invitados)',
+      'Entrevista en revista de arte',
+      'Coordinador personal de montaje'
+    ],
+    activo: true,
+    created_at: '2027-01-10T10:00:00Z',
+    updated_at: '2027-01-10T10:00:00Z'
+  }
+]
+
 // VOTACIONES
 export const votaciones = [
   {
@@ -333,7 +404,8 @@ export const getNextId = {
   fase: () => nextFaseId++,
   curador: () => nextCuradorId++,
   votacion: () => nextVotacionId++,
-  artistaFase: () => nextArtistaFaseId++
+  artistaFase: () => nextArtistaFaseId++,
+  paquete: () => nextPaqueteId++
 }
 
 // Helper para crear timestamp

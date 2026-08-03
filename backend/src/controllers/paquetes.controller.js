@@ -4,10 +4,19 @@ import { paquetes, getNextId, now } from '../data/mockData.js'
 
 export const getPaquetes = async (req, res) => {
   try {
-    const sortedPaquetes = [...paquetes].sort((a, b) => a.precio - b.precio)
-    res.json({ paquetes: sortedPaquetes })
+    const { activo } = req.query
+
+    let filteredPaquetes = [...paquetes]
+
+    // Filtrar solo activos si se especifica
+    if (activo === 'true') {
+      filteredPaquetes = filteredPaquetes.filter(p => p.activo === true)
+    }
+
+    const sortedPaquetes = filteredPaquetes.sort((a, b) => a.precio - b.precio)
+    res.json({ success: true, data: sortedPaquetes })
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener paquetes' })
+    res.status(500).json({ success: false, error: 'Error al obtener paquetes' })
   }
 }
 
@@ -25,12 +34,24 @@ export const getPaqueteById = async (req, res) => {
 
 export const createPaquete = async (req, res) => {
   try {
-    const { nombre, descripcion, precio, beneficios } = req.body
+    const {
+      nombre,
+      descripcion,
+      precio,
+      beneficios,
+      metros_lineales,
+      altura_pared,
+      obras_maximas
+    } = req.body
+
     const nuevoPaquete = {
       id: getNextId.paquete(),
       nombre,
       descripcion,
       precio,
+      metros_lineales: metros_lineales || 3.0,
+      altura_pared: altura_pared || 2.4,
+      obras_maximas: obras_maximas || 10,
       beneficios: beneficios || [],
       activo: true,
       created_at: now(),
@@ -45,16 +66,29 @@ export const createPaquete = async (req, res) => {
 
 export const updatePaquete = async (req, res) => {
   try {
-    const { nombre, descripcion, precio, beneficios } = req.body
+    const {
+      nombre,
+      descripcion,
+      precio,
+      beneficios,
+      metros_lineales,
+      altura_pared,
+      obras_maximas
+    } = req.body
+
     const index = paquetes.findIndex(p => p.id === parseInt(req.params.id))
     if (index === -1) {
       return res.status(404).json({ error: 'Paquete no encontrado' })
     }
+
     paquetes[index] = {
       ...paquetes[index],
       ...(nombre && { nombre }),
       ...(descripcion && { descripcion }),
       ...(precio && { precio }),
+      ...(metros_lineales && { metros_lineales }),
+      ...(altura_pared && { altura_pared }),
+      ...(obras_maximas && { obras_maximas }),
       ...(beneficios && { beneficios }),
       updated_at: now()
     }

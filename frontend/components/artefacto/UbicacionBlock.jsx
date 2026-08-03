@@ -212,7 +212,7 @@ export default function UbicacionBlock({ backgroundImage }) {
               style={{
                 width: '100%',
                 aspectRatio: '1',
-                maxWidth: 500,
+                maxWidth: 350,
                 borderRadius: '50%',
                 overflow: 'hidden',
                 border: `4px solid ${COLORS.cream}`,
@@ -241,7 +241,7 @@ export default function UbicacionBlock({ backgroundImage }) {
               background: 'rgba(244, 237, 228, 0.95)',
               backdropFilter: 'blur(10px)',
               padding: 48,
-              borderRadius: 8,
+              borderRadius: 16,
               border: `3px solid ${COLORS.black}`,
             }}
           >
@@ -326,6 +326,7 @@ export default function UbicacionBlock({ backgroundImage }) {
                 textTransform: 'uppercase',
                 textDecoration: 'none',
                 border: `2px solid ${COLORS.black}`,
+                borderRadius: 16,
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
               }}
