@@ -144,12 +144,13 @@ function ObraImage({ obra, onDragEnd, isSelected, onSelect, scaleFactor }) {
 
 export default function LayoutCanvas({
   paquete,
-  portfolioImages,
+  portfolioImages = [],
   initialLayout,
   onSave,
   errors
 }) {
   const stageRef = useRef()
+  const fileInputRef = useRef()
 
   // Configuración del canvas
   const canvasHeight = (paquete.altura_pared / paquete.metros_lineales) * CANVAS_WIDTH
@@ -160,20 +161,24 @@ export default function LayoutCanvas({
   const scaleFactor = CANVAS_WIDTH / (paquete.metros_lineales * 100)
 
   // Estado
+  const [todasLasObras, setTodasLasObras] = useState(portfolioImages)
   const [obrasEnCanvas, setObrasEnCanvas] = useState(initialLayout?.obras || [])
   const [selectedObraId, setSelectedObraId] = useState(null)
   const [isSaving, setIsSaving] = useState(false)
   const [validationErrors, setValidationErrors] = useState([])
   const [containerWidth, setContainerWidth] = useState(CANVAS_WIDTH)
+  const [editingObra, setEditingObra] = useState(null)
+  const [showMetadataForm, setShowMetadataForm] = useState(false)
 
   // Obras disponibles (no en canvas)
-  const obrasDisponibles = portfolioImages.filter(
+  const obrasDisponibles = todasLasObras.filter(
     (img) => !obrasEnCanvas.some((o) => o.id === img.id)
   )
 
   // Debug: Log de portfolioImages recibidas
   useEffect(() => {
     console.log('Portfolio images received:', portfolioImages)
+    setTodasLasObras(portfolioImages)
   }, [portfolioImages])
 
   // Responsive: Ajustar ancho del contenedor
@@ -194,9 +199,73 @@ export default function LayoutCanvas({
   // Factor de escala visual para responsive
   const visualScale = containerWidth / CANVAS_WIDTH
 
+  // Agregar nueva obra (cargar archivo)
+  const handleAddNewObra = (e) => {
+    const files = Array.from(e.target.files)
+    const MAX_SIZE = 5 * 1024 * 1024 // 5MB
+
+    const validFiles = files.filter(file => {
+      if (file.size > MAX_SIZE) {
+        alert(`${file.name} excede el límite de 5MB`)
+        return false
+      }
+      if (!file.type.startsWith('image/')) {
+        alert(`${file.name} no es una imagen válida`)
+        return false
+      }
+      return true
+    })
+
+    const newObras = validFiles.map(file => ({
+      id: `img-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      file,
+      preview: URL.createObjectURL(file),
+      titulo: '',
+      alto_cm: '',
+      ancho_cm: ''
+    }))
+
+    setTodasLasObras([...todasLasObras, ...newObras])
+
+    // Si es solo una imagen, abrir el form de metadata
+    if (newObras.length === 1) {
+      setEditingObra(newObras[0])
+      setShowMetadataForm(true)
+    }
+  }
+
+  // Actualizar metadata de obra
+  const handleUpdateMetadata = (obraId, field, value) => {
+    setTodasLasObras(todasLasObras.map(obra =>
+      obra.id === obraId ? { ...obra, [field]: value } : obra
+    ))
+  }
+
+  // Eliminar obra de la lista
+  const handleDeleteObra = (obraId) => {
+    const obra = todasLasObras.find(o => o.id === obraId)
+    if (obra?.preview && obra.preview.startsWith('blob:')) {
+      URL.revokeObjectURL(obra.preview)
+    }
+    setTodasLasObras(todasLasObras.filter(o => o.id !== obraId))
+    setObrasEnCanvas(obrasEnCanvas.filter(o => o.id !== obraId))
+    if (editingObra?.id === obraId) {
+      setEditingObra(null)
+      setShowMetadataForm(false)
+    }
+  }
+
   // Agregar obra al canvas
   const handleAddToCanvas = (portfolioImage) => {
     console.log('Adding obra to canvas:', portfolioImage)
+
+    // Validar metadata completa
+    if (!portfolioImage.titulo || !portfolioImage.alto_cm || !portfolioImage.ancho_cm) {
+      alert('Por favor completa el título y las dimensiones de la obra antes de agregarla al canvas')
+      setEditingObra(portfolioImage)
+      setShowMetadataForm(true)
+      return
+    }
 
     // Validar obras máximas
     if (obrasEnCanvas.length >= paquete.obras_maximas) {
@@ -392,41 +461,211 @@ export default function LayoutCanvas({
       {/* Sidebar: Obras disponibles */}
       <div className="lg:col-span-1 space-y-4">
         <div className="bg-gray-50 p-4 rounded-2xl border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">
-            Tus Obras ({obrasDisponibles.length})
-          </h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Tus Obras ({todasLasObras.length})
+            </h3>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center justify-center w-10 h-10 bg-gray-900 text-white rounded-full hover:bg-gray-700 transition-all"
+              title="Agregar obra"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleAddNewObra}
+              className="hidden"
+            />
+          </div>
           <p className="text-xs text-gray-600 mb-4">
-            Haz clic para agregar al canvas
+            Haz clic en "+" para cargar obras. Luego haz clic en una obra para agregarla al canvas
           </p>
 
           <div className="space-y-3 max-h-64 lg:max-h-96 overflow-y-auto">
-            {obrasDisponibles.map((img) => (
-              <div
-                key={img.id}
-                onClick={() => handleAddToCanvas(img)}
-                className="bg-white p-3 rounded-2xl cursor-pointer hover:bg-gray-100 transition-all border border-gray-200"
-              >
-                <img
-                  src={img.preview}
-                  alt={img.titulo}
-                  className="w-full h-32 object-cover rounded-2xl mb-2"
-                />
-                <p className="text-sm text-gray-900 font-medium truncate">
-                  {img.titulo}
-                </p>
-                <p className="text-xs text-gray-600">
-                  {img.alto_cm} x {img.ancho_cm} cm
-                </p>
-              </div>
-            ))}
+            {todasLasObras.map((img) => {
+              const isInCanvas = obrasEnCanvas.some(o => o.id === img.id)
+              const hasMetadata = img.titulo && img.alto_cm && img.ancho_cm
 
-            {obrasDisponibles.length === 0 && (
-              <p className="text-sm text-gray-500 text-center py-8">
-                Todas tus obras están en el canvas
-              </p>
+              return (
+                <div
+                  key={img.id}
+                  className="bg-white p-3 rounded-2xl border border-gray-200 relative"
+                >
+                  <img
+                    src={img.preview}
+                    alt={img.titulo || 'Sin título'}
+                    className="w-full h-32 object-cover rounded-2xl mb-2"
+                  />
+
+                  {!hasMetadata && (
+                    <div className="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">
+                      Sin metadata
+                    </div>
+                  )}
+
+                  {isInCanvas && (
+                    <div className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                      En canvas
+                    </div>
+                  )}
+
+                  <p className="text-sm text-gray-900 font-medium truncate mb-1">
+                    {img.titulo || 'Sin título'}
+                  </p>
+                  <p className="text-xs text-gray-600 mb-2">
+                    {img.alto_cm && img.ancho_cm ? `${img.alto_cm} x ${img.ancho_cm} cm` : 'Sin dimensiones'}
+                  </p>
+
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingObra(img)
+                        setShowMetadataForm(true)
+                      }}
+                      className="flex-1 text-xs px-3 py-1 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition-all"
+                    >
+                      Editar
+                    </button>
+                    {!isInCanvas && hasMetadata && (
+                      <button
+                        type="button"
+                        onClick={() => handleAddToCanvas(img)}
+                        className="flex-1 text-xs px-3 py-1 bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition-all"
+                      >
+                        + Canvas
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteObra(img.id)}
+                      className="text-xs px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </div>
+              )
+            })}
+
+            {todasLasObras.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-sm text-gray-500 mb-3">
+                  No has agregado obras
+                </p>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="inline-flex items-center px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition-all text-sm"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Agregar obra
+                </button>
+              </div>
             )}
           </div>
         </div>
+
+        {/* Modal de metadata */}
+        {showMetadataForm && editingObra && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl p-6 max-w-md w-full">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Metadata de la obra
+              </h3>
+
+              <div className="mb-4">
+                <img
+                  src={editingObra.preview}
+                  alt="Preview"
+                  className="w-full h-48 object-cover rounded-2xl mb-3"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 mb-1">
+                    Título *
+                  </label>
+                  <input
+                    type="text"
+                    value={editingObra.titulo}
+                    onChange={(e) => handleUpdateMetadata(editingObra.id, 'titulo', e.target.value)}
+                    placeholder="Título de la obra"
+                    className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-1">
+                      Alto (cm) *
+                    </label>
+                    <input
+                      type="number"
+                      value={editingObra.alto_cm}
+                      onChange={(e) => handleUpdateMetadata(editingObra.id, 'alto_cm', e.target.value)}
+                      placeholder="Alto"
+                      min="1"
+                      step="0.1"
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-1">
+                      Ancho (cm) *
+                    </label>
+                    <input
+                      type="number"
+                      value={editingObra.ancho_cm}
+                      onChange={(e) => handleUpdateMetadata(editingObra.id, 'ancho_cm', e.target.value)}
+                      placeholder="Ancho"
+                      min="1"
+                      step="0.1"
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowMetadataForm(false)
+                    setEditingObra(null)
+                  }}
+                  className="flex-1 px-4 py-2 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition-all"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (editingObra.titulo && editingObra.alto_cm && editingObra.ancho_cm) {
+                      setShowMetadataForm(false)
+                      setEditingObra(null)
+                    } else {
+                      alert('Por favor completa todos los campos')
+                    }
+                  }}
+                  className="flex-1 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition-all"
+                >
+                  Guardar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Obras en canvas */}
         {obrasEnCanvas.length > 0 && (

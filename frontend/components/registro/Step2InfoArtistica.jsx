@@ -68,33 +68,29 @@ export default function Step2InfoArtistica({ formData, updateFormData, errors })
       />
 
       <Textarea
-        label="Biografía / Declaración Artística"
+        label="Semblanza"
         name="bio"
         value={formData.bio || ''}
         onChange={handleChange}
         error={errors?.bio}
         required
         rows={6}
-        placeholder="Describe tu trayectoria, técnicas, temáticas y propuesta artística... (mínimo 200 caracteres)"
+        placeholder="Describe tu trayectoria, técnicas, temáticas y propuesta artística (máximo 150 palabras)"
       />
 
       <div className="text-sm text-gray-500 flex items-center justify-between">
-        <span>Caracteres: {(formData.bio || '').length}</span>
-        {(formData.bio || '').length < 200 && (
+        <span>Caracteres: {(formData.bio || '').length} / 950</span>
+        {(formData.bio || '').length > 950 && (
           <span className="text-red-600">
-            Mínimo 200 caracteres (faltan {200 - (formData.bio || '').length})
+            Máximo 950 caracteres (excede por {(formData.bio || '').length - 950})
           </span>
         )}
       </div>
 
       <div className="border-t pt-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Redes Sociales y Portafolio Online
+          Redes Sociales
         </h3>
-        <p className="text-sm text-gray-600 mb-4">
-          Comparte tus perfiles para que podamos conocer más de tu trabajo
-          (opcional)
-        </p>
 
         <div className="space-y-4">
           <Input
@@ -103,30 +99,15 @@ export default function Step2InfoArtistica({ formData, updateFormData, errors })
             value={formData.redes_sociales?.instagram || ''}
             onChange={handleRedesChange}
             placeholder="@tu_usuario o https://instagram.com/tu_usuario"
+            required
           />
 
           <Input
-            label="Facebook"
-            name="facebook"
-            value={formData.redes_sociales?.facebook || ''}
-            onChange={handleRedesChange}
-            placeholder="https://facebook.com/tu_pagina"
-          />
-
-          <Input
-            label="Sitio Web Personal"
+            label="Sitio Web"
             name="website"
             value={formData.redes_sociales?.website || ''}
             onChange={handleRedesChange}
             placeholder="https://tuportfolio.com"
-          />
-
-          <Input
-            label="Behance / ArtStation / Otro"
-            name="portfolio"
-            value={formData.redes_sociales?.portfolio || ''}
-            onChange={handleRedesChange}
-            placeholder="https://behance.net/tu_usuario"
           />
         </div>
       </div>
@@ -145,8 +126,8 @@ export default function Step2InfoArtistica({ formData, updateFormData, errors })
             />
           </svg>
           <p className="text-sm text-yellow-800">
-            <strong>Importante:</strong> Una biografía completa y redes sociales
-            activas aumentan significativamente tus posibilidades de selección, ya
+            <strong>Importante:</strong> Una semblanza completa y un perfil de Instagram
+            activo aumentan significativamente tus posibilidades de selección, ya
             que los curadores evaluarán tu trayectoria y consistencia artística.
           </p>
         </div>

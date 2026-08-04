@@ -87,32 +87,57 @@ export default function RegistroPage() {
     bio: '',
     redes_sociales: {
       instagram: '',
-      facebook: '',
-      website: '',
-      portfolio: ''
+      website: ''
     },
 
     // Paso 3: Documentos
     foto: null,
-    portfolio_images: [], // Array de imágenes con metadata
     documentos: {
       cv: null,
+      portfolio: null,
       identificacion: null
     },
+    puede_facturar: '', // 'si' o 'no'
 
-    // Paso 5: Paquetes
+    // Paso 4: Tu Lienzo
     paquete_id: null,
+    portfolio_images: [], // Array de imágenes con metadata (cargadas en Tu Lienzo)
     layout_canvas_url: null,
     layout_canvas_data: {}
   })
 
-  const steps = ['Datos Personales', 'Info Artística', 'Documentos', 'Paquetes', 'Confirmar']
+  const steps = ['Datos Personales', 'Info Artística', 'Documentos', 'Tu Lienzo', 'Confirmar']
 
   const updateFormData = (newData) => {
-    setFormData((prev) => ({
-      ...prev,
-      ...newData
-    }))
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        ...newData
+      }
+      // Guardar en localStorage (excluir archivos blob)
+      try {
+        const dataToSave = {
+          ...updated,
+          // No guardar archivos blob en localStorage
+          foto: null,
+          documentos: {
+            cv: null,
+            portfolio: null,
+            identificacion: null
+          },
+          layout_canvas_blob: null,
+          obras_lienzo: updated.obras_lienzo?.map(obra => ({
+            ...obra,
+            file: null // No guardar archivos
+          })) || []
+        }
+        localStorage.setItem('artefacto_registro_draft', JSON.stringify(dataToSave))
+        console.log('FormData guardado en localStorage')
+      } catch (error) {
+        console.warn('Error guardando en localStorage:', error)
+      }
+      return updated
+    })
   }
 
   const validateStep = (step) => {
@@ -133,32 +158,21 @@ export default function RegistroPage() {
 
       case 2:
         if (!formData.categoria) newErrors.categoria = 'Categoría es requerida'
-        if (!formData.bio) newErrors.bio = 'Biografía es requerida'
-        if (formData.bio && formData.bio.length < 200)
-          newErrors.bio = 'La biografía debe tener al menos 200 caracteres'
+        if (!formData.bio) newErrors.bio = 'Semblanza es requerida'
+        if (formData.bio && formData.bio.length > 950)
+          newErrors.bio = 'La semblanza debe tener máximo 950 caracteres'
+        if (!formData.redes_sociales?.instagram)
+          newErrors.instagram = 'Instagram es requerido'
         break
 
       case 3:
         if (!formData.foto) newErrors.foto = 'Foto de perfil es requerida'
         if (!formData.documentos?.cv) newErrors.cv = 'CV artístico es requerido'
-
-        // Validar portfolio_images (múltiples imágenes con metadata)
-        if (!formData.portfolio_images || formData.portfolio_images.length === 0) {
-          newErrors.portfolio_images = 'Debes subir al menos 1 imagen de obra'
-        } else if (formData.portfolio_images.length > 15) {
-          newErrors.portfolio_images = 'Máximo 15 imágenes permitidas'
-        } else {
-          // Validar que todas las imágenes tengan metadata completa
-          const sinMetadataCompleta = formData.portfolio_images.filter(
-            img => !img.titulo || !img.alto_cm || !img.ancho_cm
-          )
-          if (sinMetadataCompleta.length > 0) {
-            newErrors.portfolio_images = `${sinMetadataCompleta.length} imagen(es) sin título o dimensiones completas`
-          }
-        }
-
+        if (!formData.documentos?.portfolio) newErrors.portfolio = 'Portafolio es requerido'
         if (!formData.documentos?.identificacion)
           newErrors.identificacion = 'Identificación es requerida'
+        if (!formData.puede_facturar)
+          newErrors.puede_facturar = 'Por favor indica si puedes emitir facturas'
         break
 
       case 4:
@@ -176,10 +190,14 @@ export default function RegistroPage() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleNext = () => {
-    if (validateStep(currentStep)) {
+  const handleNext = (skipValidation = false) => {
+    console.log('handleNext llamado con skipValidation:', skipValidation)
+    if (skipValidation || validateStep(currentStep)) {
+      console.log('Avanzando al siguiente paso...')
       setCurrentStep((prev) => Math.min(prev + 1, steps.length))
       window.scrollTo({ top: 0, behavior: 'smooth' })
+    } else {
+      console.log('Validación falló, no se avanza')
     }
   }
 
@@ -188,7 +206,17 @@ export default function RegistroPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const goToStep = (stepNumber) => {
+    console.log('Navegando al paso:', stepNumber)
+    setCurrentStep(stepNumber)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   const handleSubmit = async () => {
+    // Validar que se aceptaron los términos
+    // Nota: La validación de checkboxes debe hacerse en el componente Step4Confirmacion
+    // ya que no están en formData, están en estado local del componente
+
     if (!validateStep(currentStep)) {
       return
     }
@@ -216,9 +244,7 @@ export default function RegistroPage() {
 
       // Redes sociales
       formDataToSend.append('instagram', formData.redes_sociales?.instagram || '')
-      formDataToSend.append('facebook', formData.redes_sociales?.facebook || '')
       formDataToSend.append('website', formData.redes_sociales?.website || '')
-      formDataToSend.append('portfolio_web', formData.redes_sociales?.portfolio || '')
 
       // Archivos
       if (formData.foto) {
@@ -227,30 +253,44 @@ export default function RegistroPage() {
       if (formData.documentos?.cv) {
         formDataToSend.append('cv', formData.documentos.cv)
       }
+      if (formData.documentos?.portfolio) {
+        formDataToSend.append('portfolio', formData.documentos.portfolio)
+      }
       if (formData.documentos?.identificacion) {
         formDataToSend.append('identificacion', formData.documentos.identificacion)
       }
 
-      // Portfolio images (múltiples imágenes con metadata)
-      if (formData.portfolio_images && formData.portfolio_images.length > 0) {
-        formData.portfolio_images.forEach((img, index) => {
-          formDataToSend.append(`portfolio_image_${index}`, img.file)
-          formDataToSend.append(`portfolio_image_${index}_titulo`, img.titulo)
-          formDataToSend.append(`portfolio_image_${index}_alto_cm`, img.alto_cm)
-          formDataToSend.append(`portfolio_image_${index}_ancho_cm`, img.ancho_cm)
-        })
-        formDataToSend.append('portfolio_images_count', formData.portfolio_images.length)
-      }
+      // Capacidad de facturación
+      formDataToSend.append('puede_facturar', formData.puede_facturar)
 
-      // Paso 5: Paquetes y Layout
+      // Paso 4: Tu Lienzo - Paquetes y Layout
       if (formData.paquete_id) {
         formDataToSend.append('paquete_id', formData.paquete_id)
       }
-      if (formData.layout_canvas_url) {
-        formDataToSend.append('layout_canvas_url', formData.layout_canvas_url)
+
+      // Canvas image (blob)
+      if (formData.layout_canvas_blob) {
+        formDataToSend.append('layout_canvas_image', formData.layout_canvas_blob, 'lienzo.png')
       }
+
+      // Layout data (JSON)
       if (formData.layout_canvas_data) {
         formDataToSend.append('layout_canvas_data', JSON.stringify(formData.layout_canvas_data))
+      }
+
+      // Obras del lienzo (las que participarán en el evento)
+      if (formData.obras_lienzo && formData.obras_lienzo.length > 0) {
+        formData.obras_lienzo.forEach((obra, index) => {
+          // Archivo de la obra
+          if (obra.file) {
+            formDataToSend.append(`obra_lienzo_${index}`, obra.file)
+          }
+          // Metadata de la obra
+          formDataToSend.append(`obra_lienzo_${index}_titulo`, obra.titulo)
+          formDataToSend.append(`obra_lienzo_${index}_alto_cm`, obra.alto_cm)
+          formDataToSend.append(`obra_lienzo_${index}_ancho_cm`, obra.ancho_cm)
+        })
+        formDataToSend.append('obras_lienzo_count', formData.obras_lienzo.length)
       }
 
       // Enviar a la API
@@ -259,226 +299,102 @@ export default function RegistroPage() {
         body: formDataToSend,
       })
 
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Error al enviar el registro')
+      let result
+      try {
+        result = await response.json()
+      } catch (parseError) {
+        console.error('Error parsing response:', parseError)
+        throw new Error('Error al procesar la respuesta del servidor')
       }
 
+      if (!response.ok) {
+        throw new Error(result.message || result.error || 'Error al enviar el registro')
+      }
+
+      console.log('Registro exitoso:', result)
+      // Limpiar localStorage después de envío exitoso
+      localStorage.removeItem('artefacto_registro_draft')
       setSubmitSuccess(true)
     } catch (error) {
       console.error('Error al enviar registro:', error)
-      setErrors({ submit: error.message || 'Hubo un error al enviar tu registro. Intenta de nuevo.' })
+      setErrors({
+        submit: error.message || 'Hubo un error al enviar tu registro. Por favor intenta de nuevo.'
+      })
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  // Pantalla de éxito animada
-  const SuccessScreen = () => {
-    const containerRef = useRef(null)
-    const titleRef = useRef(null)
-    const letterRefs = useRef([])
-
-    useEffect(() => {
-      if (!containerRef.current) return
-
-      const letters = letterRefs.current.filter(Boolean)
-
-      // Animación de entrada
-      gsap.fromTo(
-        containerRef.current,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.6, ease: 'power2.out' }
-      )
-
-      // Animación de las letras con efecto de rebote
-      gsap.fromTo(
-        letters,
-        {
-          y: -100,
-          opacity: 0,
-          rotation: -15,
-          scale: 0
-        },
-        {
-          y: 0,
-          opacity: 1,
-          rotation: 0,
-          scale: 1,
-          duration: 0.8,
-          stagger: 0.08,
-          ease: 'elastic.out(1, 0.5)',
-          delay: 0.3
-        }
-      )
-
-      // Animación flotante continua de las letras
-      letters.forEach((letter, index) => {
-        gsap.to(letter, {
-          y: '+=15',
-          rotation: '+=5',
-          duration: 2 + Math.random(),
-          repeat: -1,
-          yoyo: true,
-          ease: 'power1.inOut',
-          delay: index * 0.1
-        })
-      })
-    }, [])
-
-    const message = "¡GRACIAS POR INSCRIBIRTE!"
-    const words = message.split(' ')
-
-    return (
-      <div
-        ref={containerRef}
-        style={{
-          minHeight: '100vh',
-          background: COLORS.red,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '48px 24px',
-          position: 'relative',
-          overflow: 'hidden'
-        }}
-      >
-        {/* Decoración de fondo */}
-        <div style={{
-          position: 'absolute',
-          top: '10%',
-          left: '5%',
-          width: 100,
-          height: 100,
-          opacity: 0.1,
-        }}>
-          <img src="/assets/glyph-x-white.svg" alt="" style={{ width: '100%', height: '100%' }} />
-        </div>
-        <div style={{
-          position: 'absolute',
-          bottom: '10%',
-          right: '5%',
-          width: 120,
-          height: 120,
-          opacity: 0.1,
-        }}>
-          <img src="/assets/glyph-e-white.svg" alt="" style={{ width: '100%', height: '100%' }} />
-        </div>
-
-        <div style={{
-          maxWidth: 900,
-          width: '100%',
-          textAlign: 'center'
-        }}>
-          {/* Título animado con letras individuales */}
-          <div style={{
-            marginBottom: 48,
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '8px 16px',
-            justifyContent: 'center',
-            alignItems: 'center'
-          }}>
-            {words.map((word, wordIndex) => (
-              <div key={wordIndex} style={{ display: 'flex', gap: 4 }}>
-                {word.split('').map((char, charIndex) => (
-                  <span
-                    key={`${wordIndex}-${charIndex}`}
-                    ref={(el) => letterRefs.current.push(el)}
-                    style={{
-                      fontFamily: FONTS.display,
-                      fontWeight: FONTS.displayWeight,
-                      fontStyle: FONTS.displayStyle,
-                      fontSize: 'clamp(32px, 6vw, 72px)',
-                      color: COLORS.cream,
-                      display: 'inline-block',
-                      letterSpacing: '0.02em',
-                      textTransform: 'uppercase'
-                    }}
-                  >
-                    {char}
-                  </span>
-                ))}
-              </div>
-            ))}
-          </div>
-
-          {/* Contenido */}
-          <div style={{
-            background: COLORS.black,
-            padding: '40px 48px',
-            maxWidth: 600,
-            margin: '0 auto 32px',
-          }}>
-            <p style={{
-              margin: '0 0 24px',
-              fontSize: 18,
-              lineHeight: 1.7,
-              color: COLORS.cream,
-              fontFamily: FONTS.body,
-            }}>
-              Tu inscripción ha sido recibida exitosamente. Recibirás un email de confirmación con los siguientes pasos.
-            </p>
-            <div style={{
-              background: 'rgba(244,237,228,0.1)',
-              padding: '24px',
-              borderLeft: `4px solid ${COLORS.red}`
-            }}>
-              <p style={{
-                margin: 0,
-                fontSize: 15,
-                lineHeight: 1.6,
-                color: 'rgba(244,237,228,0.9)',
-                fontFamily: FONTS.body,
-              }}>
-                <strong style={{ color: COLORS.cream, fontWeight: 700 }}>¿Qué sigue?</strong><br />
-                Tu información será revisada por nuestro equipo de curaduría. Los resultados de la votación se notificarán por email al cierre de la fase actual.
-              </p>
-            </div>
-          </div>
-
-          {/* Botón */}
-          <button
-            onClick={() => transition.navigateTo('/', { color: COLORS.cream })}
-            style={{
-              display: 'inline-block',
-              background: COLORS.cream,
-              color: COLORS.black,
-              padding: '18px 40px',
-              fontFamily: FONTS.body,
-              fontWeight: 700,
-              fontSize: 14,
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              textDecoration: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.background = COLORS.creamDark
-              e.target.style.transform = 'scale(1.05)'
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.background = COLORS.cream
-              e.target.style.transform = 'scale(1)'
-            }}
-          >
-            Volver al Inicio
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  if (submitSuccess) {
-    return <SuccessScreen />
-  }
-
-  // Refs para animaciones
+  // Refs para animaciones (TODOS los refs deben estar antes de cualquier return)
+  const successContainerRef = useRef(null)
+  const successLetterRefs = useRef([])
   const formCardRef = useRef(null)
   const prevStepRef = useRef(currentStep)
+
+  // Efecto para animar SuccessScreen
+  useEffect(() => {
+    if (!submitSuccess || !successContainerRef.current) return
+
+    const letters = successLetterRefs.current.filter(Boolean)
+
+    // Animación de entrada
+    gsap.fromTo(
+      successContainerRef.current,
+      { opacity: 0 },
+      { opacity: 1, duration: 0.6, ease: 'power2.out' }
+    )
+
+    // Animación de las letras con efecto de rebote
+    gsap.fromTo(
+      letters,
+      {
+        y: -100,
+        opacity: 0,
+        rotation: -15,
+        scale: 0
+      },
+      {
+        y: 0,
+        opacity: 1,
+        rotation: 0,
+        scale: 1,
+        duration: 0.8,
+        stagger: 0.08,
+        ease: 'elastic.out(1, 0.5)',
+        delay: 0.3
+      }
+    )
+
+    // Animación flotante continua de las letras
+    letters.forEach((letter, index) => {
+      gsap.to(letter, {
+        y: '+=15',
+        rotation: '+=5',
+        duration: 2 + Math.random(),
+        repeat: -1,
+        yoyo: true,
+        ease: 'power1.inOut',
+        delay: index * 0.1
+      })
+    })
+  }, [submitSuccess])
+
+  // Cargar datos desde localStorage al montar
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('artefacto_registro_draft')
+      if (saved) {
+        const parsedData = JSON.parse(saved)
+        console.log('Datos cargados desde localStorage:', parsedData)
+        setFormData(prev => ({
+          ...prev,
+          ...parsedData
+        }))
+      }
+    } catch (error) {
+      console.warn('Error cargando desde localStorage:', error)
+    }
+  }, [])
 
   // Animar transición entre pasos
   useEffect(() => {
@@ -525,35 +441,66 @@ export default function RegistroPage() {
         cursor: not-allowed !important;
       }
 
-      /* Forzar bordes redondeados en todos los elementos del formulario */
-      input[type="text"],
-      input[type="email"],
-      input[type="tel"],
-      input[type="date"],
-      input[type="number"],
-      input[type="file"],
+      /* REGLA GLOBAL: Todos los elementos con borde o background tienen esquinas super redondeadas */
+
+      /* Todos los inputs y controles de formulario */
+      input,
       textarea,
       select,
       button {
         border-radius: 16px !important;
       }
 
-      /* Contenedores con borde */
-      div[class*="border"],
-      div[class*="rounded"] {
+      /* Todos los divs, sections, articles, etc. */
+      div,
+      section,
+      article,
+      aside,
+      main,
+      nav,
+      header,
+      footer,
+      form,
+      fieldset,
+      legend {
         border-radius: 16px !important;
       }
 
-      /* Excepciones */
+      /* Cards, containers, wrappers */
+      [class*="card"],
+      [class*="container"],
+      [class*="wrapper"],
+      [class*="box"] {
+        border-radius: 16px !important;
+      }
+
+      /* Labels y spans con background */
+      label[class*="bg-"],
+      span[class*="bg-"],
+      p[class*="bg-"] {
+        border-radius: 16px !important;
+      }
+
+      /* EXCEPCIONES: Elementos que deben mantener sus formas específicas */
+
+      /* Checkboxes y radios pequeños */
       input[type="checkbox"],
       input[type="radio"] {
         border-radius: 4px !important;
       }
 
-      /* Círculos deben permanecer circulares */
-      div[class*="rounded-full"],
-      button[class*="rounded-full"] {
+      /* Círculos y elementos redondos */
+      [class*="rounded-full"],
+      svg circle,
+      [style*="border-radius: 50%"],
+      [style*="borderRadius: 50%"] {
         border-radius: 50% !important;
+      }
+
+      /* Progreso y barras */
+      progress,
+      meter {
+        border-radius: 16px !important;
       }
     `
     document.head.appendChild(style)
@@ -567,6 +514,222 @@ export default function RegistroPage() {
     }
   }, [])
 
+  // Pantalla de éxito animada
+  const SuccessScreen = () => {
+    // Reset letter refs array
+    successLetterRefs.current = []
+    const contentRef = useRef(null)
+    const infoRef = useRef(null)
+    const buttonRef = useRef(null)
+
+    const artistName = formData.nombre || 'artista'
+    const message = `¡GRACIAS POR INSCRIBIRTE, ${artistName.toUpperCase()}!`
+    const words = message.split(' ')
+
+    useEffect(() => {
+      // Animar contenido después de las letras
+      const timeline = gsap.timeline({ delay: 2.2 })
+
+      if (contentRef.current) {
+        timeline.fromTo(
+          contentRef.current,
+          { opacity: 0, y: 40 },
+          { opacity: 1, y: 0, duration: 1, ease: 'power2.out' }
+        )
+      }
+
+      if (infoRef.current) {
+        timeline.fromTo(
+          infoRef.current,
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' },
+          '-=0.5'
+        )
+      }
+
+      if (buttonRef.current) {
+        timeline.fromTo(
+          buttonRef.current,
+          { opacity: 0, scale: 0.8 },
+          { opacity: 1, scale: 1, duration: 0.6, ease: 'back.out(1.7)' },
+          '-=0.4'
+        )
+      }
+    }, [])
+
+    return (
+      <div
+        ref={successContainerRef}
+        style={{
+          minHeight: '100vh',
+          background: COLORS.red,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '48px 24px',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+      >
+        {/* Decoración de fondo */}
+        <div style={{
+          position: 'absolute',
+          top: '10%',
+          left: '5%',
+          width: 100,
+          height: 100,
+          opacity: 0.1,
+        }}>
+          <img src="/assets/glyph-x-white.svg" alt="" style={{ width: '100%', height: '100%' }} />
+        </div>
+        <div style={{
+          position: 'absolute',
+          bottom: '10%',
+          right: '5%',
+          width: 120,
+          height: 120,
+          opacity: 0.1,
+        }}>
+          <img src="/assets/glyph-e-white.svg" alt="" style={{ width: '100%', height: '100%' }} />
+        </div>
+
+        {/* Container principal centrado */}
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '100%',
+          maxWidth: 1100,
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '56px',
+          padding: '40px 20px'
+        }}>
+          {/* Título animado con letras individuales - CENTRADO */}
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '12px 20px',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '0 20px'
+          }}>
+            {words.map((word, wordIndex) => (
+              <div key={wordIndex} style={{ display: 'flex', gap: 6 }}>
+                {word.split('').map((char, charIndex) => (
+                  <span
+                    key={`${wordIndex}-${charIndex}`}
+                    ref={(el) => el && successLetterRefs.current.push(el)}
+                    style={{
+                      fontFamily: FONTS.display,
+                      fontWeight: FONTS.displayWeight,
+                      fontStyle: FONTS.displayStyle,
+                      fontSize: 'clamp(36px, 7vw, 80px)',
+                      color: COLORS.cream,
+                      display: 'inline-block',
+                      letterSpacing: '0.02em',
+                      textTransform: 'uppercase',
+                      textShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                    }}
+                  >
+                    {char}
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+
+          {/* Contenido - SIN CARD, solo texto limpio */}
+          <div ref={contentRef} style={{
+            opacity: 0,
+            maxWidth: 700,
+            padding: '0 20px'
+          }}>
+            <p style={{
+              margin: 0,
+              fontSize: 'clamp(18px, 2.5vw, 24px)',
+              lineHeight: 1.7,
+              color: COLORS.cream,
+              fontFamily: FONTS.body,
+              fontWeight: 400,
+              textShadow: '0 2px 8px rgba(0,0,0,0.2)'
+            }}>
+              Tu inscripción ha sido recibida exitosamente. Recibirás un email de confirmación con los siguientes pasos.
+            </p>
+          </div>
+
+          {/* Info adicional - SIN CARD */}
+          <div ref={infoRef} style={{
+            opacity: 0,
+            maxWidth: 650,
+            padding: '0 20px'
+          }}>
+            <p style={{
+              margin: 0,
+              fontSize: 'clamp(16px, 2vw, 20px)',
+              lineHeight: 1.8,
+              color: 'rgba(244,237,228,0.95)',
+              fontFamily: FONTS.body,
+              fontWeight: 400,
+              textShadow: '0 2px 8px rgba(0,0,0,0.2)'
+            }}>
+              <strong style={{ color: COLORS.cream, fontWeight: 700, fontSize: 'clamp(17px, 2.2vw, 22px)' }}>
+                ¿Qué sigue?
+              </strong>
+              <br />
+              Tu información será revisada por nuestro equipo de curaduría. Los resultados de la votación se notificarán por email al cierre de la fase actual.
+            </p>
+          </div>
+
+          {/* Botón - VOLVER A INICIO */}
+          <button
+            ref={buttonRef}
+            onClick={() => transition.navigateTo('/', { color: COLORS.cream })}
+            style={{
+              opacity: 0,
+              display: 'inline-block',
+              background: COLORS.cream,
+              color: COLORS.black,
+              padding: '20px 48px',
+              border: 'none',
+              borderRadius: '16px',
+              fontFamily: FONTS.body,
+              fontSize: '16px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.3)'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = COLORS.creamDark
+              e.target.style.transform = 'scale(1.05) translateY(-2px)'
+              e.target.style.boxShadow = '0 8px 24px rgba(0,0,0,0.4)'
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = COLORS.cream
+              e.target.style.transform = 'scale(1) translateY(0)'
+              e.target.style.boxShadow = '0 4px 16px rgba(0,0,0,0.3)'
+            }}
+          >
+            Volver al Inicio
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (submitSuccess) {
+    return <SuccessScreen />
+  }
+
+
   return (
     <>
       <div style={{
@@ -574,7 +737,7 @@ export default function RegistroPage() {
         background: COLORS.cream,
         padding: '80px 24px 60px',
       }}>
-        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+        <div style={{ maxWidth: currentStep === 4 ? 1950 : 900, margin: '0 auto', transition: 'max-width 0.3s ease' }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 48 }}>
           <button
@@ -681,13 +844,21 @@ export default function RegistroPage() {
               formData={formData}
               updateFormData={updateFormData}
               errors={errors}
+              onContinue={handleNext}
             />
           )}
           {currentStep === 5 && (
-            <Step4Confirmacion formData={formData} errors={errors} />
+            <Step4Confirmacion
+              formData={formData}
+              errors={errors}
+              onEdit={goToStep}
+              onSubmit={handleSubmit}
+              isSubmitting={isSubmitting}
+            />
           )}
 
-          {/* Navigation Buttons */}
+          {/* Navigation Buttons - Ocultos en step 5 (confirmación) */}
+          {currentStep !== 5 && (
           <div style={{
             marginTop: 48,
             display: 'flex',
@@ -695,7 +866,7 @@ export default function RegistroPage() {
             alignItems: 'center',
             gap: 16,
           }}>
-            {currentStep > 1 && (
+            {currentStep > 1 && currentStep !== 4 && (
               <button
                 onClick={handleBack}
                 style={{
@@ -740,7 +911,7 @@ export default function RegistroPage() {
                 Anterior
               </button>
             )}
-            {currentStep < 5 ? (
+            {currentStep < 4 ? (
               <button
                 onClick={handleNext}
                 style={{
@@ -785,7 +956,7 @@ export default function RegistroPage() {
                   />
                 </svg>
               </button>
-            ) : (
+            ) : currentStep === 5 ? (
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
@@ -868,8 +1039,9 @@ export default function RegistroPage() {
                   </>
                 )}
               </button>
-            )}
+            ) : null}
           </div>
+          )}
 
           {errors.submit && (
             <p style={{
