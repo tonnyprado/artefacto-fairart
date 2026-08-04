@@ -31,6 +31,13 @@ const nextConfig = {
       },
     ];
   },
+  // Configuración de webpack para ignorar módulos de canvas en SSR
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals = [...(config.externals || []), { canvas: 'canvas' }]
+    }
+    return config
+  },
 }
 
 module.exports = nextConfig

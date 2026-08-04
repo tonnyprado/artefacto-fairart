@@ -113,14 +113,17 @@ export default function ProgressBar({ steps, currentStep }) {
         <div style={{
           width: '100%',
           background: 'rgba(20,18,16,0.15)',
-          height: 6
+          height: 6,
+          borderRadius: '16px',
+          overflow: 'hidden'
         }}>
           <div
             style={{
               background: COLORS.red,
               height: 6,
               transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-              width: `${((currentStep - 1) / (steps.length - 1)) * 100}%`
+              width: `${((currentStep - 1) / (steps.length - 1)) * 100}%`,
+              borderRadius: '16px'
             }}
           />
         </div>

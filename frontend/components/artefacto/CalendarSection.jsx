@@ -162,10 +162,6 @@ export default function CalendarSection({ isActive = true }) {
     }
   ]
 
-  const [currentEventIndex, setCurrentEventIndex] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(true)
-  const [selectedMonth, setSelectedMonth] = useState(0) // 0 = Enero 2026
-
   // Meses disponibles
   const months = [
     { name: 'Enero', year: 2026 },
@@ -184,6 +180,16 @@ export default function CalendarSection({ isActive = true }) {
     { name: 'Febrero', year: 2027 }
   ]
 
+  // Encontrar el índice del mes del primer evento
+  const firstEvent = calendarEvents[0]
+  const initialMonthIndex = months.findIndex(
+    m => m.name === firstEvent.month && m.year === firstEvent.year
+  )
+
+  const [currentEventIndex, setCurrentEventIndex] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(true)
+  const [selectedMonth, setSelectedMonth] = useState(initialMonthIndex >= 0 ? initialMonthIndex : 0)
+
   // Auto-play cada 5 segundos
   useEffect(() => {
     if (!isPlaying) return
@@ -195,14 +201,30 @@ export default function CalendarSection({ isActive = true }) {
     return () => clearInterval(interval)
   }, [isPlaying, calendarEvents.length])
 
+  // Mapeo de nombres de meses a índices (0-11)
+  const monthNameToIndex = {
+    'Enero': 0,
+    'Febrero': 1,
+    'Marzo': 2,
+    'Abril': 3,
+    'Mayo': 4,
+    'Junio': 5,
+    'Julio': 6,
+    'Agosto': 7,
+    'Septiembre': 8,
+    'Octubre': 9,
+    'Noviembre': 10,
+    'Diciembre': 11
+  }
+
   // Generar días del mes
   const getDaysInMonth = (monthName, year) => {
-    const monthIndex = new Date(Date.parse(monthName + " 1, 2026")).getMonth()
+    const monthIndex = monthNameToIndex[monthName]
     return new Date(year, monthIndex + 1, 0).getDate()
   }
 
   const getFirstDayOfMonth = (monthName, year) => {
-    const monthIndex = new Date(Date.parse(monthName + " 1, 2026")).getMonth()
+    const monthIndex = monthNameToIndex[monthName]
     return new Date(year, monthIndex, 1).getDay()
   }
 
@@ -259,16 +281,8 @@ export default function CalendarSection({ isActive = true }) {
   return (
     <section id="calendario" className="py-20 bg-[#E8DED0] min-h-screen flex items-center">
       <div className="container mx-auto px-4">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Calendario
-          </h2>
-          <div className="w-20 h-1 bg-[#2B5F9E] mx-auto"></div>
-        </div>
-
         {/* Main Content: Calendar + Event Display */}
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
           {/* LEFT: Calendar */}
           <div>
@@ -344,32 +358,32 @@ export default function CalendarSection({ isActive = true }) {
           </div>
 
           {/* RIGHT: Event Display */}
-          <div className="relative min-h-[600px] flex flex-col">
+          <div className="relative flex flex-col">
             {/* Event Card */}
             <div className="flex-1 flex flex-col justify-center">
-              <div className="border-t-4 border-black pt-6 mb-8">
-                <div className="flex items-start justify-between mb-6">
-                  <div className="text-9xl font-bold text-red-600 leading-none">
+              <div className="border-t-4 border-black pt-4 mb-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="text-7xl font-bold text-red-600 leading-none">
                     {String(currentEvent.day).padStart(2, '0')}
                   </div>
                   <div className="text-right">
-                    <div className="text-4xl font-bold">{currentEvent.time}</div>
-                    <div className="text-sm text-gray-500 uppercase tracking-wider mt-1">
+                    <div className="text-2xl font-bold">{currentEvent.time}</div>
+                    <div className="text-xs text-gray-500 uppercase tracking-wider mt-1">
                       {currentEvent.month} {currentEvent.year}
                     </div>
                   </div>
                 </div>
 
-                <h3 className="text-3xl font-bold text-gray-900 mb-4">
+                <h3 className="text-xl font-bold text-gray-900 mb-3">
                   {currentEvent.title}
                 </h3>
 
-                <p className="text-gray-600 text-xl leading-relaxed mb-6">
+                <p className="text-gray-600 text-base leading-relaxed mb-4">
                   {currentEvent.description}
                 </p>
 
                 {/* Type Badge */}
-                <div className="inline-block px-5 py-2 bg-gray-900 text-white text-sm font-semibold uppercase tracking-wider">
+                <div className="inline-block px-4 py-1.5 bg-gray-900 text-white text-xs font-semibold uppercase tracking-wider">
                   {currentEvent.type === 'milestone' && 'Hito Importante'}
                   {currentEvent.type === 'phase' && 'Fase de Inscripción'}
                   {currentEvent.type === 'voting' && 'Votación'}
@@ -380,11 +394,11 @@ export default function CalendarSection({ isActive = true }) {
               </div>
 
               {/* Progress Indicator */}
-              <div className="flex items-center gap-1 mb-8">
+              <div className="flex items-center gap-1 mb-6">
                 {calendarEvents.map((_, index) => (
                   <div
                     key={index}
-                    className={`h-1.5 flex-1 transition-all ${
+                    className={`h-1 flex-1 transition-all ${
                       index === currentEventIndex ? 'bg-[#2B5F9E]' : 'bg-gray-300'
                     }`}
                   />
@@ -393,28 +407,28 @@ export default function CalendarSection({ isActive = true }) {
             </div>
 
             {/* Controls */}
-            <div className="flex items-center justify-center gap-6 pt-6 border-t-2 border-gray-900">
+            <div className="flex items-center justify-center gap-4 pt-4 border-t-2 border-gray-900">
               <button
                 onClick={handlePrevEvent}
-                className="p-3 hover:bg-white/50 transition-colors"
+                className="p-2 hover:bg-white/50 transition-colors rounded-full"
                 aria-label="Evento anterior"
               >
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
 
               <button
                 onClick={() => setIsPlaying(!isPlaying)}
-                className="p-4 bg-[#2B5F9E] hover:bg-[#1e4570] text-white transition-colors"
+                className="p-3 bg-[#2B5F9E] hover:bg-[#1e4570] text-white transition-colors rounded-full"
                 aria-label={isPlaying ? 'Pausar' : 'Reproducir'}
               >
                 {isPlaying ? (
-                  <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
                   </svg>
                 ) : (
-                  <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z" />
                   </svg>
                 )}
@@ -422,34 +436,18 @@ export default function CalendarSection({ isActive = true }) {
 
               <button
                 onClick={handleNextEvent}
-                className="p-3 hover:bg-white/50 transition-colors"
+                className="p-2 hover:bg-white/50 transition-colors rounded-full"
                 aria-label="Evento siguiente"
               >
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
             </div>
 
-            <div className="text-center mt-6 text-sm text-gray-600 font-semibold">
+            <div className="text-center mt-4 text-xs text-gray-600 font-semibold">
               Evento {currentEventIndex + 1} de {calendarEvents.length}
             </div>
-          </div>
-        </div>
-
-        {/* Important Note */}
-        <div className="mt-16 max-w-4xl mx-auto">
-          <div className="border-l-4 border-[#2B5F9E] p-6">
-            <h4 className="font-bold text-gray-900 mb-2 flex items-center text-lg">
-              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-              </svg>
-              Nota Importante
-            </h4>
-            <p className="text-sm text-gray-700">
-              Las fechas están sujetas a cambios. Te notificaremos por email sobre cualquier
-              actualización en el calendario. Haz clic en los días marcados para ver más detalles.
-            </p>
           </div>
         </div>
       </div>

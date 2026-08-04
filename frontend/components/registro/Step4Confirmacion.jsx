@@ -284,7 +284,7 @@ export default function Step4Confirmacion({ formData, errors }) {
             id="terminos"
             checked={aceptaTerminos}
             onChange={(e) => setAceptaTerminos(e.target.checked)}
-            className="mt-1 h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+            className="mt-1 h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded-md"
           />
           <label htmlFor="terminos" className="ml-3 text-sm text-gray-700">
             Acepto los{' '}
@@ -303,7 +303,7 @@ export default function Step4Confirmacion({ formData, errors }) {
             id="privacidad"
             checked={aceptaPrivacidad}
             onChange={(e) => setAceptaPrivacidad(e.target.checked)}
-            className="mt-1 h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+            className="mt-1 h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded-md"
           />
           <label htmlFor="privacidad" className="ml-3 text-sm text-gray-700">
             Acepto el{' '}

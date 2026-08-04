@@ -143,8 +143,8 @@ export default function RegistroPage() {
         if (!formData.documentos?.cv) newErrors.cv = 'CV artístico es requerido'
 
         // Validar portfolio_images (múltiples imágenes con metadata)
-        if (!formData.portfolio_images || formData.portfolio_images.length < 5) {
-          newErrors.portfolio_images = 'Debes subir al menos 5 imágenes de obras'
+        if (!formData.portfolio_images || formData.portfolio_images.length === 0) {
+          newErrors.portfolio_images = 'Debes subir al menos 1 imagen de obra'
         } else if (formData.portfolio_images.length > 15) {
           newErrors.portfolio_images = 'Máximo 15 imágenes permitidas'
         } else {
@@ -498,13 +498,83 @@ export default function RegistroPage() {
     }
   }, [currentStep])
 
+  // Restaurar cursor normal y forzar bordes redondeados cuando se monta el componente
+  useEffect(() => {
+    const styleId = 'registro-cursor-fix'
+
+    // Crear y agregar el style tag
+    const style = document.createElement('style')
+    style.id = styleId
+    style.innerHTML = `
+      body,
+      body * {
+        cursor: auto !important;
+      }
+      button,
+      a,
+      input,
+      textarea,
+      select,
+      [role="button"] {
+        cursor: pointer !important;
+      }
+      input:disabled,
+      button:disabled,
+      select:disabled,
+      textarea:disabled {
+        cursor: not-allowed !important;
+      }
+
+      /* Forzar bordes redondeados en todos los elementos del formulario */
+      input[type="text"],
+      input[type="email"],
+      input[type="tel"],
+      input[type="date"],
+      input[type="number"],
+      input[type="file"],
+      textarea,
+      select,
+      button {
+        border-radius: 16px !important;
+      }
+
+      /* Contenedores con borde */
+      div[class*="border"],
+      div[class*="rounded"] {
+        border-radius: 16px !important;
+      }
+
+      /* Excepciones */
+      input[type="checkbox"],
+      input[type="radio"] {
+        border-radius: 4px !important;
+      }
+
+      /* Círculos deben permanecer circulares */
+      div[class*="rounded-full"],
+      button[class*="rounded-full"] {
+        border-radius: 50% !important;
+      }
+    `
+    document.head.appendChild(style)
+
+    // Limpiar cuando se desmonta
+    return () => {
+      const existingStyle = document.getElementById(styleId)
+      if (existingStyle) {
+        existingStyle.remove()
+      }
+    }
+  }, [])
+
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: COLORS.cream,
-      padding: '80px 24px 60px',
-    }}>
-      <div style={{ maxWidth: 900, margin: '0 auto' }}>
+    <>
+      <div style={{
+        minHeight: '100vh',
+        background: COLORS.cream,
+        padding: '80px 24px 60px',
+      }}>
+        <div style={{ maxWidth: 900, margin: '0 auto' }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 48 }}>
           <button
@@ -581,6 +651,7 @@ export default function RegistroPage() {
             padding: '48px',
             marginBottom: 32,
             boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+            borderRadius: '24px',
           }}
         >
           {/* Steps */}
@@ -642,6 +713,7 @@ export default function RegistroPage() {
                   alignItems: 'center',
                   gap: 8,
                   transition: 'all 0.2s ease',
+                  borderRadius: '16px',
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.background = COLORS.cream
@@ -687,6 +759,7 @@ export default function RegistroPage() {
                   alignItems: 'center',
                   gap: 8,
                   transition: 'all 0.2s ease',
+                  borderRadius: '16px',
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.background = COLORS.cream
@@ -733,6 +806,7 @@ export default function RegistroPage() {
                   gap: 8,
                   transition: 'all 0.2s ease',
                   opacity: isSubmitting ? 0.7 : 1,
+                  borderRadius: '16px',
                 }}
                 onMouseEnter={(e) => {
                   if (!isSubmitting) {
@@ -854,6 +928,7 @@ export default function RegistroPage() {
           }
         }
       `}</style>
-    </div>
+      </div>
+    </>
   )
 }

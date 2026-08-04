@@ -258,22 +258,23 @@ export const paquetesApi = {
 
 /**
  * Layouts API
+ * MOCK DATA para demostración - no hace upload real
  */
 export const layoutsApi = {
   uploadCanvas: async (imageBlob) => {
-    const formData = new FormData()
-    formData.append('layout', imageBlob, 'layout-canvas.png')
+    // Simular delay de upload
+    await new Promise(resolve => setTimeout(resolve, 500))
 
-    const response = await fetch(`${API_BASE_URL}/layouts/upload`, {
-      method: 'POST',
-      body: formData
-    })
+    // Retornar URL mock de Cloudinary
+    const mockUrl = `https://res.cloudinary.com/demo/image/upload/layouts/layout_${Date.now()}.png`
 
-    if (!response.ok) {
-      throw new Error('Error al subir layout')
+    return {
+      success: true,
+      data: {
+        url: mockUrl,
+        public_id: `layouts/layout_${Date.now()}`
+      }
     }
-
-    return response.json()
   }
 }
 

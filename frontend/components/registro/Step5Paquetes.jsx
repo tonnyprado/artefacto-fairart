@@ -1,9 +1,20 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import { usePaquetesStore } from '@/stores/paquetesStore'
 import PaqueteCard from './PaqueteCard'
-import LayoutCanvas from './LayoutCanvas'
+
+// Importación dinámica de LayoutCanvas para evitar SSR (Konva solo funciona en cliente)
+const LayoutCanvas = dynamic(() => import('./LayoutCanvas'), {
+  ssr: false,
+  loading: () => (
+    <div className="text-center py-12">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+      <p className="text-gray-600 mt-4">Cargando canvas...</p>
+    </div>
+  )
+})
 
 /**
  * Paso 5: Selección de Paquete y Diseño de Layout

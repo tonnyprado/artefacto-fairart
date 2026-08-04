@@ -112,11 +112,11 @@ function PortfolioImageUpload({ images, onChange, error }) {
           Portfolio de Obras *
         </label>
         <p className="text-sm text-gray-600 mb-3">
-          Sube entre 5 y 15 imágenes de tus obras. Incluye las dimensiones reales de cada pieza.
+          Sube hasta 15 imágenes de tus obras. Incluye las dimensiones reales de cada pieza.
         </p>
 
         {/* Botón de upload */}
-        <label className={`inline-flex items-center px-6 py-3 text-white transition-all rounded-lg ${
+        <label style={{ borderRadius: '16px' }} className={`inline-flex items-center px-6 py-3 text-white transition-all ${
           currentImages.length >= 15
             ? 'bg-gray-400 cursor-not-allowed'
             : 'bg-gray-900 cursor-pointer hover:bg-gray-700'
@@ -144,17 +144,19 @@ function PortfolioImageUpload({ images, onChange, error }) {
       {currentImages.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {currentImages.map((img) => (
-            <div key={img.id} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <div key={img.id} style={{ borderRadius: '16px' }} className="bg-gray-50 p-4 border border-gray-200">
               <div className="relative mb-3">
                 <img
                   src={img.preview}
                   alt="Preview"
-                  className="w-full h-48 object-cover rounded"
+                  style={{ borderRadius: '16px' }}
+                  className="w-full h-48 object-cover"
                 />
                 <button
                   type="button"
                   onClick={() => handleRemoveImage(img.id)}
-                  className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition-colors"
+                  style={{ borderRadius: '50%' }}
+                  className="absolute top-2 right-2 bg-red-600 text-white p-2 hover:bg-red-700 transition-colors"
                   title="Eliminar imagen"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -170,7 +172,8 @@ function PortfolioImageUpload({ images, onChange, error }) {
                   value={img.titulo}
                   onChange={(e) => handleUpdateMetadata(img.id, 'titulo', e.target.value)}
                   placeholder="Título de la obra *"
-                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900"
+                  style={{ borderRadius: '16px' }}
+                  className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900"
                 />
 
                 <div className="grid grid-cols-2 gap-2">
@@ -182,7 +185,8 @@ function PortfolioImageUpload({ images, onChange, error }) {
                       placeholder="Alto (cm) *"
                       min="1"
                       step="0.1"
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900"
+                      style={{ borderRadius: '16px' }}
+                      className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900"
                     />
                   </div>
                   <div>
@@ -193,7 +197,8 @@ function PortfolioImageUpload({ images, onChange, error }) {
                       placeholder="Ancho (cm) *"
                       min="1"
                       step="0.1"
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900"
+                      style={{ borderRadius: '16px' }}
+                      className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900"
                     />
                   </div>
                 </div>

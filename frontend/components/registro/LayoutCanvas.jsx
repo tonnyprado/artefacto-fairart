@@ -23,11 +23,88 @@ const CANVAS_WIDTH = 800
  * Componente individual de obra en canvas
  */
 function ObraImage({ obra, onDragEnd, isSelected, onSelect, scaleFactor }) {
-  const [image] = useImage(obra.preview)
+  const [image, status] = useImage(obra.preview, 'anonymous')
 
   // Calcular dimensiones en canvas basadas en dimensiones reales
   const width = obra.ancho_cm * scaleFactor
   const height = obra.alto_cm * scaleFactor
+
+  // Debug: Log del estado de carga de imagen
+  useEffect(() => {
+    console.log('Obra:', obra.titulo, 'Preview URL:', obra.preview, 'Status:', status, 'Image loaded:', !!image)
+  }, [image, status, obra.titulo, obra.preview])
+
+  // Si la imagen no ha cargado, mostrar un placeholder
+  if (!image || status === 'loading') {
+    return (
+      <>
+        <Rect
+          x={obra.x}
+          y={obra.y}
+          width={width}
+          height={height}
+          fill="#E5E7EB"
+          stroke="#9CA3AF"
+          strokeWidth={2}
+          cornerRadius={4}
+        />
+        <Text
+          x={obra.x}
+          y={obra.y + height / 2 - 10}
+          text="Cargando..."
+          fontSize={12}
+          fill="#6B7280"
+          width={width}
+          align="center"
+        />
+        <Text
+          x={obra.x}
+          y={obra.y + height + 5}
+          text={obra.titulo || 'Sin título'}
+          fontSize={10}
+          fill="#141210"
+          width={width}
+          align="center"
+        />
+      </>
+    )
+  }
+
+  // Si hubo un error cargando la imagen
+  if (status === 'failed') {
+    return (
+      <>
+        <Rect
+          x={obra.x}
+          y={obra.y}
+          width={width}
+          height={height}
+          fill="#FEE2E2"
+          stroke="#EF4444"
+          strokeWidth={2}
+          cornerRadius={4}
+        />
+        <Text
+          x={obra.x}
+          y={obra.y + height / 2 - 10}
+          text="Error al cargar"
+          fontSize={12}
+          fill="#DC2626"
+          width={width}
+          align="center"
+        />
+        <Text
+          x={obra.x}
+          y={obra.y + height + 5}
+          text={obra.titulo || 'Sin título'}
+          fontSize={10}
+          fill="#141210"
+          width={width}
+          align="center"
+        />
+      </>
+    )
+  }
 
   return (
     <>
@@ -94,6 +171,11 @@ export default function LayoutCanvas({
     (img) => !obrasEnCanvas.some((o) => o.id === img.id)
   )
 
+  // Debug: Log de portfolioImages recibidas
+  useEffect(() => {
+    console.log('Portfolio images received:', portfolioImages)
+  }, [portfolioImages])
+
   // Responsive: Ajustar ancho del contenedor
   useEffect(() => {
     const updateWidth = () => {
@@ -114,6 +196,8 @@ export default function LayoutCanvas({
 
   // Agregar obra al canvas
   const handleAddToCanvas = (portfolioImage) => {
+    console.log('Adding obra to canvas:', portfolioImage)
+
     // Validar obras máximas
     if (obrasEnCanvas.length >= paquete.obras_maximas) {
       alert(
@@ -134,6 +218,7 @@ export default function LayoutCanvas({
       height: parseFloat(portfolioImage.alto_cm) * scaleFactor
     }
 
+    console.log('New obra object:', newObra)
     setObrasEnCanvas([...obrasEnCanvas, newObra])
   }
 

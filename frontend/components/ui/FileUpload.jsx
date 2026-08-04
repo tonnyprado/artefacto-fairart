@@ -82,8 +82,9 @@ export default function FileUpload({
       )}
 
       <div
+        style={{ borderRadius: '16px' }}
         className={cn(
-          'relative border-2 border-dashed rounded-2xl p-6 transition-all',
+          'relative border-2 border-dashed p-6 transition-all',
           dragActive ? 'border-red-500 bg-red-50' : 'border-gray-300',
           error ? 'border-red-500' : ''
         )}
@@ -106,12 +107,13 @@ export default function FileUpload({
               <img
                 src={preview}
                 alt="Preview"
-                className="max-h-40 mx-auto rounded-2xl"
+                style={{ borderRadius: '16px' }}
+                className="max-h-40 mx-auto"
               />
             </div>
           ) : fileName ? (
             <div className="mb-4">
-              <div className="inline-flex items-center px-4 py-2 bg-gray-100 rounded-2xl">
+              <div style={{ borderRadius: '16px' }} className="inline-flex items-center px-4 py-2 bg-gray-100">
                 <svg
                   className="w-5 h-5 text-gray-600 mr-2"
                   fill="none"

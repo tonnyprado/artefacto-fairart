@@ -23,8 +23,9 @@ export default function Input({
       )}
       <input
         type={type}
+        style={{ borderRadius: '16px' }}
         className={cn(
-          'w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-gray-900 bg-white',
+          'w-full px-4 py-3 border focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-gray-900 bg-white',
           error ? 'border-red-500' : 'border-gray-300',
           className
         )}
@@ -55,8 +56,9 @@ export function Textarea({
       )}
       <textarea
         rows={rows}
+        style={{ borderRadius: '16px' }}
         className={cn(
-          'w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all resize-none text-gray-900 bg-white',
+          'w-full px-4 py-3 border focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all resize-none text-gray-900 bg-white',
           error ? 'border-red-500' : 'border-gray-300',
           className
         )}
