@@ -285,13 +285,13 @@ export default function CalendarSection({ isActive = true }) {
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
           {/* LEFT: Calendar */}
-          <div>
+          <div className="bg-white p-8 shadow-lg" style={{ borderRadius: '24px' }}>
             {/* Month Header */}
             <div className="flex items-center justify-between mb-8">
               <button
                 onClick={() => setSelectedMonth(Math.max(0, selectedMonth - 1))}
                 disabled={selectedMonth === 0}
-                className="p-2 hover:bg-white/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="p-2 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors rounded-full"
               >
                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -310,7 +310,7 @@ export default function CalendarSection({ isActive = true }) {
               <button
                 onClick={() => setSelectedMonth(Math.min(months.length - 1, selectedMonth + 1))}
                 disabled={selectedMonth === months.length - 1}
-                className="p-2 hover:bg-white/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="p-2 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors rounded-full"
               >
                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -343,10 +343,10 @@ export default function CalendarSection({ isActive = true }) {
                     ${!day ? 'invisible' : ''}
                     ${hasEvent(day)
                       ? 'bg-[#2B5F9E] text-white hover:bg-[#1e4570] cursor-pointer scale-105'
-                      : 'bg-[#E8DED0] text-gray-700 hover:bg-white/80 cursor-pointer'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer'
                     }
                     ${currentEvent.day === day && currentEvent.month === currentMonth.name && currentEvent.year === currentMonth.year
-                      ? 'ring-4 ring-red-500 ring-offset-2 ring-offset-[#E8DED0]'
+                      ? 'ring-4 ring-red-500 ring-offset-2 ring-offset-white'
                       : ''
                     }
                   `}
@@ -358,7 +358,7 @@ export default function CalendarSection({ isActive = true }) {
           </div>
 
           {/* RIGHT: Event Display */}
-          <div className="relative flex flex-col">
+          <div className="bg-white p-8 shadow-lg relative flex flex-col" style={{ borderRadius: '24px' }}>
             {/* Event Card */}
             <div className="flex-1 flex flex-col justify-center">
               <div className="border-t-4 border-black pt-4 mb-6">

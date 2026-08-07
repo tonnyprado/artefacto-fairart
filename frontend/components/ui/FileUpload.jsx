@@ -75,9 +75,9 @@ export default function FileUpload({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium mb-2" style={{ color: '#F4EDE4' }}>
           {label}
-          {required && <span className="text-red-600 ml-1">*</span>}
+          {required && <span style={{ color: '#FEE2E2', marginLeft: '4px' }}>*</span>}
         </label>
       )}
 
@@ -148,15 +148,15 @@ export default function FileUpload({
             </div>
           )}
 
-          <p className="text-sm text-gray-600 mb-1">
-            <span className="font-semibold text-red-600">Haz clic</span> o arrastra
+          <p className="text-sm mb-1" style={{ color: '#141210' }}>
+            <span className="font-semibold" style={{ color: '#B83030' }}>Haz clic</span> o arrastra
             el archivo aquí
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs" style={{ color: 'rgba(20, 18, 16, 0.6)' }}>
             Tamaño máximo: {maxSize}MB
           </p>
           {helperText && (
-            <p className="text-xs text-gray-500 mt-2">{helperText}</p>
+            <p className="text-xs mt-2" style={{ color: 'rgba(20, 18, 16, 0.6)' }}>{helperText}</p>
           )}
         </div>
       </div>

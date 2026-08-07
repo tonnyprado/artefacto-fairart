@@ -6,6 +6,7 @@ export default function CustomCursor() {
   const [isClicking, setIsClicking] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [isHovering, setIsHovering] = useState(false);
+  const [isDraggable, setIsDraggable] = useState(false);
 
   useEffect(() => {
     const cursor = cursorRef.current;
@@ -45,11 +46,19 @@ export default function CustomCursor() {
       const target = e.target;
       const isInteractive = !!target.closest('a, button, input, textarea, select, [role="button"]');
 
+      // Detectar si está sobre un canvas de Konva (las imágenes del lienzo)
+      const isOverCanvas = target.tagName === 'CANVAS';
+      const canvasContainer = target.closest('.konvajs-content');
+      const isDraggableElement = isOverCanvas && canvasContainer;
+
       // Solo actualizar estado si cambió para evitar re-renders innecesarios
       if (isInteractive !== lastInteractiveState) {
         lastInteractiveState = isInteractive;
         setIsHovering(isInteractive);
       }
+
+      // Actualizar estado de draggable
+      setIsDraggable(isDraggableElement);
     };
 
     const handleMouseDown = () => {
@@ -90,7 +99,7 @@ export default function CustomCursor() {
   return (
     <div
       ref={cursorRef}
-      className={`custom-cursor ${isClicking ? 'clicking' : ''} ${isHovering ? 'hovering' : ''}`}
+      className={`custom-cursor ${isClicking ? 'clicking' : ''} ${isHovering ? 'hovering' : ''} ${isDraggable ? 'draggable' : ''}`}
       style={{
         opacity: isVisible ? 1 : 0,
       }}

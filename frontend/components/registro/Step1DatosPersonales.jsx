@@ -41,8 +41,8 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Datos Personales</h2>
-        <p className="text-gray-600">
+        <h2 className="text-2xl font-bold mb-2" style={{ color: '#141210' }}>Datos Personales</h2>
+        <p style={{ color: '#F4EDE4', fontSize: '15px' }}>
           Información básica sobre ti como artista
         </p>
       </div>
@@ -116,55 +116,43 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Input
-          label="Ciudad"
-          name="ciudad"
-          value={formData.ciudad || ''}
-          onChange={handleChange}
-          error={errors?.ciudad}
-          required
-          placeholder="Ciudad de México"
-        />
-
-        <Input
-          label="Código Postal"
-          name="codigo_postal"
-          value={formData.codigo_postal || ''}
-          onChange={handleChange}
-          error={errors?.codigo_postal}
-          placeholder="06600"
-        />
-      </div>
-
       <Input
-        label="Dirección Completa"
-        name="direccion"
-        value={formData.direccion || ''}
+        label="Ciudad"
+        name="ciudad"
+        value={formData.ciudad || ''}
         onChange={handleChange}
-        error={errors?.direccion}
+        error={errors?.ciudad}
         required
-        placeholder="Calle, número, colonia"
+        placeholder="Ciudad de México"
       />
 
-      <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r-2xl">
-        <div className="flex">
-          <svg
-            className="w-5 h-5 text-blue-600 mr-2 flex-shrink-0"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path
-              fillRule="evenodd"
-              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-              clipRule="evenodd"
-            />
-          </svg>
-          <p className="text-sm text-blue-800">
-            Toda tu información personal será tratada de forma confidencial y
-            únicamente será utilizada para el proceso de selección.
-          </p>
-        </div>
+      <div style={{
+        background: 'rgba(244, 237, 228, 0.12)',
+        borderRadius: '16px',
+        padding: '16px 20px',
+        marginTop: '8px',
+        display: 'flex',
+        gap: '16px',
+        alignItems: 'flex-start'
+      }}>
+        <svg
+          style={{ width: '24px', height: '24px', flexShrink: 0, marginTop: '2px' }}
+          fill="none"
+          stroke="rgba(244, 237, 228, 0.85)"
+          viewBox="0 0 24 24"
+        >
+          <circle cx="12" cy="12" r="10" strokeWidth="2" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 16v-4M12 8h.01" />
+        </svg>
+        <p style={{
+          fontSize: '13px',
+          color: 'rgba(244, 237, 228, 0.85)',
+          lineHeight: '1.6',
+          margin: 0,
+          flex: 1
+        }}>
+          Toda tu información personal será tratada de forma confidencial y únicamente será utilizada para el proceso de selección.
+        </p>
       </div>
     </div>
   )

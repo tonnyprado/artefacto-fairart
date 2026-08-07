@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Stage, Layer, Image as KonvaImage, Rect, Text, Group } from 'react-konva'
+import { Stage, Layer, Image as KonvaImage, Rect, Text, Group, Line } from 'react-konva'
 import useImage from 'use-image'
 import jsPDF from 'jspdf'
 import { layoutsApi } from '@/lib/api'
@@ -26,12 +26,266 @@ const FREE_AREA = {
   height: 350    // Altura del área libre (hasta el área rayada inferior)
 }
 
+// Configuración de reglas
+const RULER_SIZE = 30 // Tamaño de las reglas en píxeles
+const RULER_BG_COLOR = '#2C2C2C' // Color de fondo de las reglas
+const RULER_TEXT_COLOR = '#E8E8E8' // Color del texto
+const RULER_LINE_COLOR = '#E8E8E8' // Color de las líneas
+const GUIDE_LINE_COLOR = '#00BFFF' // Color cian para las líneas guía
+
+// Configuración de colisiones
+const SCALE_FACTOR = 2 // Factor de escala para convertir cm a píxeles
+const COLLISION_MARGIN_CM = 2.5 // Separación mínima entre obras en cm
+const COLLISION_MARGIN = COLLISION_MARGIN_CM * SCALE_FACTOR // Separación en píxeles
+
+/**
+ * Componente de regla horizontal
+ */
+function HorizontalRuler({ width }) {
+  const marks = []
+  const step = 50 // Marca cada 50 píxeles
+  const largeStep = 100 // Marcas grandes cada 100 píxeles
+
+  for (let i = 0; i <= width; i += step) {
+    const isLarge = i % largeStep === 0
+    marks.push(
+      <Line
+        key={`hline-${i}`}
+        points={[i, RULER_SIZE, i, isLarge ? RULER_SIZE - 10 : RULER_SIZE - 5]}
+        stroke={RULER_LINE_COLOR}
+        strokeWidth={1}
+      />
+    )
+    if (isLarge) {
+      marks.push(
+        <Text
+          key={`htext-${i}`}
+          x={i - 15}
+          y={5}
+          text={i.toString()}
+          fontSize={10}
+          fill={RULER_TEXT_COLOR}
+          width={30}
+          align="center"
+        />
+      )
+    }
+  }
+
+  return (
+    <Group>
+      <Rect
+        x={0}
+        y={0}
+        width={width}
+        height={RULER_SIZE}
+        fill={RULER_BG_COLOR}
+      />
+      {marks}
+    </Group>
+  )
+}
+
+/**
+ * Componente de regla vertical
+ */
+function VerticalRuler({ height }) {
+  const marks = []
+  const step = 50 // Marca cada 50 píxeles
+  const largeStep = 100 // Marcas grandes cada 100 píxeles
+
+  for (let i = 0; i <= height; i += step) {
+    const isLarge = i % largeStep === 0
+    marks.push(
+      <Line
+        key={`vline-${i}`}
+        points={[RULER_SIZE, i, isLarge ? RULER_SIZE - 10 : RULER_SIZE - 5, i]}
+        stroke={RULER_LINE_COLOR}
+        strokeWidth={1}
+      />
+    )
+    if (isLarge && i > 0) {
+      marks.push(
+        <Text
+          key={`vtext-${i}`}
+          x={3}
+          y={i - 6}
+          text={i.toString()}
+          fontSize={10}
+          fill={RULER_TEXT_COLOR}
+        />
+      )
+    }
+  }
+
+  return (
+    <Group>
+      <Rect
+        x={0}
+        y={0}
+        width={RULER_SIZE}
+        height={height}
+        fill={RULER_BG_COLOR}
+      />
+      {marks}
+    </Group>
+  )
+}
+
+/**
+ * Componente de líneas guía que se muestran durante el arrastre
+ */
+function GuideLines({ x, y, width, height, canvasWidth, canvasHeight }) {
+  if (x === null || y === null) return null
+
+  return (
+    <Group>
+      {/* Línea vertical en X */}
+      <Line
+        points={[x, 0, x, canvasHeight]}
+        stroke={GUIDE_LINE_COLOR}
+        strokeWidth={1}
+        dash={[5, 5]}
+        opacity={0.8}
+      />
+      {/* Línea vertical en X + width (borde derecho) */}
+      <Line
+        points={[x + width, 0, x + width, canvasHeight]}
+        stroke={GUIDE_LINE_COLOR}
+        strokeWidth={1}
+        dash={[5, 5]}
+        opacity={0.8}
+      />
+      {/* Línea horizontal en Y */}
+      <Line
+        points={[0, y, canvasWidth, y]}
+        stroke={GUIDE_LINE_COLOR}
+        strokeWidth={1}
+        dash={[5, 5]}
+        opacity={0.8}
+      />
+      {/* Línea horizontal en Y + height (borde inferior) */}
+      <Line
+        points={[0, y + height, canvasWidth, y + height]}
+        stroke={GUIDE_LINE_COLOR}
+        strokeWidth={1}
+        dash={[5, 5]}
+        opacity={0.8}
+      />
+      {/* Etiqueta de posición X */}
+      <Group>
+        <Rect
+          x={x + 5}
+          y={5}
+          width={60}
+          height={20}
+          fill={GUIDE_LINE_COLOR}
+          cornerRadius={4}
+        />
+        <Text
+          x={x + 5}
+          y={9}
+          text={`X: ${Math.round(x)}`}
+          fontSize={12}
+          fill="#000"
+          width={60}
+          align="center"
+          fontStyle="bold"
+        />
+      </Group>
+      {/* Etiqueta de posición Y */}
+      <Group>
+        <Rect
+          x={5}
+          y={y + 5}
+          width={60}
+          height={20}
+          fill={GUIDE_LINE_COLOR}
+          cornerRadius={4}
+        />
+        <Text
+          x={5}
+          y={y + 9}
+          text={`Y: ${Math.round(y)}`}
+          fontSize={12}
+          fill="#000"
+          width={60}
+          align="center"
+          fontStyle="bold"
+        />
+      </Group>
+    </Group>
+  )
+}
+
+/**
+ * Verifica si dos obras colisionan considerando el margen de separación
+ */
+function checkCollision(obra1, obra2, margin = COLLISION_MARGIN) {
+  return (
+    obra1.x - margin < obra2.x + obra2.width &&
+    obra1.x + obra1.width + margin > obra2.x &&
+    obra1.y - margin < obra2.y + obra2.height &&
+    obra1.y + obra1.height + margin > obra2.y
+  )
+}
+
 /**
  * Componente de obra individual con cursor y botón de eliminar
  */
-function ObraImage({ obra, onDragEnd, isSelected, onSelect, onDelete }) {
+function ObraImage({ obra, onDragEnd, onDragMove, isSelected, onSelect, onDelete, otrasObras }) {
   const [image, status] = useImage(obra.preview, 'anonymous')
   const stageRef = useRef()
+  const [lastValidPos, setLastValidPos] = useState({ x: obra.x, y: obra.y })
+  const [isColliding, setIsColliding] = useState(false)
+
+  // Actualizar última posición válida cuando cambia la obra
+  useEffect(() => {
+    setLastValidPos({ x: obra.x, y: obra.y })
+  }, [obra.x, obra.y])
+
+  // Función para limitar el movimiento y evitar colisiones
+  const dragBoundFunc = (pos) => {
+    // Verificar colisiones con otras obras
+    const testObra = {
+      ...obra,
+      x: pos.x,
+      y: pos.y
+    }
+
+    // Verificar si colisiona con alguna otra obra
+    let hasCollision = false
+    for (const otraObra of otrasObras) {
+      if (otraObra.id !== obra.id && checkCollision(testObra, otraObra)) {
+        hasCollision = true
+        break
+      }
+    }
+
+    if (hasCollision) {
+      // Si hay colisión, indicar visualmente y retornar la última posición válida
+      setIsColliding(true)
+      return lastValidPos
+    }
+
+    // Limitar al área libre del mural
+    const boundedX = Math.max(
+      FREE_AREA.x,
+      Math.min(pos.x, FREE_AREA.x + FREE_AREA.width - obra.width)
+    )
+    const boundedY = Math.max(
+      FREE_AREA.y,
+      Math.min(pos.y, FREE_AREA.y + FREE_AREA.height - obra.height)
+    )
+
+    const newPos = { x: boundedX, y: boundedY }
+
+    // Guardar como última posición válida y limpiar estado de colisión
+    setLastValidPos(newPos)
+    setIsColliding(false)
+
+    return newPos
+  }
 
   if (!image || status === 'loading') {
     return (
@@ -84,22 +338,24 @@ function ObraImage({ obra, onDragEnd, isSelected, onSelect, onDelete }) {
         width={obra.width}
         height={obra.height}
         draggable
-        onDragEnd={(e) => onDragEnd(obra.id, e.target.x(), e.target.y())}
+        dragBoundFunc={dragBoundFunc}
+        onDragStart={() => {
+          setIsColliding(false)
+          onDragMove && onDragMove(obra.id, obra.x, obra.y, obra.width, obra.height)
+        }}
+        onDragMove={(e) => onDragMove && onDragMove(obra.id, e.target.x(), e.target.y(), obra.width, obra.height)}
+        onDragEnd={(e) => {
+          setIsColliding(false) // Limpiar estado de colisión
+          onDragMove && onDragMove(null, null, null, null, null) // Limpiar guías
+          onDragEnd(obra.id, e.target.x(), e.target.y())
+        }}
         onClick={() => onSelect(obra.id)}
         onTap={() => onSelect(obra.id)}
-        onMouseEnter={(e) => {
-          const container = e.target.getStage().container()
-          container.style.cursor = 'move'
-        }}
-        onMouseLeave={(e) => {
-          const container = e.target.getStage().container()
-          container.style.cursor = 'default'
-        }}
         shadowBlur={isSelected ? 15 : 8}
         shadowColor="black"
         shadowOpacity={0.7}
-        stroke={isSelected ? '#ffffff' : 'transparent'}
-        strokeWidth={isSelected ? 4 : 0}
+        stroke={isColliding ? '#FF4444' : isSelected ? '#ffffff' : 'transparent'}
+        strokeWidth={isColliding ? 3 : isSelected ? 4 : 0}
       />
 
       {/* Botón de eliminar cuando está seleccionada */}
@@ -116,14 +372,6 @@ function ObraImage({ obra, onDragEnd, isSelected, onSelect, onDelete }) {
               e.cancelBubble = true
               onDelete(obra.id)
             }}
-            onMouseEnter={(e) => {
-              const container = e.target.getStage().container()
-              container.style.cursor = 'pointer'
-            }}
-            onMouseLeave={(e) => {
-              const container = e.target.getStage().container()
-              container.style.cursor = 'default'
-            }}
           />
           <Text
             x={obra.x + obra.width - 30}
@@ -138,14 +386,6 @@ function ObraImage({ obra, onDragEnd, isSelected, onSelect, onDelete }) {
             onClick={(e) => {
               e.cancelBubble = true
               onDelete(obra.id)
-            }}
-            onMouseEnter={(e) => {
-              const container = e.target.getStage().container()
-              container.style.cursor = 'pointer'
-            }}
-            onMouseLeave={(e) => {
-              const container = e.target.getStage().container()
-              container.style.cursor = 'default'
             }}
           />
         </Group>
@@ -184,6 +424,8 @@ export default function LayoutCanvasWithMural({
   const [validationErrors, setValidationErrors] = useState([])
   const [editingObra, setEditingObra] = useState(null)
   const [showMetadataForm, setShowMetadataForm] = useState(false)
+  // Estado para las líneas guía durante el arrastre
+  const [dragGuide, setDragGuide] = useState({ x: null, y: null, width: null, height: null })
 
   const obrasDisponibles = todasLasObras.filter(
     (img) => !obrasEnCanvas.some((o) => o.id === img.id)
@@ -192,6 +434,22 @@ export default function LayoutCanvasWithMural({
   useEffect(() => {
     setTodasLasObras(portfolioImages)
   }, [portfolioImages])
+
+  // Validar que el paquete existe (después de todos los hooks)
+  if (!paquete) {
+    return (
+      <div style={{
+        background: '#F4EDE4',
+        padding: '40px',
+        borderRadius: '16px',
+        textAlign: 'center'
+      }}>
+        <p style={{ fontSize: '16px', color: '#6B6B6B' }}>
+          Cargando información del paquete...
+        </p>
+      </div>
+    )
+  }
 
   const handleAddNewObra = (e) => {
     const files = Array.from(e.target.files)
@@ -249,8 +507,8 @@ export default function LayoutCanvasWithMural({
   }
 
   const handleAddToCanvas = (portfolioImage) => {
-    if (!portfolioImage.titulo || !portfolioImage.alto_cm || !portfolioImage.ancho_cm) {
-      alert('Por favor completa el título y las dimensiones de la obra')
+    if (!portfolioImage.titulo || !portfolioImage.alto_cm || !portfolioImage.ancho_cm || !portfolioImage.precio_mxn) {
+      alert('Por favor completa el título, dimensiones y precio de la obra')
       setEditingObra(portfolioImage)
       setShowMetadataForm(true)
       return
@@ -261,20 +519,32 @@ export default function LayoutCanvasWithMural({
       return
     }
 
-    // Escala para convertir cm a píxeles en el canvas
-    const scaleFactor = 2
-
     const newObra = {
       id: portfolioImage.id,
       titulo: portfolioImage.titulo,
       preview: portfolioImage.preview,
       alto_cm: parseFloat(portfolioImage.alto_cm),
       ancho_cm: parseFloat(portfolioImage.ancho_cm),
+      precio_mxn: parseFloat(portfolioImage.precio_mxn),
       // Posición inicial en el centro del área libre
-      x: FREE_AREA.x + (FREE_AREA.width / 2) - (parseFloat(portfolioImage.ancho_cm) * scaleFactor / 2),
-      y: FREE_AREA.y + (FREE_AREA.height / 2) - (parseFloat(portfolioImage.alto_cm) * scaleFactor / 2),
-      width: parseFloat(portfolioImage.ancho_cm) * scaleFactor,
-      height: parseFloat(portfolioImage.alto_cm) * scaleFactor
+      x: FREE_AREA.x + (FREE_AREA.width / 2) - (parseFloat(portfolioImage.ancho_cm) * SCALE_FACTOR / 2),
+      y: FREE_AREA.y + (FREE_AREA.height / 2) - (parseFloat(portfolioImage.alto_cm) * SCALE_FACTOR / 2),
+      width: parseFloat(portfolioImage.ancho_cm) * SCALE_FACTOR,
+      height: parseFloat(portfolioImage.alto_cm) * SCALE_FACTOR
+    }
+
+    // Verificar si la nueva obra colisiona con obras existentes
+    let hasCollision = false
+    for (const obraExistente of obrasEnCanvas) {
+      if (checkCollision(newObra, obraExistente)) {
+        hasCollision = true
+        break
+      }
+    }
+
+    if (hasCollision) {
+      alert('No hay espacio disponible en el centro del lienzo. Por favor, mueve las obras existentes para hacer espacio.')
+      return
     }
 
     setObrasEnCanvas([...obrasEnCanvas, newObra])
@@ -283,6 +553,16 @@ export default function LayoutCanvasWithMural({
   const handleRemoveFromCanvas = (obraId) => {
     setObrasEnCanvas(obrasEnCanvas.filter((o) => o.id !== obraId))
     if (selectedObraId === obraId) setSelectedObraId(null)
+  }
+
+  const handleDragMove = (obraId, x, y, width, height) => {
+    if (obraId === null) {
+      // Limpiar guías cuando termina el drag
+      setDragGuide({ x: null, y: null, width: null, height: null })
+    } else {
+      // Actualizar guías durante el drag
+      setDragGuide({ x, y, width, height })
+    }
   }
 
   const handleDragEnd = (obraId, newX, newY) => {
@@ -318,7 +598,14 @@ export default function LayoutCanvasWithMural({
   const exportAsImage = async () => {
     if (!stageRef.current) return null
 
-    const dataURL = stageRef.current.toDataURL({ pixelRatio: 2 })
+    // Exportar solo el área del canvas sin las reglas
+    const dataURL = stageRef.current.toDataURL({
+      x: RULER_SIZE,
+      y: RULER_SIZE,
+      width: CANVAS_WIDTH,
+      height: CANVAS_HEIGHT,
+      pixelRatio: 2
+    })
     const response = await fetch(dataURL)
     const blob = await response.blob()
 
@@ -328,7 +615,14 @@ export default function LayoutCanvasWithMural({
   const generatePDF = () => {
     if (!stageRef.current) return
 
-    const dataURL = stageRef.current.toDataURL()
+    // Exportar solo el área del canvas sin las reglas
+    const dataURL = stageRef.current.toDataURL({
+      x: RULER_SIZE,
+      y: RULER_SIZE,
+      width: CANVAS_WIDTH,
+      height: CANVAS_HEIGHT,
+      pixelRatio: 1
+    })
 
     const pdf = new jsPDF({
       orientation: 'landscape',
@@ -362,6 +656,7 @@ export default function LayoutCanvasWithMural({
           preview: obra.preview,
           alto_cm: obra.alto_cm,
           ancho_cm: obra.ancho_cm,
+          precio_mxn: obra.precio_mxn,
           x: obra.x,
           y: obra.y,
           width: obra.width,
@@ -416,6 +711,7 @@ export default function LayoutCanvasWithMural({
           preview: obra.preview,
           alto_cm: obra.alto_cm,
           ancho_cm: obra.ancho_cm,
+          precio_mxn: obra.precio_mxn,
           x: obra.x,
           y: obra.y,
           width: obra.width,
@@ -516,7 +812,7 @@ export default function LayoutCanvasWithMural({
         }}>
           {todasLasObras.map((img) => {
             const isInCanvas = obrasEnCanvas.some(o => o.id === img.id)
-            const hasMetadata = img.titulo && img.alto_cm && img.ancho_cm
+            const hasMetadata = img.titulo && img.alto_cm && img.ancho_cm && img.precio_mxn
 
             return (
               <div
@@ -546,15 +842,12 @@ export default function LayoutCanvasWithMural({
                     position: 'absolute',
                     top: '16px',
                     right: '16px',
-                    background: '#EAB308',
-                    color: 'white',
-                    fontSize: '10px',
-                    padding: '4px 8px',
-                    borderRadius: '12px',
-                    fontWeight: '600'
-                  }}>
-                    Sin metadata
-                  </div>
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    background: 'rgba(244, 237, 228, 0.5)',
+                    border: '1px solid #E8DED1'
+                  }} />
                 )}
 
                 {isInCanvas && (
@@ -562,15 +855,11 @@ export default function LayoutCanvasWithMural({
                     position: 'absolute',
                     top: '16px',
                     left: '16px',
-                    background: '#10B981',
-                    color: 'white',
-                    fontSize: '10px',
-                    padding: '4px 8px',
-                    borderRadius: '12px',
-                    fontWeight: '600'
-                  }}>
-                    En lienzo
-                  </div>
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    background: '#141210'
+                  }} />
                 )}
 
                 <p style={{
@@ -587,10 +876,29 @@ export default function LayoutCanvasWithMural({
                 <p style={{
                   fontSize: '11px',
                   color: '#6B6B6B',
-                  marginBottom: '8px'
+                  marginBottom: '4px'
                 }}>
                   {img.alto_cm && img.ancho_cm ? `${img.alto_cm} x ${img.ancho_cm} cm` : 'Sin dimensiones'}
                 </p>
+                {img.precio_mxn && (
+                  <p style={{
+                    fontSize: '12px',
+                    color: '#B83030',
+                    fontWeight: '700',
+                    marginBottom: '8px'
+                  }}>
+                    ${parseFloat(img.precio_mxn).toLocaleString('es-MX')} MXN
+                  </p>
+                )}
+                {!img.precio_mxn && (
+                  <p style={{
+                    fontSize: '11px',
+                    color: '#EAB308',
+                    marginBottom: '8px'
+                  }}>
+                    Sin precio
+                  </p>
+                )}
 
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button
@@ -724,14 +1032,35 @@ export default function LayoutCanvasWithMural({
         {/* Canvas sin wrapper card */}
         <div style={{
           width: '100%',
-          maxWidth: `${CANVAS_WIDTH}px`,
+          maxWidth: `${CANVAS_WIDTH + RULER_SIZE}px`,
           overflow: 'auto',
           background: 'white',
           borderRadius: '8px',
           boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
         }}>
-          <Stage ref={stageRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT}>
+          <Stage ref={stageRef} width={CANVAS_WIDTH + RULER_SIZE} height={CANVAS_HEIGHT + RULER_SIZE}>
+            {/* Layer de reglas */}
             <Layer>
+              {/* Esquina superior izquierda (vacía) */}
+              <Rect
+                x={0}
+                y={0}
+                width={RULER_SIZE}
+                height={RULER_SIZE}
+                fill={RULER_BG_COLOR}
+              />
+              {/* Regla horizontal */}
+              <Group x={RULER_SIZE} y={0}>
+                <HorizontalRuler width={CANVAS_WIDTH} />
+              </Group>
+              {/* Regla vertical */}
+              <Group x={0} y={RULER_SIZE}>
+                <VerticalRuler height={CANVAS_HEIGHT} />
+              </Group>
+            </Layer>
+
+            {/* Layer del canvas y obras */}
+            <Layer x={RULER_SIZE} y={RULER_SIZE}>
               <MuralBackground
                 plantillaURL={PLANTILLA_URL}
                 width={CANVAS_WIDTH}
@@ -742,11 +1071,22 @@ export default function LayoutCanvasWithMural({
                   key={obra.id}
                   obra={obra}
                   onDragEnd={handleDragEnd}
+                  onDragMove={handleDragMove}
                   isSelected={selectedObraId === obra.id}
                   onSelect={setSelectedObraId}
                   onDelete={handleRemoveFromCanvas}
+                  otrasObras={obrasEnCanvas.filter(o => o.id !== obra.id)}
                 />
               ))}
+              {/* Líneas guía durante el arrastre */}
+              <GuideLines
+                x={dragGuide.x}
+                y={dragGuide.y}
+                width={dragGuide.width}
+                height={dragGuide.height}
+                canvasWidth={CANVAS_WIDTH}
+                canvasHeight={CANVAS_HEIGHT}
+              />
             </Layer>
           </Stage>
         </div>
@@ -803,35 +1143,33 @@ export default function LayoutCanvasWithMural({
 
       {/* Instrucciones */}
       <div style={{
-        background: '#DBEAFE',
-        padding: '20px 32px',
-        borderRadius: '24px',
-        maxWidth: '800px',
-        margin: '0 auto'
+        maxWidth: '700px',
+        margin: '0 auto',
+        background: '#F4EDE4',
+        borderRadius: '16px',
+        padding: '16px 24px',
+        display: 'flex',
+        gap: '16px',
+        alignItems: 'flex-start'
       }}>
+        <svg
+          style={{ width: '24px', height: '24px', flexShrink: 0, marginTop: '2px' }}
+          fill="none"
+          stroke="#6B6B6B"
+          viewBox="0 0 24 24"
+        >
+          <circle cx="12" cy="12" r="10" strokeWidth="2" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 16v-4M12 8h.01" />
+        </svg>
         <p style={{
-          fontSize: '14px',
-          fontWeight: '600',
-          color: '#1E40AF',
-          marginBottom: '12px'
-        }}>
-          Instrucciones:
-        </p>
-        <ul style={{
-          listStyle: 'disc',
-          paddingLeft: '20px',
-          margin: 0,
           fontSize: '13px',
-          color: '#1E3A8A',
-          lineHeight: '1.7'
+          color: '#6B6B6B',
+          lineHeight: '1.8',
+          margin: 0,
+          flex: 1
         }}>
-          <li>Agrega obras con el botón "+ Agregar obra" y completa su metadata (título y dimensiones)</li>
-          <li>Haz clic en "+ Lienzo" para agregar la obra al mural</li>
-          <li>Arrastra las obras dentro del área libre (rectángulo central) para posicionarlas</li>
-          <li>Las áreas rayadas (arriba y abajo) son zonas de consideración del comité curatorial</li>
-          <li>Haz clic en una obra para seleccionarla y poder eliminarla con el botón rojo</li>
-          <li>Guarda el layout antes de continuar al siguiente paso</li>
-        </ul>
+          Agrega obras con el botón "+ Agregar obra" y completa su metadata (título, dimensiones y precio). Haz clic en "+ Lienzo" para agregar la obra al mural. Arrastra las obras dentro del área libre (rectángulo central) para posicionarlas. Las áreas rayadas (arriba y abajo) son zonas de consideración del comité curatorial. Haz clic en una obra para seleccionarla y poder eliminarla con el botón rojo. Guarda el layout antes de continuar al siguiente paso.
+        </p>
       </div>
 
       {/* Modal de metadata */}
@@ -964,6 +1302,65 @@ export default function LayoutCanvasWithMural({
                   />
                 </div>
               </div>
+
+              {/* Campo de Precio */}
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#141210',
+                  marginBottom: '8px'
+                }}>
+                  Precio de venta (MXN) *
+                </label>
+                <input
+                  type="number"
+                  value={editingObra.precio_mxn || ''}
+                  onChange={(e) => handleUpdateMetadata(editingObra.id, 'precio_mxn', e.target.value)}
+                  placeholder="10000"
+                  min="1"
+                  step="1"
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    background: '#F4EDE4',
+                    border: 'none',
+                    borderRadius: '12px',
+                    color: '#141210',
+                    fontSize: '14px',
+                    outline: 'none'
+                  }}
+                />
+                <div style={{
+                  background: '#FEF3C7',
+                  borderRadius: '12px',
+                  padding: '12px 16px',
+                  marginTop: '8px',
+                  display: 'flex',
+                  gap: '12px',
+                  alignItems: 'flex-start'
+                }}>
+                  <svg
+                    style={{ width: '20px', height: '20px', flexShrink: 0, marginTop: '1px' }}
+                    fill="none"
+                    stroke="#78350F"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 16v-4M12 8h.01" />
+                  </svg>
+                  <p style={{
+                    fontSize: '12px',
+                    color: '#78350F',
+                    lineHeight: '1.5',
+                    margin: 0,
+                    flex: 1
+                  }}>
+                    El precio debe incluir ya calculada la comisión del 30% de ARTE FACTO + IVA 16%. Este es el precio final de venta al público.
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div style={{ display: 'flex', gap: '16px', marginTop: '32px' }}>
@@ -990,11 +1387,11 @@ export default function LayoutCanvasWithMural({
               <button
                 type="button"
                 onClick={() => {
-                  if (editingObra.titulo && editingObra.alto_cm && editingObra.ancho_cm) {
+                  if (editingObra.titulo && editingObra.alto_cm && editingObra.ancho_cm && editingObra.precio_mxn) {
                     setShowMetadataForm(false)
                     setEditingObra(null)
                   } else {
-                    alert('Por favor completa todos los campos')
+                    alert('Por favor completa todos los campos (título, dimensiones y precio)')
                   }
                 }}
                 style={{

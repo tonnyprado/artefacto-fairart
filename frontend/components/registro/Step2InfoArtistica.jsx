@@ -50,10 +50,10 @@ export default function Step2InfoArtistica({ formData, updateFormData, errors })
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <h2 className="text-2xl font-bold mb-2" style={{ color: '#141210' }}>
           Información Artística
         </h2>
-        <p className="text-gray-600">Cuéntanos sobre tu trabajo artístico</p>
+        <p style={{ color: '#F4EDE4', fontSize: '15px' }}>Cuéntanos sobre tu trabajo artístico</p>
       </div>
 
       <Select
@@ -78,17 +78,17 @@ export default function Step2InfoArtistica({ formData, updateFormData, errors })
         placeholder="Describe tu trayectoria, técnicas, temáticas y propuesta artística (máximo 150 palabras)"
       />
 
-      <div className="text-sm text-gray-500 flex items-center justify-between">
+      <div className="text-sm flex items-center justify-between" style={{ color: 'rgba(244, 237, 228, 0.7)' }}>
         <span>Caracteres: {(formData.bio || '').length} / 950</span>
         {(formData.bio || '').length > 950 && (
-          <span className="text-red-600">
+          <span style={{ color: '#FEE2E2' }}>
             Máximo 950 caracteres (excede por {(formData.bio || '').length - 950})
           </span>
         )}
       </div>
 
-      <div className="border-t pt-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="pt-6" style={{ borderTop: '1px solid rgba(244, 237, 228, 0.2)' }}>
+        <h3 className="text-lg font-semibold mb-4" style={{ color: '#141210' }}>
           Redes Sociales
         </h3>
 
@@ -112,25 +112,33 @@ export default function Step2InfoArtistica({ formData, updateFormData, errors })
         </div>
       </div>
 
-      <div className="bg-yellow-50 border-l-4 border-yellow-600 p-4 rounded-r-2xl">
-        <div className="flex">
-          <svg
-            className="w-5 h-5 text-yellow-600 mr-2 flex-shrink-0"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path
-              fillRule="evenodd"
-              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-              clipRule="evenodd"
-            />
-          </svg>
-          <p className="text-sm text-yellow-800">
-            <strong>Importante:</strong> Una semblanza completa y un perfil de Instagram
-            activo aumentan significativamente tus posibilidades de selección, ya
-            que los curadores evaluarán tu trayectoria y consistencia artística.
-          </p>
-        </div>
+      <div style={{
+        background: 'rgba(244, 237, 228, 0.12)',
+        borderRadius: '16px',
+        padding: '16px 20px',
+        marginTop: '24px',
+        display: 'flex',
+        gap: '16px',
+        alignItems: 'flex-start'
+      }}>
+        <svg
+          style={{ width: '24px', height: '24px', flexShrink: 0, marginTop: '2px' }}
+          fill="none"
+          stroke="rgba(244, 237, 228, 0.85)"
+          viewBox="0 0 24 24"
+        >
+          <circle cx="12" cy="12" r="10" strokeWidth="2" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 16v-4M12 8h.01" />
+        </svg>
+        <p style={{
+          fontSize: '13px',
+          color: 'rgba(244, 237, 228, 0.85)',
+          lineHeight: '1.7',
+          margin: 0,
+          flex: 1
+        }}>
+          Una semblanza completa y un perfil de Instagram activo aumentan significativamente tus posibilidades de selección, ya que los curadores evaluarán tu trayectoria y consistencia artística.
+        </p>
       </div>
     </div>
   )

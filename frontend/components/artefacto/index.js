@@ -23,5 +23,4 @@ export { default as TextBlock } from './TextBlock';
 export { default as ImageBackgroundBlock } from './ImageBackgroundBlock';
 export { default as ConvocatoriaBlock } from './ConvocatoriaBlock';
 export { default as CronogramaBlock } from './CronogramaBlock';
-export { default as UbicacionBlock } from './UbicacionBlock';
 export * from './theme';

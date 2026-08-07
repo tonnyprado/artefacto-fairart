@@ -53,6 +53,38 @@ body {
   background: rgba(244, 237, 228, 0.7);
 }
 
+.custom-cursor.draggable {
+  width: 36px;
+  height: 36px;
+  background: rgba(244, 237, 228, 0.95);
+  border: none;
+}
+
+/* Ícono de mover con 4 flechas usando un símbolo SVG */
+.custom-cursor.draggable::before {
+  content: '⇔';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  color: #141210;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.custom-cursor.draggable::after {
+  content: '⇕';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  color: #141210;
+  font-weight: 900;
+  line-height: 1;
+}
+
 .custom-cursor.clicking {
   animation: cursorClick 0.4s ease-out;
 }

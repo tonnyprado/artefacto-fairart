@@ -12,6 +12,7 @@ import Step3Documentos from '@/components/registro/Step3Documentos'
 import Step4Confirmacion from '@/components/registro/Step4Confirmacion'
 import Step5Paquetes from '@/components/registro/Step5Paquetes'
 import { usePageTransition } from '@/components/artefacto/TransitionLink'
+import CustomCursor from '@/components/artefacto/CustomCursor'
 
 const COLORS = {
   red: '#B83030',
@@ -79,8 +80,6 @@ export default function RegistroPage() {
     fecha_nacimiento: '',
     pais: '',
     ciudad: '',
-    codigo_postal: '',
-    direccion: '',
 
     // Paso 2: Información Artística
     categoria: '',
@@ -97,7 +96,6 @@ export default function RegistroPage() {
       portfolio: null,
       identificacion: null
     },
-    puede_facturar: '', // 'si' o 'no'
 
     // Paso 4: Tu Lienzo
     paquete_id: null,
@@ -153,7 +151,6 @@ export default function RegistroPage() {
           newErrors.fecha_nacimiento = 'Fecha de nacimiento es requerida'
         if (!formData.pais) newErrors.pais = 'País es requerido'
         if (!formData.ciudad) newErrors.ciudad = 'Ciudad es requerida'
-        if (!formData.direccion) newErrors.direccion = 'Dirección es requerida'
         break
 
       case 2:
@@ -171,8 +168,6 @@ export default function RegistroPage() {
         if (!formData.documentos?.portfolio) newErrors.portfolio = 'Portafolio es requerido'
         if (!formData.documentos?.identificacion)
           newErrors.identificacion = 'Identificación es requerida'
-        if (!formData.puede_facturar)
-          newErrors.puede_facturar = 'Por favor indica si puedes emitir facturas'
         break
 
       case 4:
@@ -235,8 +230,6 @@ export default function RegistroPage() {
       formDataToSend.append('fecha_nacimiento', formData.fecha_nacimiento)
       formDataToSend.append('pais', formData.pais)
       formDataToSend.append('ciudad', formData.ciudad)
-      formDataToSend.append('codigo_postal', formData.codigo_postal || '')
-      formDataToSend.append('direccion', formData.direccion)
 
       // Información artística
       formDataToSend.append('categoria', formData.categoria)
@@ -259,9 +252,6 @@ export default function RegistroPage() {
       if (formData.documentos?.identificacion) {
         formDataToSend.append('identificacion', formData.documentos.identificacion)
       }
-
-      // Capacidad de facturación
-      formDataToSend.append('puede_facturar', formData.puede_facturar)
 
       // Paso 4: Tu Lienzo - Paquetes y Layout
       if (formData.paquete_id) {
@@ -289,6 +279,7 @@ export default function RegistroPage() {
           formDataToSend.append(`obra_lienzo_${index}_titulo`, obra.titulo)
           formDataToSend.append(`obra_lienzo_${index}_alto_cm`, obra.alto_cm)
           formDataToSend.append(`obra_lienzo_${index}_ancho_cm`, obra.ancho_cm)
+          formDataToSend.append(`obra_lienzo_${index}_precio_mxn`, obra.precio_mxn)
         })
         formDataToSend.append('obras_lienzo_count', formData.obras_lienzo.length)
       }
@@ -414,33 +405,14 @@ export default function RegistroPage() {
     }
   }, [currentStep])
 
-  // Restaurar cursor normal y forzar bordes redondeados cuando se monta el componente
+  // Forzar bordes redondeados cuando se monta el componente
   useEffect(() => {
-    const styleId = 'registro-cursor-fix'
+    const styleId = 'registro-border-radius-fix'
 
     // Crear y agregar el style tag
     const style = document.createElement('style')
     style.id = styleId
     style.innerHTML = `
-      body,
-      body * {
-        cursor: auto !important;
-      }
-      button,
-      a,
-      input,
-      textarea,
-      select,
-      [role="button"] {
-        cursor: pointer !important;
-      }
-      input:disabled,
-      button:disabled,
-      select:disabled,
-      textarea:disabled {
-        cursor: not-allowed !important;
-      }
-
       /* REGLA GLOBAL: Todos los elementos con borde o background tienen esquinas super redondeadas */
 
       /* Todos los inputs y controles de formulario */
@@ -732,6 +704,7 @@ export default function RegistroPage() {
 
   return (
     <>
+      <CustomCursor />
       <div style={{
         minHeight: '100vh',
         background: COLORS.cream,

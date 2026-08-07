@@ -1,12 +1,10 @@
 'use client';
 import { useState } from 'react';
 import { COLORS, FONTS, container } from './theme';
-import UbicacionBlock from './UbicacionBlock';
 
 const DATOS = [
   { label: 'Email General', value: 'convocatoria@artefacto.mx', href: 'mailto:convocatoria@artefacto.mx' },
   { label: 'Email Curatorial', value: 'artefacto.curatorial@gmail.com', href: 'mailto:artefacto.curatorial@gmail.com' },
-  { label: 'Ubicación', value: 'Centro Cultural Estación Indianilla, Claudio Bernard 111, Col. Doctores, Cuauhtémoc, 06720 CDMX' },
 ];
 
 const REDES = [
@@ -119,9 +117,6 @@ export default function ContactSection({ onSubmit }) {
         </div>
         </div>
       </section>
-
-      {/* Sección de Ubicación */}
-      <UbicacionBlock backgroundImage="/assets/estacion-indianilla-bg.png" />
     </>
   );
 }

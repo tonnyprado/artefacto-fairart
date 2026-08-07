@@ -214,12 +214,6 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                 {formData.ciudad}, {formData.pais}
               </span>
             </div>
-            <div>
-              <span style={{ color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '4px', fontSize: '13px' }}>Dirección</span>
-              <span style={{ fontWeight: '600', color: COLORS.cream, fontSize: '16px' }}>
-                {formData.direccion}
-              </span>
-            </div>
           </div>
         </div>
       </div>
@@ -347,78 +341,60 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
         }}>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '16px'
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '12px 24px',
+            fontFamily: FONTS.body,
+            fontSize: '15px'
           }}>
-            <div style={{
-              background: 'rgba(244, 237, 228, 0.1)',
-              padding: '16px',
-              borderRadius: '12px',
-              border: `1px solid rgba(244, 237, 228, 0.15)`,
-              textAlign: 'center'
-            }}>
-              <span style={{ fontSize: '32px', display: 'block', marginBottom: '8px' }}>📸</span>
-              <span style={{ color: COLORS.cream, fontSize: '14px', fontFamily: FONTS.body }}>
-                {formData.foto ? '✅ Foto de Perfil' : '⚠️ Falta foto'}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                background: formData.foto ? COLORS.cream : 'rgba(244, 237, 228, 0.3)',
+                flexShrink: 0
+              }}></div>
+              <span style={{ color: COLORS.cream, opacity: formData.foto ? 1 : 0.5 }}>
+                Foto de Perfil
               </span>
             </div>
-            <div style={{
-              background: 'rgba(244, 237, 228, 0.1)',
-              padding: '16px',
-              borderRadius: '12px',
-              border: `1px solid rgba(244, 237, 228, 0.15)`,
-              textAlign: 'center'
-            }}>
-              <span style={{ fontSize: '32px', display: 'block', marginBottom: '8px' }}>📄</span>
-              <span style={{ color: COLORS.cream, fontSize: '14px', fontFamily: FONTS.body }}>
-                {formData.documentos?.cv ? '✅ CV Artístico' : '⚠️ Falta CV'}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                background: formData.documentos?.cv ? COLORS.cream : 'rgba(244, 237, 228, 0.3)',
+                flexShrink: 0
+              }}></div>
+              <span style={{ color: COLORS.cream, opacity: formData.documentos?.cv ? 1 : 0.5 }}>
+                CV Artístico
               </span>
             </div>
-            <div style={{
-              background: 'rgba(244, 237, 228, 0.1)',
-              padding: '16px',
-              borderRadius: '12px',
-              border: `1px solid rgba(244, 237, 228, 0.15)`,
-              textAlign: 'center'
-            }}>
-              <span style={{ fontSize: '32px', display: 'block', marginBottom: '8px' }}>🎨</span>
-              <span style={{ color: COLORS.cream, fontSize: '14px', fontFamily: FONTS.body }}>
-                {formData.documentos?.portfolio ? '✅ Portafolio' : '⚠️ Falta portafolio'}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                background: formData.documentos?.portfolio ? COLORS.cream : 'rgba(244, 237, 228, 0.3)',
+                flexShrink: 0
+              }}></div>
+              <span style={{ color: COLORS.cream, opacity: formData.documentos?.portfolio ? 1 : 0.5 }}>
+                Portafolio
               </span>
             </div>
-            <div style={{
-              background: 'rgba(244, 237, 228, 0.1)',
-              padding: '16px',
-              borderRadius: '12px',
-              border: `1px solid rgba(244, 237, 228, 0.15)`,
-              textAlign: 'center'
-            }}>
-              <span style={{ fontSize: '32px', display: 'block', marginBottom: '8px' }}>🪪</span>
-              <span style={{ color: COLORS.cream, fontSize: '14px', fontFamily: FONTS.body }}>
-                {formData.documentos?.identificacion ? '✅ Identificación' : '⚠️ Falta ID'}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                background: formData.documentos?.identificacion ? COLORS.cream : 'rgba(244, 237, 228, 0.3)',
+                flexShrink: 0
+              }}></div>
+              <span style={{ color: COLORS.cream, opacity: formData.documentos?.identificacion ? 1 : 0.5 }}>
+                Identificación Oficial
               </span>
             </div>
           </div>
-
-          {/* Capacidad de Facturación */}
-          {formData.puede_facturar && (
-            <div style={{ marginTop: '20px' }}>
-              <span style={{ color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '8px', fontSize: '13px' }}>
-                Capacidad de emitir facturas
-              </span>
-              <div style={{
-                background: 'rgba(244, 237, 228, 0.1)',
-                padding: '12px 20px',
-                borderRadius: '12px',
-                border: `1px solid rgba(244, 237, 228, 0.15)`,
-                display: 'inline-block'
-              }}>
-                <span style={{ color: COLORS.cream, fontSize: '15px', fontFamily: FONTS.body, fontWeight: '600' }}>
-                  {formData.puede_facturar === 'si' ? '✅ Sí puede emitir facturas' : '❌ No puede emitir facturas'}
-                </span>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
@@ -470,7 +446,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                   e.target.style.background = COLORS.cream
                 }}
               >
-                ⬇️ Descargar
+                Descargar
               </button>
               <EditButton onClick={() => onEdit(4)} />
             </div>
@@ -626,11 +602,22 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                           color: COLORS.cream,
                           opacity: 0.6,
                           fontSize: '12px',
-                          margin: 0,
+                          margin: '0 0 4px 0',
                           fontFamily: FONTS.body
                         }}>
                           {obra.alto_cm} × {obra.ancho_cm} cm
                         </p>
+                        {obra.precio_mxn && (
+                          <p style={{
+                            color: COLORS.cream,
+                            fontSize: '13px',
+                            fontWeight: '700',
+                            margin: 0,
+                            fontFamily: FONTS.body
+                          }}>
+                            ${parseFloat(obra.precio_mxn).toLocaleString('es-MX')} MXN
+                          </p>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -761,7 +748,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
               fontFamily: FONTS.body,
               fontWeight: '600'
             }}>
-              ⚠️ {errorTerminos}
+              {errorTerminos}
             </p>
           </div>
         )}

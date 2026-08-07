@@ -21,8 +21,6 @@ export async function POST(request) {
       fecha_nacimiento: formData.get('fecha_nacimiento'),
       pais: formData.get('pais'),
       ciudad: formData.get('ciudad'),
-      codigo_postal: formData.get('codigo_postal'),
-      direccion: formData.get('direccion'),
 
       // Información artística
       categoria: formData.get('categoria'),
@@ -39,9 +37,6 @@ export async function POST(request) {
       portfolio: formData.get('portfolio'),
       identificacion: formData.get('identificacion'),
 
-      // Capacidad de facturación
-      puede_facturar: formData.get('puede_facturar'),
-
       // Canvas y obras del lienzo
       layout_canvas_image: formData.get('layout_canvas_image'),
       layout_canvas_data: formData.get('layout_canvas_data'),
@@ -57,7 +52,8 @@ export async function POST(request) {
         file: formData.get(`obra_lienzo_${i}`),
         titulo: formData.get(`obra_lienzo_${i}_titulo`),
         alto_cm: formData.get(`obra_lienzo_${i}_alto_cm`),
-        ancho_cm: formData.get(`obra_lienzo_${i}_ancho_cm`)
+        ancho_cm: formData.get(`obra_lienzo_${i}_ancho_cm`),
+        precio_mxn: formData.get(`obra_lienzo_${i}_precio_mxn`)
       })
     }
 
@@ -67,8 +63,11 @@ export async function POST(request) {
       email: artistaData.email,
       categoria: artistaData.categoria,
       paquete_id: artistaData.paquete_id,
-      puede_facturar: artistaData.puede_facturar,
-      obras_count: artistaData.obras_lienzo.length
+      obras_count: artistaData.obras_lienzo.length,
+      obras_con_precios: artistaData.obras_lienzo.map(o => ({
+        titulo: o.titulo,
+        precio_mxn: o.precio_mxn
+      }))
     })
 
     // TODO: Aquí deberías:

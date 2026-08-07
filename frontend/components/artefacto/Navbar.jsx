@@ -77,7 +77,20 @@ export default function Navbar({ screen, onOpenMenu }) {
   );
   return (
     <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 60, pointerEvents: 'none' }}>
-      <div className="arte-nav-desk" style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'start', padding: '16px 28px' }}>
+      {/* Capa difuminada detrás de los botones */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: '100%',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        backgroundColor: rojo ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
+        zIndex: 1,
+        pointerEvents: 'none'
+      }} />
+      <div className="arte-nav-desk" style={{ position: 'relative', zIndex: 2, display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'start', padding: '16px 28px' }}>
         <div style={{ display: 'flex', gap: 26, justifyContent: 'flex-start' }}>{left.map((n, i) => item(n, i))}</div>
         <a
           ref={logoRef}
@@ -96,7 +109,7 @@ export default function Navbar({ screen, onOpenMenu }) {
         <div style={{ display: 'flex', gap: 26, justifyContent: 'flex-end' }}>{right.map((n, i) => item(n, i + left.length))}</div>
       </div>
       <button className="arte-nav-mob" onClick={onOpenMenu} aria-label="Menú"
-        style={{ pointerEvents: 'auto', position: 'absolute', top: 16, left: 16, background: 'none', border: 'none', cursor: 'pointer', padding: 8, display: 'none' }}>
+        style={{ pointerEvents: 'auto', position: 'absolute', top: 16, left: 16, background: 'none', border: 'none', cursor: 'pointer', padding: 8, display: 'none', zIndex: 2 }}>
         <img src={rojo ? '/assets/star-cream.svg' : '/assets/star-black.svg'} alt="" style={{ width: 30, height: 30, display: 'block' }} />
       </button>
     </nav>

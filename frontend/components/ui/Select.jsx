@@ -16,9 +16,9 @@ export default function Select({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium mb-2" style={{ color: '#F4EDE4' }}>
           {label}
-          {required && <span className="text-red-600 ml-1">*</span>}
+          {required && <span style={{ color: '#FEE2E2', marginLeft: '4px' }}>*</span>}
         </label>
       )}
       <select
