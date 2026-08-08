@@ -22,6 +22,87 @@ CREATE TABLE IF NOT EXISTS usuarios (
 CREATE INDEX idx_usuarios_role ON usuarios(role);
 CREATE INDEX idx_usuarios_activo ON usuarios(activo);
 
+-- Tabla de paquetes de inscripción (MOVIDA ANTES DE ARTISTAS)
+CREATE TABLE IF NOT EXISTS paquetes (
+  id SERIAL PRIMARY KEY,
+  nombre VARCHAR(255) NOT NULL,
+  descripcion TEXT NOT NULL,
+  precio DECIMAL(10, 2) NOT NULL,
+  metros_lineales DECIMAL(5, 2) NOT NULL DEFAULT 3.0, -- Metros lineales de pared
+  altura_pared DECIMAL(5, 2) NOT NULL DEFAULT 2.4, -- Altura de la pared en metros
+  obras_maximas INTEGER NOT NULL DEFAULT 10, -- Número máximo de obras permitidas
+  beneficios JSONB DEFAULT '[]',
+  activo BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabla de configuración del sitio (singleton - solo un registro)
+CREATE TABLE IF NOT EXISTS configuracion_sitio (
+  id SERIAL PRIMARY KEY,
+  nombre_sitio VARCHAR(255) NOT NULL DEFAULT 'ARTEFACT',
+  email_contacto VARCHAR(255),
+  telefono_contacto VARCHAR(50),
+  whatsapp VARCHAR(50),
+  direccion_completa TEXT,
+  instagram VARCHAR(255),
+  facebook VARCHAR(255),
+  twitter VARCHAR(255),
+  linkedin VARCHAR(255),
+  youtube VARCHAR(255),
+  copyright_text TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabla de mensajes de contacto
+CREATE TABLE IF NOT EXISTS mensajes_contacto (
+  id SERIAL PRIMARY KEY,
+  nombre VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  telefono VARCHAR(50),
+  asunto VARCHAR(500) NOT NULL,
+  mensaje TEXT NOT NULL,
+  leido BOOLEAN DEFAULT false,
+  respondido BOOLEAN DEFAULT false,
+  respuesta TEXT,
+  fecha_respuesta TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Índices para mensajes_contacto
+CREATE INDEX idx_mensajes_contacto_leido ON mensajes_contacto(leido);
+CREATE INDEX idx_mensajes_contacto_respondido ON mensajes_contacto(respondido);
+CREATE INDEX idx_mensajes_contacto_created_at ON mensajes_contacto(created_at);
+
+-- Tabla de eventos/ferias (MOVIDA ANTES DE ARTISTAS)
+CREATE TABLE IF NOT EXISTS eventos (
+  id SERIAL PRIMARY KEY,
+  nombre VARCHAR(255) NOT NULL,
+  descripcion TEXT,
+  tipo_evento VARCHAR(50) DEFAULT 'feria_principal', -- feria_principal, taller, conferencia, etc.
+  fecha_inicio TIMESTAMP NOT NULL,
+  fecha_fin TIMESTAMP NOT NULL,
+  ubicacion TEXT NOT NULL, -- Descripción general de ubicación
+  lugar_nombre VARCHAR(255), -- Nombre del lugar/venue
+  direccion_completa TEXT, -- Dirección completa
+  ciudad VARCHAR(100),
+  estado VARCHAR(100),
+  codigo_postal VARCHAR(20),
+  pais VARCHAR(100) DEFAULT 'México',
+  imagen VARCHAR(500),
+  slug VARCHAR(255) UNIQUE NOT NULL,
+  activo BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Índices para eventos
+CREATE INDEX idx_eventos_fecha_inicio ON eventos(fecha_inicio);
+CREATE INDEX idx_eventos_slug ON eventos(slug);
+CREATE INDEX idx_eventos_activo ON eventos(activo);
+
 -- Tabla de artistas
 CREATE TABLE IF NOT EXISTS artistas (
   id SERIAL PRIMARY KEY,
@@ -76,68 +157,29 @@ CREATE INDEX idx_obras_artista ON obras(artista_id);
 CREATE INDEX idx_obras_categoria ON obras(categoria);
 CREATE INDEX idx_obras_disponible ON obras(disponible);
 
--- Tabla de eventos/ferias
-CREATE TABLE IF NOT EXISTS eventos (
-  id SERIAL PRIMARY KEY,
-  nombre VARCHAR(255) NOT NULL,
-  descripcion TEXT,
-  fecha_inicio TIMESTAMP NOT NULL,
-  fecha_fin TIMESTAMP NOT NULL,
-  ubicacion TEXT NOT NULL,
-  imagen VARCHAR(500),
-  slug VARCHAR(255) UNIQUE NOT NULL,
-  activo BOOLEAN DEFAULT true,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Índices para eventos
-CREATE INDEX idx_eventos_fecha_inicio ON eventos(fecha_inicio);
-CREATE INDEX idx_eventos_slug ON eventos(slug);
-CREATE INDEX idx_eventos_activo ON eventos(activo);
-
--- Tabla de paquetes de inscripción
-CREATE TABLE IF NOT EXISTS paquetes (
-  id SERIAL PRIMARY KEY,
-  nombre VARCHAR(255) NOT NULL,
-  descripcion TEXT NOT NULL,
-  precio DECIMAL(10, 2) NOT NULL,
-  metros_lineales DECIMAL(5, 2) NOT NULL DEFAULT 3.0, -- Metros lineales de pared
-  altura_pared DECIMAL(5, 2) NOT NULL DEFAULT 2.4, -- Altura de la pared en metros
-  obras_maximas INTEGER NOT NULL DEFAULT 10, -- Número máximo de obras permitidas
-  beneficios JSONB DEFAULT '[]',
-  activo BOOLEAN DEFAULT true,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Tabla de inscripciones a eventos
-CREATE TABLE IF NOT EXISTS inscripciones (
-  id SERIAL PRIMARY KEY,
-  artista_id INTEGER NOT NULL REFERENCES artistas(id) ON DELETE CASCADE,
-  evento_id INTEGER NOT NULL REFERENCES eventos(id) ON DELETE CASCADE,
-  paquete_id INTEGER NOT NULL REFERENCES paquetes(id) ON DELETE RESTRICT,
-  estado VARCHAR(50) DEFAULT 'pendiente' CHECK (estado IN ('pendiente', 'aprobada', 'rechazada')),
-  notas TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(artista_id, evento_id)
-);
-
--- Índices para inscripciones
-CREATE INDEX idx_inscripciones_artista ON inscripciones(artista_id);
-CREATE INDEX idx_inscripciones_evento ON inscripciones(evento_id);
-CREATE INDEX idx_inscripciones_estado ON inscripciones(estado);
-
--- Tabla para contenido general del sitio (páginas, secciones)
+-- Tabla para contenido general del sitio (MOVIDA ANTES DE INSCRIPCIONES)
 CREATE TABLE IF NOT EXISTS contenido (
   id SERIAL PRIMARY KEY,
-  tipo VARCHAR(50) NOT NULL CHECK (tipo IN ('pagina', 'seccion', 'noticia')),
+  tipo VARCHAR(50) NOT NULL CHECK (tipo IN ('hero', 'about', 'convocatoria', 'pagina', 'seccion', 'noticia')),
   titulo VARCHAR(255) NOT NULL,
+  subtitulo VARCHAR(500),
   slug VARCHAR(255) UNIQUE NOT NULL,
   contenido TEXT,
   imagen VARCHAR(500),
   publicado BOOLEAN DEFAULT false,
+  -- Campos para Hero
+  cta_principal_texto VARCHAR(100),
+  cta_principal_url VARCHAR(500),
+  cta_secundario_texto VARCHAR(100),
+  cta_secundario_url VARCHAR(500),
+  -- Campos para About
+  mision TEXT,
+  vision TEXT,
+  valores JSONB DEFAULT '[]', -- Array de {title, description, icon}
+  -- Campos para Convocatoria
+  requisitos JSONB DEFAULT '[]', -- Array de strings
+  beneficios JSONB DEFAULT '[]', -- Array de strings
+  pdf_url VARCHAR(500),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -150,7 +192,7 @@ CREATE INDEX idx_contenido_publicado ON contenido(publicado);
 -- SISTEMA DE FASES Y VOTACIONES
 -- ============================================================================
 
--- Tabla de fases (Fase 1, Fase 2, Fase 3, Concurso)
+-- Tabla de fases (MOVIDA ANTES DE INSCRIPCIONES_FASES)
 CREATE TABLE IF NOT EXISTS fases (
   id SERIAL PRIMARY KEY,
   nombre VARCHAR(100) NOT NULL, -- 'Fase 1', 'Fase 2', 'Fase 3', 'Concurso'
@@ -175,6 +217,24 @@ CREATE INDEX idx_fases_tipo ON fases(tipo);
 CREATE INDEX idx_fases_inscripciones_abiertas ON fases(inscripciones_abiertas);
 CREATE INDEX idx_fases_votaciones_abiertas ON fases(votaciones_abiertas);
 CREATE INDEX idx_fases_finalizada ON fases(finalizada);
+
+-- Tabla de inscripciones a eventos
+CREATE TABLE IF NOT EXISTS inscripciones (
+  id SERIAL PRIMARY KEY,
+  artista_id INTEGER NOT NULL REFERENCES artistas(id) ON DELETE CASCADE,
+  evento_id INTEGER NOT NULL REFERENCES eventos(id) ON DELETE CASCADE,
+  paquete_id INTEGER NOT NULL REFERENCES paquetes(id) ON DELETE RESTRICT,
+  estado VARCHAR(50) DEFAULT 'pendiente' CHECK (estado IN ('pendiente', 'aprobada', 'rechazada')),
+  notas TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(artista_id, evento_id)
+);
+
+-- Índices para inscripciones
+CREATE INDEX idx_inscripciones_artista ON inscripciones(artista_id);
+CREATE INDEX idx_inscripciones_evento ON inscripciones(evento_id);
+CREATE INDEX idx_inscripciones_estado ON inscripciones(estado);
 
 -- Tabla de inscripciones por fase
 CREATE TABLE IF NOT EXISTS inscripciones_fases (
@@ -257,6 +317,12 @@ CREATE TRIGGER update_eventos_updated_at BEFORE UPDATE ON eventos
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_paquetes_updated_at BEFORE UPDATE ON paquetes
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_configuracion_sitio_updated_at BEFORE UPDATE ON configuracion_sitio
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_mensajes_contacto_updated_at BEFORE UPDATE ON mensajes_contacto
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_inscripciones_updated_at BEFORE UPDATE ON inscripciones
