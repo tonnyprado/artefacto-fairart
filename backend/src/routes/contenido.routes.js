@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import * as contenidoController from '../controllers/contenido.controller.js'
-import { authenticateToken, requireAdmin } from '../middleware/auth.middleware.js'
+import { verifyToken, isAdmin } from '../middleware/auth.middleware.js'
 
 const router = Router()
 
@@ -8,10 +8,10 @@ const router = Router()
 router.get('/', contenidoController.getContenido) // Query: ?tipo=hero|about|convocatoria
 
 // Rutas protegidas (admin)
-router.get('/all', authenticateToken, requireAdmin, contenidoController.getAllContenidos)
-router.get('/:id', authenticateToken, requireAdmin, contenidoController.getContenidoById)
-router.post('/', authenticateToken, requireAdmin, contenidoController.createContenido)
-router.put('/:id', authenticateToken, requireAdmin, contenidoController.updateContenido)
-router.delete('/:id', authenticateToken, requireAdmin, contenidoController.deleteContenido)
+router.get('/all', verifyToken, isAdmin, contenidoController.getAllContenidos)
+router.get('/:id', verifyToken, isAdmin, contenidoController.getContenidoById)
+router.post('/', verifyToken, isAdmin, contenidoController.createContenido)
+router.put('/:id', verifyToken, isAdmin, contenidoController.updateContenido)
+router.delete('/:id', verifyToken, isAdmin, contenidoController.deleteContenido)
 
 export default router

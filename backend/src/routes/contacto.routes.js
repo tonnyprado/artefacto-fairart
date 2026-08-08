@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import * as contactoController from '../controllers/contacto.controller.js'
-import { authenticateToken, requireAdmin } from '../middleware/auth.middleware.js'
+import { verifyToken, isAdmin } from '../middleware/auth.middleware.js'
 
 const router = Router()
 
@@ -8,11 +8,11 @@ const router = Router()
 router.post('/', contactoController.enviarMensaje)
 
 // Rutas protegidas (admin)
-router.get('/', authenticateToken, requireAdmin, contactoController.getMensajes)
-router.get('/estadisticas', authenticateToken, requireAdmin, contactoController.getEstadisticas)
-router.get('/:id', authenticateToken, requireAdmin, contactoController.getMensajeById)
-router.put('/:id/marcar-leido', authenticateToken, requireAdmin, contactoController.marcarLeido)
-router.put('/:id/responder', authenticateToken, requireAdmin, contactoController.responderMensaje)
-router.delete('/:id', authenticateToken, requireAdmin, contactoController.deleteMensaje)
+router.get('/', verifyToken, isAdmin, contactoController.getMensajes)
+router.get('/estadisticas', verifyToken, isAdmin, contactoController.getEstadisticas)
+router.get('/:id', verifyToken, isAdmin, contactoController.getMensajeById)
+router.put('/:id/marcar-leido', verifyToken, isAdmin, contactoController.marcarLeido)
+router.put('/:id/responder', verifyToken, isAdmin, contactoController.responderMensaje)
+router.delete('/:id', verifyToken, isAdmin, contactoController.deleteMensaje)
 
 export default router

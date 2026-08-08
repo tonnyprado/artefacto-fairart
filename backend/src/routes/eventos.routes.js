@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { body } from 'express-validator'
 import { validate } from '../middleware/validation.middleware.js'
-import { authenticateToken, requireAdmin } from '../middleware/auth.middleware.js'
+import { verifyToken, isAdmin } from '../middleware/auth.middleware.js'
 import * as eventosController from '../controllers/eventos.controller.js'
 
 const router = Router()
@@ -15,8 +15,8 @@ router.get('/', eventosController.getAllEventos)
 
 // Rutas protegidas (admin)
 router.post('/',
-  authenticateToken,
-  requireAdmin,
+  verifyToken,
+  isAdmin,
   [
     body('nombre').notEmpty().withMessage('El nombre es requerido'),
     body('fecha_inicio').isISO8601().withMessage('Fecha de inicio inválida'),
@@ -28,14 +28,14 @@ router.post('/',
 )
 
 router.put('/:id',
-  authenticateToken,
-  requireAdmin,
+  verifyToken,
+  isAdmin,
   eventosController.updateEvento
 )
 
 router.delete('/:id',
-  authenticateToken,
-  requireAdmin,
+  verifyToken,
+  isAdmin,
   eventosController.deleteEvento
 )
 
