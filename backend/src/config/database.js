@@ -1,26 +1,34 @@
-// TEMPORAL: PostgreSQL deshabilitado mientras se usan datos en memoria
-// TODO: Descomentar cuando se configure PostgreSQL
-
 import pg from 'pg'
 const { Pool } = pg
 
-// Solo intentar conectar si las variables de entorno están configuradas
-const shouldConnectDB = process.env.DB_HOST && process.env.DB_PASSWORD
+// Railway proporciona DATABASE_URL automáticamente cuando agregas PostgreSQL
+const shouldConnectDB = process.env.DATABASE_URL || (process.env.DB_HOST && process.env.DB_PASSWORD)
 
 let pool = null
 
 if (shouldConnectDB) {
   // Configuración del pool de conexiones a PostgreSQL
-  pool = new Pool({
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 5432,
-    database: process.env.DB_NAME || 'artefact_db',
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD,
-    max: 20, // Máximo número de clientes en el pool
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
-  })
+  // Priorizar DATABASE_URL (Railway) sobre variables individuales (desarrollo local)
+  const config = process.env.DATABASE_URL
+    ? {
+        connectionString: process.env.DATABASE_URL,
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+        max: 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 5000,
+      }
+    : {
+        host: process.env.DB_HOST || 'localhost',
+        port: process.env.DB_PORT || 5432,
+        database: process.env.DB_NAME || 'artefact_db',
+        user: process.env.DB_USER || 'postgres',
+        password: process.env.DB_PASSWORD,
+        max: 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 5000,
+      }
+
+  pool = new Pool(config)
 
   // Evento cuando se conecta un cliente
   pool.on('connect', () => {
@@ -30,7 +38,19 @@ if (shouldConnectDB) {
   // Evento cuando hay un error
   pool.on('error', (err) => {
     console.error('❌ Error inesperado en PostgreSQL:', err)
-    process.exit(-1)
+    // No matar el proceso en producción, solo logear el error
+    if (process.env.NODE_ENV !== 'production') {
+      process.exit(-1)
+    }
+  })
+
+  // Verificar conexión inicial
+  pool.query('SELECT NOW()', (err, res) => {
+    if (err) {
+      console.error('❌ Error al verificar conexión a PostgreSQL:', err.message)
+    } else {
+      console.log('✅ PostgreSQL conectado exitosamente -', res.rows[0].now)
+    }
   })
 } else {
   console.log('ℹ️  PostgreSQL deshabilitado - Usando datos en memoria (mockData.js)')
