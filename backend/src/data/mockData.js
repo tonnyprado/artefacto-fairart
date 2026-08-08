@@ -19,6 +19,9 @@ let nextCuradorId = 3
 let nextVotacionId = 7
 let nextArtistaFaseId = 7
 let nextPaqueteId = 4
+let nextContenidoId = 4
+let nextEventoId = 2
+let nextMensajeContactoId = 1
 
 // USUARIOS (Admin y Curadores)
 // Password: admin123 (hasheado con bcrypt)
@@ -397,6 +400,142 @@ export const votaciones = [
   }
 ]
 
+// CONFIGURACION DEL SITIO (Singleton - un solo registro)
+export const configuracionSitio = {
+  id: 1,
+  nombre_sitio: 'ARTEFACT',
+  logo_url: '/images/logo.png',
+  descripcion: 'Feria de arte contemporáneo que conecta artistas emergentes con el público',
+  email_contacto: 'info@artefact.com.mx',
+  telefono_contacto: '+52 55 1234 5678',
+  whatsapp: '+52 55 1234 5678',
+  direccion_completa: 'Av. Reforma 123, Cuauhtémoc, CDMX, México',
+  instagram: 'https://instagram.com/artefact',
+  facebook: 'https://facebook.com/artefact',
+  twitter: 'https://twitter.com/artefact',
+  linkedin: 'https://linkedin.com/company/artefact',
+  copyright_text: '© 2027 ARTEFACT - Todos los derechos reservados',
+  created_at: '2027-01-01T00:00:00Z',
+  updated_at: '2027-01-01T00:00:00Z'
+}
+
+// CONTENIDO DEL LANDING
+export const contenidos = [
+  {
+    id: 1,
+    tipo: 'hero',
+    titulo: 'ARTEFACT 2027',
+    subtitulo: 'Feria de Arte Contemporáneo',
+    slug: 'hero-principal',
+    contenido: 'Descubre el talento emergente de artistas locales en la feria de arte contemporáneo más importante de México. Un espacio donde el arte cobra vida y las nuevas propuestas encuentran su público.',
+    imagen: '/images/hero-bg.jpg',
+    publicado: true,
+    cta_principal_texto: 'Registrarse como Artista',
+    cta_principal_url: '/registro',
+    cta_secundario_texto: 'Ver Convocatoria',
+    cta_secundario_url: '#convocatoria',
+    created_at: '2027-01-05T10:00:00Z',
+    updated_at: '2027-01-05T10:00:00Z'
+  },
+  {
+    id: 2,
+    tipo: 'about',
+    titulo: 'Acerca de ARTEFACT',
+    slug: 'about',
+    contenido: 'ARTEFACT es una feria de arte contemporáneo que nace con el objetivo de crear un puente entre artistas emergentes y el público amante del arte. Creemos en el poder transformador del arte y en la importancia de dar voz a nuevos talentos.',
+    publicado: true,
+    mision: 'Nuestra misión es crear un puente entre artistas emergentes y coleccionistas, galeristas y público en general, promoviendo el arte contemporáneo mexicano.',
+    vision: 'Ser la plataforma líder en América Latina para el descubrimiento y promoción de artistas contemporáneos emergentes.',
+    valores: [
+      {
+        title: 'Calidad',
+        description: 'Selección rigurosa de artistas que demuestren excelencia técnica y propuesta conceptual sólida.',
+        icon: '🎨'
+      },
+      {
+        title: 'Inclusión',
+        description: 'Abrimos espacios para artistas de todas las disciplinas, estilos y orígenes.',
+        icon: '🤝'
+      },
+      {
+        title: 'Innovación',
+        description: 'Fomentamos propuestas creativas que desafíen los límites del arte contemporáneo.',
+        icon: '💡'
+      },
+      {
+        title: 'Transparencia',
+        description: 'Proceso de selección claro y justo evaluado por curadores profesionales.',
+        icon: '✨'
+      }
+    ],
+    created_at: '2027-01-05T10:00:00Z',
+    updated_at: '2027-01-05T10:00:00Z'
+  },
+  {
+    id: 3,
+    tipo: 'convocatoria',
+    titulo: 'Convocatoria Abierta',
+    slug: 'convocatoria',
+    contenido: 'Invitamos a artistas emergentes a formar parte de ARTEFACT 2027. Esta es tu oportunidad de mostrar tu trabajo ante coleccionistas, galeristas y un público ávido de nuevas propuestas artísticas.',
+    publicado: true,
+    pdf_url: '/pdfs/Convocatoria_ARTEFACTO.pdf',
+    requisitos: [
+      'Ser mayor de 18 años',
+      'Obra original y de autoría propia',
+      'No haber participado en ediciones anteriores de ARTEFACT como artista seleccionado',
+      'Contar con mínimo 5 obras disponibles para exhibición',
+      'Presentar portfolio digital con imágenes de alta calidad',
+      'Comprometerse a montar y desmontar obra en las fechas establecidas'
+    ],
+    beneficios: [
+      'Espacio de exhibición profesional con iluminación especializada',
+      'Difusión en redes sociales y medios de comunicación',
+      'Inclusión en catálogo oficial (digital e impreso según paquete)',
+      'Acceso a eventos de networking con coleccionistas y galeristas',
+      'Posibilidad de venta directa de obras',
+      'Certificado de participación',
+      'Asesoría para el montaje de obra'
+    ],
+    created_at: '2027-01-05T10:00:00Z',
+    updated_at: '2027-01-05T10:00:00Z'
+  }
+]
+
+// EVENTOS
+export const eventos = [
+  {
+    id: 1,
+    nombre: 'ARTEFACT 2027',
+    descripcion: 'La feria de arte contemporáneo más importante de México regresa en 2027 con una selección de los mejores artistas emergentes del país.',
+    tipo_evento: 'feria_principal',
+    fecha_inicio: '2027-02-01T10:00:00Z',
+    fecha_fin: '2027-02-28T20:00:00Z',
+    ubicacion: 'Centro de Convenciones de la Ciudad de México',
+    lugar_nombre: 'Centro de Convenciones CDMX',
+    direccion_completa: 'Av. Paseo de la Reforma 123, Cuauhtémoc, 06600 Ciudad de México, CDMX',
+    ciudad: 'Ciudad de México',
+    estado: 'CDMX',
+    codigo_postal: '06600',
+    pais: 'México',
+    coordenadas_lat: 19.4326,
+    coordenadas_lng: -99.1332,
+    mapa_embed_url: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3762.6153488304847!2d-99.13553492451584!3d19.432607981886226!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85d1ff35f5bd1563%3A0x6c366f0e2de02ff7!2sPaseo%20de%20la%20Reforma%2C%20Cuauht%C3%A9moc%2C%20CDMX!5e0!3m2!1sen!2smx!4v1234567890123!5m2!1sen!2smx',
+    info_transporte: {
+      metro: 'Línea 1 - Estación Insurgentes (10 min caminando)',
+      metrobus: 'Línea 4 - Estación Reforma (5 min caminando)',
+      estacionamiento: 'Estacionamiento disponible en el lugar ($50 MXN hora)'
+    },
+    imagen: '/images/evento-principal.jpg',
+    slug: 'artefact-2027',
+    activo: true,
+    created_at: '2027-01-01T10:00:00Z',
+    updated_at: '2027-01-01T10:00:00Z'
+  }
+]
+
+// MENSAJES DE CONTACTO
+export const mensajesContacto = []
+
 // Funciones helper para generar IDs
 export const getNextId = {
   usuario: () => nextUsuarioId++,
@@ -405,7 +544,10 @@ export const getNextId = {
   curador: () => nextCuradorId++,
   votacion: () => nextVotacionId++,
   artistaFase: () => nextArtistaFaseId++,
-  paquete: () => nextPaqueteId++
+  paquete: () => nextPaqueteId++,
+  contenido: () => nextContenidoId++,
+  evento: () => nextEventoId++,
+  mensajeContacto: () => nextMensajeContactoId++
 }
 
 // Helper para crear timestamp

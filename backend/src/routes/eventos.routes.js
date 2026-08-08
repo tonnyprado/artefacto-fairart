@@ -1,21 +1,22 @@
 import { Router } from 'express'
 import { body } from 'express-validator'
 import { validate } from '../middleware/validation.middleware.js'
-import { verifyToken, isAdmin } from '../middleware/auth.middleware.js'
+import { authenticateToken, requireAdmin } from '../middleware/auth.middleware.js'
 import * as eventosController from '../controllers/eventos.controller.js'
 
 const router = Router()
 
-// Rutas públicas
-router.get('/', eventosController.getEventos)
-router.get('/:id', eventosController.getEventoById)
+// Rutas públicas - IMPORTANTE: Las rutas específicas deben ir ANTES de las dinámicas
+router.get('/principal', eventosController.getEventoPrincipal)
+router.get('/calendario', eventosController.getEventosCalendario)
 router.get('/slug/:slug', eventosController.getEventoBySlug)
-router.get('/proximos', eventosController.getProximosEventos)
+router.get('/:id', eventosController.getEventoById)
+router.get('/', eventosController.getAllEventos)
 
-// Rutas protegidas
+// Rutas protegidas (admin)
 router.post('/',
-  verifyToken,
-  isAdmin,
+  authenticateToken,
+  requireAdmin,
   [
     body('nombre').notEmpty().withMessage('El nombre es requerido'),
     body('fecha_inicio').isISO8601().withMessage('Fecha de inicio inválida'),
@@ -27,14 +28,14 @@ router.post('/',
 )
 
 router.put('/:id',
-  verifyToken,
-  isAdmin,
+  authenticateToken,
+  requireAdmin,
   eventosController.updateEvento
 )
 
 router.delete('/:id',
-  verifyToken,
-  isAdmin,
+  authenticateToken,
+  requireAdmin,
   eventosController.deleteEvento
 )
 

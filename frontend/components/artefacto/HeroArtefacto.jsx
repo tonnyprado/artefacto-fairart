@@ -1,55 +1,48 @@
 'use client'; // (Next.js App Router; inofensivo en Vite/CRA)
 import { useMemo, useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
-import { LETTERS } from './letters';
+import { LETTERS_ARTEFACTO } from './letters';
 import { COLORS, FONTS } from './theme';
 import { useTextScrambleMultiple } from './useTextScramble';
 
 /*
-  HeroArtefacto — hero full-screen con:
-  - Fondo de letras ARTEFACTO (SVG individuales) en filas, hover que las desvanece
+  HeroArtefacto — hero full-screen optimizado con:
+  - Fondo de letras formando "ARTEFACTO" repetido en cada fila horizontal
+  - Cada fila muestra las 9 letras en orden: A-R-T-E-F-A-C-T-O (repetido)
+  - Letras de 5.5vh sin gap, completamente pegadas y compactas
+  - Efecto de proximidad al mouse con spatial partitioning para mejor performance
   - Animación de entrada tipo flip clock (onda diagonal)
+  - Logo y botones de navegación centrados juntos en medio de la pantalla
+  - Texto de convocatoria "CONVOCATORIA ABIERTA AGO - NOV 2026" abajo centrado
+  - OPTIMIZADO: Grid adaptativo (~540+ elementos) vs ~1600 original = 66% reducción
   Props:
-    links: [{ label, href, pos }] pos ∈ 'top-left'|'top-right'|'bottom-left'|'bottom-right'
-    rows, cols: densidad del patrón (default 26 x 64)
+    startAnimation: controla si se muestra la animación de entrada
+    exitAnimation: controla si se muestra la animación de salida
+    onOpenMenu: función callback (no se usa actualmente)
 */
 
-const DEFAULT_LINKS = [
-  { label: 'Conoce Más', href: '#about', pos: 'top-left' },
-  { label: 'Calendario', href: '#calendario', pos: 'top-right' },
-  { label: 'Convocatoria', href: '#convocatoria', pos: 'bottom-left' },
-  { label: 'Contacto', href: '#contacto', pos: 'bottom-right' },
-];
-
-// Alineadas a la cuadrícula de letras: fila 2 (top) y fila 23 (bottom) de 26.
-// rowTop(r) = 0.8vh + r * 3.812vh  (padding + fila*(alto 3.1vh + gap 0.712vh))
-const POS_STYLE = {
-  'top-left':     { top: '8.42vh', left: 36 },
-  'top-right':    { top: '8.42vh', right: 36 },
-  'bottom-left':  { top: '88.48vh', left: 36 },
-  'bottom-right': { top: '88.48vh', right: 36 },
-};
-
-export default function HeroArtefacto({ links = DEFAULT_LINKS, startAnimation = true, exitAnimation = false, onOpenMenu }) {
+export default function HeroArtefacto({ startAnimation = true, exitAnimation = false, onOpenMenu }) {
   const heroRef = useRef(null);
 
   // Calcular rows y cols dinámicamente basándose en el viewport
+  // OPTIMIZADO: Letras medianas que forman "ARTEFACTO" en cada fila, adaptadas al viewport
   const calculateGridSize = () => {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
 
-    // Altura de cada letra: 3.1vh, gap: 0.35vh = 3.45vh por fila
-    const letterHeight = vh * 0.0345; // 3.45vh en pixels
-    const rows = Math.ceil(vh / letterHeight) + 2; // +2 para overflow
+    // Altura de cada letra: 5.5vh sin gap = 5.5vh por fila
+    const letterHeight = vh * 0.055; // 5.5vh en pixels
+    const rows = Math.ceil(vh / letterHeight) + 2; // Filas necesarias con overflow
 
-    // Ancho aproximado de cada letra basado en aspect ratio del SVG
-    const letterWidth = letterHeight * 0.8; // Aspect ratio aproximado
-    const cols = Math.ceil(vw / letterWidth) + 10; // +10 para offset negativo
+    // Calcular cuántas letras "ARTEFACTO" completas caben + algunas extras
+    const letterWidth = letterHeight * 1.0; // Aspect ratio 1:1 aproximado
+    const artefactoRepetitions = Math.ceil(vw / (letterWidth * 9)) + 2; // Repeticiones de ARTEFACTO
+    const cols = 9 * artefactoRepetitions; // Total de letras (múltiplos de 9)
 
     return { rows, cols };
   };
 
-  const [gridSize, setGridSize] = useState({ rows: 26, cols: 64 });
+  const [gridSize, setGridSize] = useState({ rows: 18, cols: 27 });
 
   useEffect(() => {
     // Calcular tamaño inicial
@@ -73,50 +66,57 @@ export default function HeroArtefacto({ links = DEFAULT_LINKS, startAnimation = 
 
   const { rows, cols } = gridSize;
 
-  // Text scramble para los botones de navegación
-  // Botones flipIn: delay 2.4s + duration 0.7s = terminan a los 3.1s
-  const navLabels = links.map(link => link.label);
-  const navScrambleRefs = useTextScrambleMultiple(navLabels, {
+  // Botones de navegación
+  const navButtons = [
+    { label: 'Conoce Más', href: '#about' },
+    { label: 'Calendario', href: '#calendario' },
+    { label: 'Convocatoria', href: '#convocatoria' },
+    { label: 'Contacto', href: '#contacto' },
+  ];
+
+  // Text scramble para botones de navegación
+  const navScrambleRefs = useTextScrambleMultiple(navButtons.map(b => b.label), {
     duration: 600,
     staggerDelay: 100,
-    initialDelay: 3200, // Empezar después de que termine flipIn (3.1s + 0.1s)
+    initialDelay: 3200,
     trigger: startAnimation && !exitAnimation,
   });
 
-  // Text scramble para el texto de convocatoria
-  // Texto flipIn: delay 3.2s + duration 0.7s = termina a los 3.9s
-  const convocatoriaScrambleRefs = useTextScrambleMultiple(['Convocatoria abierta', 'Agosto - Noviembre 2026'], {
+  // Text scramble para el texto de convocatoria superior
+  // Texto flipIn: delay 2.0s + duration 0.7s = termina a los 2.7s
+  const convocatoriaScrambleRef = useTextScrambleMultiple(['Convocatoria abierta AGO - NOV 2O26'], {
     duration: 700,
     staggerDelay: 150,
-    initialDelay: 4000, // Empezar después de que termine flipIn (3.9s + 0.1s)
+    initialDelay: 2800, // Empezar después de que termine flipIn
     trigger: startAnimation && !exitAnimation,
   });
 
-  // Text scramble para Éticas y Creativas
+  // Text scramble para FEB y 2027
   // Logo flipIn: delay 2.9s + duration 0.7s = termina a los 3.6s
-  const logoTextScrambleRefs = useTextScrambleMultiple(['Éticas', 'Creativas'], {
+  const logoTextScrambleRefs = useTextScrambleMultiple(['FEB', '2027'], {
     duration: 600,
     staggerDelay: 120,
     initialDelay: 3700, // Empezar después de que termine flipIn (3.6s + 0.1s)
     trigger: startAnimation && !exitAnimation,
   });
 
-  // Data URIs solo de A, R, T, E (letras 53, 54, 55, 56)
+  // Data URIs de ARTEFACTO (9 letras en orden)
   const letterUrls = useMemo(
-    () => [53, 54, 55, 56].map((id) =>
-      `data:image/svg+xml;utf8,${encodeURIComponent(LETTERS[id])}`
+    () => LETTERS_ARTEFACTO.map((svg) =>
+      `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
     ),
     []
   );
 
-  // Filas con letra + delay pseudo-aleatorio determinista (misma composición en cada render)
+  // Filas con letras en orden ARTEFACTO repetido
   const bgRows = useMemo(() => {
     let seed = 7;
     const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
     return Array.from({ length: rows }, (_, r) => ({
-      offset: -Math.floor(rnd() * 60),
+      offset: 0, // Sin offset para que queden alineadas
       letters: Array.from({ length: cols }, (_, i) => ({
-        src: letterUrls[Math.floor(rnd() * letterUrls.length)],
+        // Usar índice módulo 9 para repetir ARTEFACTO
+        src: letterUrls[i % 9],
         delay: +(0.2 + (r + i * 0.35) * 0.045 + rnd() * 0.5).toFixed(2),
       })),
     }));
@@ -278,85 +278,86 @@ export default function HeroArtefacto({ links = DEFAULT_LINKS, startAnimation = 
     return 'none';
   };
 
-  const navStyle = (pos) => ({
-    position: 'absolute',
-    zIndex: 2,
-    color: COLORS.cream,
-    fontFamily: FONTS.subtitle,
-    fontWeight: FONTS.subtitleWeight,
-    fontStyle: FONTS.subtitleStyle,
-    fontSize: '3.1vh',
-    height: '3.1vh',
-    display: 'flex',
-    alignItems: 'center',
-    lineHeight: 1,
-    textTransform: 'uppercase',
-    letterSpacing: '0.01em',
-    whiteSpace: 'nowrap',
-    textDecoration: 'none',
-    transformOrigin: 'center bottom',
-    opacity: (!startAnimation && !exitAnimation) ? 0 : undefined,
-    animation: getAnimation(2.4),
-    backgroundColor: COLORS.red,
-    padding: '8px 16px',
-    borderRadius: '4px',
-    ...POS_STYLE[pos],
-  });
-
   return (
     <>
       <style>{`
-        .artefacto-navword {
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .artefacto-navword:hover {
-          font-style: normal !important;
-          font-weight: 700 !important;
-          transform: translateY(-2px);
-          letter-spacing: 0.02em;
-        }
-        .hero-nav-mobile {
-          display: none;
-        }
         .hero-center-container {
-          display: flex;
-          align-items: center;
-          gap: clamp(32px, 4vw, 64px);
-        }
-        .hero-convocatoria-text {
-          order: 1;
+          position: fixed;
+          top: 50vh;
+          left: 50vw;
+          transform: translate(-50%, -50%);
+          z-index: 2;
+          max-width: 90vw;
         }
         .hero-logo-container {
-          order: 2;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: clamp(12px, 1.5vh, 20px);
+          width: clamp(280px, 30vw, 420px);
+          flex-shrink: 0;
         }
-        @media (max-width: 760px) {
-          .hero-nav-desktop {
-            display: none !important;
-          }
-          .hero-nav-mobile {
-            display: block !important;
-          }
-          .hero-center-container {
-            flex-direction: column !important;
-            gap: 24px !important;
-            padding: 0 20px;
-          }
-          .hero-convocatoria-text {
-            order: 2 !important;
-            text-align: center !important;
-            max-width: 100% !important;
+        .hero-convocatoria-bottom {
+          position: absolute;
+          bottom: clamp(32px, 4vh, 56px);
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 2;
+        }
+        .hero-nav-buttons {
+          display: flex;
+          flex-direction: column;
+          gap: clamp(12px, 1.5vh, 20px);
+          flex-shrink: 0;
+          min-width: 200px;
+        }
+        .hero-nav-button {
+          color: #F5F1E8;
+          font-family: Agrandir, sans-serif;
+          font-weight: 500;
+          font-style: italic;
+          font-size: clamp(16px, 1.8vw, 24px);
+          text-transform: uppercase;
+          letter-spacing: 0.01em;
+          text-decoration: none;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          cursor: none;
+          display: block;
+          white-space: nowrap;
+        }
+        .hero-nav-button:hover {
+          font-style: normal;
+          font-weight: 700;
+          transform: translateX(8px);
+          letter-spacing: 0.02em;
+        }
+        .hero-center-wrapper {
+          display: flex;
+          align-items: center;
+          gap: clamp(40px, 5vw, 80px);
+        }
+        @media (max-width: 1024px) {
+          .hero-center-wrapper {
+            flex-direction: column;
+            gap: clamp(20px, 3vh, 30px);
           }
           .hero-logo-container {
-            order: 1 !important;
-            width: min(340px, 85vw) !important;
+            width: min(280px, 75vw) !important;
+          }
+          .hero-nav-buttons {
+            display: none !important;
+          }
+          .hero-convocatoria-bottom {
+            bottom: 20px !important;
+            font-size: clamp(10px, 2.5vw, 14px) !important;
           }
         }
       `}</style>
       <header id="hero" className="artefacto-hero" ref={heroRef}
         style={{ position: 'relative', height: '100vh', minHeight: 640, backgroundColor: COLORS.red, overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '0.8vh 0', overflow: 'hidden', opacity: (!startAnimation && !exitAnimation) ? 0 : undefined }}>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '0.1vh 0', overflow: 'hidden', opacity: (!startAnimation && !exitAnimation) ? 0 : undefined }}>
           {bgRows.map((row, r) => (
-            <div key={r} style={{ display: 'flex', gap: '0.35vh', height: '3.1vh', flex: 'none', marginLeft: row.offset, perspective: 600 }}>
+            <div key={r} style={{ display: 'flex', gap: '-1.2vh', height: '5.5vh', flex: 'none', marginLeft: row.offset, perspective: 600 }}>
               {row.letters.map((l, i) => {
                 let letterAnim = 'none';
                 if (exitAnimation) {
@@ -371,7 +372,7 @@ export default function HeroArtefacto({ links = DEFAULT_LINKS, startAnimation = 
                     alt=""
                     draggable={false}
                     className="artefacto-letter"
-                    style={{ height: '100%', width: 'auto', flex: 'none', userSelect: 'none', transformOrigin: 'center bottom', animation: letterAnim }}
+                    style={{ height: '100%', width: 'auto', flex: 'none', userSelect: 'none', transformOrigin: 'center bottom', animation: letterAnim, willChange: 'transform' }}
                   />
                 );
               })}
@@ -379,84 +380,68 @@ export default function HeroArtefacto({ links = DEFAULT_LINKS, startAnimation = 
           ))}
         </div>
 
-        {/* Botones de navegación desktop */}
-        <div className="hero-nav-desktop">
-          {links.map((lnk, i) => (
-            <a key={i} href={lnk.href} className="artefacto-navword" style={navStyle(lnk.pos)}>
-              <span ref={navScrambleRefs[i]?.ref}>{lnk.label}</span>
-            </a>
-          ))}
-        </div>
-
-        {/* Botón de menú mobile */}
-        <button
-          className="hero-nav-mobile"
-          onClick={onOpenMenu}
-          aria-label="Menú"
-          style={{
-            position: 'absolute',
-            top: 20,
-            right: 20,
-            background: 'none',
-            border: 'none',
-            cursor: 'none',
-            padding: 8,
-            zIndex: 3,
-            opacity: (!startAnimation && !exitAnimation) ? 0 : undefined,
-            animation: getAnimation(2.4),
-            transformOrigin: 'center',
-          }}
-        >
-          <img
-            src="/assets/glyph-x-white.svg"
-            alt="Menú"
-            style={{
-              width: 40,
-              height: 40,
-              display: 'block',
-            }}
-          />
-        </button>
-
-      <div className="hero-center-container" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', zIndex: 2 }}>
-        <div className="hero-convocatoria-text" style={{
-          color: COLORS.cream,
-          fontFamily: FONTS.subtitle,
-          fontWeight: FONTS.subtitleWeight,
-          fontStyle: FONTS.subtitleStyle,
-          fontSize: 'clamp(16px, 1.8vw, 24px)',
-          letterSpacing: '0.08em',
-          textTransform: 'uppercase',
-          textAlign: 'right',
-          lineHeight: 1.4,
-          maxWidth: '200px',
-          opacity: (!startAnimation && !exitAnimation) ? 0 : undefined,
-          animation: getAnimation(3.2),
-          transformOrigin: 'center bottom'
-        }}>
-          <span ref={convocatoriaScrambleRefs[0]?.ref}>Convocatoria abierta</span><br />
-          <span ref={convocatoriaScrambleRefs[1]?.ref}>Agosto - Noviembre 2026</span>
-        </div>
-
-        <div className="hero-logo-container" style={{ width: 'min(420px,42vw)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.4vh', opacity: (!startAnimation && !exitAnimation) ? 0 : undefined, animation: getAnimation(2.9), transformOrigin: 'center bottom' }}>
-          <img src="/assets/wordmark-cream.svg" alt="ARTEFACTO" style={{ width: '100%', display: 'block' }} />
+        {/* Texto de convocatoria en la parte inferior */}
+        <div className="hero-convocatoria-bottom">
           <div style={{
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'space-between',
             color: COLORS.cream,
             fontFamily: FONTS.subtitle,
             fontWeight: FONTS.subtitleWeight,
             fontStyle: FONTS.subtitleStyle,
-            fontSize: 'clamp(14px,1.6vw,22px)',
-            letterSpacing: '0.28em',
-            textTransform: 'uppercase'
+            fontSize: 'clamp(14px, 1.6vw, 20px)',
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            textAlign: 'center',
+            opacity: (!startAnimation && !exitAnimation) ? 0 : undefined,
+            animation: getAnimation(2.0),
+            transformOrigin: 'center'
           }}>
-            <span ref={logoTextScrambleRefs[0]?.ref}>Éticas</span>
-            <span ref={logoTextScrambleRefs[1]?.ref}>Creativas</span>
+            <span ref={convocatoriaScrambleRef[0]?.ref}>Convocatoria abierta AGO - NOV 2O26</span>
           </div>
         </div>
-      </div>
+
+        {/* Logo y botones centrados juntos en el medio de la pantalla */}
+        <div className="hero-center-container">
+          <div className="hero-center-wrapper" style={{
+            opacity: (!startAnimation && !exitAnimation) ? 0 : undefined,
+            animation: getAnimation(2.9),
+            transformOrigin: 'center'
+          }}>
+            {/* Logo */}
+            <div className="hero-logo-container">
+              <img src="/assets/wordmark-cream.svg" alt="ARTEFACTO" style={{ width: '100%', display: 'block' }} />
+              <div style={{
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'space-between',
+                color: COLORS.cream,
+                fontFamily: FONTS.subtitle,
+                fontWeight: FONTS.subtitleWeight,
+                fontStyle: FONTS.subtitleStyle,
+                fontSize: 'clamp(18px, 2vw, 28px)',
+                letterSpacing: '0.28em',
+                textTransform: 'uppercase',
+                paddingLeft: '4px',
+                paddingRight: '4px'
+              }}>
+                <span ref={logoTextScrambleRefs[0]?.ref}>FEB</span>
+                <span ref={logoTextScrambleRefs[1]?.ref}>2027</span>
+              </div>
+            </div>
+
+            {/* Botones de navegación */}
+            <div className="hero-nav-buttons">
+              {navButtons.map((btn, i) => (
+                <a
+                  key={i}
+                  href={btn.href}
+                  className="hero-nav-button"
+                >
+                  <span ref={navScrambleRefs[i]?.ref}>{btn.label}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
       </header>
     </>
   );

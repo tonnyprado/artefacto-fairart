@@ -39,8 +39,9 @@ export default function Navbar({ screen, onOpenMenu }) {
   useEffect(() => {
     const handleScroll = () => {
       if (screen === 'about') {
-        // Si estamos en about y hemos scrolleado más de 300px, mostrar logo
-        setScrolledFromAbout(window.scrollY > 300);
+        // Si estamos en about, NUNCA mostrar el logo del navbar
+        // El logo animado de ConoceMasSection toma el control
+        setScrolledFromAbout(false);
       } else {
         // En otras secciones, siempre mostrar el logo
         setScrolledFromAbout(true);
@@ -59,7 +60,8 @@ export default function Navbar({ screen, onOpenMenu }) {
         setLogoVisible(true);
       }, 200);
     } else if (screen === 'about') {
-      setLogoVisible(scrolledFromAbout);
+      // En la sección about, el logo siempre está oculto
+      setLogoVisible(false);
     }
   }, [screen, scrolledFromAbout]);
 
@@ -92,26 +94,66 @@ export default function Navbar({ screen, onOpenMenu }) {
       }} />
       <div className="arte-nav-desk" style={{ position: 'relative', zIndex: 2, display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'start', padding: '16px 28px' }}>
         <div style={{ display: 'flex', gap: 26, justifyContent: 'flex-start' }}>{left.map((n, i) => item(n, i))}</div>
-        <a
-          ref={logoRef}
-          href="#hero"
-          className="arte-navlogo"
+        {/* Contenedor para el logo que viene del hero */}
+        <div
+          id="navbar-logo-container"
           style={{
             pointerEvents: 'auto',
-            display: 'block',
-            opacity: logoVisible ? 1 : 0,
-            transform: logoVisible ? 'scale(1)' : 'scale(0.8)',
-            transition: 'opacity 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
-          <img src={rojo ? '/assets/wordmark-cream.svg' : '/assets/wordmark-black.svg'} alt="ARTEFACTO" style={{ height: 46, display: 'block' }} />
-        </a>
+          {/* El logo se moverá aquí dinámicamente desde ConoceMasSection */}
+          {/* Logo por defecto (se oculta cuando estamos en about) */}
+          <a
+            ref={logoRef}
+            href="#hero"
+            className="arte-navlogo"
+            style={{
+              pointerEvents: 'auto',
+              display: logoVisible ? 'block' : 'none',
+            }}
+          >
+            <img src={rojo ? '/assets/wordmark-cream.svg' : '/assets/wordmark-black.svg'} alt="ARTEFACTO" style={{ height: 46, display: 'block' }} />
+          </a>
+        </div>
         <div style={{ display: 'flex', gap: 26, justifyContent: 'flex-end' }}>{right.map((n, i) => item(n, i + left.length))}</div>
       </div>
-      <button className="arte-nav-mob" onClick={onOpenMenu} aria-label="Menú"
-        style={{ pointerEvents: 'auto', position: 'absolute', top: 16, left: 16, background: 'none', border: 'none', cursor: 'pointer', padding: 8, display: 'none', zIndex: 2 }}>
-        <img src={rojo ? '/assets/star-cream.svg' : '/assets/star-black.svg'} alt="" style={{ width: 30, height: 30, display: 'block' }} />
-      </button>
+      {/* Versión móvil: logo arriba y botón abajo */}
+      <div className="arte-nav-mob" style={{
+        pointerEvents: 'auto',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        display: 'none',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '20px',
+        gap: '20px',
+        zIndex: 2
+      }}>
+        {/* Logo móvil */}
+        <a href="#hero" className="arte-navlogo" style={{ pointerEvents: 'auto' }}>
+          <img src={rojo ? '/assets/wordmark-cream.svg' : '/assets/wordmark-black.svg'} alt="ARTEFACTO" style={{ height: 40, display: 'block' }} />
+        </a>
+
+        {/* Botón de menú más grande */}
+        <button onClick={onOpenMenu} aria-label="Menú"
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+            transition: 'transform 0.3s ease'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+        >
+          <img src={rojo ? '/assets/star-cream.svg' : '/assets/star-black.svg'} alt="" style={{ width: 50, height: 50, display: 'block' }} />
+        </button>
+      </div>
     </nav>
   );
 }

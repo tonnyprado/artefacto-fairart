@@ -2,18 +2,21 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Flip } from 'gsap/Flip';
 import FullScreenBlock from './FullScreenBlock';
 import ImageBackgroundBlock from './ImageBackgroundBlock';
 import ConvocatoriaBlock from './ConvocatoriaBlock';
 import { COLORS, FONTS, container } from './theme';
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, Flip);
 
 /**
  * Nueva sección CONOCE MÁS con 5 bloques fullscreen
  */
 export default function ConoceMasSection() {
   const titleRef = useRef(null);
+  const logoRef = useRef(null);
+  const logoContainerHeroRef = useRef(null);
   const block2Ref = useRef(null);
   const block3Ref = useRef(null);
   const block4Ref = useRef(null);
@@ -21,11 +24,14 @@ export default function ConoceMasSection() {
 
   useEffect(() => {
     const title = titleRef.current;
+    const logo = logoRef.current;
+    const logoContainerHero = logoContainerHeroRef.current;
+    const logoContainerNav = document.getElementById('navbar-logo-container');
     const block2 = block2Ref.current;
     const block3 = block3Ref.current;
     const block4 = block4Ref.current;
 
-    if (!title) return;
+    if (!title || !logo || !logoContainerHero || !logoContainerNav) return;
 
     const initAnimations = () => {
       // Resetear estados iniciales
@@ -34,7 +40,8 @@ export default function ConoceMasSection() {
 
       // Limpiar ScrollTriggers anteriores
       ScrollTrigger.getAll().forEach((trigger) => {
-        if (trigger.vars.trigger === title ||
+        if (trigger.vars.id === 'conocemas-logo' ||
+            trigger.vars.trigger === title ||
             trigger.vars.trigger === block2 ||
             trigger.vars.trigger === block3 ||
             trigger.vars.trigger === block4) {
@@ -42,7 +49,7 @@ export default function ConoceMasSection() {
         }
       });
 
-      // Animación del logo ARTEFACTO
+      // Animación del logo ARTEFACTO (entrada)
       gsap.fromTo(
         title,
         { opacity: 0, scale: 0.8, y: 40 },
@@ -59,6 +66,45 @@ export default function ConoceMasSection() {
           ease: 'power2.out',
         }
       );
+
+      // Función para mover el logo entre contenedores con Flip
+      const updateLogo = (moveToHero = false) => {
+        const state = Flip.getState(logo, { nested: true });
+
+        // Mover elemento físicamente
+        if (moveToHero) {
+          logoContainerHero.insertAdjacentElement('beforeend', logo);
+        } else {
+          logoContainerNav.insertAdjacentElement('beforeend', logo);
+        }
+
+        // Animar transición
+        Flip.from(state, {
+          absolute: true,
+          duration: 0.8,
+          ease: 'power1.inOut',
+        });
+      };
+
+      // Inicializar logo en el hero
+      updateLogo(true);
+
+      // Crear ScrollTrigger para mover el logo
+      gsap.timeline({
+        scrollTrigger: {
+          id: 'conocemas-logo-trigger',
+          trigger: sectionRef.current,
+          start: 'top top',
+          end: 'bottom 100%',
+          scrub: false,
+          onEnter: () => {
+            updateLogo(false); // Mover al navbar
+          },
+          onEnterBack: () => {
+            updateLogo(true); // Mover de vuelta al hero
+          },
+        },
+      });
 
       // Animaciones de bloques de texto
       [block2, block3, block4].forEach((block) => {
@@ -108,18 +154,42 @@ export default function ConoceMasSection() {
 
     return () => {
       observer.disconnect();
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      ScrollTrigger.getAll().forEach((trigger) => {
+        if (trigger.vars.id === 'conocemas-logo-trigger' ||
+            trigger.vars.trigger === title ||
+            trigger.vars.trigger === block2 ||
+            trigger.vars.trigger === block3 ||
+            trigger.vars.trigger === block4) {
+          trigger.kill();
+        }
+      });
+      // Resetear el logo al limpiar - moverlo de vuelta al hero
+      if (logo && logoContainerHero) {
+        logoContainerHero.insertAdjacentElement('beforeend', logo);
+        gsap.set(logo, { clearProps: 'all' });
+      }
     };
   }, []);
 
   return (
-    <section
-      id="conoce-mas"
-      ref={sectionRef}
-      style={{
-        background: COLORS.cream,
-      }}
-    >
+    <>
+      <style>{`
+        /* Estilos para el logo cuando está en el navbar */
+        #navbar-logo-container a {
+          display: block;
+        }
+        #navbar-logo-container a img {
+          height: 46px !important;
+          width: auto !important;
+        }
+      `}</style>
+      <section
+        id="conoce-mas"
+        ref={sectionRef}
+        style={{
+          background: COLORS.cream,
+        }}
+      >
       {/* BLOQUE 1: Logo ARTEFACTO grande */}
       <FullScreenBlock backgroundColor={COLORS.cream} animate={false}>
         <div
@@ -130,15 +200,31 @@ export default function ConoceMasSection() {
             justifyContent: 'center',
           }}
         >
-          <img
-            src="/assets/wordmark-black.svg"
-            alt="ARTEFACTO"
-            style={{
-              width: 'min(800px, 80vw)',
-              height: 'auto',
-              display: 'block',
-            }}
-          />
+          {/* Contenedor del logo en el hero */}
+          <div ref={logoContainerHeroRef}>
+            <a
+              ref={logoRef}
+              href="#hero"
+              style={{
+                cursor: 'pointer',
+                display: 'block',
+                textDecoration: 'none',
+                transformOrigin: 'center center',
+                willChange: 'transform',
+              }}
+            >
+              <img
+                src="/assets/wordmark-black.svg"
+                alt="ARTEFACTO"
+                style={{
+                  width: 'min(800px, 80vw)',
+                  height: 'auto',
+                  display: 'block',
+                  pointerEvents: 'none',
+                }}
+              />
+            </a>
+          </div>
         </div>
       </FullScreenBlock>
 
@@ -218,5 +304,6 @@ export default function ConoceMasSection() {
       {/* BLOQUE 5: Convocatoria (fondo azul) */}
       <ConvocatoriaBlock />
     </section>
+    </>
   );
 }
