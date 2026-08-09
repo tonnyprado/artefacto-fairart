@@ -355,6 +355,7 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
             margin-top: 20px;
             justify-content: center;
             align-items: center;
+            width: 100%;
           }
           .hero-convocatoria-bottom {
             bottom: 20px !important;
@@ -451,7 +452,7 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
                   onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
                   onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 >
-                  <img src="/assets/star-cream.svg" alt="Menú" style={{ width: 50, height: 50, display: 'block' }} />
+                  <img src="/assets/x-blanca.svg" alt="Menú" style={{ width: 50, height: 50, display: 'block' }} />
                 </button>
               </div>
             </div>
