@@ -5,7 +5,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Flip } from 'gsap/Flip';
 import FullScreenBlock from './FullScreenBlock';
 import ImageBackgroundBlock from './ImageBackgroundBlock';
-import ConvocatoriaBlock from './ConvocatoriaBlock';
 import { COLORS, FONTS, container } from './theme';
 
 gsap.registerPlugin(ScrollTrigger, Flip);
@@ -74,12 +73,12 @@ export default function ConoceMasSection() {
         {
           scrollTrigger: {
             trigger: title,
-            start: 'top bottom-=100',
-            end: 'top center',
-            scrub: true,
+            start: 'top 80%',
+            toggleActions: 'play none none none',
           },
           opacity: 1,
           scale: 1,
+          duration: 0.8,
           ease: 'power2.out',
         }
       );
@@ -90,12 +89,13 @@ export default function ConoceMasSection() {
         {
           scrollTrigger: {
             trigger: redCard,
-            start: 'top bottom-=100',
-            end: 'top center',
-            scrub: true,
+            start: 'top 80%',
+            toggleActions: 'play none none none',
           },
           opacity: 1,
           scale: 1,
+          duration: 0.8,
+          delay: 0.2,
           ease: 'power2.out',
         }
       );
@@ -146,12 +146,12 @@ export default function ConoceMasSection() {
         {
           scrollTrigger: {
             trigger: block2Left,
-            start: 'top bottom-=100',
-            end: 'top center',
-            scrub: true,
+            start: 'top 80%',
+            toggleActions: 'play none none none',
           },
           opacity: 1,
           x: 0,
+          duration: 0.8,
           ease: 'power2.out',
         }
       );
@@ -162,12 +162,13 @@ export default function ConoceMasSection() {
         {
           scrollTrigger: {
             trigger: block2Right,
-            start: 'top bottom-=100',
-            end: 'top center',
-            scrub: true,
+            start: 'top 80%',
+            toggleActions: 'play none none none',
           },
           opacity: 1,
           x: 0,
+          duration: 0.8,
+          delay: 0.3,
           ease: 'power2.out',
         }
       );
@@ -178,12 +179,13 @@ export default function ConoceMasSection() {
         {
           scrollTrigger: {
             trigger: block2Card,
-            start: 'top bottom-=100',
-            end: 'top center',
-            scrub: true,
+            start: 'top 80%',
+            toggleActions: 'play none none none',
           },
           opacity: 1,
           scale: 1,
+          duration: 0.8,
+          delay: 0.6,
           ease: 'power2.out',
         }
       );
@@ -195,12 +197,12 @@ export default function ConoceMasSection() {
         {
           scrollTrigger: {
             trigger: block3Left,
-            start: 'top bottom-=100',
-            end: 'top center',
-            scrub: true,
+            start: 'top 80%',
+            toggleActions: 'play none none none',
           },
           opacity: 1,
           x: 0,
+          duration: 0.8,
           ease: 'power2.out',
         }
       );
@@ -213,14 +215,14 @@ export default function ConoceMasSection() {
           {
             scrollTrigger: {
               trigger: card,
-              start: 'top bottom-=50',
-              end: 'top center',
-              scrub: true,
+              start: 'top 85%',
+              toggleActions: 'play none none none',
             },
             opacity: 1,
             x: 0,
+            duration: 0.6,
+            delay: idx * 0.2,
             ease: 'power2.out',
-            delay: idx * 0.1,
           }
         );
       });
@@ -232,12 +234,12 @@ export default function ConoceMasSection() {
         {
           scrollTrigger: {
             trigger: block4Title,
-            start: 'top bottom-=100',
-            end: 'top center',
-            scrub: true,
+            start: 'top 80%',
+            toggleActions: 'play none none none',
           },
           opacity: 1,
           y: 0,
+          duration: 0.8,
           ease: 'power2.out',
         }
       );
@@ -246,18 +248,19 @@ export default function ConoceMasSection() {
       block4Phases.forEach((phase, idx) => {
         gsap.fromTo(
           phase,
-          { opacity: 0, scale: 0.9 },
+          { opacity: 0, scale: 0.9, y: 20 },
           {
             scrollTrigger: {
               trigger: phase,
-              start: 'top bottom-=50',
-              end: 'top center',
-              scrub: true,
+              start: 'top 85%',
+              toggleActions: 'play none none none',
             },
             opacity: 1,
             scale: 1,
+            y: 0,
+            duration: 0.6,
+            delay: idx * 0.15,
             ease: 'power2.out',
-            delay: idx * 0.1,
           }
         );
       });
@@ -268,12 +271,13 @@ export default function ConoceMasSection() {
         {
           scrollTrigger: {
             trigger: block4Bottom,
-            start: 'top bottom-=100',
-            end: 'top center',
-            scrub: true,
+            start: 'top 80%',
+            toggleActions: 'play none none none',
           },
           opacity: 1,
           y: 0,
+          duration: 0.8,
+          delay: 0.5,
           ease: 'power2.out',
         }
       );
@@ -378,11 +382,11 @@ export default function ConoceMasSection() {
             ref={redCardRef}
             style={{
               background: '#b83030',
-              borderRadius: '32px',
-              padding: 'clamp(40px, 6vw, 80px)',
+              borderRadius: '24px',
+              padding: 'clamp(24px, 4vw, 48px)',
               textAlign: 'center',
-              minWidth: 'min(400px, 90vw)',
-              maxWidth: '500px',
+              minWidth: 'min(280px, 85vw)',
+              maxWidth: '350px',
             }}
           >
             <p
@@ -391,7 +395,7 @@ export default function ConoceMasSection() {
                 fontFamily: FONTS.display,
                 fontWeight: FONTS.displayWeight,
                 fontStyle: FONTS.displayStyle,
-                fontSize: 'clamp(28px, 4vw, 48px)',
+                fontSize: 'clamp(18px, 2.5vw, 28px)',
                 lineHeight: 1.2,
                 color: COLORS.cream,
                 textTransform: 'uppercase',
@@ -405,13 +409,13 @@ export default function ConoceMasSection() {
               <br />
               del arte
               <br />
-              <span style={{ fontFamily: FONTS.highlight, fontStyle: 'italic', fontWeight: 400, fontSize: 'clamp(24px, 3.5vw, 42px)' }}>
+              <span style={{ fontFamily: FONTS.highlight, fontStyle: 'italic', fontWeight: 400, fontSize: 'clamp(16px, 2vw, 24px)' }}>
                 Ciudad de
                 <br />
                 México
               </span>
               <br />
-              <span style={{ fontSize: 'clamp(32px, 5vw, 56px)', display: 'block', marginTop: '20px' }}>
+              <span style={{ fontSize: 'clamp(20px, 3vw, 32px)', display: 'block', marginTop: '12px' }}>
                 4 - 7
                 <br />
                 febrero 2027
@@ -422,21 +426,21 @@ export default function ConoceMasSection() {
       </FullScreenBlock>
 
       {/* BLOQUE 2: Textos descriptivos + Blue Card */}
-      <FullScreenBlock backgroundColor={COLORS.cream} minHeight="200vh" animate={false}>
-        <div style={{ ...container, padding: '100px 24px' }}>
+      <FullScreenBlock backgroundColor={COLORS.cream} minHeight="100vh" animate={false}>
+        <div style={{ ...container, padding: '60px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: '100vh' }}>
           {/* Texto izquierdo */}
-          <div ref={block2LeftRef} style={{ marginBottom: '120px' }}>
+          <div ref={block2LeftRef} style={{ marginBottom: '60px' }}>
             <h2
               style={{
                 margin: 0,
                 fontFamily: FONTS.display,
                 fontWeight: FONTS.displayWeight,
                 fontStyle: FONTS.displayStyle,
-                fontSize: 'clamp(36px, 5vw, 72px)',
+                fontSize: 'clamp(28px, 4vw, 56px)',
                 lineHeight: 1.2,
                 color: COLORS.black,
                 textTransform: 'uppercase',
-                maxWidth: '800px',
+                maxWidth: '700px',
               }}
             >
               ARTE FACTO
@@ -448,18 +452,18 @@ export default function ConoceMasSection() {
           </div>
 
           {/* Texto derecho */}
-          <div ref={block2RightRef} style={{ marginBottom: '120px', display: 'flex', justifyContent: 'flex-end' }}>
+          <div ref={block2RightRef} style={{ marginBottom: '60px', display: 'flex', justifyContent: 'flex-end' }}>
             <h3
               style={{
                 margin: 0,
                 fontFamily: FONTS.display,
                 fontWeight: FONTS.displayWeight,
                 fontStyle: FONTS.displayStyle,
-                fontSize: 'clamp(32px, 4.5vw, 64px)',
+                fontSize: 'clamp(24px, 3.5vw, 48px)',
                 lineHeight: 1.2,
                 color: COLORS.black,
                 textTransform: 'uppercase',
-                maxWidth: '800px',
+                maxWidth: '700px',
               }}
             >
               UN ESPACIO DONDE LOS CONCEPTOS ARTISTICOS
@@ -476,11 +480,11 @@ export default function ConoceMasSection() {
               ref={block2CardRef}
               style={{
                 background: '#4169e1',
-                borderRadius: '32px',
-                padding: 'clamp(40px, 6vw, 80px)',
+                borderRadius: '24px',
+                padding: 'clamp(32px, 5vw, 60px)',
                 textAlign: 'center',
-                minWidth: 'min(400px, 90vw)',
-                maxWidth: '500px',
+                minWidth: 'min(320px, 85vw)',
+                maxWidth: '400px',
               }}
             >
               <p
@@ -488,23 +492,23 @@ export default function ConoceMasSection() {
                   margin: 0,
                   fontFamily: FONTS.display,
                   fontWeight: 900,
-                  fontSize: 'clamp(32px, 5vw, 64px)',
+                  fontSize: 'clamp(24px, 3.5vw, 48px)',
                   lineHeight: 1.2,
                   color: COLORS.cream,
                 }}
               >
                 +50
                 <br />
-                <span style={{ fontWeight: 500, fontStyle: 'italic', fontSize: 'clamp(20px, 3vw, 36px)' }}>
+                <span style={{ fontWeight: 500, fontStyle: 'italic', fontSize: 'clamp(16px, 2vw, 24px)' }}>
                   artistas
                 </span>
               </p>
               <p
                 style={{
-                  margin: '20px 0 0',
+                  margin: '12px 0 0',
                   fontFamily: FONTS.highlight,
                   fontStyle: 'italic',
-                  fontSize: 'clamp(18px, 2.5vw, 32px)',
+                  fontSize: 'clamp(14px, 1.8vw, 22px)',
                   color: COLORS.cream,
                 }}
               >
@@ -512,10 +516,10 @@ export default function ConoceMasSection() {
               </p>
               <p
                 style={{
-                  margin: '40px 0 0',
+                  margin: '24px 0 0',
                   fontFamily: FONTS.display,
                   fontWeight: 900,
-                  fontSize: 'clamp(32px, 5vw, 64px)',
+                  fontSize: 'clamp(24px, 3.5vw, 48px)',
                   lineHeight: 1.2,
                   color: COLORS.cream,
                 }}
@@ -524,10 +528,10 @@ export default function ConoceMasSection() {
               </p>
               <p
                 style={{
-                  margin: '10px 0 0',
+                  margin: '8px 0 0',
                   fontFamily: FONTS.display,
                   fontWeight: 900,
-                  fontSize: 'clamp(24px, 3.5vw, 48px)',
+                  fontSize: 'clamp(18px, 2.5vw, 32px)',
                   lineHeight: 1.2,
                   color: COLORS.black,
                 }}
@@ -536,10 +540,10 @@ export default function ConoceMasSection() {
               </p>
               <p
                 style={{
-                  margin: '5px 0 0',
+                  margin: '4px 0 0',
                   fontFamily: FONTS.highlight,
                   fontStyle: 'italic',
-                  fontSize: 'clamp(28px, 4vw, 56px)',
+                  fontSize: 'clamp(20px, 3vw, 40px)',
                   color: COLORS.cream,
                 }}
               >
@@ -815,8 +819,6 @@ export default function ConoceMasSection() {
         </div>
       </ImageBackgroundBlock>
 
-      {/* BLOQUE 5: Convocatoria (fondo azul) */}
-      <ConvocatoriaBlock />
     </section>
     </>
   );
