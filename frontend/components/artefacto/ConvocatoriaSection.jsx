@@ -7,39 +7,37 @@ const FASES_DATA = [
   {
     num: 'I',
     title: 'Fase 1',
-    descuento2D: '-35%',
-    descuento3D: '-25%',
-    fechas: { apertura: 'Fecha por definir', cierre: 'Fecha por definir' }
+    descuento: '-20%',
+    fechas: { apertura: '10 de agosto de 2026', cierre: '31 de agosto de 2026' }
   },
   {
     num: 'II',
     title: 'Fase 2',
-    descuento2D: '-20%',
-    descuento3D: '-15%',
-    fechas: { apertura: 'Fecha por definir', cierre: 'Fecha por definir' }
+    descuento: '-10%',
+    fechas: { apertura: '15 de septiembre de 2026', cierre: '3 de octubre de 2026' }
   },
   {
     num: 'III',
     title: 'Fase 3',
-    descuento2D: 'Precio completo',
-    descuento3D: 'Precio completo',
-    fechas: { apertura: 'Fecha por definir', cierre: 'Fecha por definir' }
+    descuento: 'Precio completo',
+    fechas: { apertura: '18 de octubre de 2026', cierre: '10 de noviembre de 2026' }
   },
 ];
 
 const PAQUETES_2D = [
-  { tipo: 'Básico', metrosLineales: 2, fase1: '6,500', fase2: '8,000', fase3: '10,000' },
-  { tipo: 'Estándar', metrosLineales: 3, fase1: '8,775', fase2: '10,800', fase3: '13,500' },
-  { tipo: 'Medio', metrosLineales: 5, fase1: '13,000', fase2: '16,000', fase3: '20,000' },
-  { tipo: 'Amplio', metrosLineales: 7, fase1: '16,250', fase2: '20,000', fase3: '25,000' },
-  { tipo: 'Completo', metrosLineales: 10, fase1: '22,750', fase2: '28,000', fase3: '35,000' },
+  { tipo: 'Básico', metrosLineales: 2, fase1: '7,600', fase2: '8,550', fase3: '9,500' },
+  { tipo: 'Estándar', metrosLineales: 3, fase1: '10,400', fase2: '11,700', fase3: '13,000' },
+  { tipo: 'Medio', metrosLineales: 5, fase1: '15,600', fase2: '17,550', fase3: '19,500' },
+  { tipo: 'Amplio', metrosLineales: 7, fase1: '19,600', fase2: '22,050', fase3: '24,500' },
+  { tipo: 'Completo', metrosLineales: 10, fase1: '26,800', fase2: '30,150', fase3: '33,500' },
 ];
 
 const PAQUETES_3D = [
-  { tipo: 'Básico', metrosCuadrados: 1, fase1: '3,375', fase2: '3,825', fase3: '4,500' },
-  { tipo: 'Estándar', metrosCuadrados: 2, fase1: '6,000', fase2: '6,800', fase3: '8,000' },
-  { tipo: 'Medio', metrosCuadrados: 3, fase1: '8,250', fase2: '9,350', fase3: '11,000' },
-  { tipo: 'Amplio', metrosCuadrados: 4, fase1: '10,500', fase2: '11,900', fase3: '14,000' },
+  { tipo: 'Básico', metrosCuadrados: 1, fase1: '7,600', fase2: '8,550', fase3: '9,500' },
+  { tipo: 'Estándar', metrosCuadrados: 2, fase1: '12,400', fase2: '13,950', fase3: '15,500' },
+  { tipo: 'Medio', metrosCuadrados: 3, fase1: '16,000', fase2: '18,000', fase3: '20,000' },
+  { tipo: 'Amplio', metrosCuadrados: 4, fase1: '19,200', fase2: '21,600', fase3: '24,000' },
+  { tipo: 'Completo', metrosCuadrados: 9, fase1: '36,000', fase2: '40,500', fase3: '45,000' },
 ];
 
 const POSTULACION_ITEMS = [
@@ -47,7 +45,7 @@ const POSTULACION_ITEMS = [
   'Ser de nacionalidad mexicana o extranjera. No es necesario residir en México. Abrimos las puertas a escenas internacionales.',
   'La postulación puede ser individual o colectiva; en este último caso deberá nombrarse un/a representante.',
   'Llenar el formulario de inscripción con toda la documentación requerida antes del cierre de convocatoria.',
-  'Cada artista o colectivo podrá postular en varias disciplinas, sin mínimo de obras, según el paquete adquirido.'
+  'Los artistas o colectivos podrán postular formatos bidimensionales o tridimensionales, sin mínimo de obras, según el paquete adquirido.'
 ];
 
 const REGISTRO_ITEMS = [
@@ -61,20 +59,20 @@ const REGISTRO_ITEMS = [
 const MEDIOS_TECNICAS = ['Pintura', 'Acuarela', 'Dibujo', 'Collage & Mixta', 'Gráfica', 'Fotografía', 'Cerámica', 'Escultura', 'Textil'];
 
 const FECHAS_IMPORTANTES = [
-  { hito: 'Apertura de convocatoria', fecha: '1 de agosto de 2026' },
-  { hito: 'Fase 1 — apertura', fecha: 'Fecha por definir' },
-  { hito: 'Fase 1 — cierre', fecha: 'Fecha por definir' },
-  { hito: 'Publicación de resultados (Fase 1)', fecha: 'Fecha por definir' },
-  { hito: 'Fase 2 — apertura', fecha: 'Fecha por definir' },
-  { hito: 'Fase 2 — cierre', fecha: 'Fecha por definir' },
-  { hito: 'Publicación de resultados (Fase 2)', fecha: 'Fecha por definir' },
-  { hito: 'Fase 3 — apertura', fecha: 'Fecha por definir' },
-  { hito: 'Fase 3 — cierre', fecha: 'Fecha por definir' },
-  { hito: 'Publicación de resultados (Fase 3)', fecha: 'Fecha por definir' },
-  { hito: 'Bootcamp Cerámica', fecha: 'Fecha por definir' },
-  { hito: 'Recepción de obra', fecha: '1 y 2 de febrero de 2027' },
+  { hito: 'Apertura de convocatoria', fecha: '10 de agosto de 2026' },
+  { hito: 'Fase 1 — apertura', fecha: '10 de agosto de 2026' },
+  { hito: 'Fase 1 — cierre', fecha: '31 de agosto de 2026' },
+  { hito: 'Publicación de resultados (Fase 1)', fecha: '14 de septiembre de 2026' },
+  { hito: 'Fase 2 — apertura', fecha: '15 de septiembre de 2026' },
+  { hito: 'Fase 2 — cierre', fecha: '3 de octubre de 2026' },
+  { hito: 'Publicación de resultados (Fase 2)', fecha: '17 de octubre de 2026' },
+  { hito: 'Fase 3 — apertura', fecha: '18 de octubre de 2026' },
+  { hito: 'Fase 3 — cierre', fecha: '10 de noviembre de 2026' },
+  { hito: 'Publicación de resultados (Fase 3)', fecha: '19 de noviembre de 2026' },
+  { hito: 'Bootcamp Cerámica', fecha: '26 de noviembre de 2026 (tentativo)' },
+  { hito: 'Recepción de obra', fecha: '30 de enero a 2 de febrero de 2027' },
   { hito: 'ARTE FACTO | Éticas creativas — La feria', fecha: '4, 5, 6, 7 de febrero de 2027' },
-  { hito: 'Desmontaje y devolución de obra', fecha: '8 de febrero de 2027' },
+  { hito: 'Desmontaje y devolución de obra', fecha: 'A partir el 8 de febrero de 2027' },
   { hito: 'Periodo de pagos a artistas y venta post-evento', fecha: '10 de febrero de 2027 hasta 10 de marzo 2027' },
 ];
 
@@ -205,11 +203,11 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
 
         {/* INTRO */}
         <p style={{ ...bodyText(32), fontSize: 20, maxWidth: 900 }}>
-          A partir del 1 de agosto de 2026, <strong>ARTE FACTO | Éticas Creativas</strong> abre sus puertas e invita a artistas mexicanos e internacionales a participar en la convocatoria abierta para <strong>ARTE FACTO | La feria</strong>, que se llevará a cabo del 4-7 de febrero de 2027, durante la semana del arte en Ciudad de México.
+          A partir del 10 de agosto de 2026, <strong>ARTE FACTO | Éticas Creativas</strong> abre sus puertas e invita a artistas mexicanos e internacionales a participar en la convocatoria abierta para la feria <strong>ARTE FACTO</strong>, que se llevará a cabo del 4-7 de febrero de 2027, durante la semana del arte.
         </p>
 
         <p style={{ ...bodyText(20), maxWidth: 900 }}>
-          A lo largo de las 3 fases de la convocatoria y un proceso de selección, estaremos muy emocionados de conocer las propuestas de artistas —desde emergentes a consolidados— quienes ahonden su práctica artística bajo enfoques de las artes visuales tradicionales y contemporáneas.
+          A lo largo de 3 fases de la convocatoria y un proceso de selección, estaremos muy emocionados de conocer las propuestas de artistas —desde emergentes a consolidados— quienes ahonden su práctica artística bajo enfoques de las artes visuales <em>tradicionales y contemporáneas</em>.
         </p>
 
         {/* LAS BASES */}
@@ -249,11 +247,11 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
         <h3 style={subsectionTitle(40)}>Cronograma y Fechas</h3>
         <div style={{ marginTop: 24, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
           {FASES_DATA.map((fase) => (
-            <div key={fase.num} style={{ background: 'rgba(0,0,0,0.2)', padding: 24, border: `2px solid ${COLORS.black}`, borderRadius: 16 }}>
+            <div key={fase.num} style={{ background: 'rgba(0,0,0,0.2)', padding: 24, borderRadius: 16 }}>
               <div style={{ fontFamily: FONTS.display, fontSize: 48, lineHeight: 1, color: COLORS.cream, marginBottom: 12 }}>{fase.num}</div>
               <h4 style={{ margin: '0 0 16px', fontFamily: FONTS.subtitle, fontSize: 20, letterSpacing: '0.06em', textTransform: 'uppercase', color: COLORS.cream }}>{fase.title}</h4>
               <p style={{ margin: '8px 0', fontSize: 14, color: 'rgba(244,237,228,0.85)' }}>
-                <strong>2D:</strong> {fase.descuento2D} | <strong>3D:</strong> {fase.descuento3D}
+                <strong>Descuento:</strong> {fase.descuento}
               </p>
               <p style={{ margin: '12px 0 4px', fontSize: 13, color: 'rgba(244,237,228,0.7)' }}>
                 <strong>Apertura:</strong> {fase.fechas.apertura}
@@ -271,19 +269,25 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
 
         <h3 style={subsectionTitle(40)}>Concurso</h3>
         <p style={bodyText(16)}>
-          Con el objetivo de promover e incentivar la participación de más artistas, <strong>ARTE FACTO | La feria</strong> ofrecerá ± 10 metros lineales que serán concursados a 5 artistas para que exhiban su obra pictórica. Automáticamente al postularse en cualquiera de las fases, lxs artistas serán considerados automáticamente como concursantes.
+          ARTE FACTO otorgará, mediante concurso, espacio expositivo gratuito a 5–6 artistas. El espacio será determinado por el comité curatorial y podrá diferir del paquete al que el artista se haya postulado.
         </p>
         <p style={bodyText(12)}>
-          La fecha de publicación de los resultados será el lunes 16 de noviembre de 2026. Al momento de la publicación de los resultados, las piezas postuladas y seleccionadas deberán estar disponibles.
+          Al finalizar cada fase de la convocatoria se anunciarán 1 - 2 artistas ganadores. Las postulaciones no seleccionadas permanecerán automáticamente en concurso para las fases siguientes, mientras que las nuevas postulaciones participarán a partir de la fase en la que se inscriban.
+        </p>
+        <p style={bodyText(12)}>
+          Las personas ganadoras recibirán el espacio como premio, por lo que no adquirirán un paquete de participación y dejarán de formar parte del proceso de selección.
         </p>
 
         {/* BOOTCAMP */}
         <h2 style={sectionTitle('Bootcamp Cerámica')}>Bootcamp Cerámica</h2>
         <p style={bodyText(24)}>
-          Una vez seleccionados lxs artistas y firmando la hoja de consigna, el equipo de coordinación de ARTE FACTO les invita a un bootcamp de cerámica en Ciudad de México, hacia finales del mes de Noviembre (fecha y ubicación aún por definir). <em>Gastos de transporte y hospedaje son responsabilidad del artista.</em>
+          Una vez seleccionados lxs artistas y firmando la <em>hoja de consigna</em>, el equipo de coordinación de ARTE FACTO les invita a un bootcamp de cerámica en Ciudad de México, hacia finales del mes de Noviembre (fecha y ubicación aún por definir). <em>Gastos de transporte y hospedaje son responsabilidad del artista.</em>
         </p>
         <p style={bodyText(16)}>
-          Durante la activación se entregará un tibor cerámico horneado y material para para intervenirlo con engobes y esmaltes, de tal forma que hagan del tibor un objeto simbólico y representativo de la obra del artista. Además de la convivencia, les invitaremos a generar contenido y entrevistas para conversar acerca de su obra. Los costos del evento, material y quemas corren por parte de la casa. Las piezas serán expuestas durante la feria, del 4-7 de febrero de 2027.
+          Durante la activación se entregará a cada artista un tibor cerámico y material para para intervenirlo con esmaltes, de tal forma que hagan del tibor un objeto simbólico y representativo de la obra del artista. Además de la convivencia, les invitaremos a generar contenido y entrevistas para conversar acerca de su obra. Los costos del evento, material, quemas, alimentos y bebidas no alcohólicas corren por parte de la casa.
+        </p>
+        <p style={bodyText(12)}>
+          Las piezas y contenido grabado será expuesto durante la feria, del 4-7 de febrero de 2027. Con su presencia también repartiremos boletos de cortesía y daremos información relevante sobre la logística del evento, desde la recepción de obra hasta su desmontaje.
         </p>
 
         {/* PAQUETES ADQUIRIBLES */}
@@ -291,21 +295,15 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
 
         <h3 style={subsectionTitle(32)}>Modelo de Exhibición</h3>
         <p style={bodyText(16)}>
-          En ARTE FACTO queremos ofrecer los mejores paquetes para aprovechar al máximo la obra del artista. Al ser una feria atípica, la obra de cada artista no será concentrada en un solo muro o espacio reservado individual.
+          En ARTE FACTO queremos ofrecer los mejores paquetes para aprovechar al máximo la obra del artista. Al ser una feria atípica, la obra de cada artista no será concentrada en un solo muro o espacio reservado individual. La curaduría y museografía, cuidadosamente realizada por el Comité Curatorial, dispondrá la obra de todxs lxs artistas como mejor ofrezcan narrativas, perspectivas y recorridos curados.
         </p>
         <p style={bodyText(12)}>
-          La curaduría y museografía, cuidadosamente realizada por el Comité Curatorial, dispondrá la obra de todxs lxs artistas como mejor ofrezcan narrativas, perspectivas y recorridos curados.
-        </p>
-        <p style={bodyText(12)}>
-          De acuerdo al paquete que se adquiera —para obra bidimensional o tridimensional—, los curadores distribuirán la obra, respetando la cantidad de <strong>metros lineales</strong> o <strong>metros cuadrados</strong> incluidos en el paquete adquirido por artista. No hay límite de obra por paquete, mientras el formato y cantidad se ajusten realísticamente a las dimensiones del paquete adquirido.
+          De acuerdo al paquete que se adquiera —para obra bidimensional o tridimensional—, los curadores distribuirán la obra, respetando la cantidad de <strong>metros lineales</strong> o <strong>metros<sup style={{ fontSize: '0.6em' }}>cuadrados</sup></strong> incluidos en el lienzo de postulación del paquete adquirido por artista.
         </p>
 
-        <h3 style={subsectionTitle(40)}>Especificaciones</h3>
+        <h3 style={subsectionTitle(40)}>Proyecto Curatorial</h3>
         <p style={bodyText(16)}>
           Al priorizar y privilegiar la curaduría y resolución visual de la Feria, ARTE FACTO se limita a colocar máximo 3 filas de obra en sentido vertical, permitiendo generar mosaicos a partir de la obra de múltiples artistas. Solo en casos que lo amerite, el Comité Curatorial se reserva la facultad de autorizar la colocación de obra por debajo o encima de las 3 filas ya dispuestas.
-        </p>
-        <p style={bodyText(12)}>
-          En función de la cantidad de obra postulada, el Comité Curatorial hará lo posible por colocar toda la obra del artista y hacer rendir los metros del paquete adquirido. Sin embargo, el Comité Curatorial podrá, a su criterio, no utilizar todas las obras postuladas aún en la etapa de selección remota, evitando su envío.
         </p>
 
         <h3 style={subsectionTitle(40)}>Paquetes — Obra Bidimensional</h3>
@@ -315,9 +313,9 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
               <tr style={{ background: COLORS.black }}>
                 <th style={{ padding: '14px 16px', textAlign: 'left', color: COLORS.cream, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Paquete</th>
                 <th style={{ padding: '14px 16px', textAlign: 'center', color: COLORS.cream, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Metros Lineales</th>
-                <th style={{ padding: '14px 16px', textAlign: 'right', color: COLORS.cream, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Fase I (-35%)</th>
-                <th style={{ padding: '14px 16px', textAlign: 'right', color: COLORS.cream, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Fase II (-20%)</th>
-                <th style={{ padding: '14px 16px', textAlign: 'right', color: COLORS.cream, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Fase III</th>
+                <th style={{ padding: '14px 16px', textAlign: 'right', color: COLORS.cream, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Fase I (-20%)</th>
+                <th style={{ padding: '14px 16px', textAlign: 'right', color: COLORS.cream, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Fase II (-10%)</th>
+                <th style={{ padding: '14px 16px', textAlign: 'right', color: COLORS.cream, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Fase III (Full price)</th>
               </tr>
             </thead>
             <tbody>
@@ -341,9 +339,9 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
               <tr style={{ background: COLORS.black }}>
                 <th style={{ padding: '14px 16px', textAlign: 'left', color: COLORS.cream, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Paquete</th>
                 <th style={{ padding: '14px 16px', textAlign: 'center', color: COLORS.cream, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Metros Cuadrados</th>
-                <th style={{ padding: '14px 16px', textAlign: 'right', color: COLORS.cream, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Fase I (-35%)</th>
-                <th style={{ padding: '14px 16px', textAlign: 'right', color: COLORS.cream, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Fase II (-20%)</th>
-                <th style={{ padding: '14px 16px', textAlign: 'right', color: COLORS.cream, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Fase III</th>
+                <th style={{ padding: '14px 16px', textAlign: 'right', color: COLORS.cream, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Fase I (-20%)</th>
+                <th style={{ padding: '14px 16px', textAlign: 'right', color: COLORS.cream, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Fase II (-10%)</th>
+                <th style={{ padding: '14px 16px', textAlign: 'right', color: COLORS.cream, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Fase III (Full price)</th>
               </tr>
             </thead>
             <tbody>
@@ -359,7 +357,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
             </tbody>
           </table>
         </div>
-        <p style={{ ...bodyText(12), fontSize: 13, fontStyle: 'italic' }}>*Todos los precios incluyen IVA</p>
+        <p style={{ ...bodyText(12), fontSize: 13, fontStyle: 'italic' }}>Todos los precios incluyen IVA</p>
 
         {/* FORMATOS PARTICIPANTES */}
         <h2 style={sectionTitle('Formatos Participantes')}>Formatos Participantes</h2>
@@ -367,7 +365,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
         <h3 style={subsectionTitle(32)}>Medios y Técnicas</h3>
         <div style={{ marginTop: 16, display: 'flex', flexWrap: 'wrap', gap: 10 }}>
           {MEDIOS_TECNICAS.map((medio) => (
-            <span key={medio} style={{ background: COLORS.black, color: COLORS.cream, padding: '8px 16px', fontSize: 13, fontWeight: 600, letterSpacing: '0.04em' }}>
+            <span key={medio} style={{ background: COLORS.black, color: COLORS.cream, padding: '8px 16px', fontSize: 13, fontWeight: 600, letterSpacing: '0.04em', borderRadius: 16 }}>
               {medio}
             </span>
           ))}
@@ -446,27 +444,24 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
 
         <h3 style={subsectionTitle(32)}>Recepción</h3>
         <p style={bodyText(16)}>
-          Tras ser seleccionado, comenzado con los pagos y habiendo firmado la hoja de consigna, ARTE FACTO notificará vía correo electrónico la fecha y hora para la recepción física de la obra.
+          Del <strong>30 de enero al 2 de febrero de 2027</strong>, en Estación Indianilla (Dr. Claudio Bernard 111, Doctores, Cuauhtémoc, 06720, CDMX). La obra debe llegar lista para montaje, con ficha técnica al reverso, tal como se postuló (enmarcada si así se registró).
         </p>
         <p style={bodyText(12)}>
-          Toda la obra deberá entregarse en la sede de <strong>ARTE FACTO | Estación Indianilla</strong>, en: Claudio Bernard 111, Doctores, Cuauhtémoc, 06720 Ciudad de México, CDMX.
+          Embalaje y transporte —ida y, en su caso, vuelta— corren por cuenta del artista. Montajes complejos o delicados requieren la presencia personal del artista, sin gastos cubiertos por ARTE FACTO.
         </p>
         <p style={bodyText(12)}>
-          Los días de entrega disponibles únicamente son: <strong>1 y 2 de febrero de 2027.</strong>
-        </p>
-        <p style={bodyText(12)}>
-          Lista para montaje, con ficha técnica al reverso. La obra bidimensional deberá entregarse como se postuló (si se registró con marco, debe venir enmarcada); la obra tridimensional lista para montaje, salvo si tiene especificaciones adicionales que deba saber el equipo ARTE FACTO.
+          En caso que obra sea enviada entubada con su bastidor ensamblable, podemos gestionar el montaje de la tela en el bastidor con un costo adicional y fechas específicas a definir, a través de artefacto.curatorial@gmail.com.
         </p>
 
         <h3 style={subsectionTitle(32)}>Devolución</h3>
         <p style={bodyText(16)}>
-          A diferencia de un salón de exhibición prolongado, ARTE FACTO es una feria de cuatro días: la devolución de obra no vendida se realiza de manera inmediata al cierre de la feria, el día el 7 de febrero, o al día siguiente, el 8 de febrero de 2027, en la sede de Estación Indianilla.
+          La obra no vendida se devuelve al cierre de la feria, el 7 o, con calma, a partir del 8 de febrero de 2027, en la misma sede. Del 9-14 de febrero la obra se recogerá en otra ubicación (por definir).
         </p>
         <p style={bodyText(12)}>
-          Artistas que envíen obra desde otras ciudades y cuya pieza no se haya vendido recibirán de regreso su obra mediante guía prepagada, previamente proporcionada por el/la artista al momento de la entrega.
+          Para envíos desde otras ciudades, la devolución se hace mediante guía prepagada proporcionada por el artista.
         </p>
         <p style={{ ...bodyText(12), fontSize: 13, fontStyle: 'italic', color: 'rgba(244,237,228,0.7)' }}>
-          ARTE FACTO no se hace responsable por gastos de envíos, paquetería o trámites asociados a la recepción y devolución de la obra.
+          ARTE FACTO queda exento de responsabilidad sobre obra no reclamada.
         </p>
 
         {/* PUNTOS GENERALES */}
@@ -501,32 +496,17 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
         {/* BOUTIQUE, CATÁLOGO, TALLERES */}
         <h2 style={sectionTitle('Boutique ARTE FACTO')}>Boutique ARTE FACTO</h2>
         <p style={bodyText(24)}>
-          La Boutique ARTE FACTO es el espacio de venta continua de la feria, donde conviven el punto de cobro de la obra exhibida, ediciones limitadas (prints) y una línea de mercancía producida exclusivamente para esta edición.
-        </p>
-        <p style={bodyText(12)}>
-          <strong>Venta de obra original:</strong> La obra original permanece exhibida dentro del recorrido de la Exposición curada; es en la Boutique donde se efectúa el cobro correspondiente, mediante el sistema de ventas NFC.
-        </p>
-        <p style={bodyText(12)}>
-          <strong>Prints y ediciones:</strong> Los artistas seleccionados podrán ofrecer prints de su obra bajo dos modalidades: (a) ediciones que el propio artista traiga y consigne para la venta, o (b) mediante el Paquete de Gráfica Digital: un servicio de producción de series limitadas ofrecido a los artistas seleccionados con un descuento preferente.
-        </p>
-        <p style={bodyText(12)}>
-          <strong>Serigrafía:</strong> A cada artista seleccionado se le pedirá elegir una de sus obras participantes en ARTE FACTO, a partir de la cual se producirá un marco de serigrafía a una tinta. Con este marco, ARTE FACTO imprimirá playeras y totebags en vivo dentro de la Boutique.
-        </p>
-        <p style={bodyText(16)}>
-          <strong>Comisiones sobre venta:</strong> Venta de prints: 50% para el artista | Venta de obra original: 25% comisión ARTE FACTO
+          Punto de venta continuo con tecnología NFC. Incluye: venta de obra original (exhibida en el recorrido, cobrada en la Boutique); prints y ediciones (propias del artista o vía los servicios de Gráfica Digital™); y merch —playeras y totebags serigrafiados por Fénix Serigrafía™ a partir de una obra elegida por cada artista—, además de una selección curada de materiales de arte y objetos de diseño.
         </p>
 
-        <h2 style={sectionTitle('Catálogo Habilitado', 60)}>Catálogo Habilitado</h2>
+        <h2 style={sectionTitle('Catálogo Digital', 60)}>Catálogo Digital</h2>
         <p style={bodyText(24)}>
-          Toda obra seleccionada formará parte del Catálogo Oficial ARTE FACTO | Edición II, disponible en formato digital para todos los asistentes y coleccionistas registrados, con crédito completo al artista y ficha técnica de cada pieza.
+          Toda obra seleccionada forma parte del Catálogo Oficial <strong>ARTE FACTO | Edición II</strong>, en formato digital, con crédito y ficha técnica completa.
         </p>
 
         <h2 style={sectionTitle('Talleres', 60)}>Talleres</h2>
         <p style={bodyText(24)}>
-          Durante los cuatro días de la feria, habrá talleres impartidos por artistas independientes y la academia de arte Atelier México ©, para ofrecer experiencias complementarias al público en general. El objetivo de los talleres es dar visibilidad a los procesos creativos.
-        </p>
-        <p style={bodyText(12)}>
-          Si te interesa impartir un taller durante algún día de la feria, manda tu propuesta a artefacto.curatorial@gmail.com
+          Durante los 4 días de la feria habrá talleres impartidos por artistas independientes y por Atelier Mesones, con costo (por definir). Para proponer un taller contactar a: artefacto.curatorial@gmail.com.
         </p>
 
         {/* FECHAS IMPORTANTES */}
@@ -566,7 +546,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
             Descarga la convocatoria completa y regístrate para formar parte de ARTE FACTO {edicion}
           </p>
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
-            <a href="/pdfs/Convocatoria_ARTEFACTO.pdf" download style={btn(COLORS.cream, COLORS.black)}>Descargar Convocatoria</a>
+            <a href="/pdfs/Convocatoria_ARTEFACTO.pdf" target="_blank" rel="noopener noreferrer" download style={btn(COLORS.cream, COLORS.black)}>Descargar Convocatoria</a>
             <TransitionLink href={urlRegistro} style={btn(COLORS.red, COLORS.cream)}>{abierta ? 'Registrarse Ahora' : 'Inscripciones Cerradas'}</TransitionLink>
           </div>
         </div>
