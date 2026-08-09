@@ -852,20 +852,20 @@ export default function LayoutCanvasWithMural({
     if (!stageRef.current) return null
 
     // Exportar solo el área del canvas sin las reglas
-    // Usar JPEG con compresión para reducir tamaño del archivo (evitar error 413)
+    // Usar JPEG con compresión agresiva para reducir tamaño del archivo (evitar error 413)
     const dataURL = stageRef.current.toDataURL({
       x: RULER_SIZE,
       y: RULER_SIZE,
       width: CANVAS_WIDTH,
       height: CANVAS_HEIGHT,
-      pixelRatio: 1, // Reducido de 2 a 1 para menor tamaño
+      pixelRatio: 0.5, // Reducido a 0.5 para menor tamaño (resolución más baja)
       mimeType: 'image/jpeg',
-      quality: 0.85 // Compresión JPEG al 85%
+      quality: 0.6 // Compresión JPEG al 60% (más agresiva)
     })
     const response = await fetch(dataURL)
     const blob = await response.blob()
 
-    console.log('Canvas exportado - Tamaño optimizado:', Math.round(blob.size / 1024), 'KB')
+    console.log('Canvas exportado - Tamaño ultra-optimizado:', Math.round(blob.size / 1024), 'KB')
     return blob
   }
 

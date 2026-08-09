@@ -7,6 +7,11 @@ import { NextResponse } from 'next/server'
  * y los procesa/guarda en la base de datos
  */
 
+// Configuración del route segment para permitir archivos grandes
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+export const maxDuration = 30 // 30 segundos (aumentado para procesar archivos grandes)
+
 export async function POST(request) {
   try {
     const formData = await request.formData()

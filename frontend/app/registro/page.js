@@ -284,6 +284,55 @@ export default function RegistroPage() {
         formDataToSend.append('obras_lienzo_count', formData.obras_lienzo.length)
       }
 
+      // LOG: Calcular y mostrar tamaño total de archivos
+      let totalSize = 0
+      const fileSizes = {}
+
+      if (formData.foto) {
+        fileSizes.foto = Math.round(formData.foto.size / 1024)
+        totalSize += formData.foto.size
+      }
+      if (formData.documentos?.cv) {
+        fileSizes.cv = Math.round(formData.documentos.cv.size / 1024)
+        totalSize += formData.documentos.cv.size
+      }
+      if (formData.documentos?.portfolio) {
+        fileSizes.portfolio = Math.round(formData.documentos.portfolio.size / 1024)
+        totalSize += formData.documentos.portfolio.size
+      }
+      if (formData.documentos?.identificacion) {
+        fileSizes.identificacion = Math.round(formData.documentos.identificacion.size / 1024)
+        totalSize += formData.documentos.identificacion.size
+      }
+      if (formData.layout_canvas_blob) {
+        fileSizes.canvas = Math.round(formData.layout_canvas_blob.size / 1024)
+        totalSize += formData.layout_canvas_blob.size
+      }
+      if (formData.obras_lienzo) {
+        formData.obras_lienzo.forEach((obra, i) => {
+          if (obra.file) {
+            fileSizes[`obra_${i}`] = Math.round(obra.file.size / 1024)
+            totalSize += obra.file.size
+          }
+        })
+      }
+
+      console.log('=== TAMAÑOS DE ARCHIVOS ===')
+      console.log('Foto:', fileSizes.foto, 'KB')
+      console.log('CV:', fileSizes.cv, 'KB')
+      console.log('Portfolio:', fileSizes.portfolio, 'KB')
+      console.log('Identificación:', fileSizes.identificacion, 'KB')
+      console.log('Canvas:', fileSizes.canvas, 'KB')
+      Object.keys(fileSizes).filter(k => k.startsWith('obra_')).forEach(k => {
+        console.log(k + ':', fileSizes[k], 'KB')
+      })
+      console.log('TOTAL:', Math.round(totalSize / 1024), 'KB')
+      console.log('LÍMITE ESTIMADO: ~4500 KB (Vercel)')
+
+      if (totalSize > 4.5 * 1024 * 1024) {
+        console.warn('⚠️ ADVERTENCIA: El tamaño total excede el límite de Vercel (4.5MB)')
+      }
+
       // Enviar a la API
       const response = await fetch('/api/artistas', {
         method: 'POST',
