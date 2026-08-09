@@ -12,7 +12,7 @@ const REDES = [
   { label: 'Facebook ↗', href: 'https://facebook.com/artefacto' },
 ];
 
-const inputStyle = { border: `2px solid ${COLORS.black}`, background: COLORS.creamDark, padding: 14, fontFamily: FONTS.body, fontSize: 15, borderRadius: 16 };
+const inputStyle = { border: 'none', background: COLORS.creamDark, padding: 14, fontFamily: FONTS.body, fontSize: 15, borderRadius: 16 };
 const labelStyle = { display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' };
 
 export default function ContactSection({ onSubmit }) {
@@ -83,7 +83,7 @@ export default function ContactSection({ onSubmit }) {
             <img src="/assets/monogram-a-black.svg" alt="" style={{ width: 120, marginTop: 48 }} />
           </div>
 
-          <div style={{ border: `2px solid ${COLORS.black}`, background: COLORS.cream, padding: 40, borderRadius: 16 }}>
+          <div style={{ background: COLORS.cream, padding: 40, borderRadius: 16 }}>
             <h3 style={{
               margin: '0 0 28px',
               fontFamily: FONTS.display,
@@ -109,7 +109,7 @@ export default function ContactSection({ onSubmit }) {
               </button>
             </form>
             {status === 'sent' && (
-              <div style={{ marginTop: 18, border: `2px solid ${COLORS.black}`, background: COLORS.creamDark, padding: '16px 20px', fontSize: 15, fontWeight: 600, borderRadius: 16 }}>
+              <div style={{ marginTop: 18, background: COLORS.creamDark, padding: '16px 20px', fontSize: 15, fontWeight: 600, borderRadius: 16 }}>
                 ¡Mensaje enviado! Te responderemos pronto.
               </div>
             )}

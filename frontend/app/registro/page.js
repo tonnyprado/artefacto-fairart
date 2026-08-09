@@ -326,11 +326,18 @@ export default function RegistroPage() {
       Object.keys(fileSizes).filter(k => k.startsWith('obra_')).forEach(k => {
         console.log(k + ':', fileSizes[k], 'KB')
       })
-      console.log('TOTAL:', Math.round(totalSize / 1024), 'KB')
-      console.log('LÍMITE ESTIMADO: ~4500 KB (Vercel)')
+      const totalMB = (totalSize / (1024 * 1024)).toFixed(2)
+      console.log('TOTAL:', Math.round(totalSize / 1024), 'KB (', totalMB, 'MB )')
+      console.log('LÍMITE: 4.5 MB')
 
+      // Validar tamaño total antes de enviar
       if (totalSize > 4.5 * 1024 * 1024) {
-        console.warn('⚠️ ADVERTENCIA: El tamaño total excede el límite de Vercel (4.5MB)')
+        console.error('❌ ERROR: El tamaño total excede el límite del servidor')
+        setErrors({
+          submit: `El tamaño total de archivos (${totalMB}MB) excede el límite de 4.5MB. Por favor, comprime tus PDFs (CV, Portafolio, Identificación) antes de subirlos. Puedes usar herramientas gratuitas en línea como smallpdf.com o ilovepdf.com`
+        })
+        setIsSubmitting(false)
+        return
       }
 
       // Enviar a la API

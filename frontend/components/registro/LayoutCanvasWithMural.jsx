@@ -5,6 +5,7 @@ import { Stage, Layer, Image as KonvaImage, Rect, Text, Group, Line } from 'reac
 import useImage from 'use-image'
 import jsPDF from 'jspdf'
 import { layoutsApi } from '@/lib/api'
+import { compressImage } from '@/lib/imageCompression'
 
 /**
  * LayoutCanvasWithMural - Canvas con SVG del mural como fondo
@@ -704,35 +705,58 @@ export default function LayoutCanvasWithMural({
     )
   }
 
-  const handleAddNewObra = (e) => {
+  const handleAddNewObra = async (e) => {
     const files = Array.from(e.target.files)
     const MAX_SIZE = 5 * 1024 * 1024
 
-    const validFiles = files.filter(file => {
+    // Filtrar archivos válidos
+    const validFiles = []
+    for (const file of files) {
       if (file.size > MAX_SIZE) {
         alert(`${file.name} excede el límite de 5MB`)
-        return false
+        continue
       }
       if (!file.type.startsWith('image/')) {
         alert(`${file.name} no es una imagen válida`)
-        return false
+        continue
       }
-      return true
-    })
+      validFiles.push(file)
+    }
 
-    const newObras = validFiles.map(file => ({
-      id: `img-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      file,
-      preview: URL.createObjectURL(file),
-      titulo: '',
-      alto_cm: '',
-      ancho_cm: ''
-    }))
+    if (validFiles.length === 0) return
 
-    setTodasLasObras([...todasLasObras, ...newObras])
+    // Comprimir imágenes automáticamente
+    const compressedObras = []
+    for (const file of validFiles) {
+      try {
+        console.log(`Comprimiendo obra: ${file.name}...`)
+        const compressedFile = await compressImage(file, {
+          maxWidth: 1920,
+          maxHeight: 1920,
+          quality: 0.85,
+          maxSizeKB: 400 // Máximo 400KB por obra
+        })
 
-    if (newObras.length === 1) {
-      setEditingObra(newObras[0])
+        compressedObras.push({
+          id: `img-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          file: compressedFile,
+          preview: URL.createObjectURL(compressedFile),
+          titulo: '',
+          alto_cm: '',
+          ancho_cm: ''
+        })
+      } catch (error) {
+        console.error(`Error al comprimir ${file.name}:`, error)
+        alert(`Error al procesar ${file.name}. Por favor, intenta con otra imagen.`)
+      }
+    }
+
+    if (compressedObras.length === 0) return
+
+    setTodasLasObras([...todasLasObras, ...compressedObras])
+
+    if (compressedObras.length === 1) {
+      setEditingObra(compressedObras[0])
       setShowMetadataForm(true)
     }
   }
