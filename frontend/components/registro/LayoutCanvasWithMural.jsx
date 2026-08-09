@@ -238,7 +238,7 @@ function checkCollision(obra1, obra2, margin = COLLISION_MARGIN) {
 /**
  * Componente de obra individual con cursor y botón de eliminar
  */
-function ObraImage({ obra, onDragEnd, onDragMove, isSelected, onSelect, onDelete, otrasObras, tipoPaquete }) {
+function ObraImage({ obra, onDragEnd, onDragMove, isSelected, onSelect, onDelete, otrasObras, tipoPaquete, areaDelimitada }) {
   const [image, status] = useImage(obra.preview, 'anonymous')
   const stageRef = useRef()
   const [lastValidPos, setLastValidPos] = useState({ x: obra.x, y: obra.y })
@@ -246,6 +246,9 @@ function ObraImage({ obra, onDragEnd, onDragMove, isSelected, onSelect, onDelete
 
   // Para paquetes 3D, mostramos cuadrados (la "base" de la escultura)
   const esPaquete3D = tipoPaquete === '3D'
+
+  // Usar área delimitada o FREE_AREA por defecto
+  const areaRestriccion = areaDelimitada || FREE_AREA
 
   // Actualizar última posición válida cuando cambia la obra
   useEffect(() => {
@@ -276,14 +279,14 @@ function ObraImage({ obra, onDragEnd, onDragMove, isSelected, onSelect, onDelete
       return lastValidPos
     }
 
-    // Limitar al área libre del mural
+    // Limitar al área delimitada del paquete (no al FREE_AREA completo)
     const boundedX = Math.max(
-      FREE_AREA.x,
-      Math.min(pos.x, FREE_AREA.x + FREE_AREA.width - obra.width)
+      areaRestriccion.x,
+      Math.min(pos.x, areaRestriccion.x + areaRestriccion.width - obra.width)
     )
     const boundedY = Math.max(
-      FREE_AREA.y,
-      Math.min(pos.y, FREE_AREA.y + FREE_AREA.height - obra.height)
+      areaRestriccion.y,
+      Math.min(pos.y, areaRestriccion.y + areaRestriccion.height - obra.height)
     )
 
     const newPos = { x: boundedX, y: boundedY }
@@ -518,30 +521,45 @@ function MuralBackground({ plantillaURL, width, height }) {
 }
 
 /**
- * Componente de líneas delimitadoras basadas en las medidas del paquete
+ * Calcular área delimitada basada en el paquete
  */
-function PaqueteDelimiter({ paquete }) {
-  if (!paquete) return null
+function calcularAreaDelimitada(paquete) {
+  if (!paquete) return FREE_AREA
 
   let delimiterWidth, delimiterHeight
 
   if (paquete.tipo === '3D') {
     // Para paquetes 3D: usar metros_cuadrados
-    // Convertir a un rectángulo (asumiendo proporción cuadrada o rectangular)
     const metrosCuadrados = paquete.metros_cuadrados || 1
-    // Calcular lado del cuadrado o usar proporción típica (ej: 2:1.5)
     const lado = Math.sqrt(metrosCuadrados)
     delimiterWidth = lado * METROS_A_PIXELES
     delimiterHeight = lado * METROS_A_PIXELES
   } else {
     // Para paquetes 2D: usar metros_lineales × altura_pared
     delimiterWidth = (paquete.metros_lineales || 3) * METROS_A_PIXELES
-    delimiterHeight = (paquete.altura_pared || 2.4) * (FREE_AREA.height / 2.4) // Escala proporcional
+    delimiterHeight = (paquete.altura_pared || 2.4) * (FREE_AREA.height / 2.4)
   }
 
   // Centrar el delimitador en el área libre
   const delimiterX = FREE_AREA.x + (FREE_AREA.width - delimiterWidth) / 2
   const delimiterY = FREE_AREA.y + (FREE_AREA.height - delimiterHeight) / 2
+
+  return {
+    x: delimiterX,
+    y: delimiterY,
+    width: delimiterWidth,
+    height: delimiterHeight
+  }
+}
+
+/**
+ * Componente de líneas delimitadoras basadas en las medidas del paquete
+ */
+function PaqueteDelimiter({ paquete }) {
+  if (!paquete) return null
+
+  const areaDelimitada = calcularAreaDelimitada(paquete)
+  const { x: delimiterX, y: delimiterY, width: delimiterWidth, height: delimiterHeight } = areaDelimitada
 
   return (
     <Group>
@@ -648,6 +666,9 @@ export default function LayoutCanvasWithMural({
     (img) => !obrasEnCanvas.some((o) => o.id === img.id)
   )
 
+  // Calcular área delimitada del paquete para restringir el movimiento de las obras
+  const areaDelimitada = calcularAreaDelimitada(paquete)
+
   useEffect(() => {
     setTodasLasObras(portfolioImages)
   }, [portfolioImages])
@@ -743,9 +764,9 @@ export default function LayoutCanvasWithMural({
       alto_cm: parseFloat(portfolioImage.alto_cm),
       ancho_cm: parseFloat(portfolioImage.ancho_cm),
       precio_mxn: parseFloat(portfolioImage.precio_mxn),
-      // Posición inicial en el centro del área libre
-      x: FREE_AREA.x + (FREE_AREA.width / 2) - (parseFloat(portfolioImage.ancho_cm) * SCALE_FACTOR / 2),
-      y: FREE_AREA.y + (FREE_AREA.height / 2) - (parseFloat(portfolioImage.alto_cm) * SCALE_FACTOR / 2),
+      // Posición inicial en el centro del área delimitada del paquete
+      x: areaDelimitada.x + (areaDelimitada.width / 2) - (parseFloat(portfolioImage.ancho_cm) * SCALE_FACTOR / 2),
+      y: areaDelimitada.y + (areaDelimitada.height / 2) - (parseFloat(portfolioImage.alto_cm) * SCALE_FACTOR / 2),
       width: parseFloat(portfolioImage.ancho_cm) * SCALE_FACTOR,
       height: parseFloat(portfolioImage.alto_cm) * SCALE_FACTOR
     }
@@ -1298,6 +1319,7 @@ export default function LayoutCanvasWithMural({
                   onDelete={handleRemoveFromCanvas}
                   otrasObras={obrasEnCanvas.filter(o => o.id !== obra.id)}
                   tipoPaquete={paquete?.tipo}
+                  areaDelimitada={areaDelimitada}
                 />
               ))}
               {/* Líneas guía durante el arrastre */}
