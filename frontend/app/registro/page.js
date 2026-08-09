@@ -258,9 +258,9 @@ export default function RegistroPage() {
         formDataToSend.append('paquete_id', formData.paquete_id)
       }
 
-      // Canvas image (blob)
+      // Canvas image (blob) - JPEG comprimido para evitar error 413
       if (formData.layout_canvas_blob) {
-        formDataToSend.append('layout_canvas_image', formData.layout_canvas_blob, 'lienzo.png')
+        formDataToSend.append('layout_canvas_image', formData.layout_canvas_blob, 'lienzo.jpg')
       }
 
       // Layout data (JSON)
