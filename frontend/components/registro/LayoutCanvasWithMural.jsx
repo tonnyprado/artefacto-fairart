@@ -513,11 +513,26 @@ function ObraImage({ obra, onDragEnd, onDragMove, isSelected, onSelect, onDelete
  * Componente del fondo del mural (SVG)
  */
 function MuralBackground({ plantillaURL, width, height }) {
-  const [image] = useImage(plantillaURL)
+  const [image, status] = useImage(plantillaURL)
+
+  // Debug: log status
+  useEffect(() => {
+    console.log('MuralBackground status:', status, 'URL:', plantillaURL)
+  }, [status, plantillaURL])
+
+  if (status === 'loading') {
+    console.log('Cargando imagen de fondo del mural...')
+    return null
+  }
+
+  if (status === 'failed') {
+    console.error('Error cargando imagen de fondo del mural desde:', plantillaURL)
+    return null
+  }
 
   if (!image) return null
 
-  return <KonvaImage image={image} x={0} y={0} width={width} height={height} />
+  return <KonvaImage image={image} x={0} y={0} width={width} height={height} listening={false} />
 }
 
 /**

@@ -377,9 +377,22 @@ export default function RegistroPage() {
       if (saved) {
         const parsedData = JSON.parse(saved)
         console.log('Datos cargados desde localStorage:', parsedData)
+
+        // Limpiar datos problemáticos que pueden contener blobs inválidos
+        const cleanedData = {
+          ...parsedData,
+          // No cargar portfolio_images desde localStorage (pueden tener blobs revocados)
+          portfolio_images: [],
+          // No cargar layout canvas (puede tener datos obsoletos)
+          layout_canvas_url: null,
+          layout_canvas_data: {},
+          layout_canvas_blob: null,
+          obras_lienzo: []
+        }
+
         setFormData(prev => ({
           ...prev,
-          ...parsedData
+          ...cleanedData
         }))
       }
     } catch (error) {
