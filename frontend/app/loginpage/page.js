@@ -115,15 +115,37 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: COLORS.red,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '3rem 1rem'
-    }}>
-      <div style={{ maxWidth: '500px', width: '100%' }}>
+    <>
+      {/* Sobrescribir cursor oculto globalmente para esta página */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .login-page-container,
+          .login-page-container *,
+          .login-page-container a,
+          .login-page-container button,
+          .login-page-container input,
+          .login-page-container textarea,
+          .login-page-container select,
+          .login-page-container [role="button"] {
+            cursor: auto !important;
+          }
+          .login-page-container button,
+          .login-page-container a,
+          .login-page-container [role="button"] {
+            cursor: pointer !important;
+          }
+        `
+      }} />
+
+      <div className="login-page-container" style={{
+        minHeight: '100vh',
+        backgroundColor: COLORS.red,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '3rem 1rem'
+      }}>
+        <div style={{ maxWidth: '500px', width: '100%' }}>
         {/* Logo y Header */}
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           <Link href="/" style={{
@@ -433,5 +455,6 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+    </>
   )
 }
