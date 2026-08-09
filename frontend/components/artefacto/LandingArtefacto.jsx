@@ -293,8 +293,7 @@ export default function LandingArtefacto() {
     <main>
       {!skipLoader && <LogoRevealLoader onComplete={handleLoaderComplete} />}
       {screen === 'hero' && <HeroArtefacto startAnimation={loaderComplete} exitAnimation={heroExiting} onOpenMenu={() => setMenuOpen(true)} />}
-      {/* Mostrar navbar en todas las secciones incluyendo hero */}
-      <Navbar screen={screen} onOpenMenu={() => setMenuOpen(true)} />
+      {screen !== 'hero' && <Navbar screen={screen} onOpenMenu={() => setMenuOpen(true)} />}
 
       <div className={fxClass} style={show('about')}><AboutSection /></div>
       <div className={fxClass} style={show('calendario')}><CalendarSection isActive={screen === 'calendario'} /></div>

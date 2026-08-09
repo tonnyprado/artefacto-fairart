@@ -336,6 +336,9 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
           align-items: center;
           gap: clamp(40px, 5vw, 80px);
         }
+        .hero-mobile-menu-button {
+          display: none;
+        }
         @media (max-width: 1024px) {
           .hero-center-wrapper {
             flex-direction: column;
@@ -346,6 +349,12 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
           }
           .hero-nav-buttons {
             display: none !important;
+          }
+          .hero-mobile-menu-button {
+            display: flex !important;
+            margin-top: 20px;
+            justify-content: center;
+            align-items: center;
           }
           .hero-convocatoria-bottom {
             bottom: 20px !important;
@@ -425,6 +434,25 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
               }}>
                 <span ref={logoTextScrambleRefs[0]?.ref}>FEB</span>
                 <span ref={logoTextScrambleRefs[1]?.ref}>2027</span>
+              </div>
+
+              {/* Botón de menú móvil - solo visible en móvil */}
+              <div className="hero-mobile-menu-button">
+                <button
+                  onClick={onOpenMenu}
+                  aria-label="Menú"
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'none',
+                    padding: 0,
+                    transition: 'transform 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                >
+                  <img src="/assets/star-cream.svg" alt="Menú" style={{ width: 50, height: 50, display: 'block' }} />
+                </button>
               </div>
             </div>
 
