@@ -837,16 +837,20 @@ export default function LayoutCanvasWithMural({
     if (!stageRef.current) return null
 
     // Exportar solo el área del canvas sin las reglas
+    // Usar JPEG con compresión para reducir tamaño del archivo (evitar error 413)
     const dataURL = stageRef.current.toDataURL({
       x: RULER_SIZE,
       y: RULER_SIZE,
       width: CANVAS_WIDTH,
       height: CANVAS_HEIGHT,
-      pixelRatio: 2
+      pixelRatio: 1, // Reducido de 2 a 1 para menor tamaño
+      mimeType: 'image/jpeg',
+      quality: 0.85 // Compresión JPEG al 85%
     })
     const response = await fetch(dataURL)
     const blob = await response.blob()
 
+    console.log('Canvas exportado - Tamaño optimizado:', Math.round(blob.size / 1024), 'KB')
     return blob
   }
 
