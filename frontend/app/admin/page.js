@@ -10,6 +10,7 @@ import { useFasesStore } from '@/stores/fasesStore'
 import { useCuradoresStore } from '@/stores/curadoresStore'
 import ArtistasTable from '@/components/admin/ArtistasTable'
 import FasesControl from '@/components/admin/FasesControl'
+import FasesQuickControl from '@/components/admin/FasesQuickControl'
 import CuradoresTable from '@/components/admin/CuradoresTable'
 import { COLORS, FONTS } from '@/components/artefacto/theme'
 
@@ -316,6 +317,9 @@ function AdminDashboardContent() {
                 </div>
               </div>
             )}
+
+            {/* Control Rápido de Fases */}
+            <FasesQuickControl />
 
             {/* Quick Actions */}
             <div style={{

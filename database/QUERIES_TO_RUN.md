@@ -2,12 +2,16 @@
 
 ## Instrucciones
 
-Ejecuta estas queries en tu base de datos de PostgreSQL para habilitar el sistema de paquetes 2D/3D.
+Ejecuta estas queries en tu base de datos de PostgreSQL para habilitar el sistema de paquetes 2D/3D y registro de fase de inscripción.
 
-### Opción 1: Usar el archivo de migración (Recomendado)
+### Opción 1: Usar los archivos de migración (Recomendado)
 
 ```bash
+# Migración 001: Agregar campos tipo y metros_cuadrados a paquetes
 psql -U postgres -d artefact_db -f database/migrations/001_add_paquetes_tipo_fields.sql
+
+# Migración 002: Agregar campo fase_inscripcion_id a artistas
+psql -U postgres -d artefact_db -f database/migrations/002_add_fase_inscripcion_to_artistas.sql
 ```
 
 ### Opción 2: Copiar y pegar en consola SQL
@@ -66,6 +70,26 @@ UPDATE paquetes SET precio_fase1 = 36000, precio_fase2 = 40500, precio_fase3 = 4
 
 -- 8. Crear índice para el campo tipo
 CREATE INDEX IF NOT EXISTS idx_paquetes_tipo ON paquetes(tipo);
+
+-- =======================================================
+-- MIGRACIÓN 002: Agregar fase_inscripcion_id a artistas
+-- =======================================================
+
+-- 1. Agregar columna fase_inscripcion_id
+ALTER TABLE artistas
+ADD COLUMN IF NOT EXISTS fase_inscripcion_id INTEGER REFERENCES fases(id) ON DELETE SET NULL;
+
+-- 2. Agregar comentario a la columna
+COMMENT ON COLUMN artistas.fase_inscripcion_id IS 'ID de la fase en la que el artista se registró por primera vez (Fase 1, 2, 3)';
+
+-- 3. Crear índice para mejorar consultas
+CREATE INDEX IF NOT EXISTS idx_artistas_fase_inscripcion ON artistas(fase_inscripcion_id);
+
+-- 4. Actualizar artistas existentes (asignar a Fase 1 por defecto si existe)
+UPDATE artistas
+SET fase_inscripcion_id = (SELECT id FROM fases WHERE numero_fase = 1 AND tipo = 'fase' LIMIT 1)
+WHERE fase_inscripcion_id IS NULL
+  AND EXISTS (SELECT 1 FROM fases WHERE numero_fase = 1 AND tipo = 'fase');
 ```
 
 ## Verificación
@@ -77,12 +101,28 @@ Después de ejecutar las queries, verifica que todo se haya actualizado correcta
 SELECT id, nombre, tipo, metros_lineales, metros_cuadrados, precio_fase1, precio_fase2, precio_fase3
 FROM paquetes
 ORDER BY tipo, id;
+
+-- Ver artistas con sus paquetes y fases de inscripción
+SELECT
+  a.id,
+  a.nombre,
+  a.apellido,
+  a.categoria,
+  p.nombre AS paquete,
+  p.tipo AS tipo_paquete,
+  f.nombre AS fase_inscripcion
+FROM artistas a
+LEFT JOIN paquetes p ON a.paquete_id = p.id
+LEFT JOIN fases f ON a.fase_inscripcion_id = f.id
+ORDER BY a.created_at DESC
+LIMIT 10;
 ```
 
 Deberías ver:
 - 5 paquetes 2D (IDs 1-5) con metros_lineales
 - 5 paquetes 3D (IDs 6-10) con metros_cuadrados
 - Todos los paquetes con precios para las 3 fases
+- Artistas con su paquete asignado y fase de inscripción
 
 ## ¿Qué hace cada query?
 

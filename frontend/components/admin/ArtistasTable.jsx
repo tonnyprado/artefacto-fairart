@@ -155,6 +155,8 @@ export default function ArtistasTable() {
               <TableHeader>Artista</TableHeader>
               <TableHeader>Email</TableHeader>
               <TableHeader>Categoría</TableHeader>
+              <TableHeader>Paquete</TableHeader>
+              <TableHeader>Fase Registro</TableHeader>
               <TableHeader>Estado</TableHeader>
               <TableHeader>Votos</TableHeader>
               <TableHeader>Fecha</TableHeader>
@@ -164,7 +166,7 @@ export default function ArtistasTable() {
           <TableBody>
             {artistasFiltrados.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-gray-500 py-8">
+                <TableCell colSpan={9} className="text-center text-gray-500 py-8">
                   No se encontraron artistas
                 </TableCell>
               </TableRow>
@@ -200,6 +202,37 @@ export default function ArtistasTable() {
                     <Badge variant="info">
                       {CATEGORIAS.find(c => c.value === artista.categoria)?.label || artista.categoria}
                     </Badge>
+                  </TableCell>
+
+                  {/* Paquete */}
+                  <TableCell>
+                    {artista.paquete ? (
+                      <div className="text-sm">
+                        <div className="font-medium text-gray-900">
+                          {artista.paquete.nombre}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {artista.paquete.tipo === '3D' ? (
+                            `${artista.paquete.metros_cuadrados}m² (3D)`
+                          ) : (
+                            `${artista.paquete.metros_lineales}m × ${artista.paquete.altura_pared}m (2D)`
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-gray-400 text-sm">Sin paquete</span>
+                    )}
+                  </TableCell>
+
+                  {/* Fase Registro */}
+                  <TableCell>
+                    {artista.fase_inscripcion ? (
+                      <Badge variant="purple">
+                        {artista.fase_inscripcion.nombre}
+                      </Badge>
+                    ) : (
+                      <span className="text-gray-400 text-sm">-</span>
+                    )}
                   </TableCell>
 
                   {/* Estado */}

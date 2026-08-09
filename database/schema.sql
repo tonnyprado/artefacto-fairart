@@ -126,6 +126,7 @@ CREATE TABLE IF NOT EXISTS artistas (
   redes_sociales JSONB DEFAULT '{}', -- {instagram, facebook, website, etc.}
   documentos JSONB DEFAULT '{}', -- {cv, portfolio, identificacion, etc.}
   paquete_id INTEGER REFERENCES paquetes(id) ON DELETE SET NULL, -- Paquete seleccionado por el artista
+  fase_inscripcion_id INTEGER REFERENCES fases(id) ON DELETE SET NULL, -- Fase en la que se inscribió el artista
   layout_canvas_url VARCHAR(500), -- URL de la imagen del layout del canvas (en Cloudinary)
   layout_canvas_data JSONB DEFAULT '{}', -- Datos del layout: posiciones de obras, dimensiones, escala
   estado VARCHAR(50) DEFAULT 'pendiente' CHECK (estado IN ('pendiente', 'aprobado', 'rechazado')),
@@ -140,6 +141,7 @@ CREATE INDEX idx_artistas_categoria ON artistas(categoria);
 CREATE INDEX idx_artistas_slug ON artistas(slug);
 CREATE INDEX idx_artistas_activo ON artistas(activo);
 CREATE INDEX idx_artistas_estado ON artistas(estado);
+CREATE INDEX idx_artistas_fase_inscripcion ON artistas(fase_inscripcion_id);
 
 -- Tabla de obras de arte
 CREATE TABLE IF NOT EXISTS obras (

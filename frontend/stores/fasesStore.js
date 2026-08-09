@@ -283,6 +283,58 @@ export const useFasesStore = create((set, get) => ({
   },
 
   /**
+   * Toggle inscripciones (admin only)
+   */
+  toggleInscripciones: async (faseId, abrir) => {
+    set({ isLoading: true, error: null })
+    try {
+      const response = await fasesApi.toggleInscripciones(faseId, abrir)
+
+      // Actualizar en el estado local
+      set(state => ({
+        fases: state.fases.map(f =>
+          f.id === faseId ? response.data : f
+        ),
+        isLoading: false
+      }))
+
+      return { success: true, data: response.data }
+    } catch (error) {
+      set({
+        error: error.message,
+        isLoading: false
+      })
+      return { success: false, error: error.message }
+    }
+  },
+
+  /**
+   * Toggle votaciones (admin only)
+   */
+  toggleVotaciones: async (faseId, abrir) => {
+    set({ isLoading: true, error: null })
+    try {
+      const response = await fasesApi.toggleVotaciones(faseId, abrir)
+
+      // Actualizar en el estado local
+      set(state => ({
+        fases: state.fases.map(f =>
+          f.id === faseId ? response.data : f
+        ),
+        isLoading: false
+      }))
+
+      return { success: true, data: response.data }
+    } catch (error) {
+      set({
+        error: error.message,
+        isLoading: false
+      })
+      return { success: false, error: error.message }
+    }
+  },
+
+  /**
    * Obtener estadísticas locales
    */
   getEstadisticas: () => {
@@ -290,7 +342,8 @@ export const useFasesStore = create((set, get) => ({
     return {
       total: fases.length,
       activas: fases.filter(f => f.votaciones_abiertas && !f.finalizada).length,
-      finalizadas: fases.filter(f => f.finalizada).length
+      finalizadas: fases.filter(f => f.finalizada).length,
+      total_artistas_inscritos: fases.reduce((sum, f) => sum + (f.total_inscritos || 0), 0)
     }
   },
 
