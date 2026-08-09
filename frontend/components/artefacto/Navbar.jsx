@@ -11,7 +11,8 @@ import { useTextScrambleMultiple } from './useTextScramble';
   La navegación real la maneja el click delegado de LandingArtefacto (anchors #...).
 */
 export default function Navbar({ screen, onOpenMenu }) {
-  const rojo = screen === 'convocatoria' || screen === 'contacto';
+  // Hero, convocatoria y contacto tienen fondo rojo/oscuro, usar colores claros
+  const rojo = screen === 'hero' || screen === 'convocatoria' || screen === 'contacto';
   const suf = rojo ? 'white' : 'red';
   const labelCol = rojo ? COLORS.cream : COLORS.black;
   const logoRef = useRef(null);
@@ -38,9 +39,10 @@ export default function Navbar({ screen, onOpenMenu }) {
   // Detectar scroll en la sección about
   useEffect(() => {
     const handleScroll = () => {
-      if (screen === 'about') {
-        // Si estamos en about, NUNCA mostrar el logo del navbar
-        // El logo animado de ConoceMasSection toma el control
+      if (screen === 'about' || screen === 'hero') {
+        // Si estamos en about o hero, NUNCA mostrar el logo del navbar
+        // En hero: el logo grande del hero está visible
+        // En about: el logo animado de ConoceMasSection toma el control
         setScrolledFromAbout(false);
       } else {
         // En otras secciones, siempre mostrar el logo
@@ -55,12 +57,12 @@ export default function Navbar({ screen, onOpenMenu }) {
 
   // Animación de entrada del logo
   useEffect(() => {
-    if (logoRef.current && screen !== 'about') {
+    if (logoRef.current && screen !== 'about' && screen !== 'hero') {
       setTimeout(() => {
         setLogoVisible(true);
       }, 200);
-    } else if (screen === 'about') {
-      // En la sección about, el logo siempre está oculto
+    } else if (screen === 'about' || screen === 'hero') {
+      // En about y hero, el logo siempre está oculto
       setLogoVisible(false);
     }
   }, [screen, scrolledFromAbout]);

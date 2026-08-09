@@ -41,6 +41,8 @@ export default function LandingArtefacto() {
   const lenis = useRef(null);
   const lastScrollTime = useRef(0);
   const scrollCooldown = 800; // Cooldown de 0.8s entre transiciones de scroll
+  const touchStartY = useRef(0);
+  const touchEndY = useRef(0);
 
   // Detectar hash en el cliente después de la hidratación
   useEffect(() => {
@@ -222,11 +224,64 @@ export default function LandingArtefacto() {
         }
       }
     };
+    // Touch events para móvil
+    const onTouchStart = (e) => {
+      touchStartY.current = e.touches[0].clientY;
+    };
+
+    const onTouchMove = (e) => {
+      touchEndY.current = e.touches[0].clientY;
+    };
+
+    const onTouchEnd = () => {
+      const now = Date.now();
+      if (busy.current || (now - lastScrollTime.current < scrollCooldown)) {
+        return;
+      }
+
+      const deltaY = touchStartY.current - touchEndY.current;
+      const i = ORDER.indexOf(screenRef.current);
+      if (i < 0) return;
+
+      const swipeThreshold = 50; // Mínimo de 50px de swipe
+
+      // Swipe up (scroll down): siguiente sección
+      if (deltaY > swipeThreshold) {
+        if (i === ORDER.length - 1) return; // Ya está en la última sección
+
+        const atBottom = screenRef.current === 'hero' ||
+          window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 10;
+
+        if (atBottom) {
+          lastScrollTime.current = now;
+          navigate(ORDER[i + 1]);
+        }
+      }
+
+      // Swipe down (scroll up): sección anterior
+      else if (deltaY < -swipeThreshold) {
+        if (i === 0) return; // Ya está en la primera sección (hero)
+
+        const atTop = window.scrollY <= 10;
+
+        if (atTop) {
+          lastScrollTime.current = now;
+          navigate(ORDER[i - 1]);
+        }
+      }
+    };
+
     document.addEventListener('click', onClick);
     window.addEventListener('wheel', onWheel, { passive: true });
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    window.addEventListener('touchend', onTouchEnd, { passive: true });
     return () => {
       document.removeEventListener('click', onClick);
       window.removeEventListener('wheel', onWheel);
+      window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
       lenis.current?.destroy?.();
     };
   }, []);
@@ -238,7 +293,8 @@ export default function LandingArtefacto() {
     <main>
       {!skipLoader && <LogoRevealLoader onComplete={handleLoaderComplete} />}
       {screen === 'hero' && <HeroArtefacto startAnimation={loaderComplete} exitAnimation={heroExiting} onOpenMenu={() => setMenuOpen(true)} />}
-      {screen !== 'hero' && <Navbar screen={screen} onOpenMenu={() => setMenuOpen(true)} />}
+      {/* Mostrar navbar en todas las secciones incluyendo hero */}
+      <Navbar screen={screen} onOpenMenu={() => setMenuOpen(true)} />
 
       <div className={fxClass} style={show('about')}><AboutSection /></div>
       <div className={fxClass} style={show('calendario')}><CalendarSection isActive={screen === 'calendario'} /></div>

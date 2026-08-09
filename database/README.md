@@ -2,7 +2,46 @@
 
 Estructura de base de datos PostgreSQL para el proyecto ARTEFACT Feria de Arte.
 
-## Configuración Inicial
+## 🚀 Configuración Rápida con Neon (Recomendado)
+
+### Opción A: Usando la consola SQL de Neon (Más Rápido)
+
+1. Ve a [Neon Console](https://console.neon.tech) y abre tu proyecto
+2. Haz clic en **"SQL Editor"** en el menú lateral
+3. Copia y pega el contenido de `schema.sql` y ejecuta
+4. Copia y pega el contenido de `seed.sql` y ejecuta
+5. ¡Listo! Tu admin está creado con:
+   - **Email:** `admin@artefact.com`
+   - **Password:** `admin123`
+
+### Opción B: Usando el script automatizado
+
+```bash
+cd database
+
+# Con Node.js (no requiere psql instalado)
+npm install pg  # Instalar dependencia si no la tienes
+node setup-neon.js "postgresql://user:password@host.neon.tech/dbname?sslmode=require"
+
+# O con bash (requiere psql instalado)
+./setup-neon.sh "postgresql://user:password@host.neon.tech/dbname?sslmode=require"
+```
+
+**Obtén tu Connection String desde:**
+- Neon Console → Tu Proyecto → "Connection String" (copia el string completo)
+
+### Actualizar Backend
+
+Una vez configurada la BD, actualiza `backend/.env`:
+
+```env
+# Descomentar y actualizar con tu URL de Neon
+DATABASE_URL=postgresql://user:password@host.neon.tech/dbname?sslmode=require
+```
+
+---
+
+## 🔧 Configuración Local (Alternativa)
 
 ### 1. Instalar PostgreSQL
 

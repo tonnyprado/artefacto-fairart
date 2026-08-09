@@ -81,11 +81,12 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Brand */}
           <div>
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">A</span>
-              </div>
-              <span className="text-2xl font-bold">{footerData.siteName}</span>
+            <div className="mb-4">
+              <img
+                src="/assets/wordmark-cream.svg"
+                alt="ARTEFACTO"
+                className="h-8"
+              />
             </div>
             <p className="text-gray-400 text-sm mb-4">
               {footerData.description}
