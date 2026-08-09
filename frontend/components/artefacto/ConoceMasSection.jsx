@@ -122,18 +122,18 @@ export default function ConoceMasSection() {
       // Inicializar logo en el hero
       updateLogo(true);
 
-      // Crear ScrollTrigger para mover el logo
+      // Crear ScrollTrigger para mover el logo - cuando scrolleamos pasando el primer bloque
       gsap.timeline({
         scrollTrigger: {
           id: 'conocemas-logo-trigger',
-          trigger: sectionRef.current,
-          start: 'top top',
-          end: 'bottom 100%',
+          trigger: titleRef.current,
+          start: 'bottom top+=100',
+          end: 'bottom top',
           scrub: false,
           onEnter: () => {
             updateLogo(false); // Mover al navbar
           },
-          onEnterBack: () => {
+          onLeaveBack: () => {
             updateLogo(true); // Mover de vuelta al hero
           },
         },
