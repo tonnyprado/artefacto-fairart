@@ -1,6 +1,6 @@
 export default function ArtistasAdmin() {
   return (
-    <div>
+    <div className="admin-panel">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Artistas y Obras</h1>
         <button className="bg-blue-600 text-white px-4 py-2 rounded-2xl hover:bg-blue-700">
