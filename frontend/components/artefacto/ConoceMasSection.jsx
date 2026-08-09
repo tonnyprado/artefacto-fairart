@@ -17,9 +17,15 @@ export default function ConoceMasSection() {
   const titleRef = useRef(null);
   const logoRef = useRef(null);
   const logoContainerHeroRef = useRef(null);
-  const block2Ref = useRef(null);
-  const block3Ref = useRef(null);
-  const block4Ref = useRef(null);
+  const redCardRef = useRef(null);
+  const block2LeftRef = useRef(null);
+  const block2RightRef = useRef(null);
+  const block2CardRef = useRef(null);
+  const block3LeftRef = useRef(null);
+  const block3CardsRef = useRef([]);
+  const block4TitleRef = useRef(null);
+  const block4PhasesRef = useRef([]);
+  const block4BottomRef = useRef(null);
   const sectionRef = useRef(null);
 
   useEffect(() => {
@@ -27,32 +33,44 @@ export default function ConoceMasSection() {
     const logo = logoRef.current;
     const logoContainerHero = logoContainerHeroRef.current;
     const logoContainerNav = document.getElementById('navbar-logo-container');
-    const block2 = block2Ref.current;
-    const block3 = block3Ref.current;
-    const block4 = block4Ref.current;
+    const redCard = redCardRef.current;
+    const block2Left = block2LeftRef.current;
+    const block2Right = block2RightRef.current;
+    const block2Card = block2CardRef.current;
+    const block3Left = block3LeftRef.current;
+    const block3Cards = block3CardsRef.current.filter(Boolean);
+    const block4Title = block4TitleRef.current;
+    const block4Phases = block4PhasesRef.current.filter(Boolean);
+    const block4Bottom = block4BottomRef.current;
 
     if (!title || !logo || !logoContainerHero || !logoContainerNav) return;
 
     const initAnimations = () => {
-      // Resetear estados iniciales
-      gsap.set(title, { opacity: 0, scale: 0.8, y: 40 });
-      gsap.set([block2, block3, block4].filter(Boolean), { opacity: 0, y: 60 });
+      // Resetear estados iniciales - Block 1
+      gsap.set(title, { opacity: 0, scale: 0.9 });
+      gsap.set(redCard, { opacity: 0, scale: 0.9 });
+
+      // Block 2
+      gsap.set(block2Left, { opacity: 0, x: -60 });
+      gsap.set(block2Right, { opacity: 0, x: 60 });
+      gsap.set(block2Card, { opacity: 0, scale: 0.9 });
+
+      // Block 3
+      gsap.set(block3Left, { opacity: 0, x: -60 });
+      block3Cards.forEach(card => gsap.set(card, { opacity: 0, x: 60 }));
+
+      // Block 4
+      gsap.set(block4Title, { opacity: 0, y: -40 });
+      block4Phases.forEach(phase => gsap.set(phase, { opacity: 0, scale: 0.9 }));
+      gsap.set(block4Bottom, { opacity: 0, y: 40 });
 
       // Limpiar ScrollTriggers anteriores
-      ScrollTrigger.getAll().forEach((trigger) => {
-        if (trigger.vars.id === 'conocemas-logo' ||
-            trigger.vars.trigger === title ||
-            trigger.vars.trigger === block2 ||
-            trigger.vars.trigger === block3 ||
-            trigger.vars.trigger === block4) {
-          trigger.kill();
-        }
-      });
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
 
-      // Animación del logo ARTEFACTO (entrada)
+      // BLOQUE 1: Animación del logo y red card desde el centro
       gsap.fromTo(
         title,
-        { opacity: 0, scale: 0.8, y: 40 },
+        { opacity: 0, scale: 0.9 },
         {
           scrollTrigger: {
             trigger: title,
@@ -62,7 +80,22 @@ export default function ConoceMasSection() {
           },
           opacity: 1,
           scale: 1,
-          y: 0,
+          ease: 'power2.out',
+        }
+      );
+
+      gsap.fromTo(
+        redCard,
+        { opacity: 0, scale: 0.9 },
+        {
+          scrollTrigger: {
+            trigger: redCard,
+            start: 'top bottom-=100',
+            end: 'top center',
+            scrub: true,
+          },
+          opacity: 1,
+          scale: 1,
           ease: 'power2.out',
         }
       );
@@ -106,25 +139,144 @@ export default function ConoceMasSection() {
         },
       });
 
-      // Animaciones de bloques de texto
-      [block2, block3, block4].forEach((block) => {
-        if (!block) return;
+      // BLOQUE 2: Animaciones de textos y card
+      gsap.fromTo(
+        block2Left,
+        { opacity: 0, x: -60 },
+        {
+          scrollTrigger: {
+            trigger: block2Left,
+            start: 'top bottom-=100',
+            end: 'top center',
+            scrub: true,
+          },
+          opacity: 1,
+          x: 0,
+          ease: 'power2.out',
+        }
+      );
+
+      gsap.fromTo(
+        block2Right,
+        { opacity: 0, x: 60 },
+        {
+          scrollTrigger: {
+            trigger: block2Right,
+            start: 'top bottom-=100',
+            end: 'top center',
+            scrub: true,
+          },
+          opacity: 1,
+          x: 0,
+          ease: 'power2.out',
+        }
+      );
+
+      gsap.fromTo(
+        block2Card,
+        { opacity: 0, scale: 0.9 },
+        {
+          scrollTrigger: {
+            trigger: block2Card,
+            start: 'top bottom-=100',
+            end: 'top center',
+            scrub: true,
+          },
+          opacity: 1,
+          scale: 1,
+          ease: 'power2.out',
+        }
+      );
+
+      // BLOQUE 3: Animación del texto izquierdo y cards pequeñas
+      gsap.fromTo(
+        block3Left,
+        { opacity: 0, x: -60 },
+        {
+          scrollTrigger: {
+            trigger: block3Left,
+            start: 'top bottom-=100',
+            end: 'top center',
+            scrub: true,
+          },
+          opacity: 1,
+          x: 0,
+          ease: 'power2.out',
+        }
+      );
+
+      // Cards aparecen una por una
+      block3Cards.forEach((card, idx) => {
         gsap.fromTo(
-          block,
-          { opacity: 0, y: 60 },
+          card,
+          { opacity: 0, x: 60 },
           {
             scrollTrigger: {
-              trigger: block,
-              start: 'top bottom-=100',
+              trigger: card,
+              start: 'top bottom-=50',
               end: 'top center',
               scrub: true,
             },
             opacity: 1,
-            y: 0,
+            x: 0,
             ease: 'power2.out',
+            delay: idx * 0.1,
           }
         );
       });
+
+      // BLOQUE 4: Animaciones del título, fases y texto inferior
+      gsap.fromTo(
+        block4Title,
+        { opacity: 0, y: -40 },
+        {
+          scrollTrigger: {
+            trigger: block4Title,
+            start: 'top bottom-=100',
+            end: 'top center',
+            scrub: true,
+          },
+          opacity: 1,
+          y: 0,
+          ease: 'power2.out',
+        }
+      );
+
+      // Fases horizontales aparecen una por una
+      block4Phases.forEach((phase, idx) => {
+        gsap.fromTo(
+          phase,
+          { opacity: 0, scale: 0.9 },
+          {
+            scrollTrigger: {
+              trigger: phase,
+              start: 'top bottom-=50',
+              end: 'top center',
+              scrub: true,
+            },
+            opacity: 1,
+            scale: 1,
+            ease: 'power2.out',
+            delay: idx * 0.1,
+          }
+        );
+      });
+
+      gsap.fromTo(
+        block4Bottom,
+        { opacity: 0, y: 40 },
+        {
+          scrollTrigger: {
+            trigger: block4Bottom,
+            start: 'top bottom-=100',
+            end: 'top center',
+            scrub: true,
+          },
+          opacity: 1,
+          y: 0,
+          ease: 'power2.out',
+        }
+      );
 
       // Refrescar ScrollTrigger
       ScrollTrigger.refresh();
@@ -154,15 +306,7 @@ export default function ConoceMasSection() {
 
     return () => {
       observer.disconnect();
-      ScrollTrigger.getAll().forEach((trigger) => {
-        if (trigger.vars.id === 'conocemas-logo-trigger' ||
-            trigger.vars.trigger === title ||
-            trigger.vars.trigger === block2 ||
-            trigger.vars.trigger === block3 ||
-            trigger.vars.trigger === block4) {
-          trigger.kill();
-        }
-      });
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
       // Resetear el logo al limpiar - moverlo de vuelta al hero
       if (logo && logoContainerHero) {
         logoContainerHero.insertAdjacentElement('beforeend', logo);
@@ -190,7 +334,7 @@ export default function ConoceMasSection() {
           background: COLORS.cream,
         }}
       >
-      {/* BLOQUE 1: Logo ARTEFACTO grande */}
+      {/* BLOQUE 1: Logo ARTEFACTO + Red Card con información del evento */}
       <FullScreenBlock backgroundColor={COLORS.cream} animate={false}>
         <div
           ref={titleRef}
@@ -198,6 +342,9 @@ export default function ConoceMasSection() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            gap: '60px',
+            flexWrap: 'wrap',
+            padding: '0 24px',
           }}
         >
           {/* Contenedor del logo en el hero */}
@@ -217,7 +364,7 @@ export default function ConoceMasSection() {
                 src="/assets/wordmark-black.svg"
                 alt="ARTEFACTO"
                 style={{
-                  width: 'min(800px, 80vw)',
+                  width: 'min(500px, 70vw)',
                   height: 'auto',
                   display: 'block',
                   pointerEvents: 'none',
@@ -225,79 +372,446 @@ export default function ConoceMasSection() {
               />
             </a>
           </div>
-        </div>
-      </FullScreenBlock>
 
-      {/* BLOQUE 2: Descripción ARTE FACTO La Feria */}
-      <FullScreenBlock backgroundColor={COLORS.cream} minHeight="100vh" animate={false}>
-        <div ref={block2Ref} style={{ ...container, maxWidth: 1000, margin: '0 auto' }}>
-          <p
+          {/* Red Card con información del evento */}
+          <div
+            ref={redCardRef}
             style={{
-              margin: 0,
-              fontSize: 'clamp(20px, 2.5vw, 32px)',
-              lineHeight: 1.6,
-              fontFamily: FONTS.body,
-              fontWeight: FONTS.bodyWeight,
-              letterSpacing: '-0.01em',
+              background: '#b83030',
+              borderRadius: '32px',
+              padding: 'clamp(40px, 6vw, 80px)',
               textAlign: 'center',
-              color: COLORS.black,
+              minWidth: 'min(400px, 90vw)',
+              maxWidth: '500px',
             }}
           >
-            ARTE FACTO La Feria es una exposición de arte independiente que reúne alrededor de 50 artistas
-            nacionales e internacionales seleccionados desde curaduría específica. A diferencia de las ferias
-            tradicionales basadas en booths individuales, ARTE FACTO funciona como una exposición integral:
-            el Comité Curatorial define la selección y el orden conceptual de las obras, fortalecido por el
-            diseño museográfico.
-          </p>
+            <p
+              style={{
+                margin: 0,
+                fontFamily: FONTS.display,
+                fontWeight: FONTS.displayWeight,
+                fontStyle: FONTS.displayStyle,
+                fontSize: 'clamp(28px, 4vw, 48px)',
+                lineHeight: 1.2,
+                color: COLORS.cream,
+                textTransform: 'uppercase',
+              }}
+            >
+              Feria de arte
+              <br />
+              <span style={{ fontStyle: 'normal', fontWeight: 500 }}>Edición II</span>
+              <br />
+              Semana
+              <br />
+              del arte
+              <br />
+              <span style={{ fontFamily: FONTS.highlight, fontStyle: 'italic', fontWeight: 400, fontSize: 'clamp(24px, 3.5vw, 42px)' }}>
+                Ciudad de
+                <br />
+                México
+              </span>
+              <br />
+              <span style={{ fontSize: 'clamp(32px, 5vw, 56px)', display: 'block', marginTop: '20px' }}>
+                4 - 7
+                <br />
+                febrero 2027
+              </span>
+            </p>
+          </div>
         </div>
       </FullScreenBlock>
 
-      {/* BLOQUE 3: Background imagen + texto filosofía (con overlay) */}
+      {/* BLOQUE 2: Textos descriptivos + Blue Card */}
+      <FullScreenBlock backgroundColor={COLORS.cream} minHeight="200vh" animate={false}>
+        <div style={{ ...container, padding: '100px 24px' }}>
+          {/* Texto izquierdo */}
+          <div ref={block2LeftRef} style={{ marginBottom: '120px' }}>
+            <h2
+              style={{
+                margin: 0,
+                fontFamily: FONTS.display,
+                fontWeight: FONTS.displayWeight,
+                fontStyle: FONTS.displayStyle,
+                fontSize: 'clamp(36px, 5vw, 72px)',
+                lineHeight: 1.2,
+                color: COLORS.black,
+                textTransform: 'uppercase',
+                maxWidth: '800px',
+              }}
+            >
+              ARTE FACTO
+              <br />
+              ES UN ESPACIO DE EXPOSICION DE
+              <br />
+              ARTE INDEPENDIENTE
+            </h2>
+          </div>
+
+          {/* Texto derecho */}
+          <div ref={block2RightRef} style={{ marginBottom: '120px', display: 'flex', justifyContent: 'flex-end' }}>
+            <h3
+              style={{
+                margin: 0,
+                fontFamily: FONTS.display,
+                fontWeight: FONTS.displayWeight,
+                fontStyle: FONTS.displayStyle,
+                fontSize: 'clamp(32px, 4.5vw, 64px)',
+                lineHeight: 1.2,
+                color: COLORS.black,
+                textTransform: 'uppercase',
+                maxWidth: '800px',
+              }}
+            >
+              UN ESPACIO DONDE LOS CONCEPTOS ARTISTICOS
+              <br />
+              Y LAS EJECUCIONES TECNICAS
+              <br />
+              PONDERAN EN UN MISMO NIVEL
+            </h3>
+          </div>
+
+          {/* Blue Card - izquierda */}
+          <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+            <div
+              ref={block2CardRef}
+              style={{
+                background: '#4169e1',
+                borderRadius: '32px',
+                padding: 'clamp(40px, 6vw, 80px)',
+                textAlign: 'center',
+                minWidth: 'min(400px, 90vw)',
+                maxWidth: '500px',
+              }}
+            >
+              <p
+                style={{
+                  margin: 0,
+                  fontFamily: FONTS.display,
+                  fontWeight: 900,
+                  fontSize: 'clamp(32px, 5vw, 64px)',
+                  lineHeight: 1.2,
+                  color: COLORS.cream,
+                }}
+              >
+                +50
+                <br />
+                <span style={{ fontWeight: 500, fontStyle: 'italic', fontSize: 'clamp(20px, 3vw, 36px)' }}>
+                  artistas
+                </span>
+              </p>
+              <p
+                style={{
+                  margin: '20px 0 0',
+                  fontFamily: FONTS.highlight,
+                  fontStyle: 'italic',
+                  fontSize: 'clamp(18px, 2.5vw, 32px)',
+                  color: COLORS.cream,
+                }}
+              >
+                nacionales e<br />internacionales
+              </p>
+              <p
+                style={{
+                  margin: '40px 0 0',
+                  fontFamily: FONTS.display,
+                  fontWeight: 900,
+                  fontSize: 'clamp(32px, 5vw, 64px)',
+                  lineHeight: 1.2,
+                  color: COLORS.cream,
+                }}
+              >
+                +250
+              </p>
+              <p
+                style={{
+                  margin: '10px 0 0',
+                  fontFamily: FONTS.display,
+                  fontWeight: 900,
+                  fontSize: 'clamp(24px, 3.5vw, 48px)',
+                  lineHeight: 1.2,
+                  color: COLORS.black,
+                }}
+              >
+                obras de
+              </p>
+              <p
+                style={{
+                  margin: '5px 0 0',
+                  fontFamily: FONTS.highlight,
+                  fontStyle: 'italic',
+                  fontSize: 'clamp(28px, 4vw, 56px)',
+                  color: COLORS.cream,
+                }}
+              >
+                arte
+              </p>
+            </div>
+          </div>
+        </div>
+      </FullScreenBlock>
+
+      {/* BLOQUE 3: Background imagen + texto izquierdo + 3 cards pequeñas derecha */}
       <ImageBackgroundBlock
         backgroundImage="/assets/estacion-indianilla-bg.png"
         hasOverlay={true}
         overlayOpacity={0.65}
       >
-        <div ref={block3Ref} style={{ textAlign: 'center' }}>
-          <p
-            style={{
-              margin: 0,
-              fontFamily: FONTS.body,
-              fontWeight: 500,
-              fontSize: 'clamp(18px, 2vw, 28px)',
-              lineHeight: 1.7,
-              color: COLORS.cream,
-            }}
-          >
-            Como proyecto filosófico a largo plazo, ARTE FACTO se posiciona como un catalizador
-            que fomenta el esparcimiento de los saberes técnicos, conceptuales, los procesos
-            y el valor de ser un agente creativo en el contexto contemporáneo.
-          </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px', alignItems: 'center' }}>
+          {/* Texto izquierdo */}
+          <div ref={block3LeftRef}>
+            <h2
+              style={{
+                margin: 0,
+                fontFamily: FONTS.display,
+                fontWeight: FONTS.displayWeight,
+                fontStyle: FONTS.displayStyle,
+                fontSize: 'clamp(32px, 4.5vw, 56px)',
+                lineHeight: 1.2,
+                color: COLORS.cream,
+              }}
+            >
+              Exposición con curaduría &<br />museografía cuidada.
+            </h2>
+          </div>
+
+          {/* Cards pequeñas derecha */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div
+              ref={(el) => (block3CardsRef.current[0] = el)}
+              style={{
+                background: 'rgba(244, 237, 228, 0.2)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: '24px',
+                padding: '24px 32px',
+              }}
+            >
+              <p
+                style={{
+                  margin: 0,
+                  fontFamily: FONTS.body,
+                  fontWeight: 500,
+                  fontSize: 'clamp(18px, 2vw, 24px)',
+                  color: COLORS.cream,
+                }}
+              >
+                Experiencias<br />gastronómicas
+              </p>
+            </div>
+
+            <div
+              ref={(el) => (block3CardsRef.current[1] = el)}
+              style={{
+                background: 'rgba(244, 237, 228, 0.2)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: '24px',
+                padding: '24px 32px',
+              }}
+            >
+              <p
+                style={{
+                  margin: 0,
+                  fontFamily: FONTS.body,
+                  fontWeight: 500,
+                  fontSize: 'clamp(18px, 2vw, 24px)',
+                  color: COLORS.cream,
+                }}
+              >
+                Talleres de arte, música en vivo, ponencias y más
+              </p>
+            </div>
+
+            <div
+              ref={(el) => (block3CardsRef.current[2] = el)}
+              style={{
+                background: 'rgba(244, 237, 228, 0.2)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: '24px',
+                padding: '24px 32px',
+              }}
+            >
+              <p
+                style={{
+                  margin: 0,
+                  fontFamily: FONTS.body,
+                  fontWeight: 500,
+                  fontSize: 'clamp(18px, 2vw, 24px)',
+                  color: COLORS.cream,
+                }}
+              >
+                Venta de arte original, prints, merch y más
+              </p>
+            </div>
+          </div>
         </div>
       </ImageBackgroundBlock>
 
-      {/* BLOQUE 4: Mismo background + texto sostenibilidad (con overlay) */}
+      {/* BLOQUE 4: Mismo background + CONVOCATORIA DIVIDIDA EN 3 FASES */}
       <ImageBackgroundBlock
         backgroundImage="/assets/estacion-indianilla-bg.png"
         hasOverlay={true}
         overlayOpacity={0.65}
       >
-        <div ref={block4Ref} style={{ textAlign: 'center' }}>
-          <p
+        <div style={{ textAlign: 'center', padding: '60px 0' }}>
+          <h2
+            ref={block4TitleRef}
             style={{
-              margin: 0,
-              fontFamily: FONTS.body,
-              fontWeight: 500,
-              fontSize: 'clamp(18px, 2vw, 28px)',
-              lineHeight: 1.7,
+              margin: '0 0 60px',
+              fontFamily: FONTS.display,
+              fontWeight: FONTS.displayWeight,
+              fontStyle: FONTS.displayStyle,
+              fontSize: 'clamp(32px, 5vw, 64px)',
+              lineHeight: 1.2,
               color: COLORS.cream,
+              textTransform: 'uppercase',
             }}
           >
-            Como desarrollo y sostenibilidad de las éticas creativas, el proyecto generará eventos,
-            convocatorias y experiencias satélite a lo largo del año. Estas iniciativas buscan fomentar
-            disciplinas creativas variadas —desde diseño industrial, cine y arquitectura hasta joyería,
-            entre otras— según el ímpetu y deseo de la comunidad.
-          </p>
+            CONVOCATORIA DIVIDIDA EN 3 FASES
+          </h2>
+
+          {/* Fases horizontales */}
+          <div
+            style={{
+              display: 'flex',
+              gap: '24px',
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              marginBottom: '80px',
+            }}
+          >
+            <div
+              ref={(el) => (block4PhasesRef.current[0] = el)}
+              style={{
+                background: 'rgba(244, 237, 228, 0.2)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: '24px',
+                padding: '32px 40px',
+                minWidth: '200px',
+              }}
+            >
+              <p
+                style={{
+                  margin: 0,
+                  fontFamily: FONTS.display,
+                  fontWeight: FONTS.displayWeight,
+                  fontStyle: FONTS.displayStyle,
+                  fontSize: 'clamp(24px, 3vw, 36px)',
+                  color: COLORS.cream,
+                  textTransform: 'uppercase',
+                }}
+              >
+                FASE 1
+              </p>
+              <p
+                style={{
+                  margin: '8px 0 0',
+                  fontFamily: FONTS.body,
+                  fontSize: 'clamp(14px, 1.5vw, 18px)',
+                  color: COLORS.cream,
+                  opacity: 0.9,
+                }}
+              >
+                Agosto - Septiembre
+              </p>
+            </div>
+
+            <div
+              ref={(el) => (block4PhasesRef.current[1] = el)}
+              style={{
+                background: 'rgba(244, 237, 228, 0.2)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: '24px',
+                padding: '32px 40px',
+                minWidth: '200px',
+              }}
+            >
+              <p
+                style={{
+                  margin: 0,
+                  fontFamily: FONTS.display,
+                  fontWeight: FONTS.displayWeight,
+                  fontStyle: FONTS.displayStyle,
+                  fontSize: 'clamp(24px, 3vw, 36px)',
+                  color: COLORS.cream,
+                  textTransform: 'uppercase',
+                }}
+              >
+                FASE 2
+              </p>
+              <p
+                style={{
+                  margin: '8px 0 0',
+                  fontFamily: FONTS.body,
+                  fontSize: 'clamp(14px, 1.5vw, 18px)',
+                  color: COLORS.cream,
+                  opacity: 0.9,
+                }}
+              >
+                Septiembre - Octubre
+              </p>
+            </div>
+
+            <div
+              ref={(el) => (block4PhasesRef.current[2] = el)}
+              style={{
+                background: 'rgba(244, 237, 228, 0.2)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: '24px',
+                padding: '32px 40px',
+                minWidth: '200px',
+              }}
+            >
+              <p
+                style={{
+                  margin: 0,
+                  fontFamily: FONTS.display,
+                  fontWeight: FONTS.displayWeight,
+                  fontStyle: FONTS.displayStyle,
+                  fontSize: 'clamp(24px, 3vw, 36px)',
+                  color: COLORS.cream,
+                  textTransform: 'uppercase',
+                }}
+              >
+                FASE 3
+              </p>
+              <p
+                style={{
+                  margin: '8px 0 0',
+                  fontFamily: FONTS.body,
+                  fontSize: 'clamp(14px, 1.5vw, 18px)',
+                  color: COLORS.cream,
+                  opacity: 0.9,
+                }}
+              >
+                Octubre - Noviembre
+              </p>
+            </div>
+          </div>
+
+          {/* Texto inferior */}
+          <div
+            ref={block4BottomRef}
+            style={{
+              background: 'rgba(244, 237, 228, 0.15)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '24px',
+              padding: '32px 48px',
+              maxWidth: '900px',
+              margin: '0 auto',
+            }}
+          >
+            <p
+              style={{
+                margin: 0,
+                fontFamily: FONTS.body,
+                fontWeight: 500,
+                fontSize: 'clamp(18px, 2vw, 24px)',
+                color: COLORS.cream,
+                letterSpacing: '0.02em',
+              }}
+            >
+              SIGUE DESLIZANDO PARA LEER LA CONVOCATORIA Y REALIZAR TU REGISTRO
+            </p>
+          </div>
         </div>
       </ImageBackgroundBlock>
 

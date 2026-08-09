@@ -1,0 +1,41 @@
+En primer lugar deja el navbar como estaba antes o sea que solo falta que salga el botón del logo ahi en el navbar.
+ primer bloque de esta página debe mostrar el logo tal cual lo hace pero debe de mostrarse junto a este texto:
+" Feria de arte
+Edición II
+Semana
+del arte
+Ciudad de
+México
+4 - 7
+febrero 2027"
+ese debe estar adentro de un card rojo.  Los dos aparecen con una animación desde el centro de la pantalla, usa gsap para mejorar animaciones. De ahi doy scroll y segundo bloque tenemos
+este texto del lado izquierdo: 
+" ARTE FACTO 
+ES UN ESPACIO DE EXPOSICION DE 
+ARTE INDEPENDIENTE
+"
+de ahi del lado derecho aparece:
+"UN ESPACIO DOPNDE LOS CONCEPTOS ARTISTICOS
+Y LAS EJECUCIONES TECNICAS
+PONDERAN EN UN MISMO NIVEL"
+
+y del lado izquierdo aparece un card que dice:
+"+50 artistas nacionales e internacionales
++250 OBRAS DE ARTE"
+
+cabe aclarar que esto va saliendo mientras le vamos dando scroll down/up
+
+Tercer bloque debe contenter el background que ya tenemos actualmente en tercer bloque pero el contenido cambia, del lado izquierdo un texto que dice:
+"Exposición con curaduría &
+museografía cuidada." y del lado derecho van a salir cards una por una, deben ser chiquitas que diga 1: "Experiencias
+gastronómicas " 2: "Talleres de
+arte, música en vivo, ponencias y más" 3: "Venta de arte original, prints, merch y más"
+
+Cuarto bloque sigue con el mismo background y va a decir "CONVOCATORIA DIVIDIDA EN 3 FASES" y en eso sale de forma horizontal:
+"FASE 1
+fechas"  "FASE 2"... blabla y asi sucesivamente, y abajito un recuadro que diga "SIGUE DESLIZANDO PARA LEER LA CONVOCATORIA Y REALIZAR TU REGISTRO"
+
+TODOS ESTOS ELEMENTOS VAN APARECIENDO UNO POR UNO CONFORME SCROLLEAMOS RECUERDA, USA LOS EFECTOS DE GSAP Y LAS PROPIEDAS DE LENIS QUE YA TENEMOS.
+USA TAMAÑOS GRANDES EN LAS LETRAS PERO QUE SI SE VEAN GRANDOTAS Y QUEPAN BIEN EN LAS PÁGINAS. 
+
+Recuerda que en diseño global desimos que ninguna card debe tener contornos, sus esquinas deben de ser redondas.
