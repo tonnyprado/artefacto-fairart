@@ -99,7 +99,7 @@ export default function ArtistasTable() {
   return (
     <div className="space-y-4">
       {/* Filtros y búsqueda */}
-      <div className="bg-white p-4 rounded-lg shadow space-y-4">
+      <div className="bg-white p-4 rounded-2xl shadow space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Búsqueda */}
           <div className="md:col-span-2">
@@ -148,7 +148,7 @@ export default function ArtistasTable() {
       </div>
 
       {/* Tabla */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-white rounded-2xl shadow overflow-hidden">
         <Table>
           <TableHead>
             <TableRow>

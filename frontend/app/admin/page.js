@@ -37,7 +37,7 @@ const TABS = [
 const cardStyle = {
   backgroundColor: 'white',
   padding: '1.5rem',
-  borderRadius: '8px',
+  borderRadius: '16px',
   boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
   transition: 'box-shadow 0.2s',
   border: `2px solid ${COLORS.creamDark}`
@@ -55,7 +55,7 @@ const StatCard = ({ icon, label, value, details, iconBg }) => (
         width: '3rem',
         height: '3rem',
         backgroundColor: iconBg,
-        borderRadius: '8px',
+        borderRadius: '12px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
@@ -275,7 +275,7 @@ function AdminDashboardContent() {
                 background: `linear-gradient(to right, ${COLORS.red}20, ${COLORS.red}10)`,
                 borderLeft: `4px solid ${COLORS.red}`,
                 padding: '1.5rem',
-                borderRadius: '0 8px 8px 0'
+                borderRadius: '0 16px 16px 0'
               }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
                   <svg style={{ width: '1.5rem', height: '1.5rem', color: COLORS.red, marginTop: '0.25rem' }} fill="currentColor" viewBox="0 0 20 20">
@@ -382,7 +382,7 @@ function AdminDashboardContent() {
               backgroundColor: '#e8f4fd',
               borderLeft: '4px solid #3b82f6',
               padding: '1.5rem',
-              borderRadius: '0 8px 8px 0'
+              borderRadius: '0 16px 16px 0'
             }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
                 <svg style={{ width: '1.5rem', height: '1.5rem', color: '#3b82f6', marginTop: '0.25rem' }} fill="currentColor" viewBox="0 0 20 20">

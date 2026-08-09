@@ -154,28 +154,28 @@ export default function FasesControl() {
 
                 {/* Estadísticas */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                  <div className="bg-gray-50 p-3 rounded-lg">
+                  <div className="bg-gray-50 p-3 rounded-2xl">
                     <p className="text-xs text-gray-500 mb-1">Inscritos</p>
                     <p className="text-2xl font-bold text-gray-900">
                       {fase.total_inscritos}
                     </p>
                   </div>
 
-                  <div className="bg-gray-50 p-3 rounded-lg">
+                  <div className="bg-gray-50 p-3 rounded-2xl">
                     <p className="text-xs text-gray-500 mb-1">Seleccionados</p>
                     <p className="text-2xl font-bold text-gray-900">
                       {fase.total_seleccionados}
                     </p>
                   </div>
 
-                  <div className="bg-gray-50 p-3 rounded-lg">
+                  <div className="bg-gray-50 p-3 rounded-2xl">
                     <p className="text-xs text-gray-500 mb-1">Curadores</p>
                     <p className="text-2xl font-bold text-gray-900">
                       {fase.total_curadores}
                     </p>
                   </div>
 
-                  <div className="bg-gray-50 p-3 rounded-lg">
+                  <div className="bg-gray-50 p-3 rounded-2xl">
                     <p className="text-xs text-gray-500 mb-1">
                       {fase.tipo === 'concurso' ? 'Ganadores' : '% Selección'}
                     </p>

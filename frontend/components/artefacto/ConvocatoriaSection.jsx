@@ -309,7 +309,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
         </p>
 
         <h3 style={subsectionTitle(40)}>Paquetes — Obra Bidimensional</h3>
-        <div style={{ marginTop: 24, overflowX: 'auto' }}>
+        <div style={{ marginTop: 24, overflowX: 'auto', borderRadius: 16, overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <thead>
               <tr style={{ background: COLORS.black }}>
@@ -335,7 +335,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
         </div>
 
         <h3 style={subsectionTitle(32)}>Paquetes — Obra Tridimensional</h3>
-        <div style={{ marginTop: 24, overflowX: 'auto' }}>
+        <div style={{ marginTop: 24, overflowX: 'auto', borderRadius: 16, overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <thead>
               <tr style={{ background: COLORS.black }}>
@@ -421,19 +421,19 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
 
         <h3 style={subsectionTitle(40)}>Etapas del Proceso</h3>
         <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <div style={{ background: 'rgba(0,0,0,0.2)', padding: 24 }}>
+          <div style={{ background: 'rgba(0,0,0,0.2)', padding: 24, borderRadius: 16 }}>
             <h4 style={{ margin: '0 0 12px', fontSize: 18, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: COLORS.cream }}>Etapa 1 — Revisión Administrativa</h4>
             <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: 'rgba(244,237,228,0.85)' }}>
               Revisión administrativa de los datos de registro y documentación completa adjunta. Postulaciones incompletas, fuera de fecha o con imágenes de calidad insuficiente quedarán eliminadas automáticamente del proceso.
             </p>
           </div>
-          <div style={{ background: 'rgba(0,0,0,0.2)', padding: 24 }}>
+          <div style={{ background: 'rgba(0,0,0,0.2)', padding: 24, borderRadius: 16 }}>
             <h4 style={{ margin: '0 0 12px', fontSize: 18, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: COLORS.cream }}>Etapa 2 — Evaluación Curatorial</h4>
             <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: 'rgba(244,237,228,0.85)' }}>
               El Comité Curatorial revisa las postulaciones que completaron su registro exitosamente y evalúa las cualidades conceptuales y técnicas de la obra, como parte de la evaluación de la propuesta.
             </p>
           </div>
-          <div style={{ background: 'rgba(0,0,0,0.2)', padding: 24 }}>
+          <div style={{ background: 'rgba(0,0,0,0.2)', padding: 24, borderRadius: 16 }}>
             <h4 style={{ margin: '0 0 12px', fontSize: 18, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: COLORS.cream }}>Etapa 3 — Confirmación Final</h4>
             <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: 'rgba(244,237,228,0.85)' }}>
               Confirmación de la obra física, el espacio asignado dentro de la feria y el paquete de participación correspondiente. La decisión del Comité Curatorial es definitiva e inapelable.
@@ -531,7 +531,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
 
         {/* FECHAS IMPORTANTES */}
         <h2 style={sectionTitle('Fechas Importantes')}>Fechas Importantes</h2>
-        <div style={{ marginTop: 32, overflowX: 'auto' }}>
+        <div style={{ marginTop: 32, overflowX: 'auto', borderRadius: 16, overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <thead>
               <tr style={{ background: COLORS.black }}>
@@ -551,7 +551,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
         </div>
 
         {/* CTA - DESCARGAR Y REGISTRARSE */}
-        <div style={{ marginTop: 80, background: COLORS.black, padding: 48, textAlign: 'center' }}>
+        <div style={{ marginTop: 80, background: COLORS.black, padding: 48, textAlign: 'center', borderRadius: 16 }}>
           <h3 style={{
             margin: '0 0 16px',
             fontFamily: FONTS.display,

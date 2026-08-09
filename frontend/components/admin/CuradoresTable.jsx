@@ -133,7 +133,7 @@ export default function CuradoresTable() {
       </div>
 
       {/* Tabla */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-white rounded-2xl shadow overflow-hidden">
         <Table>
           <TableHead>
             <TableRow>
