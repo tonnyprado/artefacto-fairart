@@ -407,6 +407,30 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
           }}>
             <span ref={convocatoriaScrambleRef[0]?.ref}>Convocatoria abierta AGO - NOV 2O26</span>
           </div>
+
+          {/* Texto scroll con flecha */}
+          <div style={{
+            marginTop: '12px',
+            color: COLORS.cream,
+            fontFamily: FONTS.subtitle,
+            fontWeight: 300,
+            fontSize: 'clamp(10px, 1.2vw, 14px)',
+            letterSpacing: '0.15em',
+            textTransform: 'lowercase',
+            textAlign: 'center',
+            opacity: (!startAnimation && !exitAnimation) ? 0 : undefined,
+            animation: getAnimation(2.0),
+            transformOrigin: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '4px'
+          }}>
+            <span>scroll</span>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 2L6 10M6 10L3 7M6 10L9 7" stroke={COLORS.cream} strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
         </div>
 
         {/* Logo y botones centrados juntos en el medio de la pantalla */}
@@ -440,7 +464,11 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
               {/* Botón de menú móvil - solo visible en móvil */}
               <div className="hero-mobile-menu-button">
                 <button
-                  onClick={onOpenMenu}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onOpenMenu();
+                  }}
                   aria-label="Menú"
                   style={{
                     background: 'none',
@@ -452,7 +480,7 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
                   onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
                   onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 >
-                  <img src="/assets/x-blanca.svg" alt="Menú" style={{ width: 50, height: 50, display: 'block' }} />
+                  <img src="/assets/x-blanca.svg" alt="Menú" style={{ width: 70, height: 70, display: 'block' }} />
                 </button>
               </div>
             </div>

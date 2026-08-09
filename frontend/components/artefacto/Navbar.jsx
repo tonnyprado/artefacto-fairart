@@ -120,26 +120,16 @@ export default function Navbar({ screen, onOpenMenu }) {
         </div>
         <div style={{ display: 'flex', gap: 26, justifyContent: 'flex-end' }}>{right.map((n, i) => item(n, i + left.length))}</div>
       </div>
-      {/* Versión móvil: logo arriba y botón abajo */}
+      {/* Versión móvil: botón en esquina superior derecha */}
       <div className="arte-nav-mob" style={{
         pointerEvents: 'auto',
         position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
+        top: 20,
+        right: 20,
         display: 'none',
-        flexDirection: 'column',
-        alignItems: 'center',
-        padding: '20px',
-        gap: '20px',
         zIndex: 2
       }}>
-        {/* Logo móvil */}
-        <a href="#hero" className="arte-navlogo" style={{ pointerEvents: 'auto' }}>
-          <img src={rojo ? '/assets/wordmark-cream.svg' : '/assets/wordmark-black.svg'} alt="ARTEFACTO" style={{ height: 40, display: 'block' }} />
-        </a>
-
-        {/* Botón de menú más grande */}
+        {/* Botón de menú en esquina superior derecha */}
         <button onClick={onOpenMenu} aria-label="Menú"
           style={{
             background: 'none',

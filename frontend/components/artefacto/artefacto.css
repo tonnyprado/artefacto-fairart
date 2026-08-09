@@ -30,6 +30,17 @@ body {
   cursor: none;
 }
 
+/* Restaurar cursor normal en móvil/tablet */
+@media (max-width: 1024px) {
+  body {
+    cursor: auto !important;
+  }
+
+  a, button, input, textarea, select, [role="button"] {
+    cursor: pointer !important;
+  }
+}
+
 /* Cursor personalizado */
 .custom-cursor {
   position: fixed;
@@ -45,6 +56,13 @@ body {
   /* Optimizaciones de performance */
   will-change: transform, opacity;
   backface-visibility: hidden;
+}
+
+/* Ocultar cursor personalizado en móvil/tablet */
+@media (max-width: 1024px) {
+  .custom-cursor {
+    display: none !important;
+  }
 }
 
 .custom-cursor.hovering {
