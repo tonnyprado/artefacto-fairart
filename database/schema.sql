@@ -27,9 +27,14 @@ CREATE TABLE IF NOT EXISTS paquetes (
   id SERIAL PRIMARY KEY,
   nombre VARCHAR(255) NOT NULL,
   descripcion TEXT NOT NULL,
+  tipo VARCHAR(10) CHECK (tipo IN ('2D', '3D')) DEFAULT '2D', -- Tipo: 2D (pared) o 3D (piso/base)
   precio DECIMAL(10, 2) NOT NULL,
-  metros_lineales DECIMAL(5, 2) NOT NULL DEFAULT 3.0, -- Metros lineales de pared
-  altura_pared DECIMAL(5, 2) NOT NULL DEFAULT 2.4, -- Altura de la pared en metros
+  precio_fase1 DECIMAL(10, 2), -- Precio en Fase I (-20%)
+  precio_fase2 DECIMAL(10, 2), -- Precio en Fase II (-10%)
+  precio_fase3 DECIMAL(10, 2), -- Precio en Fase III (precio completo)
+  metros_lineales DECIMAL(5, 2), -- Metros lineales de pared (solo para paquetes 2D)
+  altura_pared DECIMAL(5, 2) DEFAULT 2.4, -- Altura de la pared en metros (solo para paquetes 2D)
+  metros_cuadrados DECIMAL(5, 2), -- Metros cuadrados de base/piso (solo para paquetes 3D)
   obras_maximas INTEGER NOT NULL DEFAULT 10, -- Número máximo de obras permitidas
   beneficios JSONB DEFAULT '[]',
   activo BOOLEAN DEFAULT true,

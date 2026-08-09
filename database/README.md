@@ -101,6 +101,9 @@ Administradores del sistema que pueden gestionar contenido.
 
 ### `artistas`
 Información de los artistas que participan en las ferias.
+- El campo `categoria` determina qué tipo de paquetes puede seleccionar:
+  - `escultura` → solo paquetes 3D
+  - Otras categorías → solo paquetes 2D
 
 ### `obras`
 Obras de arte de cada artista.
@@ -110,12 +113,40 @@ Ferias y eventos organizados por ARTEFACT.
 
 ### `paquetes`
 Paquetes de inscripción con diferentes precios y beneficios.
+- **Paquetes 2D** (obra bidimensional - pared):
+  - Tienen `tipo = '2D'`
+  - Usan `metros_lineales` y `altura_pared` para definir el espacio
+  - Para: Pintura, Fotografía, Ilustración, Grabado, etc.
+- **Paquetes 3D** (obra tridimensional - base/piso):
+  - Tienen `tipo = '3D'`
+  - Usan `metros_cuadrados` para definir el espacio de base
+  - Para: Escultura, Instalación, Cerámica, etc.
+- Los precios varían por fase:
+  - `precio_fase1`: Fase I con -20% de descuento
+  - `precio_fase2`: Fase II con -10% de descuento
+  - `precio_fase3` / `precio`: Precio completo en Fase III
 
 ### `inscripciones`
 Registro de artistas inscritos a eventos específicos.
 
 ### `contenido`
 Páginas, noticias y otro contenido general del sitio.
+
+## Migraciones
+
+### Migration 001: Agregar campos tipo y metros_cuadrados a paquetes
+Ver: `database/migrations/001_add_paquetes_tipo_fields.sql`
+
+Esta migración agrega soporte para diferenciar paquetes bidimensionales (2D) y tridimensionales (3D):
+- Agrega campo `tipo` con valores '2D' o '3D'
+- Agrega campo `metros_cuadrados` para paquetes 3D
+- Actualiza paquetes existentes con su tipo correcto
+- Establece metros cuadrados para paquetes 3D según convocatoria
+
+**Para aplicar la migración:**
+```bash
+psql -U postgres -d artefact_db -f database/migrations/001_add_paquetes_tipo_fields.sql
+```
 
 ## Comandos Útiles de PostgreSQL
 

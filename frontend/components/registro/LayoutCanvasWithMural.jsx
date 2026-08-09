@@ -26,6 +26,11 @@ const FREE_AREA = {
   height: 350    // Altura del área libre (hasta el área rayada inferior)
 }
 
+// Factor de conversión: metros a píxeles en el canvas
+// Asumimos que el FREE_AREA completo representa aproximadamente 10m lineales × 2.4m altura
+// Esto nos da un factor de escala para convertir las medidas reales del paquete a píxeles
+const METROS_A_PIXELES = FREE_AREA.width / 10 // Aproximadamente 155 px por metro
+
 // Configuración de reglas
 const RULER_SIZE = 30 // Tamaño de las reglas en píxeles
 const RULER_BG_COLOR = '#2C2C2C' // Color de fondo de las reglas
@@ -233,11 +238,14 @@ function checkCollision(obra1, obra2, margin = COLLISION_MARGIN) {
 /**
  * Componente de obra individual con cursor y botón de eliminar
  */
-function ObraImage({ obra, onDragEnd, onDragMove, isSelected, onSelect, onDelete, otrasObras }) {
+function ObraImage({ obra, onDragEnd, onDragMove, isSelected, onSelect, onDelete, otrasObras, tipoPaquete }) {
   const [image, status] = useImage(obra.preview, 'anonymous')
   const stageRef = useRef()
   const [lastValidPos, setLastValidPos] = useState({ x: obra.x, y: obra.y })
   const [isColliding, setIsColliding] = useState(false)
+
+  // Para paquetes 3D, mostramos cuadrados (la "base" de la escultura)
+  const esPaquete3D = tipoPaquete === '3D'
 
   // Actualizar última posición válida cuando cambia la obra
   useEffect(() => {
@@ -287,6 +295,110 @@ function ObraImage({ obra, onDragEnd, onDragMove, isSelected, onSelect, onDelete
     return newPos
   }
 
+  // Si es paquete 3D, renderizar cuadrado de base (no mostrar imagen)
+  if (esPaquete3D) {
+    return (
+      <Group>
+        <Rect
+          id={obra.id}
+          x={obra.x}
+          y={obra.y}
+          width={obra.width}
+          height={obra.height}
+          fill="#D4C4B0"
+          stroke={isColliding ? '#FF4444' : isSelected ? '#141210' : '#8B7355'}
+          strokeWidth={isColliding ? 3 : isSelected ? 4 : 2}
+          cornerRadius={4}
+          draggable
+          dragBoundFunc={dragBoundFunc}
+          onDragStart={() => {
+            setIsColliding(false)
+            onDragMove && onDragMove(obra.id, obra.x, obra.y, obra.width, obra.height)
+          }}
+          onDragMove={(e) => onDragMove && onDragMove(obra.id, e.target.x(), e.target.y(), obra.width, obra.height)}
+          onDragEnd={(e) => {
+            setIsColliding(false)
+            onDragMove && onDragMove(null, null, null, null, null)
+            onDragEnd(obra.id, e.target.x(), e.target.y())
+          }}
+          onClick={() => onSelect(obra.id)}
+          onTap={() => onSelect(obra.id)}
+          shadowBlur={isSelected ? 10 : 5}
+          shadowColor="black"
+          shadowOpacity={0.4}
+        />
+
+        {/* Texto centrado indicando que es una base */}
+        <Text
+          x={obra.x}
+          y={obra.y + obra.height / 2 - 20}
+          text={obra.titulo || 'Base Escultura'}
+          fontSize={14}
+          fontStyle="bold"
+          fill="#141210"
+          width={obra.width}
+          align="center"
+          listening={false}
+        />
+        <Text
+          x={obra.x}
+          y={obra.y + obra.height / 2}
+          text={`${obra.ancho_cm} × ${obra.alto_cm} cm`}
+          fontSize={11}
+          fill="#6B6B6B"
+          width={obra.width}
+          align="center"
+          listening={false}
+        />
+        <Text
+          x={obra.x}
+          y={obra.y + obra.height / 2 + 16}
+          text="(Base 3D)"
+          fontSize={10}
+          fontStyle="italic"
+          fill="#8B7355"
+          width={obra.width}
+          align="center"
+          listening={false}
+        />
+
+        {/* Botón de eliminar cuando está seleccionada */}
+        {isSelected && (
+          <Group>
+            <Rect
+              x={obra.x + obra.width - 30}
+              y={obra.y - 10}
+              width={30}
+              height={30}
+              fill="#B83030"
+              cornerRadius={15}
+              onClick={(e) => {
+                e.cancelBubble = true
+                onDelete(obra.id)
+              }}
+            />
+            <Text
+              x={obra.x + obra.width - 30}
+              y={obra.y - 10}
+              width={30}
+              height={30}
+              text="×"
+              fontSize={22}
+              fill="white"
+              align="center"
+              verticalAlign="middle"
+              onClick={(e) => {
+                e.cancelBubble = true
+                onDelete(obra.id)
+              }}
+            />
+          </Group>
+        )}
+      </Group>
+    )
+  }
+
+  // Para paquetes 2D, mostrar la imagen como antes
   if (!image || status === 'loading') {
     return (
       <>
@@ -403,6 +515,111 @@ function MuralBackground({ plantillaURL, width, height }) {
   if (!image) return null
 
   return <KonvaImage image={image} x={0} y={0} width={width} height={height} />
+}
+
+/**
+ * Componente de líneas delimitadoras basadas en las medidas del paquete
+ */
+function PaqueteDelimiter({ paquete }) {
+  if (!paquete) return null
+
+  let delimiterWidth, delimiterHeight
+
+  if (paquete.tipo === '3D') {
+    // Para paquetes 3D: usar metros_cuadrados
+    // Convertir a un rectángulo (asumiendo proporción cuadrada o rectangular)
+    const metrosCuadrados = paquete.metros_cuadrados || 1
+    // Calcular lado del cuadrado o usar proporción típica (ej: 2:1.5)
+    const lado = Math.sqrt(metrosCuadrados)
+    delimiterWidth = lado * METROS_A_PIXELES
+    delimiterHeight = lado * METROS_A_PIXELES
+  } else {
+    // Para paquetes 2D: usar metros_lineales × altura_pared
+    delimiterWidth = (paquete.metros_lineales || 3) * METROS_A_PIXELES
+    delimiterHeight = (paquete.altura_pared || 2.4) * (FREE_AREA.height / 2.4) // Escala proporcional
+  }
+
+  // Centrar el delimitador en el área libre
+  const delimiterX = FREE_AREA.x + (FREE_AREA.width - delimiterWidth) / 2
+  const delimiterY = FREE_AREA.y + (FREE_AREA.height - delimiterHeight) / 2
+
+  return (
+    <Group>
+      {/* Rectángulo delimitador con borde punteado */}
+      <Rect
+        x={delimiterX}
+        y={delimiterY}
+        width={delimiterWidth}
+        height={delimiterHeight}
+        stroke="#FF6B6B"
+        strokeWidth={3}
+        dash={[15, 10]}
+        listening={false}
+      />
+
+      {/* Etiqueta con las medidas */}
+      <Group>
+        <Rect
+          x={delimiterX + 10}
+          y={delimiterY - 35}
+          width={paquete.tipo === '3D' ? 180 : 200}
+          height={28}
+          fill="rgba(255, 107, 107, 0.95)"
+          cornerRadius={6}
+          listening={false}
+        />
+        <Text
+          x={delimiterX + 10}
+          y={delimiterY - 35}
+          width={paquete.tipo === '3D' ? 180 : 200}
+          height={28}
+          text={paquete.tipo === '3D'
+            ? `Área: ${paquete.metros_cuadrados}m² (base)`
+            : `Área: ${paquete.metros_lineales}m × ${paquete.altura_pared}m`}
+          fontSize={13}
+          fontStyle="bold"
+          fill="white"
+          align="center"
+          verticalAlign="middle"
+          listening={false}
+        />
+      </Group>
+
+      {/* Etiquetas de esquinas para referencia */}
+      <Text
+        x={delimiterX - 30}
+        y={delimiterY - 5}
+        text="┌"
+        fontSize={24}
+        fill="#FF6B6B"
+        listening={false}
+      />
+      <Text
+        x={delimiterX + delimiterWidth + 5}
+        y={delimiterY - 5}
+        text="┐"
+        fontSize={24}
+        fill="#FF6B6B"
+        listening={false}
+      />
+      <Text
+        x={delimiterX - 30}
+        y={delimiterY + delimiterHeight - 20}
+        text="└"
+        fontSize={24}
+        fill="#FF6B6B"
+        listening={false}
+      />
+      <Text
+        x={delimiterX + delimiterWidth + 5}
+        y={delimiterY + delimiterHeight - 20}
+        text="┘"
+        fontSize={24}
+        fill="#FF6B6B"
+        listening={false}
+      />
+    </Group>
+  )
 }
 
 export default function LayoutCanvasWithMural({
@@ -1066,6 +1283,10 @@ export default function LayoutCanvasWithMural({
                 width={CANVAS_WIDTH}
                 height={CANVAS_HEIGHT}
               />
+
+              {/* Delimitador del paquete */}
+              <PaqueteDelimiter paquete={paquete} />
+
               {obrasEnCanvas.map((obra) => (
                 <ObraImage
                   key={obra.id}
@@ -1076,6 +1297,7 @@ export default function LayoutCanvasWithMural({
                   onSelect={setSelectedObraId}
                   onDelete={handleRemoveFromCanvas}
                   otrasObras={obrasEnCanvas.filter(o => o.id !== obra.id)}
+                  tipoPaquete={paquete?.tipo}
                 />
               ))}
               {/* Líneas guía durante el arrastre */}
@@ -1168,7 +1390,7 @@ export default function LayoutCanvasWithMural({
           margin: 0,
           flex: 1
         }}>
-          Agrega obras con el botón "+ Agregar obra" y completa su metadata (título, dimensiones y precio). Haz clic en "+ Lienzo" para agregar la obra al mural. Arrastra las obras dentro del área libre (rectángulo central) para posicionarlas. Las áreas rayadas (arriba y abajo) son zonas de consideración del comité curatorial. Haz clic en una obra para seleccionarla y poder eliminarla con el botón rojo. Guarda el layout antes de continuar al siguiente paso.
+          Agrega obras con el botón "+ Agregar obra" y completa su metadata (título, dimensiones y precio). Haz clic en "+ Lienzo" para agregar la obra al mural. Arrastra las obras dentro del área delimitada (rectángulo con bordes punteados rojos) que representa el espacio disponible según tu paquete seleccionado{paquete?.tipo === '3D' ? '. Para paquetes 3D, las obras se muestran como cuadrados de base donde colocarás tu escultura' : ''}. Haz clic en una obra para seleccionarla y poder eliminarla con el botón rojo. Guarda el layout antes de continuar al siguiente paso.
         </p>
       </div>
 

@@ -49,6 +49,18 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
     fetchPaquetes()
   }, [])
 
+  // Filtrar paquetes según el tipo de artista
+  // Si es escultura → solo paquetes 3D
+  // Si NO es escultura → solo paquetes 2D
+  const esArtista3D = formData.categoria === 'escultura'
+  const paquetesFiltrados = paquetes.filter(paquete => {
+    if (esArtista3D) {
+      return paquete.tipo === '3D'
+    } else {
+      return paquete.tipo === '2D'
+    }
+  })
+
   const handleSelectPaquete = (paqueteId) => {
     updateFormData({ paquete_id: paqueteId })
     setSubStep('layout')
@@ -124,10 +136,31 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
             color: COLORS.cream,
             opacity: 0.9,
             fontFamily: FONTS.body,
-            fontSize: '16px'
+            fontSize: '16px',
+            marginBottom: '8px'
           }}>
             Selecciona el paquete que mejor se adapte a tu propuesta artística
           </p>
+          <div style={{
+            background: 'rgba(244, 237, 228, 0.15)',
+            borderLeft: `4px solid ${COLORS.cream}`,
+            padding: '12px 16px',
+            borderRadius: '0 8px 8px 0',
+            maxWidth: '600px',
+            margin: '0 auto'
+          }}>
+            <p style={{
+              color: COLORS.cream,
+              fontFamily: FONTS.body,
+              fontSize: '14px',
+              margin: 0,
+              lineHeight: '1.6'
+            }}>
+              {esArtista3D
+                ? '📦 Como artista de Escultura, solo puedes seleccionar paquetes 3D (espacio de base/piso para obras tridimensionales).'
+                : '🎨 Solo puedes seleccionar paquetes 2D (espacio de pared para obras bidimensionales).'}
+            </p>
+          </div>
         </div>
 
         {isLoading ? (
@@ -206,7 +239,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
               flexDirection: 'column',
               gap: '16px'
             }}>
-              {paquetes.map((paquete) => (
+              {paquetesFiltrados.map((paquete) => (
                 <button
                   key={paquete.id}
                   onClick={() => handlePaqueteClick(paquete)}
@@ -289,7 +322,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
                   fontSize: '14px',
                   color: COLORS.gray
                 }}>
-                  Metros lineales:
+                  {selectedPaquetePreview.tipo === '3D' ? 'Metros cuadrados:' : 'Metros lineales:'}
                 </span>
                 <span style={{
                   fontFamily: FONTS.display,
@@ -298,7 +331,9 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
                   color: COLORS.red,
                   marginLeft: '8px'
                 }}>
-                  {selectedPaquetePreview.metros_lineales}m
+                  {selectedPaquetePreview.tipo === '3D'
+                    ? `${selectedPaquetePreview.metros_cuadrados}m²`
+                    : `${selectedPaquetePreview.metros_lineales}m`}
                 </span>
               </div>
               <div style={{
