@@ -182,6 +182,12 @@ export const fasesApi = {
   inscribirArtistas: (id, artistaIds) =>
     api.post(`/fases/${id}/artistas`, { artista_ids: artistaIds }),
 
+  toggleInscripciones: (id, abrir) =>
+    api.put(`/fases/${id}/toggle-inscripciones`, { abrir }),
+
+  toggleVotaciones: (id, abrir) =>
+    api.put(`/fases/${id}/toggle-votaciones`, { abrir }),
+
   delete: (id) =>
     api.delete(`/fases/${id}`)
 }
