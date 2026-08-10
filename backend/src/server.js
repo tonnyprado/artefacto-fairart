@@ -12,6 +12,7 @@ dotenv.config()
 // Importar rutas
 import authRoutes from './routes/auth.routes.js'
 import artistasRoutes from './routes/artistas.routes.js'
+import edicionesRoutes from './routes/ediciones.routes.js'
 import fasesRoutes from './routes/fases.routes.js'
 import curadoresRoutes from './routes/curadores.routes.js'
 import votacionesRoutes from './routes/votaciones.routes.js'
@@ -102,6 +103,7 @@ app.get('/health', (req, res) => {
 // Rutas de la API
 app.use('/api/auth', authRoutes)
 app.use('/api/artistas', artistasRoutes)
+app.use('/api/ediciones', edicionesRoutes)
 app.use('/api/fases', fasesRoutes)
 app.use('/api/curadores', curadoresRoutes)
 app.use('/api/votaciones', votacionesRoutes)

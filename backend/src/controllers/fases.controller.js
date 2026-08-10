@@ -7,19 +7,32 @@ import {
   fases,
   artistas_fases,
   votaciones,
+  curadores,
   getNextId,
   now
 } from '../data/mockData.js'
 
 /**
  * GET /api/fases
- * Obtener todas las fases
+ * Obtener todas las fases con estadísticas calculadas
  */
 export const getAllFases = async (req, res) => {
   try {
+    // Calcular estadísticas para cada fase si es necesario
+    const fasesConStats = fases.map(fase => {
+      const artistasFase = artistas_fases.filter(af => af.fase_id === fase.id)
+      const votacionesFase = votaciones.filter(v => v.fase_id === fase.id)
+
+      return {
+        ...fase,
+        total_inscritos: artistasFase.length,
+        total_votos: votacionesFase.length
+      }
+    })
+
     res.json({
       success: true,
-      data: fases
+      data: fasesConStats
     })
   } catch (error) {
     res.status(500).json({
@@ -170,8 +183,107 @@ export const updateFase = async (req, res) => {
 }
 
 /**
+ * PUT /api/fases/:id/inscripciones
+ * Toggle inscripciones para una fase (Solo admin)
+ */
+export const toggleInscripciones = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { abiertas } = req.body
+    const faseIndex = fases.findIndex(f => f.id === parseInt(id))
+
+    if (faseIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        error: 'Fase no encontrada'
+      })
+    }
+
+    if (fases[faseIndex].finalizada) {
+      return res.status(400).json({
+        success: false,
+        error: 'No se pueden modificar inscripciones para una fase finalizada'
+      })
+    }
+
+    // Si se están abriendo inscripciones, cerrar las de otras fases
+    if (abiertas) {
+      fases.forEach((f, idx) => {
+        if (idx !== faseIndex) {
+          fases[idx].inscripciones_abiertas = false
+        }
+      })
+    }
+
+    fases[faseIndex].inscripciones_abiertas = abiertas
+    fases[faseIndex].updated_at = now()
+
+    res.json({
+      success: true,
+      data: fases[faseIndex],
+      message: `Inscripciones ${abiertas ? 'abiertas' : 'cerradas'} exitosamente`
+    })
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Error al actualizar inscripciones'
+    })
+  }
+}
+
+/**
+ * PUT /api/fases/:id/votaciones
+ * Toggle votaciones para una fase (Solo admin)
+ */
+export const toggleVotaciones = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { abiertas } = req.body
+    const faseIndex = fases.findIndex(f => f.id === parseInt(id))
+
+    if (faseIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        error: 'Fase no encontrada'
+      })
+    }
+
+    if (fases[faseIndex].finalizada) {
+      return res.status(400).json({
+        success: false,
+        error: 'No se pueden abrir votaciones para una fase finalizada'
+      })
+    }
+
+    // Si se están abriendo votaciones, cerrar las de otras fases
+    if (abiertas) {
+      fases.forEach((f, idx) => {
+        if (idx !== faseIndex) {
+          fases[idx].votaciones_abiertas = false
+        }
+      })
+    }
+
+    fases[faseIndex].votaciones_abiertas = abiertas
+    fases[faseIndex].updated_at = now()
+
+    res.json({
+      success: true,
+      data: fases[faseIndex],
+      message: `Votaciones ${abiertas ? 'abiertas' : 'cerradas'} exitosamente`
+    })
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Error al actualizar votaciones'
+    })
+  }
+}
+
+/**
  * PUT /api/fases/:id/abrir-votaciones
  * Abrir votaciones para una fase (Solo admin)
+ * @deprecated Usar toggleVotaciones en su lugar
  */
 export const abrirVotaciones = async (req, res) => {
   try {

@@ -9,6 +9,8 @@ import {
   getFaseById,
   createFase,
   updateFase,
+  toggleInscripciones,
+  toggleVotaciones,
   abrirVotaciones,
   cerrarVotaciones,
   finalizarFase,
@@ -28,6 +30,8 @@ router.get('/:id/artistas', verifyToken, isAdminOrCurador, getArtistasFase)
 // Rutas de admin
 router.post('/', verifyToken, isAdmin, createFase)
 router.put('/:id', verifyToken, isAdmin, updateFase)
+router.put('/:id/inscripciones', verifyToken, isAdmin, toggleInscripciones)
+router.put('/:id/votaciones', verifyToken, isAdmin, toggleVotaciones)
 router.put('/:id/abrir-votaciones', verifyToken, isAdmin, abrirVotaciones)
 router.put('/:id/cerrar-votaciones', verifyToken, isAdmin, cerrarVotaciones)
 router.put('/:id/finalizar', verifyToken, isAdmin, finalizarFase)

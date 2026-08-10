@@ -152,6 +152,32 @@ export const artistasApi = {
 }
 
 /**
+ * Ediciones API
+ */
+export const edicionesApi = {
+  getAll: () =>
+    api.get('/ediciones'),
+
+  getById: (id) =>
+    api.get(`/ediciones/${id}`),
+
+  getActiva: () =>
+    api.get('/ediciones/activa'),
+
+  getFases: (id) =>
+    api.get(`/ediciones/${id}/fases`),
+
+  create: (data) =>
+    api.post('/ediciones', data),
+
+  update: (id, data) =>
+    api.put(`/ediciones/${id}`, data),
+
+  delete: (id) =>
+    api.delete(`/ediciones/${id}`)
+}
+
+/**
  * Fases API
  */
 export const fasesApi = {
@@ -183,10 +209,10 @@ export const fasesApi = {
     api.post(`/fases/${id}/artistas`, { artista_ids: artistaIds }),
 
   toggleInscripciones: (id, abrir) =>
-    api.put(`/fases/${id}/toggle-inscripciones`, { abrir }),
+    api.put(`/fases/${id}/inscripciones`, { abiertas: abrir }),
 
   toggleVotaciones: (id, abrir) =>
-    api.put(`/fases/${id}/toggle-votaciones`, { abrir }),
+    api.put(`/fases/${id}/votaciones`, { abiertas: abrir }),
 
   delete: (id) =>
     api.delete(`/fases/${id}`)

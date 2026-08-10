@@ -14,7 +14,8 @@ import bcrypt from 'bcryptjs'
 // Simulamos IDs autoincrementales
 let nextUsuarioId = 4
 let nextArtistaId = 6
-let nextFaseId = 3
+let nextEdicionId = 2
+let nextFaseId = 5
 let nextCuradorId = 3
 let nextVotacionId = 7
 let nextArtistaFaseId = 7
@@ -190,31 +191,108 @@ export const artistas = [
   }
 ]
 
+// EDICIONES
+export const ediciones = [
+  {
+    id: 1,
+    nombre: 'ARTEFACT 2027',
+    anio: 2027,
+    descripcion: 'Primera edición de ARTEFACT - Feria de Arte Contemporáneo',
+    fecha_inicio: '2027-01-15T00:00:00Z',
+    fecha_fin: '2027-03-31T23:59:59Z',
+    evento_id: 1,
+    activa: true,
+    created_at: '2027-01-01T10:00:00Z',
+    updated_at: '2027-01-01T10:00:00Z'
+  }
+]
+
 // FASES
 export const fases = [
   {
     id: 1,
+    edicion_id: 1,
     nombre: 'Fase 1 - Selección Inicial',
     descripcion: 'Primera fase de selección de artistas para ARTEFACT 2027',
-    fecha_inicio: '2027-02-01T00:00:00Z',
-    fecha_fin: '2027-02-15T23:59:59Z',
+    tipo: 'fase',
+    numero_fase: 1,
+    fecha_inicio_inscripciones: '2027-01-15T00:00:00Z',
+    fecha_fin_inscripciones: '2027-01-31T23:59:59Z',
+    fecha_inicio_votaciones: '2027-02-01T00:00:00Z',
+    fecha_fin_votaciones: '2027-02-15T23:59:59Z',
+    inscripciones_abiertas: false,
     votaciones_abiertas: false,
     finalizada: true,
     porcentaje_seleccion: 20,
+    total_inscritos: 4,
+    total_seleccionados: 2,
+    total_curadores: 2,
     created_at: '2027-01-25T10:00:00Z',
     updated_at: '2027-02-16T10:00:00Z'
   },
   {
     id: 2,
-    nombre: 'Fase 2 - Selección Final',
+    edicion_id: 1,
+    nombre: 'Fase 2 - Selección Intermedia',
     descripcion: 'Segunda fase de selección para artistas que pasaron la Fase 1',
-    fecha_inicio: '2027-02-16T00:00:00Z',
-    fecha_fin: '2027-02-28T23:59:59Z',
+    tipo: 'fase',
+    numero_fase: 2,
+    fecha_inicio_inscripciones: null,
+    fecha_fin_inscripciones: null,
+    fecha_inicio_votaciones: '2027-02-16T00:00:00Z',
+    fecha_fin_votaciones: '2027-02-28T23:59:59Z',
+    inscripciones_abiertas: false,
     votaciones_abiertas: true,
     finalizada: false,
     porcentaje_seleccion: 20,
+    total_inscritos: 2,
+    total_seleccionados: 0,
+    total_curadores: 2,
     created_at: '2027-02-01T10:00:00Z',
     updated_at: '2027-02-16T10:00:00Z'
+  },
+  {
+    id: 3,
+    edicion_id: 1,
+    nombre: 'Fase 3 - Selección Final',
+    descripcion: 'Tercera y última fase de selección',
+    tipo: 'fase',
+    numero_fase: 3,
+    fecha_inicio_inscripciones: null,
+    fecha_fin_inscripciones: null,
+    fecha_inicio_votaciones: '2027-03-01T00:00:00Z',
+    fecha_fin_votaciones: '2027-03-15T23:59:59Z',
+    inscripciones_abiertas: false,
+    votaciones_abiertas: false,
+    finalizada: false,
+    porcentaje_seleccion: 20,
+    total_inscritos: 0,
+    total_seleccionados: 0,
+    total_curadores: 2,
+    created_at: '2027-02-01T10:00:00Z',
+    updated_at: '2027-02-01T10:00:00Z'
+  },
+  {
+    id: 4,
+    edicion_id: 1,
+    nombre: 'Concurso Final',
+    descripcion: 'Concurso final para seleccionar a los ganadores de ARTEFACT 2027',
+    tipo: 'concurso',
+    numero_fase: null,
+    fecha_inicio_inscripciones: null,
+    fecha_fin_inscripciones: null,
+    fecha_inicio_votaciones: '2027-03-16T00:00:00Z',
+    fecha_fin_votaciones: '2027-03-30T23:59:59Z',
+    inscripciones_abiertas: false,
+    votaciones_abiertas: false,
+    finalizada: false,
+    porcentaje_seleccion: null,
+    max_artistas_seleccionados: 10,
+    total_inscritos: 0,
+    total_seleccionados: 0,
+    total_curadores: 2,
+    created_at: '2027-02-01T10:00:00Z',
+    updated_at: '2027-02-01T10:00:00Z'
   }
 ]
 
@@ -540,6 +618,7 @@ export const mensajesContacto = []
 export const getNextId = {
   usuario: () => nextUsuarioId++,
   artista: () => nextArtistaId++,
+  edicion: () => nextEdicionId++,
   fase: () => nextFaseId++,
   curador: () => nextCuradorId++,
   votacion: () => nextVotacionId++,
