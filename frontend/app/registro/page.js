@@ -13,6 +13,7 @@ import Step4Confirmacion from '@/components/registro/Step4Confirmacion'
 import Step5Paquetes from '@/components/registro/Step5Paquetes'
 import { usePageTransition } from '@/components/artefacto/TransitionLink'
 import CustomCursor from '@/components/artefacto/CustomCursor'
+import MobileBlocker from '@/components/registro/MobileBlocker'
 
 const COLORS = {
   red: '#B83030',
@@ -772,7 +773,7 @@ export default function RegistroPage() {
 
 
   return (
-    <>
+    <MobileBlocker>
       <CustomCursor />
       <div style={{
         minHeight: '100vh',
@@ -1143,6 +1144,6 @@ export default function RegistroPage() {
         }
       `}</style>
       </div>
-    </>
+    </MobileBlocker>
   )
 }
