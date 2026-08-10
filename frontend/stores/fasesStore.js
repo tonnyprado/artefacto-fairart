@@ -85,6 +85,22 @@ export const useFasesStore = create((set, get) => ({
   },
 
   /**
+   * Obtener fase con inscripciones abiertas
+   */
+  getFaseConInscripcionesAbiertas: () => {
+    return get().fases.find(f => f.inscripciones_abiertas && !f.finalizada)
+  },
+
+  /**
+   * Obtener cualquier fase activa (inscripciones o votaciones abiertas)
+   */
+  getCualquierFaseActiva: () => {
+    return get().fases.find(f =>
+      (f.inscripciones_abiertas || f.votaciones_abiertas) && !f.finalizada
+    )
+  },
+
+  /**
    * Obtener fases finalizadas
    */
   getFasesFinalizadas: () => {

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import Button from '@/components/ui/Button'
+import ActivePhaseBanner from './ActivePhaseBanner'
 
 /**
  * Hero Section del Landing Page
@@ -86,6 +87,9 @@ export default function Hero() {
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 py-20 text-center">
         <div className="max-w-4xl mx-auto">
+          {/* Banner de Fase Activa */}
+          <ActivePhaseBanner />
+
           {/* Badge */}
           <div className="inline-flex items-center px-4 py-2 bg-red-600/20 border border-red-500/30 rounded-full mb-8">
             <span className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse" />
