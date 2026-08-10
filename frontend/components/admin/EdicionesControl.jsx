@@ -61,7 +61,6 @@ export default function EdicionesControl() {
     fecha_fin_inscripciones: '',
     fecha_inicio_votaciones: '',
     fecha_fin_votaciones: '',
-    porcentaje_seleccion: 20,
     max_artistas_seleccionados: null
   })
 
@@ -105,7 +104,6 @@ export default function EdicionesControl() {
         fecha_fin_inscripciones: '',
         fecha_inicio_votaciones: '',
         fecha_fin_votaciones: '',
-        porcentaje_seleccion: 20,
         max_artistas_seleccionados: null
       })
       fetchFases()
@@ -491,21 +489,6 @@ export default function EdicionesControl() {
 
                                 <div>
                                   <label className="block text-xs font-medium text-gray-700 mb-1">
-                                    % Selección
-                                  </label>
-                                  <input
-                                    type="number"
-                                    value={faseFormData.porcentaje_seleccion}
-                                    onChange={(e) => setFaseFormData({ ...faseFormData, porcentaje_seleccion: parseInt(e.target.value) })}
-                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                                    min="1"
-                                    max="100"
-                                    required
-                                  />
-                                </div>
-
-                                <div>
-                                  <label className="block text-xs font-medium text-gray-700 mb-1">
                                     Inicio Inscripciones
                                   </label>
                                   <input
@@ -623,7 +606,7 @@ export default function EdicionesControl() {
                                 </Badge>
                               </div>
 
-                              <div className="grid grid-cols-4 gap-2 mb-3 ml-10">
+                              <div className="grid grid-cols-3 gap-2 mb-3 ml-10">
                                 <div className="bg-gray-50 p-2 rounded">
                                   <p className="text-xs text-gray-500">Inscritos</p>
                                   <p className="text-lg font-bold text-gray-900">{fase.total_inscritos || 0}</p>
@@ -635,12 +618,6 @@ export default function EdicionesControl() {
                                 <div className="bg-gray-50 p-2 rounded">
                                   <p className="text-xs text-gray-500">Curadores</p>
                                   <p className="text-lg font-bold text-gray-900">{fase.total_curadores || 0}</p>
-                                </div>
-                                <div className="bg-gray-50 p-2 rounded">
-                                  <p className="text-xs text-gray-500">{fase.tipo === 'concurso' ? 'Ganadores' : '% Sel.'}</p>
-                                  <p className="text-lg font-bold text-gray-900">
-                                    {fase.tipo === 'concurso' ? fase.max_artistas_seleccionados : `${fase.porcentaje_seleccion}%`}
-                                  </p>
                                 </div>
                               </div>
 

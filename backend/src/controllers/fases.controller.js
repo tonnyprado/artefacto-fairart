@@ -87,30 +87,44 @@ export const getFaseById = async (req, res) => {
 export const createFase = async (req, res) => {
   try {
     const {
+      edicion_id,
       nombre,
       descripcion,
-      fecha_inicio,
-      fecha_fin,
-      porcentaje_seleccion = 20
+      tipo = 'fase',
+      numero_fase,
+      fecha_inicio_inscripciones,
+      fecha_fin_inscripciones,
+      fecha_inicio_votaciones,
+      fecha_fin_votaciones,
+      max_artistas_seleccionados
     } = req.body
 
     // Validaciones
-    if (!nombre || !fecha_inicio || !fecha_fin) {
+    if (!nombre || !fecha_inicio_votaciones || !fecha_fin_votaciones) {
       return res.status(400).json({
         success: false,
-        error: 'Nombre, fecha_inicio y fecha_fin son requeridos'
+        error: 'Nombre, fecha_inicio_votaciones y fecha_fin_votaciones son requeridos'
       })
     }
 
     const nuevaFase = {
       id: getNextId.fase(),
+      edicion_id: edicion_id || null,
       nombre,
       descripcion: descripcion || '',
-      fecha_inicio,
-      fecha_fin,
+      tipo,
+      numero_fase: tipo === 'fase' ? numero_fase : null,
+      fecha_inicio_inscripciones: fecha_inicio_inscripciones || null,
+      fecha_fin_inscripciones: fecha_fin_inscripciones || null,
+      fecha_inicio_votaciones,
+      fecha_fin_votaciones,
+      inscripciones_abiertas: false,
       votaciones_abiertas: false,
       finalizada: false,
-      porcentaje_seleccion,
+      max_artistas_seleccionados: tipo === 'concurso' ? max_artistas_seleccionados : null,
+      total_inscritos: 0,
+      total_seleccionados: 0,
+      total_curadores: curadores.length,
       created_at: now(),
       updated_at: now()
     }
