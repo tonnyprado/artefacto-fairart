@@ -1,8 +1,15 @@
-// TEMPORAL: Usando datos hardcodeados en lugar de PostgreSQL
-// TODO: Reemplazar con queries a la base de datos cuando se configure PostgreSQL
+/**
+ * Controlador de Autenticación
+ * Maneja login, registro y verificación de tokens
+ * Usa PostgreSQL si está disponible, sino usa mockData
+ */
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+import pool from '../config/database.js'
 import { usuarios, curadores, getNextId, now, hashPassword, comparePassword } from '../data/mockData.js'
+
+// Helper para determinar si usamos DB o mockData
+const useDatabase = () => !!pool
 
 /**
  * Registro de nuevo usuario
@@ -78,7 +85,75 @@ export const login = async (req, res) => {
       })
     }
 
-    // Buscar usuario
+    if (useDatabase()) {
+      // Buscar usuario en PostgreSQL
+      const userResult = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email])
+
+      if (userResult.rows.length === 0) {
+        return res.status(401).json({
+          error: 'Credenciales inválidas'
+        })
+      }
+
+      const user = userResult.rows[0]
+
+      // Verificar contraseña
+      const isValidPassword = await bcrypt.compare(password, user.password)
+
+      if (!isValidPassword) {
+        return res.status(401).json({
+          error: 'Credenciales inválidas'
+        })
+      }
+
+      // Si es curador, buscar su curadorId
+      let curadorId = null
+      if (user.role === 'curador') {
+        const curadorResult = await pool.query(
+          'SELECT id FROM curadores WHERE usuario_id = $1',
+          [user.id]
+        )
+        if (curadorResult.rows.length > 0) {
+          curadorId = curadorResult.rows[0].id
+        }
+      }
+
+      // Generar token
+      const tokenPayload = {
+        id: user.id,
+        email: user.email,
+        role: user.role
+      }
+
+      if (curadorId) {
+        tokenPayload.curadorId = curadorId
+      }
+
+      const token = jwt.sign(
+        tokenPayload,
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRES_IN }
+      )
+
+      const userData = {
+        id: user.id,
+        email: user.email,
+        nombre: user.nombre,
+        role: user.role
+      }
+
+      if (curadorId) {
+        userData.curadorId = curadorId
+      }
+
+      return res.json({
+        message: 'Login exitoso',
+        user: userData,
+        token
+      })
+    }
+
+    // Fallback a mockData
     const user = usuarios.find(u => u.email === email)
 
     if (!user) {
@@ -157,7 +232,46 @@ export const verifyToken = async (req, res) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
-    // Buscar usuario actualizado
+    if (useDatabase()) {
+      // Buscar usuario en PostgreSQL
+      const userResult = await pool.query('SELECT * FROM usuarios WHERE id = $1', [decoded.id])
+
+      if (userResult.rows.length === 0) {
+        return res.status(404).json({ error: 'Usuario no encontrado' })
+      }
+
+      const user = userResult.rows[0]
+
+      // Si es curador, buscar su curadorId
+      let curadorId = null
+      if (user.role === 'curador') {
+        const curadorResult = await pool.query(
+          'SELECT id FROM curadores WHERE usuario_id = $1',
+          [user.id]
+        )
+        if (curadorResult.rows.length > 0) {
+          curadorId = curadorResult.rows[0].id
+        }
+      }
+
+      const userData = {
+        id: user.id,
+        email: user.email,
+        nombre: user.nombre,
+        role: user.role
+      }
+
+      if (curadorId) {
+        userData.curadorId = curadorId
+      }
+
+      return res.json({
+        valid: true,
+        user: userData
+      })
+    }
+
+    // Fallback a mockData
     const user = usuarios.find(u => u.id === decoded.id)
 
     if (!user) {
