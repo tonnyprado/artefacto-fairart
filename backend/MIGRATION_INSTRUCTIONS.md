@@ -1,5 +1,11 @@
 # 🚀 Migración a PostgreSQL en Railway
 
+## ⚠️ IMPORTANTE: Ejecutar migraciones en ORDEN
+
+Hay 2 migraciones que deben ejecutarse en este orden:
+1. `001_ediciones_fases.sql` - Crea ediciones, fases, y artistas_fases
+2. `002_artistas.sql` - Crea artistas y obras
+
 ## Paso 1: Verificar conexión a Railway PostgreSQL
 
 1. Entra a tu proyecto en Railway
@@ -15,7 +21,7 @@ DATABASE_URL=postgresql://user:pass@host:port/database
 NODE_ENV=production
 ```
 
-## Paso 3: Ejecutar la migración
+## Paso 3: Ejecutar las migraciones
 
 ### Opción A: Desde Railway CLI (Recomendado)
 
@@ -29,15 +35,22 @@ railway login
 # 3. Vincula el proyecto
 railway link
 
-# 4. Ejecuta la migración
+# 4. Ejecuta PRIMERA migración (ediciones y fases)
 railway run psql -f migrations/001_ediciones_fases.sql
+
+# 5. Ejecuta SEGUNDA migración (artistas y obras)
+railway run psql -f migrations/002_artistas.sql
 ```
 
 ### Opción B: Desde psql local
 
 ```bash
 # Usa la DATABASE_URL de Railway
+# PRIMERA migración
 psql "postgresql://user:pass@host:port/database" -f migrations/001_ediciones_fases.sql
+
+# SEGUNDA migración
+psql "postgresql://user:pass@host:port/database" -f migrations/002_artistas.sql
 ```
 
 ### Opción C: Desde Railway Dashboard
@@ -47,10 +60,12 @@ psql "postgresql://user:pass@host:port/database" -f migrations/001_ediciones_fas
 3. Click en "Query"
 4. Copia y pega TODO el contenido de `migrations/001_ediciones_fases.sql`
 5. Ejecuta
+6. Luego copia y pega TODO el contenido de `migrations/002_artistas.sql`
+7. Ejecuta
 
 ## Paso 4: Verificar que funcionó
 
-Ejecuta este query en Railway:
+Ejecuta estos queries en Railway:
 
 ```sql
 -- Debe mostrar 1 edición
@@ -58,6 +73,15 @@ SELECT * FROM ediciones;
 
 -- Debe mostrar 4 fases (3 fases + 1 concurso)
 SELECT * FROM fases;
+
+-- Debe mostrar las tablas de artistas (vacías al inicio)
+SELECT * FROM artistas;
+SELECT * FROM obras;
+
+-- Verificar todas las tablas creadas
+SELECT table_name FROM information_schema.tables
+WHERE table_schema = 'public'
+ORDER BY table_name;
 ```
 
 ## Paso 5: Actualizar el backend para usar PostgreSQL

@@ -1,8 +1,10 @@
 /**
  * Controlador de Artistas
  * Maneja la lógica de negocio para los artistas
+ * Usa PostgreSQL si está disponible, sino usa mockData
  */
 
+import pool from '../config/database.js'
 import {
   artistas,
   artistas_fases,
@@ -10,6 +12,9 @@ import {
   getNextId,
   now
 } from '../data/mockData.js'
+
+// Helper para determinar si usamos DB o mockData
+const useDatabase = () => !!pool
 
 /**
  * GET /api/artistas
