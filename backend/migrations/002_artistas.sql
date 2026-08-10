@@ -17,6 +17,7 @@ CREATE TABLE artistas (
   email VARCHAR(255) UNIQUE NOT NULL,
   telefono VARCHAR(50),
   fecha_nacimiento DATE,
+  
   ciudad VARCHAR(255),
   pais VARCHAR(255),
   categoria VARCHAR(100),

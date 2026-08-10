@@ -31,25 +31,71 @@ export const getAllArtistas = async (req, res) => {
       offset = 0
     } = req.query
 
+    if (useDatabase()) {
+      // Construir query con filtros
+      let query = 'SELECT * FROM artistas WHERE 1=1'
+      const params = []
+      let paramCount = 1
+
+      if (categoria) {
+        query += ` AND categoria = $${paramCount}`
+        params.push(categoria)
+        paramCount++
+      }
+
+      if (aprobado !== undefined) {
+        query += ` AND aprobado = $${paramCount}`
+        params.push(aprobado === 'true')
+        paramCount++
+      }
+
+      if (estado_registro) {
+        query += ` AND estado_registro = $${paramCount}`
+        params.push(estado_registro)
+        paramCount++
+      }
+
+      if (search) {
+        query += ` AND (nombre ILIKE $${paramCount} OR apellido ILIKE $${paramCount} OR email ILIKE $${paramCount} OR bio ILIKE $${paramCount})`
+        params.push(`%${search}%`)
+        paramCount++
+      }
+
+      // Count total antes de paginación
+      const countQuery = query.replace('SELECT *', 'SELECT COUNT(*)')
+      const countResult = await pool.query(countQuery, params)
+      const total = parseInt(countResult.rows[0].count)
+
+      // Agregar ordenamiento y paginación
+      query += ' ORDER BY created_at DESC'
+      query += ` LIMIT $${paramCount} OFFSET $${paramCount + 1}`
+      params.push(parseInt(limit), parseInt(offset))
+
+      const result = await pool.query(query, params)
+
+      return res.json({
+        success: true,
+        data: result.rows,
+        total: total
+      })
+    }
+
+    // Fallback a mockData
     let filteredArtistas = [...artistas]
 
-    // Filtrar por categoría
     if (categoria) {
       filteredArtistas = filteredArtistas.filter(a => a.categoria === categoria)
     }
 
-    // Filtrar por aprobado
     if (aprobado !== undefined) {
       const isAprobado = aprobado === 'true'
       filteredArtistas = filteredArtistas.filter(a => a.aprobado === isAprobado)
     }
 
-    // Filtrar por estado de registro
     if (estado_registro) {
       filteredArtistas = filteredArtistas.filter(a => a.estado_registro === estado_registro)
     }
 
-    // Filtrar por búsqueda (nombre, apellido, email)
     if (search) {
       const searchLower = search.toLowerCase()
       filteredArtistas = filteredArtistas.filter(a =>
@@ -60,10 +106,8 @@ export const getAllArtistas = async (req, res) => {
       )
     }
 
-    // Ordenar por fecha de creación (más recientes primero)
     filteredArtistas.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
 
-    // Paginación
     const startIndex = parseInt(offset)
     const endIndex = startIndex + parseInt(limit)
     const paginatedArtistas = filteredArtistas.slice(startIndex, endIndex)
@@ -89,6 +133,62 @@ export const getAllArtistas = async (req, res) => {
 export const getArtistaById = async (req, res) => {
   try {
     const { id } = req.params
+
+    if (useDatabase()) {
+      // Obtener artista con fases y votos
+      const artistaResult = await pool.query('SELECT * FROM artistas WHERE id = $1', [id])
+
+      if (artistaResult.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Artista no encontrado'
+        })
+      }
+
+      const artista = artistaResult.rows[0]
+
+      // Obtener fases en las que participa
+      const fasesResult = await pool.query(
+        'SELECT fase_id FROM artistas_fases WHERE artista_id = $1',
+        [id]
+      )
+      const fasesArtista = fasesResult.rows.map(row => row.fase_id)
+
+      // Contar votos
+      const votosResult = await pool.query(
+        'SELECT COUNT(*) as total FROM votaciones WHERE artista_id = $1',
+        [id]
+      )
+      const totalVotos = parseInt(votosResult.rows[0].total)
+
+      // Obtener obras del artista
+      const obrasResult = await pool.query(
+        'SELECT * FROM obras WHERE artista_id = $1 ORDER BY created_at DESC',
+        [id]
+      )
+
+      return res.json({
+        success: true,
+        data: {
+          ...artista,
+          redes_sociales: {
+            instagram: artista.instagram,
+            facebook: artista.facebook,
+            website: artista.website
+          },
+          documentos: {
+            cv_url: artista.cv_url,
+            portfolio_url: artista.portfolio_url,
+            identificacion_url: artista.identificacion_url,
+            portfolio_images: obrasResult.rows
+          },
+          fases: fasesArtista,
+          total_votos: totalVotos
+        }
+      })
+    }
+
+    // Fallback a mockData
     const artista = artistas.find(a => a.id === parseInt(id))
 
     if (!artista) {
@@ -156,6 +256,110 @@ export const createArtista = async (req, res) => {
       })
     }
 
+    if (useDatabase()) {
+      // Verificar si el email ya existe
+      const emailCheck = await pool.query('SELECT id FROM artistas WHERE email = $1', [email])
+      if (emailCheck.rows.length > 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'El email ya está registrado'
+        })
+      }
+
+      // Parsear layout_canvas_data si viene como string
+      let parsedLayoutData = {}
+      if (layout_canvas_data) {
+        try {
+          parsedLayoutData = typeof layout_canvas_data === 'string'
+            ? JSON.parse(layout_canvas_data)
+            : layout_canvas_data
+        } catch (e) {
+          console.error('Error parsing layout_canvas_data:', e)
+        }
+      }
+
+      // Extraer redes sociales
+      const instagram = redes_sociales?.instagram || null
+      const facebook = redes_sociales?.facebook || null
+      const website = redes_sociales?.website || null
+
+      // Extraer documentos
+      const cv_url = documentos?.cv_url || null
+      const portfolio_url = documentos?.portfolio_url || null
+      const identificacion_url = documentos?.identificacion_url || null
+
+      // Insertar artista
+      const artistaResult = await pool.query(
+        `INSERT INTO artistas (
+          nombre, apellido, email, telefono, fecha_nacimiento,
+          ciudad, pais, categoria, bio, foto,
+          instagram, facebook, website,
+          cv_url, portfolio_url, identificacion_url,
+          paquete_id, layout_canvas_url, layout_canvas_data,
+          aprobado, estado_registro
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+        RETURNING *`,
+        [
+          nombre, apellido, email, telefono, fecha_nacimiento,
+          ciudad, pais, categoria, bio, foto,
+          instagram, facebook, website,
+          cv_url, portfolio_url, identificacion_url,
+          paquete_id ? parseInt(paquete_id) : null,
+          layout_canvas_url,
+          parsedLayoutData,
+          false, // aprobado
+          'pendiente' // estado_registro
+        ]
+      )
+
+      const nuevoArtista = artistaResult.rows[0]
+
+      // Insertar obras del portfolio si existen
+      const count = parseInt(portfolio_images_count) || 0
+      const obrasCreadas = []
+
+      if (count > 0) {
+        for (let i = 0; i < count; i++) {
+          const titulo = req.body[`portfolio_image_${i}_titulo`]
+          const alto_cm = req.body[`portfolio_image_${i}_alto_cm`]
+          const ancho_cm = req.body[`portfolio_image_${i}_ancho_cm`]
+          const imagen_url = req.body[`portfolio_image_${i}_url`] // URL viene del frontend
+
+          if (imagen_url) {
+            const obraResult = await pool.query(
+              `INSERT INTO obras (artista_id, titulo, imagen_url, alto_cm, ancho_cm)
+               VALUES ($1, $2, $3, $4, $5)
+               RETURNING *`,
+              [
+                nuevoArtista.id,
+                titulo || `Obra ${i + 1}`,
+                imagen_url,
+                parseFloat(alto_cm) || null,
+                parseFloat(ancho_cm) || null
+              ]
+            )
+            obrasCreadas.push(obraResult.rows[0])
+          }
+        }
+      }
+
+      return res.status(201).json({
+        success: true,
+        data: {
+          ...nuevoArtista,
+          redes_sociales: { instagram, facebook, website },
+          documentos: {
+            cv_url,
+            portfolio_url,
+            identificacion_url,
+            portfolio_images: obrasCreadas
+          }
+        },
+        message: 'Artista registrado exitosamente'
+      })
+    }
+
+    // Fallback a mockData
     // Verificar si el email ya existe
     const emailExistente = artistas.some(a => a.email === email)
     if (emailExistente) {
@@ -174,18 +378,17 @@ export const createArtista = async (req, res) => {
         const titulo = req.body[`portfolio_image_${i}_titulo`]
         const alto_cm = req.body[`portfolio_image_${i}_alto_cm`]
         const ancho_cm = req.body[`portfolio_image_${i}_ancho_cm`]
+        const imagen_url = req.body[`portfolio_image_${i}_url`]
 
-        // En mock data, simulamos la URL de Cloudinary
-        // TODO: Cuando se conecte Cloudinary real, aquí se subirá el archivo req.files[`portfolio_image_${i}`]
-        const mockImageUrl = `https://res.cloudinary.com/demo/image/upload/portfolio/obra_${i}_${Date.now()}.jpg`
-
-        portfolioImages.push({
-          id: `img-${Date.now()}-${i}`,
-          titulo: titulo || `Obra ${i + 1}`,
-          alto_cm: parseFloat(alto_cm) || 0,
-          ancho_cm: parseFloat(ancho_cm) || 0,
-          url: mockImageUrl
-        })
+        if (imagen_url) {
+          portfolioImages.push({
+            id: `img-${Date.now()}-${i}`,
+            titulo: titulo || `Obra ${i + 1}`,
+            alto_cm: parseFloat(alto_cm) || 0,
+            ancho_cm: parseFloat(ancho_cm) || 0,
+            url: imagen_url
+          })
+        }
       }
     }
 
@@ -268,6 +471,169 @@ export const updateArtista = async (req, res) => {
       estado_registro
     } = req.body
 
+    if (useDatabase()) {
+      // Verificar que el artista existe
+      const checkArtista = await pool.query('SELECT * FROM artistas WHERE id = $1', [id])
+      if (checkArtista.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Artista no encontrado'
+        })
+      }
+
+      const artistaActual = checkArtista.rows[0]
+
+      // Si se cambia el email, verificar que no esté en uso
+      if (email && email !== artistaActual.email) {
+        const emailCheck = await pool.query(
+          'SELECT id FROM artistas WHERE email = $1 AND id != $2',
+          [email, id]
+        )
+        if (emailCheck.rows.length > 0) {
+          return res.status(400).json({
+            success: false,
+            error: 'El email ya está en uso'
+          })
+        }
+      }
+
+      // Construir UPDATE dinámico
+      const updates = []
+      const values = []
+      let paramCount = 1
+
+      if (nombre !== undefined) {
+        updates.push(`nombre = $${paramCount}`)
+        values.push(nombre)
+        paramCount++
+      }
+      if (apellido !== undefined) {
+        updates.push(`apellido = $${paramCount}`)
+        values.push(apellido)
+        paramCount++
+      }
+      if (email !== undefined) {
+        updates.push(`email = $${paramCount}`)
+        values.push(email)
+        paramCount++
+      }
+      if (telefono !== undefined) {
+        updates.push(`telefono = $${paramCount}`)
+        values.push(telefono)
+        paramCount++
+      }
+      if (fecha_nacimiento !== undefined) {
+        updates.push(`fecha_nacimiento = $${paramCount}`)
+        values.push(fecha_nacimiento)
+        paramCount++
+      }
+      if (ciudad !== undefined) {
+        updates.push(`ciudad = $${paramCount}`)
+        values.push(ciudad)
+        paramCount++
+      }
+      if (pais !== undefined) {
+        updates.push(`pais = $${paramCount}`)
+        values.push(pais)
+        paramCount++
+      }
+      if (categoria !== undefined) {
+        updates.push(`categoria = $${paramCount}`)
+        values.push(categoria)
+        paramCount++
+      }
+      if (bio !== undefined) {
+        updates.push(`bio = $${paramCount}`)
+        values.push(bio)
+        paramCount++
+      }
+      if (foto !== undefined) {
+        updates.push(`foto = $${paramCount}`)
+        values.push(foto)
+        paramCount++
+      }
+      if (redes_sociales !== undefined) {
+        if (redes_sociales.instagram !== undefined) {
+          updates.push(`instagram = $${paramCount}`)
+          values.push(redes_sociales.instagram)
+          paramCount++
+        }
+        if (redes_sociales.facebook !== undefined) {
+          updates.push(`facebook = $${paramCount}`)
+          values.push(redes_sociales.facebook)
+          paramCount++
+        }
+        if (redes_sociales.website !== undefined) {
+          updates.push(`website = $${paramCount}`)
+          values.push(redes_sociales.website)
+          paramCount++
+        }
+      }
+      if (documentos !== undefined) {
+        if (documentos.cv_url !== undefined) {
+          updates.push(`cv_url = $${paramCount}`)
+          values.push(documentos.cv_url)
+          paramCount++
+        }
+        if (documentos.portfolio_url !== undefined) {
+          updates.push(`portfolio_url = $${paramCount}`)
+          values.push(documentos.portfolio_url)
+          paramCount++
+        }
+        if (documentos.identificacion_url !== undefined) {
+          updates.push(`identificacion_url = $${paramCount}`)
+          values.push(documentos.identificacion_url)
+          paramCount++
+        }
+      }
+      if (aprobado !== undefined) {
+        updates.push(`aprobado = $${paramCount}`)
+        values.push(aprobado)
+        paramCount++
+      }
+      if (estado_registro !== undefined) {
+        updates.push(`estado_registro = $${paramCount}`)
+        values.push(estado_registro)
+        paramCount++
+      }
+
+      updates.push(`updated_at = CURRENT_TIMESTAMP`)
+
+      if (updates.length === 1) {
+        // Solo updated_at, no hay cambios
+        return res.json({
+          success: true,
+          data: artistaActual,
+          message: 'No hay cambios que actualizar'
+        })
+      }
+
+      values.push(id)
+      const query = `UPDATE artistas SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING *`
+
+      const result = await pool.query(query, values)
+      const artistaActualizado = result.rows[0]
+
+      return res.json({
+        success: true,
+        data: {
+          ...artistaActualizado,
+          redes_sociales: {
+            instagram: artistaActualizado.instagram,
+            facebook: artistaActualizado.facebook,
+            website: artistaActualizado.website
+          },
+          documentos: {
+            cv_url: artistaActualizado.cv_url,
+            portfolio_url: artistaActualizado.portfolio_url,
+            identificacion_url: artistaActualizado.identificacion_url
+          }
+        },
+        message: 'Artista actualizado exitosamente'
+      })
+    }
+
+    // Fallback a mockData
     const artistaIndex = artistas.findIndex(a => a.id === parseInt(id))
 
     if (artistaIndex === -1) {
@@ -329,6 +695,31 @@ export const updateArtista = async (req, res) => {
 export const aprobarArtista = async (req, res) => {
   try {
     const { id } = req.params
+
+    if (useDatabase()) {
+      const result = await pool.query(
+        `UPDATE artistas
+         SET aprobado = true, estado_registro = 'aprobado', updated_at = CURRENT_TIMESTAMP
+         WHERE id = $1
+         RETURNING *`,
+        [id]
+      )
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Artista no encontrado'
+        })
+      }
+
+      return res.json({
+        success: true,
+        data: result.rows[0],
+        message: 'Artista aprobado exitosamente'
+      })
+    }
+
+    // Fallback a mockData
     const artistaIndex = artistas.findIndex(a => a.id === parseInt(id))
 
     if (artistaIndex === -1) {
@@ -363,6 +754,31 @@ export const aprobarArtista = async (req, res) => {
 export const rechazarArtista = async (req, res) => {
   try {
     const { id } = req.params
+
+    if (useDatabase()) {
+      const result = await pool.query(
+        `UPDATE artistas
+         SET aprobado = false, estado_registro = 'rechazado', updated_at = CURRENT_TIMESTAMP
+         WHERE id = $1
+         RETURNING *`,
+        [id]
+      )
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Artista no encontrado'
+        })
+      }
+
+      return res.json({
+        success: true,
+        data: result.rows[0],
+        message: 'Artista rechazado'
+      })
+    }
+
+    // Fallback a mockData
     const artistaIndex = artistas.findIndex(a => a.id === parseInt(id))
 
     if (artistaIndex === -1) {
@@ -397,6 +813,41 @@ export const rechazarArtista = async (req, res) => {
 export const deleteArtista = async (req, res) => {
   try {
     const { id } = req.params
+
+    if (useDatabase()) {
+      // Verificar que el artista existe
+      const checkArtista = await pool.query('SELECT id FROM artistas WHERE id = $1', [id])
+      if (checkArtista.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Artista no encontrado'
+        })
+      }
+
+      // Verificar si tiene votaciones
+      const votacionesCheck = await pool.query(
+        'SELECT COUNT(*) as total FROM votaciones WHERE artista_id = $1',
+        [id]
+      )
+      const tieneVotaciones = parseInt(votacionesCheck.rows[0].total) > 0
+
+      if (tieneVotaciones) {
+        return res.status(400).json({
+          success: false,
+          error: 'No se puede eliminar un artista con votaciones registradas'
+        })
+      }
+
+      // Eliminar artista (CASCADE eliminará obras y artistas_fases automáticamente)
+      await pool.query('DELETE FROM artistas WHERE id = $1', [id])
+
+      return res.json({
+        success: true,
+        message: 'Artista eliminado exitosamente'
+      })
+    }
+
+    // Fallback a mockData
     const artistaIndex = artistas.findIndex(a => a.id === parseInt(id))
 
     if (artistaIndex === -1) {
@@ -450,6 +901,24 @@ export const getArtistasByFase = async (req, res) => {
   try {
     const { fase_id } = req.params
 
+    if (useDatabase()) {
+      // JOIN para obtener artistas de la fase
+      const result = await pool.query(
+        `SELECT a.*
+         FROM artistas a
+         INNER JOIN artistas_fases af ON af.artista_id = a.id
+         WHERE af.fase_id = $1
+         ORDER BY a.created_at DESC`,
+        [fase_id]
+      )
+
+      return res.json({
+        success: true,
+        data: result.rows
+      })
+    }
+
+    // Fallback a mockData
     // Obtener IDs de artistas en la fase
     const artistaIds = artistas_fases
       .filter(af => af.fase_id === parseInt(fase_id))
