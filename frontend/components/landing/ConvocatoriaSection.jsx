@@ -1,8 +1,11 @@
 'use client'
 
+import { useEffect } from 'react'
 import Link from 'next/link'
 import Button from '@/components/ui/Button'
 import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
+import { useFasesStore } from '@/stores/fasesStore'
+import { useEdicionesStore } from '@/stores/edicionesStore'
 
 /**
  * Convocatoria Section
@@ -33,38 +36,53 @@ import Card, { CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
  */
 
 export default function ConvocatoriaSection() {
-  // HARDCODED: En producción, estos datos vendrán de la BDD
+  const { fases, fetchFases } = useFasesStore()
+  const { edicionActiva, fetchEdicionActiva } = useEdicionesStore()
+
+  useEffect(() => {
+    // Cargar fases y edición activa al montar
+    fetchFases()
+    fetchEdicionActiva()
+  }, [fetchFases, fetchEdicionActiva])
+
+  // Obtener fase con inscripciones abiertas
+  const faseConInscripcionesAbiertas = fases.find(
+    f => f.inscripciones_abiertas && !f.finalizada
+  )
+
+  // Verificar si hay inscripciones abiertas
+  const hayInscripcionesAbiertas = !!faseConInscripcionesAbiertas
+
+  // Obtener fases de la edición activa
+  const fasesEdicionActiva = edicionActiva
+    ? fases.filter(f => f.edicion_id === edicionActiva.id)
+    : fases
+
+  // Formatear fecha para mostrar periodo
+  const formatPeriodo = (fechaInicio, fechaFin) => {
+    if (!fechaInicio || !fechaFin) return 'Por confirmar'
+
+    const inicio = new Date(fechaInicio)
+    const fin = new Date(fechaFin)
+
+    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+
+    const mesInicio = meses[inicio.getMonth()]
+    const mesFin = meses[fin.getMonth()]
+    const anioFin = fin.getFullYear()
+
+    if (mesInicio === mesFin) {
+      return `${mesInicio} ${anioFin}`
+    }
+
+    return `${mesInicio} - ${mesFin} ${anioFin}`
+  }
+
+  // Datos estáticos (estos podrían venir de la BDD en el futuro)
   const convocatoriaData = {
-    isOpen: true, // Estado de inscripciones (vendrá de tabla fases)
-    title: 'Convocatoria Abierta',
+    title: hayInscripcionesAbiertas ? 'Convocatoria Abierta' : 'Próxima Convocatoria',
     description: 'Invitamos a artistas emergentes a formar parte de ARTEFACT 2027. Participa en nuestro proceso de selección por fases y comparte tu talento con coleccionistas y amantes del arte.',
-    pdfUrl: '/pdfs/Convocatoria_ARTEFACTO.pdf', // En producción: URL de Cloudinary
-    phases: [
-      {
-        name: 'Fase 1',
-        period: 'Agosto - Octubre 2026',
-        description: 'Primera ronda de selección',
-        inscriptionsOpen: true
-      },
-      {
-        name: 'Fase 2',
-        period: 'Octubre - Diciembre 2026',
-        description: 'Segunda ronda de selección',
-        inscriptionsOpen: false
-      },
-      {
-        name: 'Fase 3',
-        period: 'Diciembre 2026 - Enero 2027',
-        description: 'Tercera ronda de selección',
-        inscriptionsOpen: false
-      },
-      {
-        name: 'Concurso',
-        period: 'Enero 2027',
-        description: 'Concurso especial por invitación',
-        inscriptionsOpen: false
-      }
-    ],
+    pdfUrl: '/pdfs/Convocatoria_ARTEFACTO.pdf',
     requirements: [
       'Ser mayor de 18 años',
       'Obra original y de autoría propia',
@@ -88,12 +106,44 @@ export default function ConvocatoriaSection() {
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center px-4 py-2 bg-red-100 border border-red-200 rounded-full mb-4">
-            <span className="w-2 h-2 bg-red-600 rounded-full mr-2 animate-pulse" />
-            <span className="text-red-700 text-sm font-semibold uppercase">
-              {convocatoriaData.isOpen ? 'Inscripciones Abiertas' : 'Próximamente'}
-            </span>
-          </div>
+          {/* Banner destacado si hay inscripciones abiertas */}
+          {hayInscripcionesAbiertas && (
+            <div className="mb-6 inline-flex items-center px-8 py-4 bg-gradient-to-r from-green-600 to-green-500 rounded-2xl shadow-lg">
+              <svg
+                className="w-6 h-6 mr-3 text-white animate-pulse"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <div className="text-left">
+                <div className="text-white text-lg font-bold">
+                  {faseConInscripcionesAbiertas.tipo === 'concurso'
+                    ? 'CONCURSO FINAL - INSCRIPCIONES ABIERTAS'
+                    : `FASE ${faseConInscripcionesAbiertas.numero_fase} - INSCRIPCIONES ABIERTAS`
+                  }
+                </div>
+                <div className="text-green-100 text-sm">
+                  {faseConInscripcionesAbiertas.nombre}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Badge normal */}
+          {!hayInscripcionesAbiertas && (
+            <div className="inline-flex items-center px-4 py-2 bg-gray-100 border border-gray-200 rounded-full mb-4">
+              <span className="w-2 h-2 bg-gray-600 rounded-full mr-2" />
+              <span className="text-gray-700 text-sm font-semibold uppercase">
+                Próximamente
+              </span>
+            </div>
+          )}
+
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             {convocatoriaData.title}
           </h2>
@@ -109,41 +159,64 @@ export default function ConvocatoriaSection() {
             Fases de Selección
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {convocatoriaData.phases.map((phase, index) => (
-              <Card
-                key={index}
-                className={
-                  phase.inscriptionsOpen
-                    ? 'border-2 border-red-600 shadow-lg'
-                    : ''
-                }
-              >
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-red-600 mb-2">
-                    {index + 1}
+            {fasesEdicionActiva.length > 0 ? (
+              fasesEdicionActiva.map((fase, index) => (
+                <Card
+                  key={fase.id}
+                  className={
+                    fase.inscripciones_abiertas
+                      ? 'border-2 border-green-600 shadow-lg'
+                      : fase.votaciones_abiertas
+                      ? 'border-2 border-blue-600 shadow-lg'
+                      : ''
+                  }
+                >
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-red-600 mb-2">
+                      {fase.tipo === 'concurso' ? '🏆' : index + 1}
+                    </div>
+                    <CardHeader>
+                      <CardTitle className="text-xl mb-2">{fase.nombre}</CardTitle>
+                      <p className="text-sm text-gray-500">
+                        {fase.tipo === 'concurso'
+                          ? formatPeriodo(fase.fecha_inicio_votaciones, fase.fecha_fin_votaciones)
+                          : formatPeriodo(fase.fecha_inicio_inscripciones, fase.fecha_fin_inscripciones)
+                        }
+                      </p>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-600 text-sm mb-4">
+                        {fase.descripcion || (fase.tipo === 'concurso' ? 'Concurso especial' : `Ronda ${fase.numero_fase} de selección`)}
+                      </p>
+                      {fase.inscripciones_abiertas && (
+                        <span className="inline-block px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                          Inscripciones Abiertas
+                        </span>
+                      )}
+                      {fase.votaciones_abiertas && !fase.inscripciones_abiertas && (
+                        <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+                          Votaciones en Curso
+                        </span>
+                      )}
+                      {fase.finalizada && (
+                        <span className="inline-block px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">
+                          Finalizada
+                        </span>
+                      )}
+                      {!fase.inscripciones_abiertas && !fase.votaciones_abiertas && !fase.finalizada && (
+                        <span className="inline-block px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">
+                          Próximamente
+                        </span>
+                      )}
+                    </CardContent>
                   </div>
-                  <CardHeader>
-                    <CardTitle className="text-xl mb-2">{phase.name}</CardTitle>
-                    <p className="text-sm text-gray-500">{phase.period}</p>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600 text-sm mb-4">
-                      {phase.description}
-                    </p>
-                    {phase.inscriptionsOpen && (
-                      <span className="inline-block px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
-                        Abierta
-                      </span>
-                    )}
-                    {!phase.inscriptionsOpen && (
-                      <span className="inline-block px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">
-                        Próximamente
-                      </span>
-                    )}
-                  </CardContent>
-                </div>
-              </Card>
-            ))}
+                </Card>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-8 text-gray-500">
+                No hay fases configuradas aún
+              </div>
+            )}
           </div>
         </div>
 
@@ -236,11 +309,33 @@ export default function ConvocatoriaSection() {
               </a>
 
               {/* Register Button */}
-              <Link href="/registro">
+              {hayInscripcionesAbiertas ? (
+                <Link href="/registro">
+                  <Button
+                    size="lg"
+                    className="w-full sm:w-auto bg-green-600 hover:bg-green-700 shadow-lg"
+                  >
+                    <svg
+                      className="w-5 h-5 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                    Registrarse Ahora
+                  </Button>
+                </Link>
+              ) : (
                 <Button
                   size="lg"
-                  className="w-full sm:w-auto bg-red-800 hover:bg-red-900"
-                  disabled={!convocatoriaData.isOpen}
+                  className="w-full sm:w-auto bg-gray-400 cursor-not-allowed"
+                  disabled
                 >
                   <svg
                     className="w-5 h-5 mr-2"
@@ -252,12 +347,12 @@ export default function ConvocatoriaSection() {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
                     />
                   </svg>
-                  {convocatoriaData.isOpen ? 'Registrarse Ahora' : 'Inscripciones Cerradas'}
+                  Inscripciones Cerradas
                 </Button>
-              </Link>
+              )}
             </div>
           </div>
         </div>
