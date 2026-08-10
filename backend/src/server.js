@@ -36,8 +36,10 @@ app.use(helmet()) // Seguridad headers
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
-  'https://benito-web.vercel.app',
+  'https://arte-facto.mx',
+  'https://www.arte-facto.mx',
   'https://artefacto-fairart.vercel.app',
+  'https://artefacto-fairart-theta.vercel.app',
   process.env.FRONTEND_URL
 ].filter(Boolean)
 
