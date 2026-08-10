@@ -232,10 +232,12 @@ export const updateEdicion = async (req, res) => {
 /**
  * DELETE /api/ediciones/:id
  * Eliminar una edición (Solo admin)
+ * Permite eliminación en cascada con query param ?force=true
  */
 export const deleteEdicion = async (req, res) => {
   try {
     const { id } = req.params
+    const { force } = req.query // ?force=true para eliminación en cascada
     const edicionIndex = ediciones.findIndex(e => e.id === parseInt(id))
 
     if (edicionIndex === -1) {
@@ -246,11 +248,24 @@ export const deleteEdicion = async (req, res) => {
     }
 
     // Verificar si hay fases asociadas
-    const tieneFases = fases.some(f => f.edicion_id === parseInt(id))
-    if (tieneFases) {
-      return res.status(400).json({
-        success: false,
-        error: 'No se puede eliminar una edición con fases asociadas'
+    const fasesAsociadas = fases.filter(f => f.edicion_id === parseInt(id))
+
+    if (fasesAsociadas.length > 0) {
+      if (force !== 'true') {
+        return res.status(400).json({
+          success: false,
+          error: 'No se puede eliminar una edición con fases asociadas',
+          message: `Esta edición tiene ${fasesAsociadas.length} fase(s) asociada(s). Use force=true para eliminar todo.`,
+          fases_count: fasesAsociadas.length
+        })
+      }
+
+      // Eliminar todas las fases asociadas (eliminación en cascada)
+      fasesAsociadas.forEach(fase => {
+        const faseIndex = fases.findIndex(f => f.id === fase.id)
+        if (faseIndex !== -1) {
+          fases.splice(faseIndex, 1)
+        }
       })
     }
 
@@ -258,7 +273,8 @@ export const deleteEdicion = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Edición eliminada exitosamente'
+      message: 'Edición eliminada exitosamente',
+      fases_eliminadas: fasesAsociadas.length
     })
   } catch (error) {
     res.status(500).json({

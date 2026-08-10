@@ -175,10 +175,10 @@ export const useEdicionesStore = create((set, get) => ({
   /**
    * Eliminar edición (admin only)
    */
-  deleteEdicion: async (id) => {
+  deleteEdicion: async (id, force = false) => {
     set({ isLoading: true, error: null })
     try {
-      await edicionesApi.delete(id)
+      await edicionesApi.delete(id, force)
 
       // Eliminar del estado local
       set(state => ({

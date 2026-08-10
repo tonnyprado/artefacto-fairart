@@ -173,8 +173,8 @@ export const edicionesApi = {
   update: (id, data) =>
     api.put(`/ediciones/${id}`, data),
 
-  delete: (id) =>
-    api.delete(`/ediciones/${id}`)
+  delete: (id, force = false) =>
+    api.delete(`/ediciones/${id}${force ? '?force=true' : ''}`)
 }
 
 /**

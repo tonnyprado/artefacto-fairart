@@ -72,11 +72,32 @@ export default function EdicionesControl() {
     }
   }
 
-  const handleEliminar = async (edicionId, edicionNombre) => {
-    if (window.confirm(`¿Estás seguro de eliminar ${edicionNombre}? Esta acción no se puede deshacer.`)) {
-      const result = await deleteEdicion(edicionId)
+  const handleEliminar = async (edicionId, edicionNombre, totalFases) => {
+    let confirmed = false
+    let force = false
+
+    if (totalFases > 0) {
+      confirmed = window.confirm(
+        `⚠️ ADVERTENCIA ⚠️\n\n` +
+        `"${edicionNombre}" tiene ${totalFases} fase(s) asociada(s).\n\n` +
+        `Si eliminas esta edición, también se eliminarán TODAS sus fases y datos asociados.\n\n` +
+        `Esta acción NO se puede deshacer.\n\n` +
+        `¿Estás COMPLETAMENTE seguro de continuar?`
+      )
+      force = true
+    } else {
+      confirmed = window.confirm(
+        `¿Estás seguro de eliminar "${edicionNombre}"?\n\n` +
+        `Esta acción no se puede deshacer.`
+      )
+    }
+
+    if (confirmed) {
+      const result = await deleteEdicion(edicionId, force)
       if (result.success) {
         fetchEdiciones()
+      } else if (result.error) {
+        alert(`Error al eliminar: ${result.error}`)
       }
     }
   }
@@ -289,13 +310,13 @@ export default function EdicionesControl() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => handleEliminar(edicion.id, edicion.nombre)}
+                  onClick={() => handleEliminar(edicion.id, edicion.nombre, edicion.total_fases || 0)}
                   className="text-red-600 hover:bg-red-50"
                 >
                   <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
-                  Eliminar
+                  Eliminar {edicion.total_fases > 0 && `(${edicion.total_fases} fases)`}
                 </Button>
               </div>
             </div>
