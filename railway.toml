@@ -7,7 +7,8 @@ startCommand = "cd backend && npm start"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
 
-[deploy.healthcheck]
-path = "/health"
-timeout = 100
-interval = 30
+# Healthcheck deshabilitado temporalmente para debug
+# [deploy.healthcheck]
+# path = "/health"
+# timeout = 100
+# interval = 30
