@@ -5,8 +5,12 @@
 -- Fecha: 2024
 -- =====================================================
 
+-- IMPORTANTE: Si la tabla artistas ya existe pero con estructura vieja, la eliminamos
+DROP TABLE IF EXISTS obras CASCADE;
+DROP TABLE IF EXISTS artistas CASCADE;
+
 -- 1. Crear tabla de ARTISTAS
-CREATE TABLE IF NOT EXISTS artistas (
+CREATE TABLE artistas (
   id SERIAL PRIMARY KEY,
   nombre VARCHAR(255) NOT NULL,
   apellido VARCHAR(255) NOT NULL,
@@ -42,7 +46,7 @@ CREATE INDEX IF NOT EXISTS idx_artistas_paquete ON artistas(paquete_id);
 CREATE INDEX IF NOT EXISTS idx_artistas_created ON artistas(created_at DESC);
 
 -- 2. Crear tabla de OBRAS (imágenes del portfolio/lienzo)
-CREATE TABLE IF NOT EXISTS obras (
+CREATE TABLE obras (
   id SERIAL PRIMARY KEY,
   artista_id INTEGER NOT NULL REFERENCES artistas(id) ON DELETE CASCADE,
   titulo VARCHAR(255),
