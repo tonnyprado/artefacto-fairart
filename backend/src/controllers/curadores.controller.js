@@ -1,8 +1,11 @@
 /**
  * Controlador de Curadores
  * Maneja la lógica de negocio para los curadores
+ * Usa PostgreSQL si está disponible, sino usa mockData
  */
 
+import pool from '../config/database.js'
+import bcrypt from 'bcryptjs'
 import {
   usuarios,
   curadores,
@@ -11,6 +14,9 @@ import {
   now,
   hashPassword
 } from '../data/mockData.js'
+
+// Helper para determinar si usamos DB o mockData
+const useDatabase = () => !!pool
 
 /**
  * GET /api/curadores
@@ -89,6 +95,65 @@ export const createCurador = async (req, res) => {
       })
     }
 
+    if (useDatabase()) {
+      // Verificar si el email ya existe
+      const emailCheck = await pool.query('SELECT id FROM usuarios WHERE email = $1', [email])
+      if (emailCheck.rows.length > 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'El email ya está registrado'
+        })
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10)
+
+      // Crear usuario
+      const usuarioResult = await pool.query(
+        `INSERT INTO usuarios (email, password, nombre, role)
+         VALUES ($1, $2, $3, $4)
+         RETURNING id, email, nombre, role, created_at`,
+        [email, hashedPassword, `${nombre} ${apellido}`, 'curador']
+      )
+
+      const nuevoUsuario = usuarioResult.rows[0]
+
+      // Crear curador
+      const curadorResult = await pool.query(
+        `INSERT INTO curadores (usuario_id, nombre, apellido, email, telefono, especialidad, bio, foto, activo)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+         RETURNING *`,
+        [
+          nuevoUsuario.id,
+          nombre,
+          apellido,
+          email,
+          telefono || null,
+          especialidad || null,
+          bio || null,
+          foto || null,
+          true
+        ]
+      )
+
+      const nuevoCurador = curadorResult.rows[0]
+
+      return res.status(201).json({
+        success: true,
+        data: {
+          curador: nuevoCurador,
+          usuario: {
+            id: nuevoUsuario.id,
+            email: nuevoUsuario.email,
+            nombre: nuevoUsuario.nombre,
+            role: nuevoUsuario.role
+          }
+        },
+        message: 'Curador creado exitosamente'
+      })
+    }
+
+    // Fallback a mockData
     // Verificar si el email ya existe
     const emailExistente = usuarios.some(u => u.email === email)
     if (emailExistente) {
@@ -140,6 +205,7 @@ export const createCurador = async (req, res) => {
       message: 'Curador creado exitosamente'
     })
   } catch (error) {
+    console.error('Error al crear curador:', error)
     res.status(500).json({
       success: false,
       error: 'Error al crear curador'
