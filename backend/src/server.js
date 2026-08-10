@@ -31,20 +31,50 @@ const PORT = process.env.PORT || 4000
 
 // Middlewares
 app.use(helmet()) // Seguridad headers
+
+// Configuración de CORS mejorada
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'https://benito-web.vercel.app',
+  'https://artefacto-fairart.vercel.app',
+  process.env.FRONTEND_URL
+].filter(Boolean)
+
+console.log('🔐 CORS - Orígenes permitidos:', allowedOrigins)
+
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:3001',
-    process.env.FRONTEND_URL
-  ].filter(Boolean),
-  credentials: true
+  origin: function (origin, callback) {
+    // Permitir requests sin origin (como Postman, curl, o server-side requests)
+    if (!origin) {
+      console.log('✅ CORS: Request sin origin - permitido')
+      return callback(null, true)
+    }
+
+    // Verificar si el origin está en la lista permitida
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      console.log('✅ CORS: Origin permitido -', origin)
+      callback(null, true)
+    } else {
+      console.warn('❌ CORS: Origin bloqueado -', origin)
+      console.warn('   Orígenes permitidos:', allowedOrigins)
+      callback(new Error('No permitido por CORS'))
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200 // Para navegadores legacy
 }))
+
 app.use(morgan('dev')) // Logging
 app.use(express.json()) // Parse JSON
 app.use(express.urlencoded({ extended: true }))
 
 // Debug middleware - log all requests
 app.use((req, res, next) => {
+  console.log(`📨 ${req.method} ${req.path} - Origin: ${req.headers.origin || 'sin origin'}`)
+
   if (req.path === '/api/auth/login') {
     console.log('=== LOGIN REQUEST DEBUG ===')
     console.log('Body:', req.body)
