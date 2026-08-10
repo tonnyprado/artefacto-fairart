@@ -86,25 +86,34 @@ export const login = async (req, res) => {
     }
 
     if (useDatabase()) {
+      console.log('🔍 Buscando usuario en PostgreSQL:', email)
       // Buscar usuario en PostgreSQL
       const userResult = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email])
 
       if (userResult.rows.length === 0) {
+        console.log('❌ Usuario no encontrado en DB')
         return res.status(401).json({
           error: 'Credenciales inválidas'
         })
       }
 
       const user = userResult.rows[0]
+      console.log('✅ Usuario encontrado:', { id: user.id, email: user.email, role: user.role })
+      console.log('🔐 Password de DB:', user.password.substring(0, 20) + '...')
+      console.log('🔑 Password recibido:', password)
 
       // Verificar contraseña
       const isValidPassword = await bcrypt.compare(password, user.password)
+      console.log('🔓 bcrypt.compare resultado:', isValidPassword)
 
       if (!isValidPassword) {
+        console.log('❌ Password incorrecto')
         return res.status(401).json({
           error: 'Credenciales inválidas'
         })
       }
+
+      console.log('✅ Login exitoso')
 
       // Si es curador, buscar su curadorId
       let curadorId = null
