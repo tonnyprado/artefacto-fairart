@@ -185,6 +185,38 @@ export const registrarArtista = async (req, res) => {
     const nuevoArtista = artistaResult.rows[0]
 
     // ========================================
+    // 4.5. INSCRIBIR A LA FASE ACTIVA AUTOMÁTICAMENTE
+    // ========================================
+    try {
+      // Buscar la fase activa con inscripciones abiertas
+      const faseActivaResult = await pool.query(
+        `SELECT id FROM fases
+         WHERE inscripciones_abiertas = true
+         ORDER BY created_at DESC
+         LIMIT 1`
+      )
+
+      if (faseActivaResult.rows.length > 0) {
+        const faseId = faseActivaResult.rows[0].id
+
+        // Insertar en artistas_fases
+        await pool.query(
+          `INSERT INTO artistas_fases (artista_id, fase_id, seleccionado)
+           VALUES ($1, $2, $3)
+           ON CONFLICT (artista_id, fase_id) DO NOTHING`,
+          [nuevoArtista.id, faseId, false]
+        )
+
+        console.log(`✅ Artista inscrito a la fase ${faseId}`)
+      } else {
+        console.log('⚠️  No hay fases activas con inscripciones abiertas')
+      }
+    } catch (faseError) {
+      console.error('❌ Error al inscribir a fase:', faseError)
+      // No fallar el registro si no se puede inscribir a fase
+    }
+
+    // ========================================
     // 5. SUBIR Y GUARDAR OBRAS DEL LIENZO (SI S3 ESTÁ CONFIGURADO)
     // ========================================
     const obrasCreadas = []
