@@ -66,6 +66,7 @@ INSERT INTO fases (
   nombre,
   edicion_id,
   descripcion,
+  tipo,
   numero_fase,
   inscripciones_abiertas,
   votaciones_abiertas,
@@ -77,6 +78,7 @@ SELECT
   'Fase 1 - Registro de Artistas',
   (SELECT id FROM ediciones WHERE anio = 2027 LIMIT 1),
   'Fase de registro e inscripción de artistas para ARTEFACT 2027',
+  'fase',  -- ✅ AGREGADO: tipo de fase
   1,
   true,  -- ✅ INSCRIPCIONES ABIERTAS
   false,
