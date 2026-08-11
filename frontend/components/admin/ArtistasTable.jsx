@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useArtistasStore } from '@/stores/artistasStore'
 import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell } from '@/components/ui/Table'
 import Badge from '@/components/ui/Badge'
@@ -45,7 +45,7 @@ const CATEGORIAS = [
 ]
 
 export default function ArtistasTable() {
-  const { artistas, deleteArtista, cambiarEstadoArtista } = useArtistasStore()
+  const { artistas, fetchArtistas, deleteArtista, cambiarEstadoArtista } = useArtistasStore()
 
   const [searchTerm, setSearchTerm] = useState('')
   const [estadoFilter, setEstadoFilter] = useState('all')
@@ -55,6 +55,11 @@ export default function ArtistasTable() {
   const [showEstadoModal, setShowEstadoModal] = useState(false)
   const [nuevoEstado, setNuevoEstado] = useState('')
   const [notasEstado, setNotasEstado] = useState('')
+
+  // Cargar artistas al montar
+  useEffect(() => {
+    fetchArtistas()
+  }, [])
 
   // Filtrar artistas
   const artistasFiltrados = artistas.filter(artista => {
