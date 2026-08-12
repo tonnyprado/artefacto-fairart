@@ -2,7 +2,7 @@
 
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
-import { Info } from 'lucide-react'
+import Info from 'lucide-react/dist/esm/icons/info'
 
 /**
  * Paso 1: Datos Personales del Artista

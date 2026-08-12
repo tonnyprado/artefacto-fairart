@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { usePaquetesStore } from '@/stores/paquetesStore'
-import { Palette, Box } from 'lucide-react'
+import Palette from 'lucide-react/dist/esm/icons/palette'
+import Box from 'lucide-react/dist/esm/icons/box'
 
 // Importación dinámica de LayoutCanvasWithMural para evitar SSR (Konva solo funciona en cliente)
 const LayoutCanvas = dynamic(() => import('./LayoutCanvasWithMural'), {

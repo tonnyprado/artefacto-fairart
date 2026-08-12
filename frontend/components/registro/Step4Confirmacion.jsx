@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { gsap } from 'gsap'
-import { Instagram, Globe } from 'lucide-react'
+import Instagram from 'lucide-react/dist/esm/icons/instagram'
+import Globe from 'lucide-react/dist/esm/icons/globe'
 
 /**
  * Paso 5: Confirmación y Términos
