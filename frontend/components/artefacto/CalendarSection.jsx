@@ -201,6 +201,20 @@ export default function CalendarSection({ isActive = true }) {
     return () => clearInterval(interval)
   }, [isPlaying, calendarEvents.length])
 
+  // Sincronizar el calendario con el evento actual
+  useEffect(() => {
+    const currentEvent = calendarEvents[currentEventIndex]
+    if (currentEvent) {
+      // Encontrar el índice del mes del evento actual
+      const monthIndex = months.findIndex(
+        m => m.name === currentEvent.month && m.year === currentEvent.year
+      )
+      if (monthIndex !== -1 && monthIndex !== selectedMonth) {
+        setSelectedMonth(monthIndex)
+      }
+    }
+  }, [currentEventIndex, calendarEvents, months, selectedMonth])
+
   // Mapeo de nombres de meses a índices (0-11)
   const monthNameToIndex = {
     'Enero': 0,
@@ -279,7 +293,7 @@ export default function CalendarSection({ isActive = true }) {
   const currentEvent = calendarEvents[currentEventIndex]
 
   return (
-    <section id="calendario" className="py-20 bg-[#E8DED0] min-h-screen flex items-center">
+    <section id="calendario" className="pt-20 pb-8 bg-[#E8DED0] min-h-screen flex items-center">
       <div className="container mx-auto px-4">
         {/* Main Content: Calendar + Event Display */}
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">

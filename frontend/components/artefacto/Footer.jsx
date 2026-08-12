@@ -18,7 +18,7 @@ export default function Footer() {
       <div style={container}>
         <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr 1.4fr', gap: 40, paddingBottom: 32 }}>
           <div>
-            <img src="/assets/logo-lockup-cream.svg" alt="ARTEFACTO" style={{ width: 160, display: 'block', marginBottom: 16 }} />
+            <img src="/assets/footer-logo.svg" alt="ARTEFACTO" style={{ width: 160, display: 'block', marginBottom: 16 }} />
             <p style={{ margin: 0, fontSize: 13, lineHeight: 1.6, color: 'rgba(244,237,228,0.6)', maxWidth: 260 }}>
               Feria de Arte Contemporáneo. Impulsando el talento de artistas emergentes.
             </p>

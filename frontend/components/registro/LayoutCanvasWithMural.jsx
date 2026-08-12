@@ -743,7 +743,11 @@ export default function LayoutCanvasWithMural({
           preview: URL.createObjectURL(compressedFile),
           titulo: '',
           alto_cm: '',
-          ancho_cm: ''
+          ancho_cm: '',
+          tecnica: '',
+          anio: '',
+          precio_mxn: '',
+          notas_montaje: ''
         })
       } catch (error) {
         console.error(`Error al comprimir ${file.name}:`, error)
@@ -784,8 +788,8 @@ export default function LayoutCanvasWithMural({
   }
 
   const handleAddToCanvas = (portfolioImage) => {
-    if (!portfolioImage.titulo || !portfolioImage.alto_cm || !portfolioImage.ancho_cm || !portfolioImage.precio_mxn) {
-      alert('Por favor completa el título, dimensiones y precio de la obra')
+    if (!portfolioImage.titulo || !portfolioImage.alto_cm || !portfolioImage.ancho_cm || !portfolioImage.tecnica || !portfolioImage.anio || !portfolioImage.precio_mxn) {
+      alert('Por favor completa todos los campos requeridos: título, dimensiones, técnica, año y precio')
       setEditingObra(portfolioImage)
       setShowMetadataForm(true)
       return
@@ -802,7 +806,10 @@ export default function LayoutCanvasWithMural({
       preview: portfolioImage.preview,
       alto_cm: parseFloat(portfolioImage.alto_cm),
       ancho_cm: parseFloat(portfolioImage.ancho_cm),
+      tecnica: portfolioImage.tecnica,
+      anio: parseInt(portfolioImage.anio),
       precio_mxn: parseFloat(portfolioImage.precio_mxn),
+      notas_montaje: portfolioImage.notas_montaje || '',
       // Posición inicial en el centro del área delimitada del paquete
       x: areaDelimitada.x + (areaDelimitada.width / 2) - (parseFloat(portfolioImage.ancho_cm) * SCALE_FACTOR / 2),
       y: areaDelimitada.y + (areaDelimitada.height / 2) - (parseFloat(portfolioImage.alto_cm) * SCALE_FACTOR / 2),
@@ -937,7 +944,10 @@ export default function LayoutCanvasWithMural({
           preview: obra.preview,
           alto_cm: obra.alto_cm,
           ancho_cm: obra.ancho_cm,
+          tecnica: obra.tecnica,
+          anio: obra.anio,
           precio_mxn: obra.precio_mxn,
+          notas_montaje: obra.notas_montaje,
           x: obra.x,
           y: obra.y,
           width: obra.width,
@@ -992,7 +1002,10 @@ export default function LayoutCanvasWithMural({
           preview: obra.preview,
           alto_cm: obra.alto_cm,
           ancho_cm: obra.ancho_cm,
+          tecnica: obra.tecnica,
+          anio: obra.anio,
           precio_mxn: obra.precio_mxn,
+          notas_montaje: obra.notas_montaje,
           x: obra.x,
           y: obra.y,
           width: obra.width,
@@ -1093,7 +1106,7 @@ export default function LayoutCanvasWithMural({
         }}>
           {todasLasObras.map((img) => {
             const isInCanvas = obrasEnCanvas.some(o => o.id === img.id)
-            const hasMetadata = img.titulo && img.alto_cm && img.ancho_cm && img.precio_mxn
+            const hasMetadata = img.titulo && img.alto_cm && img.ancho_cm && img.tecnica && img.anio && img.precio_mxn
 
             return (
               <div
@@ -1590,6 +1603,66 @@ export default function LayoutCanvasWithMural({
                 </div>
               </div>
 
+              {/* Campo de Técnica */}
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#141210',
+                  marginBottom: '8px'
+                }}>
+                  Técnica *
+                </label>
+                <input
+                  type="text"
+                  value={editingObra.tecnica || ''}
+                  onChange={(e) => handleUpdateMetadata(editingObra.id, 'tecnica', e.target.value)}
+                  placeholder="Ej: Óleo sobre lienzo, Acrílico, Acuarela, Técnica mixta..."
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    background: '#F4EDE4',
+                    border: 'none',
+                    borderRadius: '12px',
+                    color: '#141210',
+                    fontSize: '14px',
+                    outline: 'none'
+                  }}
+                />
+              </div>
+
+              {/* Campo de Año */}
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#141210',
+                  marginBottom: '8px'
+                }}>
+                  Año de creación *
+                </label>
+                <input
+                  type="number"
+                  value={editingObra.anio || ''}
+                  onChange={(e) => handleUpdateMetadata(editingObra.id, 'anio', e.target.value)}
+                  placeholder="Ej: 2024"
+                  min="1900"
+                  max={new Date().getFullYear()}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    background: '#F4EDE4',
+                    border: 'none',
+                    borderRadius: '12px',
+                    color: '#141210',
+                    fontSize: '14px',
+                    outline: 'none'
+                  }}
+                />
+              </div>
+
               {/* Campo de Precio */}
               <div>
                 <label style={{
@@ -1648,6 +1721,67 @@ export default function LayoutCanvasWithMural({
                   </p>
                 </div>
               </div>
+
+              {/* Campo de Notas de Montaje (Opcional) */}
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#141210',
+                  marginBottom: '8px'
+                }}>
+                  Notas de montaje
+                  <span style={{ fontSize: '12px', color: '#6B6B6B', fontWeight: '400', marginLeft: '8px' }}>
+                    (Opcional)
+                  </span>
+                </label>
+                <textarea
+                  value={editingObra.notas_montaje || ''}
+                  onChange={(e) => handleUpdateMetadata(editingObra.id, 'notas_montaje', e.target.value)}
+                  placeholder="Ej: Requiere base de madera de 50x50cm, Obra con sistema de iluminación LED integrado..."
+                  rows={3}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    background: '#F4EDE4',
+                    border: 'none',
+                    borderRadius: '12px',
+                    color: '#141210',
+                    fontSize: '14px',
+                    outline: 'none',
+                    resize: 'vertical',
+                    fontFamily: 'acumin-pro, sans-serif'
+                  }}
+                />
+                <div style={{
+                  background: '#FEF3C7',
+                  borderRadius: '12px',
+                  padding: '12px 16px',
+                  marginTop: '8px',
+                  display: 'flex',
+                  gap: '12px',
+                  alignItems: 'flex-start'
+                }}>
+                  <svg
+                    style={{ width: '20px', height: '20px', flexShrink: 0, marginTop: '1px' }}
+                    fill="none"
+                    stroke="#78350F"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p style={{
+                    fontSize: '12px',
+                    color: '#78350F',
+                    lineHeight: '1.5',
+                    margin: 0,
+                    flex: 1
+                  }}>
+                    Si la obra requiere especificaciones técnicas de montaje, bases, o instalación especial, descríbelas aquí.
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div style={{ display: 'flex', gap: '16px', marginTop: '32px' }}>
@@ -1674,11 +1808,11 @@ export default function LayoutCanvasWithMural({
               <button
                 type="button"
                 onClick={() => {
-                  if (editingObra.titulo && editingObra.alto_cm && editingObra.ancho_cm && editingObra.precio_mxn) {
+                  if (editingObra.titulo && editingObra.alto_cm && editingObra.ancho_cm && editingObra.tecnica && editingObra.anio && editingObra.precio_mxn) {
                     setShowMetadataForm(false)
                     setEditingObra(null)
                   } else {
-                    alert('Por favor completa todos los campos (título, dimensiones y precio)')
+                    alert('Por favor completa todos los campos obligatorios (título, dimensiones, técnica, año y precio)')
                   }
                 }}
                 style={{

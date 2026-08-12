@@ -2,6 +2,7 @@
 
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
+import { Info } from 'lucide-react'
 
 /**
  * Paso 1: Datos Personales del Artista
@@ -40,6 +41,39 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
 
   return (
     <div className="space-y-6">
+      {/* Disclaimer inicial */}
+      <div style={{
+        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1))',
+        border: '2px solid rgba(59, 130, 246, 0.3)',
+        borderRadius: '20px',
+        padding: '20px 24px',
+        marginBottom: '24px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'start', gap: '16px' }}>
+          <div style={{ flexShrink: 0, paddingTop: '4px' }}>
+            <Info size={28} color="#3B82F6" />
+          </div>
+          <div>
+            <h3 style={{
+              color: '#141210',
+              fontWeight: '600',
+              fontSize: '16px',
+              marginBottom: '8px'
+            }}>
+              Importante: Proceso de Selección
+            </h3>
+            <p style={{
+              color: 'rgba(20, 18, 16, 0.85)',
+              fontSize: '14px',
+              lineHeight: '1.6',
+              margin: 0
+            }}>
+              <strong>No se te cobrará nada en este momento.</strong> Este es un proceso de selección para participar en ARTEFACT 2027. Una vez que seas seleccionado, recibirás un correo electrónico con los detalles del paquete y las instrucciones de pago.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div>
         <h2 className="text-2xl font-bold mb-2" style={{ color: '#141210' }}>Datos Personales</h2>
         <p style={{ color: '#F4EDE4', fontSize: '15px' }}>
@@ -68,6 +102,16 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
           placeholder="Tu apellido"
         />
       </div>
+
+      {/* Nombre Artístico - NUEVO */}
+      <Input
+        label="Nombre Artístico"
+        name="nombre_artistico"
+        value={formData.nombre_artistico || ''}
+        onChange={handleChange}
+        placeholder='Ej: "El Maestro del Color" (Opcional)'
+        helper="Si usas un nombre artístico diferente a tu nombre legal"
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Input

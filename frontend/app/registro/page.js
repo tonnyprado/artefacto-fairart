@@ -76,6 +76,7 @@ export default function RegistroPage() {
     // Paso 1: Datos Personales
     nombre: '',
     apellido: '',
+    nombre_artistico: '', // Nuevo campo opcional
     email: '',
     telefono: '',
     fecha_nacimiento: '',
@@ -280,7 +281,10 @@ export default function RegistroPage() {
           formDataToSend.append(`obra_lienzo_${index}_titulo`, obra.titulo)
           formDataToSend.append(`obra_lienzo_${index}_alto_cm`, obra.alto_cm)
           formDataToSend.append(`obra_lienzo_${index}_ancho_cm`, obra.ancho_cm)
+          formDataToSend.append(`obra_lienzo_${index}_tecnica`, obra.tecnica)
+          formDataToSend.append(`obra_lienzo_${index}_anio`, obra.anio)
           formDataToSend.append(`obra_lienzo_${index}_precio_mxn`, obra.precio_mxn)
+          formDataToSend.append(`obra_lienzo_${index}_notas_montaje`, obra.notas_montaje || '')
         })
         formDataToSend.append('obras_lienzo_count', formData.obras_lienzo.length)
       }
@@ -362,7 +366,10 @@ export default function RegistroPage() {
       console.log('Registro exitoso:', result)
       // Limpiar localStorage después de envío exitoso
       localStorage.removeItem('artefacto_registro_draft')
-      setSubmitSuccess(true)
+
+      // Redirigir a página de confirmación con datos
+      const folio = result.data?.folio || result.folio || 'ART-2027-XXX'
+      router.push(`/registro/confirmacion?folio=${encodeURIComponent(folio)}&nombre=${encodeURIComponent(formData.nombre)}&email=${encodeURIComponent(formData.email)}`)
     } catch (error) {
       console.error('Error al enviar registro:', error)
       setErrors({

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { usePaquetesStore } from '@/stores/paquetesStore'
+import { Palette, Box } from 'lucide-react'
 
 // Importación dinámica de LayoutCanvasWithMural para evitar SSR (Konva solo funciona en cliente)
 const LayoutCanvas = dynamic(() => import('./LayoutCanvasWithMural'), {
@@ -154,11 +155,22 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
               fontFamily: FONTS.body,
               fontSize: '14px',
               margin: 0,
-              lineHeight: '1.6'
+              lineHeight: '1.6',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
             }}>
-              {esArtista3D
-                ? '📦 Como artista de Escultura, solo puedes seleccionar paquetes 3D (espacio de base/piso para obras tridimensionales).'
-                : '🎨 Solo puedes seleccionar paquetes 2D (espacio de pared para obras bidimensionales).'}
+              {esArtista3D ? (
+                <>
+                  <Box size={18} style={{ flexShrink: 0 }} />
+                  <span>Como artista de Escultura, solo puedes seleccionar paquetes 3D (espacio de base/piso para obras tridimensionales).</span>
+                </>
+              ) : (
+                <>
+                  <Palette size={18} style={{ flexShrink: 0 }} />
+                  <span>Solo puedes seleccionar paquetes 2D (espacio de pared para obras bidimensionales).</span>
+                </>
+              )}
             </p>
           </div>
         </div>

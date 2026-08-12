@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { gsap } from 'gsap'
+import { Instagram, Globe } from 'lucide-react'
 
 /**
  * Paso 5: Confirmación y Términos
@@ -286,9 +287,12 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                       borderRadius: '12px',
                       fontSize: '14px',
                       color: COLORS.cream,
-                      border: `1px solid rgba(244, 237, 228, 0.2)`
+                      border: `1px solid rgba(244, 237, 228, 0.2)`,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px'
                     }}>
-                      📷 @{formData.redes_sociales.instagram}
+                      <Instagram size={16} /> @{formData.redes_sociales.instagram}
                     </span>
                   )}
                   {formData.redes_sociales.sitio_web && (
@@ -298,9 +302,12 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                       borderRadius: '12px',
                       fontSize: '14px',
                       color: COLORS.cream,
-                      border: `1px solid rgba(244, 237, 228, 0.2)`
+                      border: `1px solid rgba(244, 237, 228, 0.2)`,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px'
                     }}>
-                      🌐 {formData.redes_sociales.sitio_web}
+                      <Globe size={16} /> {formData.redes_sociales.sitio_web}
                     </span>
                   )}
                 </div>
@@ -340,59 +347,150 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
           border: `1px solid rgba(244, 237, 228, 0.2)`
         }}>
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '12px 24px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px',
             fontFamily: FONTS.body,
             fontSize: '15px'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{
-                width: '6px',
-                height: '6px',
-                borderRadius: '50%',
-                background: formData.foto ? COLORS.cream : 'rgba(244, 237, 228, 0.3)',
-                flexShrink: 0
-              }}></div>
-              <span style={{ color: COLORS.cream, opacity: formData.foto ? 1 : 0.5 }}>
-                Foto de Perfil
-              </span>
+            {/* Foto de Perfil */}
+            <div style={{
+              background: 'rgba(20, 18, 16, 0.3)',
+              padding: '16px',
+              borderRadius: '12px',
+              border: `1px solid rgba(244, 237, 228, 0.15)`
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                <div style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  background: formData.foto ? COLORS.red : 'rgba(244, 237, 228, 0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  {formData.foto && (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={COLORS.cream} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  )}
+                </div>
+                <span style={{ color: COLORS.cream, fontWeight: '600', fontSize: '14px' }}>
+                  Foto de Perfil
+                </span>
+              </div>
+              {formData.foto && (
+                <span style={{ color: COLORS.cream, opacity: 0.7, fontSize: '13px', display: 'block', paddingLeft: '36px' }}>
+                  {typeof formData.foto === 'string' ? 'Archivo cargado' : formData.foto.name || 'foto-perfil.jpg'}
+                </span>
+              )}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{
-                width: '6px',
-                height: '6px',
-                borderRadius: '50%',
-                background: formData.documentos?.cv ? COLORS.cream : 'rgba(244, 237, 228, 0.3)',
-                flexShrink: 0
-              }}></div>
-              <span style={{ color: COLORS.cream, opacity: formData.documentos?.cv ? 1 : 0.5 }}>
-                CV Artístico
-              </span>
+
+            {/* CV Artístico */}
+            <div style={{
+              background: 'rgba(20, 18, 16, 0.3)',
+              padding: '16px',
+              borderRadius: '12px',
+              border: `1px solid rgba(244, 237, 228, 0.15)`
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                <div style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  background: formData.documentos?.cv ? COLORS.red : 'rgba(244, 237, 228, 0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  {formData.documentos?.cv && (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={COLORS.cream} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  )}
+                </div>
+                <span style={{ color: COLORS.cream, fontWeight: '600', fontSize: '14px' }}>
+                  CV Artístico
+                </span>
+              </div>
+              {formData.documentos?.cv && (
+                <span style={{ color: COLORS.cream, opacity: 0.7, fontSize: '13px', display: 'block', paddingLeft: '36px' }}>
+                  {typeof formData.documentos.cv === 'string' ? 'Archivo cargado' : formData.documentos.cv.name || 'cv.pdf'}
+                </span>
+              )}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{
-                width: '6px',
-                height: '6px',
-                borderRadius: '50%',
-                background: formData.documentos?.portfolio ? COLORS.cream : 'rgba(244, 237, 228, 0.3)',
-                flexShrink: 0
-              }}></div>
-              <span style={{ color: COLORS.cream, opacity: formData.documentos?.portfolio ? 1 : 0.5 }}>
-                Portafolio
-              </span>
+
+            {/* Portafolio */}
+            <div style={{
+              background: 'rgba(20, 18, 16, 0.3)',
+              padding: '16px',
+              borderRadius: '12px',
+              border: `1px solid rgba(244, 237, 228, 0.15)`
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                <div style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  background: formData.documentos?.portfolio ? COLORS.red : 'rgba(244, 237, 228, 0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  {formData.documentos?.portfolio && (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={COLORS.cream} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  )}
+                </div>
+                <span style={{ color: COLORS.cream, fontWeight: '600', fontSize: '14px' }}>
+                  Portafolio
+                </span>
+              </div>
+              {formData.documentos?.portfolio && (
+                <span style={{ color: COLORS.cream, opacity: 0.7, fontSize: '13px', display: 'block', paddingLeft: '36px' }}>
+                  {typeof formData.documentos.portfolio === 'string' ? 'Archivo cargado' : formData.documentos.portfolio.name || 'portafolio.pdf'}
+                </span>
+              )}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{
-                width: '6px',
-                height: '6px',
-                borderRadius: '50%',
-                background: formData.documentos?.identificacion ? COLORS.cream : 'rgba(244, 237, 228, 0.3)',
-                flexShrink: 0
-              }}></div>
-              <span style={{ color: COLORS.cream, opacity: formData.documentos?.identificacion ? 1 : 0.5 }}>
-                Identificación Oficial
-              </span>
+
+            {/* Identificación Oficial */}
+            <div style={{
+              background: 'rgba(20, 18, 16, 0.3)',
+              padding: '16px',
+              borderRadius: '12px',
+              border: `1px solid rgba(244, 237, 228, 0.15)`
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                <div style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  background: formData.documentos?.identificacion ? COLORS.red : 'rgba(244, 237, 228, 0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  {formData.documentos?.identificacion && (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={COLORS.cream} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  )}
+                </div>
+                <span style={{ color: COLORS.cream, fontWeight: '600', fontSize: '14px' }}>
+                  Identificación Oficial
+                </span>
+              </div>
+              {formData.documentos?.identificacion && (
+                <span style={{ color: COLORS.cream, opacity: 0.7, fontSize: '13px', display: 'block', paddingLeft: '36px' }}>
+                  {typeof formData.documentos.identificacion === 'string' ? 'Archivo cargado' : formData.documentos.identificacion.name || 'identificacion.pdf'}
+                </span>
+              )}
             </div>
           </div>
         </div>

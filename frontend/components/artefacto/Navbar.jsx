@@ -11,7 +11,7 @@ import { useTextScrambleMultiple } from './useTextScramble';
   La navegación real la maneja el click delegado de LandingArtefacto (anchors #...).
 */
 export default function Navbar({ screen, onOpenMenu }) {
-  const rojo = screen === 'convocatoria' || screen === 'contacto';
+  const rojo = screen === 'contacto';
   const suf = rojo ? 'white' : 'red';
   const labelCol = rojo ? COLORS.cream : COLORS.black;
   const logoRef = useRef(null);
@@ -67,11 +67,11 @@ export default function Navbar({ screen, onOpenMenu }) {
 
   const item = (n, index) => (
     <a key={n.href} className="arte-navitem" href={n.href}
-      style={{ pointerEvents: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, textDecoration: 'none' }}>
-      <img src={n.src} alt="" style={{ height: 32, display: 'block' }} />
+      style={{ pointerEvents: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, textDecoration: 'none' }}>
+      <img src={n.src} alt="" style={{ height: 26, display: 'block' }} />
       <span
         ref={scrambleRefs[index]?.ref}
-        style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: labelCol }}
+        style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: labelCol }}
       >
         {n.label}
       </span>
@@ -92,7 +92,7 @@ export default function Navbar({ screen, onOpenMenu }) {
         zIndex: 1,
         pointerEvents: 'none'
       }} />
-      <div className="arte-nav-desk" style={{ position: 'relative', zIndex: 2, display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'start', padding: '16px 28px' }}>
+      <div className="arte-nav-desk" style={{ position: 'relative', zIndex: 2, display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'start', padding: '10px 28px' }}>
         <div style={{ display: 'flex', gap: 26, justifyContent: 'flex-start' }}>{left.map((n, i) => item(n, i))}</div>
         {/* Contenedor para el logo que viene del hero */}
         <div
@@ -115,7 +115,7 @@ export default function Navbar({ screen, onOpenMenu }) {
               display: logoVisible ? 'block' : 'none',
             }}
           >
-            <img src={rojo ? '/assets/wordmark-cream.svg' : '/assets/wordmark-black.svg'} alt="ARTEFACTO" style={{ height: 46, display: 'block' }} />
+            <img src={rojo ? '/assets/wordmark-cream.svg' : '/assets/wordmark-black.svg'} alt="ARTEFACTO" style={{ height: 36, display: 'block' }} />
           </a>
         </div>
         <div style={{ display: 'flex', gap: 26, justifyContent: 'flex-end' }}>{right.map((n, i) => item(n, i + left.length))}</div>

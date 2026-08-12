@@ -46,7 +46,7 @@ export default function Navbar() {
     const element = document.getElementById(targetId)
 
     if (element) {
-      const offset = 80 // Altura del navbar
+      const offset = 60 // Altura del navbar
       const elementPosition = element.getBoundingClientRect().top
       const offsetPosition = elementPosition + window.pageYOffset - offset
 
@@ -64,8 +64,8 @@ export default function Navbar() {
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
         isScrolled
-          ? 'shadow-md py-4'
-          : 'py-6'
+          ? 'shadow-md py-2'
+          : 'py-3'
       )}
       style={{
         backdropFilter: 'blur(12px)',
@@ -76,13 +76,13 @@ export default function Navbar() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">A</span>
+          <Link href="/" className="flex items-center space-x-2">
+            <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-lg">A</span>
             </div>
             <span
               className={cn(
-                'text-2xl font-bold transition-colors',
+                'text-xl font-bold transition-colors',
                 isScrolled ? 'text-gray-900' : 'text-white'
               )}
             >

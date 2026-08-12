@@ -107,8 +107,18 @@ export default function ConoceMasSection() {
         // Mover elemento físicamente
         if (moveToHero) {
           logoContainerHero.insertAdjacentElement('beforeend', logo);
+          // En el hero: no clickable
+          logo.style.cursor = 'default';
+          logo.onclick = null;
         } else {
           logoContainerNav.insertAdjacentElement('beforeend', logo);
+          // En el navbar: clickable
+          logo.style.cursor = 'pointer';
+          logo.onclick = (e) => {
+            e.preventDefault();
+            window.location.hash = '';
+            window.location.hash = 'hero';
+          };
         }
 
         // Animar transición
@@ -323,11 +333,11 @@ export default function ConoceMasSection() {
     <>
       <style>{`
         /* Estilos para el logo cuando está en el navbar */
-        #navbar-logo-container a {
+        #navbar-logo-container > div {
           display: block;
         }
-        #navbar-logo-container a img {
-          height: 46px !important;
+        #navbar-logo-container > div img {
+          height: 36px !important;
           width: auto !important;
         }
       `}</style>
@@ -353,11 +363,10 @@ export default function ConoceMasSection() {
         >
           {/* Contenedor del logo en el hero */}
           <div ref={logoContainerHeroRef}>
-            <a
+            <div
               ref={logoRef}
-              href="#hero"
               style={{
-                cursor: 'pointer',
+                cursor: 'default',
                 display: 'block',
                 textDecoration: 'none',
                 transformOrigin: 'center center',
@@ -374,7 +383,7 @@ export default function ConoceMasSection() {
                   pointerEvents: 'none',
                 }}
               />
-            </a>
+            </div>
           </div>
 
           {/* Red Card con información del evento */}

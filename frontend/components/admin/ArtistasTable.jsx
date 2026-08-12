@@ -6,6 +6,8 @@ import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell } from '@
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
+import * as XLSX from 'xlsx'
+import { Download } from 'lucide-react'
 
 /**
  * ArtistasTable - Tabla de gestión de artistas
@@ -101,6 +103,63 @@ export default function ArtistasTable() {
     }
   }
 
+  const handleExportarExcel = () => {
+    // Preparar datos para exportar
+    const datosExportar = artistasFiltrados.map(artista => ({
+      'ID': artista.id,
+      'Nombre': artista.nombre,
+      'Apellido': artista.apellido,
+      'Email': artista.email,
+      'Teléfono': artista.telefono || '',
+      'País': artista.pais || '',
+      'Ciudad': artista.ciudad || '',
+      'Categoría': artista.categoria?.replace('_', ' ') || '',
+      'Estado': artista.estado,
+      'Paquete': artista.paquete_nombre || '',
+      'Fase Registro': artista.fase_nombre || '',
+      'Votos': artista.votos_recibidos || 0,
+      'Fecha Registro': artista.created_at ? new Date(artista.created_at).toLocaleDateString('es-MX') : '',
+      'Bio': artista.bio || '',
+      'Instagram': artista.redes_sociales?.instagram || '',
+      'Sitio Web': artista.redes_sociales?.sitio_web || '',
+      'Notas Admin': artista.notas_admin || ''
+    }))
+
+    // Crear hoja de cálculo
+    const worksheet = XLSX.utils.json_to_sheet(datosExportar)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Artistas')
+
+    // Ajustar ancho de columnas
+    const columnWidths = [
+      { wch: 8 },  // ID
+      { wch: 20 }, // Nombre
+      { wch: 20 }, // Apellido
+      { wch: 30 }, // Email
+      { wch: 15 }, // Teléfono
+      { wch: 15 }, // País
+      { wch: 20 }, // Ciudad
+      { wch: 20 }, // Categoría
+      { wch: 12 }, // Estado
+      { wch: 15 }, // Paquete
+      { wch: 15 }, // Fase Registro
+      { wch: 8 },  // Votos
+      { wch: 15 }, // Fecha Registro
+      { wch: 50 }, // Bio
+      { wch: 20 }, // Instagram
+      { wch: 30 }, // Sitio Web
+      { wch: 40 }  // Notas Admin
+    ]
+    worksheet['!cols'] = columnWidths
+
+    // Generar nombre de archivo con fecha
+    const fecha = new Date().toISOString().split('T')[0]
+    const nombreArchivo = `artistas-artefact-${fecha}.xlsx`
+
+    // Descargar archivo
+    XLSX.writeFile(workbook, nombreArchivo)
+  }
+
   return (
     <div className="space-y-4">
       {/* Filtros y búsqueda */}
@@ -146,9 +205,17 @@ export default function ArtistasTable() {
           </div>
         </div>
 
-        {/* Resumen */}
+        {/* Resumen y Exportar */}
         <div className="flex items-center justify-between text-sm text-gray-600">
           <span>Mostrando {artistasFiltrados.length} de {artistas.length} artistas</span>
+          <button
+            onClick={handleExportarExcel}
+            disabled={artistasFiltrados.length === 0}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed font-medium"
+          >
+            <Download size={18} />
+            Exportar a Excel
+          </button>
         </div>
       </div>
 

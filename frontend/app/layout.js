@@ -1,5 +1,6 @@
 import './globals.css'
 import '@/components/artefacto/artefacto.css'
+import FloatingRegistrationButton from '@/components/shared/FloatingRegistrationButton'
 
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
@@ -12,6 +13,14 @@ export const metadata = {
   authors: [{ name: 'ARTEFACT' }],
   creator: 'ARTEFACT',
   publisher: 'ARTEFACT',
+  icons: {
+    icon: [
+      {
+        url: '/favicon.svg',
+        type: 'image/svg+xml',
+      },
+    ],
+  },
   formatDetection: {
     email: false,
     address: false,
@@ -62,6 +71,7 @@ export default function RootLayout({ children }) {
     <html lang="es">
       <body className="antialiased">
         {children}
+        <FloatingRegistrationButton />
       </body>
     </html>
   )
