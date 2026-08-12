@@ -7,7 +7,7 @@ import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
 import * as XLSX from 'xlsx'
-import Download from 'lucide-react/dist/esm/icons/download'
+import { Download } from 'lucide-react'
 
 /**
  * ArtistasTable - Tabla de gestión de artistas

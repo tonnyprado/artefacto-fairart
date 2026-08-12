@@ -1,6 +1,6 @@
 Cuando se confirme el registro de un artista se le debe de mandar un correo de confirmación, creo que sendgrid nos puede ayudar aqui, ayudame a implementar endpoints o algo que se mande solito a los artistas. 
 Necesitamos un modal en el panel de admin en la sección de artistas donde podamos añadir artistas o sea en vez de hacer el registro formal por medio de las fases, que el admin tenga la libertad por medio de un botón que muestre un modal para añadir el artista que el quiera, y que le de la opción de ya sea ponerlo en una fase/concurso o ya meterlo de inmediato como uno de los seleccionados, y obvio se le crea su folio.
 --------------------------
-EL CONOCE MÁS NECESITA UN SUPER CAMBIO, DEBE QUEDAR COMO ESTA IMAGEN: 
+EL "CONOCE MÁS" SECTION NECESITA UN SUPER CAMBIO, DEBE QUEDAR COMO ESTA IMAGEN: 
 
 EL LIENZO QUE USAMOS AL ARMAR LOS PAQUETES EN REGISTRO ESTA DEFECTUSO, NECESITAMOS ARREGLARLO A LA VOZ DE YA:
