@@ -5,14 +5,14 @@ import FloatingRegistrationButton from '@/components/shared/FloatingRegistration
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: {
-    default: 'ARTEFACT - Feria de Arte',
-    template: '%s | ARTEFACT'
+    default: 'ARTEFACTO - Feria de Arte',
+    template: '%s | ARTEFACTO'
   },
-  description: 'Descubre y conecta con artistas emergentes en la Feria de Arte ARTEFACT',
+  description: 'Descubre y conecta con artistas emergentes en la Feria de Arte ARTEFACTO',
   keywords: ['feria de arte', 'artistas', 'arte contemporáneo', 'galería', 'exposición'],
-  authors: [{ name: 'ARTEFACT' }],
-  creator: 'ARTEFACT',
-  publisher: 'ARTEFACT',
+  authors: [{ name: 'ARTEFACTO' }],
+  creator: 'ARTEFACTO',
+  publisher: 'ARTEFACTO',
   icons: {
     icon: [
       {
@@ -30,22 +30,22 @@ export const metadata = {
     type: 'website',
     locale: 'es_MX',
     url: process.env.NEXT_PUBLIC_SITE_URL,
-    siteName: 'ARTEFACT - Feria de Arte',
-    title: 'ARTEFACT - Feria de Arte',
-    description: 'Descubre y conecta con artistas emergentes en la Feria de Arte ARTEFACT',
+    siteName: 'ARTEFACTO - Feria de Arte',
+    title: 'ARTEFACTO - Feria de Arte',
+    description: 'Descubre y conecta con artistas emergentes en la Feria de Arte ARTEFACTO',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'ARTEFACT - Feria de Arte',
+        alt: 'ARTEFACTO - Feria de Arte',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ARTEFACT - Feria de Arte',
-    description: 'Descubre y conecta con artistas emergentes en la Feria de Arte ARTEFACT',
+    title: 'ARTEFACTO - Feria de Arte',
+    description: 'Descubre y conecta con artistas emergentes en la Feria de Arte ARTEFACTO',
     images: ['/og-image.jpg'],
   },
   robots: {

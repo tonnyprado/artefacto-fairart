@@ -67,7 +67,7 @@ function ConfirmacionContent() {
             color: '#6B6B6B',
             fontFamily: 'acumin-pro, sans-serif'
           }}>
-            Gracias por tu interés en ARTEFACT 2027
+            Gracias por tu interés en ARTEFACTO 2027
           </p>
         </div>
 

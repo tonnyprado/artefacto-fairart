@@ -68,7 +68,7 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
               lineHeight: '1.6',
               margin: 0
             }}>
-              <strong>No se te cobrará nada en este momento.</strong> Este es un proceso de selección para participar en ARTEFACT 2027. Una vez que seas seleccionado, recibirás un correo electrónico con los detalles del paquete y las instrucciones de pago.
+              <strong>No se te cobrará nada en este momento.</strong> Este es un proceso de selección para participar en ARTEFACTO 2027. Una vez que seas seleccionado, recibirás un correo electrónico con los detalles del paquete y las instrucciones de pago.
             </p>
           </div>
         </div>
