@@ -22,9 +22,11 @@ import { verifyToken, isAdmin, isAdminOrCurador } from '../middleware/auth.middl
 
 const router = express.Router()
 
-// Rutas públicas (para curadores y admins)
-router.get('/', verifyToken, isAdminOrCurador, getAllFases)
-router.get('/:id', verifyToken, isAdminOrCurador, getFaseById)
+// Rutas públicas (sin autenticación - para landing page)
+router.get('/', getAllFases) // Necesario para banner de inscripciones en landing
+router.get('/:id', getFaseById) // Necesario para mostrar info de fase en landing
+
+// Rutas para admin y curadores (requieren auth)
 router.get('/:id/artistas', verifyToken, isAdminOrCurador, getArtistasFase)
 
 // Rutas de admin
