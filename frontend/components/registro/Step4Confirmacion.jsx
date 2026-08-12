@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { gsap } from 'gsap'
-import { Instagram, Globe } from 'lucide-react'
 
 /**
  * Paso 5: Confirmación y Términos
@@ -292,7 +291,12 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                       alignItems: 'center',
                       gap: '8px'
                     }}>
-                      <Instagram size={16} /> @{formData.redes_sociales.instagram}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                      </svg>
+                      @{formData.redes_sociales.instagram}
                     </span>
                   )}
                   {formData.redes_sociales.sitio_web && (
@@ -307,7 +311,12 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                       alignItems: 'center',
                       gap: '8px'
                     }}>
-                      <Globe size={16} /> {formData.redes_sociales.sitio_web}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                      </svg>
+                      {formData.redes_sociales.sitio_web}
                     </span>
                   )}
                 </div>
