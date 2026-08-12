@@ -2,9 +2,12 @@
 
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 
-export default function Confirmacion() {
+// Forzar renderizado dinámico (no static)
+export const dynamic = 'force-dynamic'
+
+function ConfirmacionContent() {
   const searchParams = useSearchParams()
   const folio = searchParams.get('folio')
   const nombre = searchParams.get('nombre')
@@ -317,5 +320,43 @@ export default function Confirmacion() {
         }
       `}</style>
     </div>
+  )
+}
+
+export default function Confirmacion() {
+  return (
+    <Suspense fallback={
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(to bottom, #F4EDE4, white)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{
+          textAlign: 'center',
+          color: '#141210',
+          fontFamily: 'acumin-pro, sans-serif'
+        }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '4px solid #F4EDE4',
+            borderTopColor: '#141210',
+            borderRadius: '50%',
+            margin: '0 auto 16px',
+            animation: 'spin 1s linear infinite'
+          }}></div>
+          <p>Cargando...</p>
+          <style jsx>{`
+            @keyframes spin {
+              to { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
+      </div>
+    }>
+      <ConfirmacionContent />
+    </Suspense>
   )
 }
