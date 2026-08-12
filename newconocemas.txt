@@ -1,41 +1,20 @@
-En primer lugar deja el navbar como estaba antes o sea que solo falta que salga el botón del logo ahi en el navbar.
- primer bloque de esta página debe mostrar el logo tal cual lo hace pero debe de mostrarse junto a este texto:
-" Feria de arte
-Edición II
-Semana
-del arte
-Ciudad de
-México
-4 - 7
-febrero 2027"
-ese debe estar adentro de un card rojo.  Los dos aparecen con una animación desde el centro de la pantalla, usa gsap para mejorar animaciones. De ahi doy scroll y segundo bloque tenemos
-este texto del lado izquierdo: 
-" ARTE FACTO 
-ES UN ESPACIO DE EXPOSICION DE 
-ARTE INDEPENDIENTE
-"
-de ahi del lado derecho aparece:
-"UN ESPACIO DOPNDE LOS CONCEPTOS ARTISTICOS
-Y LAS EJECUCIONES TECNICAS
-PONDERAN EN UN MISMO NIVEL"
+Al inscribir una obra se debe de pedir esto:
+- La Imagen claramente es lo primero que se carga
+- Titulo de la imagen 
+- Medidas/formato (hay que aclarar con pequeño mensaje que las medidas ya incluyen el marco SI ES QUE TIENE MARCO SU OBRA)
+- Tecnica que usa el artista 
+- Año
+- Precio de venta de la obra (Cada 3 numeros se debe de añadir una coma "," para hacer la separación de las cantidades y que los usuarios no se confundan cuando añadan por ejemplo 1000, que el mismo programa en automatico ponga la coma despues de 3 numeros o sea 1,000 de que en ese mismo inputText para que no se confunda el usuario)
+- Notas complementarias (Debe de tener un disclaimer este inputText que indique "Particulares de montaje si es que la obra las tiene"
+"Si la obra tiene specificaciones tecnicas de montajes o si requiere una base que las describa" este mensaje lo puedes mejorar Claude con mejor descripción o como veas)
 
-y del lado izquierdo aparece un card que dice:
-"+50 artistas nacionales e internacionales
-+250 OBRAS DE ARTE"
-
-cabe aclarar que esto va saliendo mientras le vamos dando scroll down/up
-
-Tercer bloque debe contenter el background que ya tenemos actualmente en tercer bloque pero el contenido cambia, del lado izquierdo un texto que dice:
-"Exposición con curaduría &
-museografía cuidada." y del lado derecho van a salir cards una por una, deben ser chiquitas que diga 1: "Experiencias
-gastronómicas " 2: "Talleres de
-arte, música en vivo, ponencias y más" 3: "Venta de arte original, prints, merch y más"
-
-Cuarto bloque sigue con el mismo background y va a decir "CONVOCATORIA DIVIDIDA EN 3 FASES" y en eso sale de forma horizontal:
-"FASE 1
-fechas"  "FASE 2"... blabla y asi sucesivamente, y abajito un recuadro que diga "SIGUE DESLIZANDO PARA LEER LA CONVOCATORIA Y REALIZAR TU REGISTRO"
-
-TODOS ESTOS ELEMENTOS VAN APARECIENDO UNO POR UNO CONFORME SCROLLEAMOS RECUERDA, USA LOS EFECTOS DE GSAP Y LAS PROPIEDAS DE LENIS QUE YA TENEMOS.
-USA TAMAÑOS GRANDES EN LAS LETRAS PERO QUE SI SE VEAN GRANDOTAS Y QUEPAN BIEN EN LAS PÁGINAS. 
-
-Recuerda que en diseño global desimos que ninguna card debe tener contornos, sus esquinas deben de ser redondas.
+Cuando se imprima el pdf del lienzo que se hace con las obras, también debe de salir en una segunda página la ficha tecnica de cada obra, esto se forma claramente con todos los datos que hemos recopilado de las obras del artista. Los pdfs que se descarguen deben de tener un formato, o sea deben de llamarse TuLienzoArtefacto.
+No debe de haber limite de obras a cargar en el lienzo, mientras las obras quepan en el lienzo el artista puede ir cargando todas las obras que el quiera, y la ultima condición sería que las obras que no entraron al lienzo entonces no deben de pasar a registrarse, solo las que entren al lienzo.
+Cuando el registro se complete recuerda que se debe crear un folio para este artista, este folio es el identificador de la participación de este artista, debe de ser un folio simple que el artista pueda recordar y nosotros buscar facilmente en el panel admin, cuando se confirme el pedido en la página de confirmación también debe de salir el FOLIO.
+Al inicio de la página de REGISTRO se debe de poner otro disclaimer anunciandole al artista que "No se te va a cobrar nada por el momento para entrar a esta selección, se te mandaran los datos una vez seleccionado para que paguen" mejora este texto pero creo que captas la idea.
+De hecho cambia POR COMPLETO el diseño de la página de confirmación o sea ya que el registro esta confirmado porque de hecho no me muestra el mouse por alguna razón esa página como si se trabara.
+Si debe de haber nuevos campos recuerda asegurar que el admin los pueda ver en la lista de los artistas.
+-----------
+Hace falta añadir "Nombre artistico" en donde pedimos el nombre del artista, seria un segundo campo y debemos dejarlo como "opcional".
+---
+El favicon debe de ser /Users/tonyprado/Documents/Proyectos/Benito-web/docs/svg_pageweb/A_Blanca.svg no se si lo puedas convertir a favicon para usarlo como favicon de la página.

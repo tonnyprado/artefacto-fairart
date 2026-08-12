@@ -36,6 +36,7 @@ export const registrarArtista = async (req, res) => {
     const {
       nombre,
       apellido,
+      nombre_artistico, // Nuevo campo opcional
       email,
       telefono,
       fecha_nacimiento,
@@ -149,17 +150,18 @@ export const registrarArtista = async (req, res) => {
 
     const artistaResult = await pool.query(
       `INSERT INTO artistas (
-        nombre, apellido, email, telefono, fecha_nacimiento,
+        nombre, apellido, nombre_artistico, email, telefono, fecha_nacimiento,
         ciudad, pais, categoria, bio, foto,
         instagram, facebook, website,
         cv_url, portfolio_url, identificacion_url,
         paquete_id, layout_canvas_url, layout_canvas_data,
         aprobado, estado_registro
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
       RETURNING *`,
       [
         nombre,
         apellido,
+        nombre_artistico || null, // Nuevo campo opcional
         email,
         telefono || null,
         fecha_nacimiento,
@@ -233,12 +235,16 @@ export const registrarArtista = async (req, res) => {
           const titulo = req.body[`obra_lienzo_${i}_titulo`] || `Obra ${i + 1}`
           const alto_cm = parseFloat(req.body[`obra_lienzo_${i}_alto_cm`]) || null
           const ancho_cm = parseFloat(req.body[`obra_lienzo_${i}_ancho_cm`]) || null
+          const tecnica = req.body[`obra_lienzo_${i}_tecnica`] || null
+          const anio = parseInt(req.body[`obra_lienzo_${i}_anio`]) || null
+          const precio_mxn = parseFloat(req.body[`obra_lienzo_${i}_precio`]) || null
+          const notas_montaje = req.body[`obra_lienzo_${i}_notas`] || null
 
           const obraResult = await pool.query(
-            `INSERT INTO obras (artista_id, titulo, imagen_url, alto_cm, ancho_cm)
-             VALUES ($1, $2, $3, $4, $5)
+            `INSERT INTO obras (artista_id, titulo, imagen_url, alto_cm, ancho_cm, tecnica, anio, precio_mxn, notas_montaje)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
              RETURNING *`,
-            [nuevoArtista.id, titulo, imagen_url, alto_cm, ancho_cm]
+            [nuevoArtista.id, titulo, imagen_url, alto_cm, ancho_cm, tecnica, anio, precio_mxn, notas_montaje]
           )
           obrasCreadas.push(obraResult.rows[0])
         }
@@ -247,7 +253,10 @@ export const registrarArtista = async (req, res) => {
       console.log('⚠️  Obras del lienzo pendientes de subir (S3 no configurado)')
     }
 
-    console.log('✅ Artista registrado exitosamente con ID:', nuevoArtista.id)
+    console.log('✅ Artista registrado exitosamente')
+    console.log('   ID:', nuevoArtista.id)
+    console.log('   FOLIO:', nuevoArtista.folio)
+    console.log('   Nombre:', nuevoArtista.nombre, nuevoArtista.apellido)
 
     // ========================================
     // 6. RESPUESTA

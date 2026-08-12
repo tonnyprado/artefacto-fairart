@@ -166,6 +166,9 @@ export default function ArtistasTable() {
           <thead className="bg-gray-50 border-b">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Folio
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                 Artista
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
@@ -188,13 +191,18 @@ export default function ArtistasTable() {
           <tbody className="divide-y divide-gray-200">
             {artistas.length === 0 ? (
               <tr>
-                <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
+                <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
                   No hay artistas registrados
                 </td>
               </tr>
             ) : (
               artistas.map((artista) => (
                 <tr key={artista.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">
+                    <div className="font-mono text-sm font-semibold text-blue-600">
+                      {artista.folio || `ART-${artista.id}`}
+                    </div>
+                  </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <img
@@ -209,6 +217,11 @@ export default function ArtistasTable() {
                         <div className="font-semibold">
                           {artista.nombre} {artista.apellido}
                         </div>
+                        {artista.nombre_artistico && (
+                          <div className="text-xs text-purple-600 italic">
+                            "{artista.nombre_artistico}"
+                          </div>
+                        )}
                         <div className="text-sm text-gray-500">
                           {artista.ciudad}, {artista.pais}
                         </div>
