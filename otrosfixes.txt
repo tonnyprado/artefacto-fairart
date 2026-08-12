@@ -5,9 +5,6 @@ EL "CONOCE MÁS" SECTION NECESITA UN SUPER CAMBIO, DEBE QUEDAR COMO ESTA IMAGEN:
 Y ESTE ES EL LOOK EN MOVIL: /Users/tonyprado/Documents/Proyectos/Benito-web/frontend/public/Referencia mobil.jpg
 LOS COMPONENTES LOS TENEMOS AQUI: /Users/tonyprado/Documents/Proyectos/Benito-web/frontend/public/assets/ITEMSCONOCEMAS.ai
 
-EL LIENZO DE LA SECCIÓN DE REGISTRO DEBE ARREGLARSE:
-- Las obras (o sea las imagenes que se estan cargando al lienzo) deben de poder moverse sobre las demás obras porque entiendo que no deben de empalmarse y que debe de haber un frame invisible en las imagenes como de 2cm para bloquear empalme pero si por ejemplo muevo una obra encima de otra entonces debo ser capaz de moverla pero que me indique con rojo de que no puedo dejar esa obra ahi encima de esa otra obra.
-- 
 
 
 DISCLAIMER: RECUERDA QUE DEBES SEPARAR FUNCIONALIDADES, COMPONENTES, EN DIFERENTES ARCHIVOS O LO QUE SEA, NO JUNTES TATNAS LINEAS DE CODIGO EN UN MISMO ARCHIVO CUANDO PUEDES SEPARAR POR COMPONENTES
