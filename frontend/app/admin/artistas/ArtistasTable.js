@@ -278,11 +278,13 @@ export default function ArtistasTable() {
                     )}
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex gap-1 text-xs">
-                      {artista.foto && <span className="text-green-600">📸</span>}
-                      {artista.cv_url && <span className="text-green-600">📄</span>}
-                      {artista.portfolio_url && <span className="text-green-600">📋</span>}
-                      {!artista.foto && !artista.cv_url && !artista.portfolio_url && (
+                    <div className="flex gap-1 text-xs" title="Archivos subidos">
+                      {artista.foto && <span className="text-green-600" title="Foto">📸</span>}
+                      {artista.cv_url && <span className="text-green-600" title="CV">📄</span>}
+                      {artista.portfolio_url && <span className="text-green-600" title="Portfolio">📋</span>}
+                      {artista.identificacion_url && <span className="text-green-600" title="Identificación">🪪</span>}
+                      {artista.layout_canvas_url && <span className="text-green-600" title="Canvas/Lienzo">🎨</span>}
+                      {!artista.foto && !artista.cv_url && !artista.portfolio_url && !artista.identificacion_url && (
                         <span className="text-gray-400">Sin archivos</span>
                       )}
                     </div>
