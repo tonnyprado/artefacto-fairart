@@ -107,21 +107,30 @@ export default function ArtistasTable() {
     // Preparar datos para exportar
     const datosExportar = artistasFiltrados.map(artista => ({
       'ID': artista.id,
+      'Folio': artista.folio || '',
       'Nombre': artista.nombre,
       'Apellido': artista.apellido,
+      'Nombre Artístico': artista.nombre_artistico || '',
       'Email': artista.email,
       'Teléfono': artista.telefono || '',
+      'Fecha Nacimiento': artista.fecha_nacimiento ? new Date(artista.fecha_nacimiento).toLocaleDateString('es-MX') : '',
       'País': artista.pais || '',
       'Ciudad': artista.ciudad || '',
       'Categoría': artista.categoria?.replace('_', ' ') || '',
       'Estado': artista.estado,
-      'Paquete': artista.paquete_nombre || '',
-      'Fase Registro': artista.fase_nombre || '',
-      'Votos': artista.votos_recibidos || 0,
+      'Paquete': artista.paquete?.nombre || '',
+      'Tipo Paquete': artista.paquete?.tipo || '',
+      'Dimensiones Paquete': artista.paquete ? (artista.paquete.tipo === '3D' ? `${artista.paquete.metros_cuadrados}m²` : `${artista.paquete.metros_lineales}m × ${artista.paquete.altura_pared}m`) : '',
+      'Precio Paquete': artista.paquete?.precio_mxn || '',
+      'Fase Registro': artista.fase_inscripcion?.nombre || '',
+      'Votos Favor': artista.total_votos_favor || 0,
+      'Votos Contra': artista.total_votos_contra || 0,
       'Fecha Registro': artista.created_at ? new Date(artista.created_at).toLocaleDateString('es-MX') : '',
       'Bio': artista.bio || '',
       'Instagram': artista.redes_sociales?.instagram || '',
       'Sitio Web': artista.redes_sociales?.sitio_web || '',
+      'Lienzo URL': artista.layout_canvas_url || '',
+      'Cantidad Obras': artista.layout_canvas_data?.obras?.length || 0,
       'Notas Admin': artista.notas_admin || ''
     }))
 
@@ -133,21 +142,30 @@ export default function ArtistasTable() {
     // Ajustar ancho de columnas
     const columnWidths = [
       { wch: 8 },  // ID
+      { wch: 15 }, // Folio
       { wch: 20 }, // Nombre
       { wch: 20 }, // Apellido
+      { wch: 20 }, // Nombre Artístico
       { wch: 30 }, // Email
       { wch: 15 }, // Teléfono
+      { wch: 15 }, // Fecha Nacimiento
       { wch: 15 }, // País
       { wch: 20 }, // Ciudad
       { wch: 20 }, // Categoría
       { wch: 12 }, // Estado
-      { wch: 15 }, // Paquete
+      { wch: 20 }, // Paquete
+      { wch: 10 }, // Tipo Paquete
+      { wch: 20 }, // Dimensiones Paquete
+      { wch: 15 }, // Precio Paquete
       { wch: 15 }, // Fase Registro
-      { wch: 8 },  // Votos
+      { wch: 10 }, // Votos Favor
+      { wch: 10 }, // Votos Contra
       { wch: 15 }, // Fecha Registro
       { wch: 50 }, // Bio
       { wch: 20 }, // Instagram
       { wch: 30 }, // Sitio Web
+      { wch: 50 }, // Lienzo URL
+      { wch: 12 }, // Cantidad Obras
       { wch: 40 }  // Notas Admin
     ]
     worksheet['!cols'] = columnWidths
@@ -391,6 +409,12 @@ export default function ArtistasTable() {
                 className="w-32 h-32 rounded-lg object-cover"
               />
               <div className="flex-1 space-y-2">
+                {selectedArtista.nombre_artistico && (
+                  <div>
+                    <span className="text-sm text-gray-500">Nombre Artístico:</span>
+                    <p className="font-medium">{selectedArtista.nombre_artistico}</p>
+                  </div>
+                )}
                 <div>
                   <span className="text-sm text-gray-500">Email:</span>
                   <p className="font-medium">{selectedArtista.email}</p>
@@ -399,6 +423,18 @@ export default function ArtistasTable() {
                   <span className="text-sm text-gray-500">Teléfono:</span>
                   <p className="font-medium">{selectedArtista.telefono}</p>
                 </div>
+                {selectedArtista.fecha_nacimiento && (
+                  <div>
+                    <span className="text-sm text-gray-500">Fecha de Nacimiento:</span>
+                    <p className="font-medium">
+                      {new Date(selectedArtista.fecha_nacimiento).toLocaleDateString('es-MX', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  </div>
+                )}
                 <div>
                   <span className="text-sm text-gray-500">Ubicación:</span>
                   <p className="font-medium">{selectedArtista.ciudad}, {selectedArtista.pais}</p>
@@ -459,6 +495,141 @@ export default function ArtistasTable() {
               </div>
             </div>
 
+            {/* Paquete y Lienzo */}
+            {selectedArtista.paquete && (
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h4 className="text-sm font-semibold text-gray-900 mb-3">Paquete Seleccionado</h4>
+                <div className="space-y-2">
+                  <div>
+                    <span className="text-sm text-gray-500">Paquete:</span>
+                    <p className="font-medium">{selectedArtista.paquete.nombre}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm text-gray-500">Tipo:</span>
+                    <p className="font-medium">{selectedArtista.paquete.tipo}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm text-gray-500">Dimensiones:</span>
+                    <p className="font-medium">
+                      {selectedArtista.paquete.tipo === '3D' ? (
+                        `${selectedArtista.paquete.metros_cuadrados}m² (base)`
+                      ) : (
+                        `${selectedArtista.paquete.metros_lineales}m × ${selectedArtista.paquete.altura_pared}m (pared)`
+                      )}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-sm text-gray-500">Precio:</span>
+                    <p className="font-medium">${selectedArtista.paquete.precio_mxn.toLocaleString('es-MX')} MXN</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Lienzo del Artista */}
+            {selectedArtista.layout_canvas_url && (
+              <div className="bg-purple-50 p-4 rounded-lg">
+                <h4 className="text-sm font-semibold text-gray-900 mb-3">Lienzo de Diseño</h4>
+                <div className="space-y-3">
+                  <a
+                    href={selectedArtista.layout_canvas_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm text-blue-600 hover:underline"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Ver Layout del Lienzo
+                  </a>
+
+                  {/* Preview de la imagen del lienzo */}
+                  <div className="mt-2">
+                    <img
+                      src={selectedArtista.layout_canvas_url}
+                      alt="Layout del lienzo"
+                      className="w-full rounded-lg border-2 border-gray-200"
+                      style={{ maxHeight: '300px', objectFit: 'contain' }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Obras del Lienzo */}
+            {selectedArtista.layout_canvas_data && selectedArtista.layout_canvas_data.obras && selectedArtista.layout_canvas_data.obras.length > 0 && (
+              <div className="bg-green-50 p-4 rounded-lg">
+                <h4 className="text-sm font-semibold text-gray-900 mb-3">
+                  Obras para Exhibición ({selectedArtista.layout_canvas_data.obras.length})
+                </h4>
+                <div className="space-y-3">
+                  {selectedArtista.layout_canvas_data.obras.map((obra, index) => (
+                    <div key={index} className="bg-white p-3 rounded-lg border border-gray-200">
+                      <div className="flex items-start gap-3">
+                        {obra.preview && (
+                          <img
+                            src={obra.preview}
+                            alt={obra.titulo}
+                            className="w-16 h-16 rounded object-cover"
+                          />
+                        )}
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900">{obra.titulo || `Obra ${index + 1}`}</p>
+                          <div className="grid grid-cols-2 gap-2 mt-2 text-xs text-gray-600">
+                            <div>
+                              <span className="text-gray-500">Dimensiones:</span> {obra.ancho_cm} × {obra.alto_cm} cm
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Técnica:</span> {obra.tecnica}
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Año:</span> {obra.anio}
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Precio:</span> ${obra.precio_mxn?.toLocaleString('es-MX')} MXN
+                            </div>
+                          </div>
+                          {obra.notas_montaje && (
+                            <div className="mt-2 text-xs">
+                              <span className="text-gray-500">Notas de montaje:</span>
+                              <p className="text-gray-700 italic">{obra.notas_montaje}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Fase de Inscripción */}
+            {selectedArtista.fase_inscripcion && (
+              <div className="bg-orange-50 p-4 rounded-lg">
+                <h4 className="text-sm font-semibold text-gray-900 mb-2">Fase de Inscripción</h4>
+                <div className="space-y-2">
+                  <div>
+                    <span className="text-sm text-gray-500">Fase:</span>
+                    <p className="font-medium">{selectedArtista.fase_inscripcion.nombre}</p>
+                  </div>
+                  {selectedArtista.fase_inscripcion.descripcion && (
+                    <div>
+                      <span className="text-sm text-gray-500">Descripción:</span>
+                      <p className="text-sm text-gray-700">{selectedArtista.fase_inscripcion.descripcion}</p>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                    <div>
+                      <span className="text-gray-500">Inscripciones:</span> {selectedArtista.fase_inscripcion.inscripciones_abiertas ? 'Abiertas' : 'Cerradas'}
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Votaciones:</span> {selectedArtista.fase_inscripcion.votacion_abierta ? 'Abiertas' : 'Cerradas'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Estado y notas */}
             <div className="bg-gray-50 p-4 rounded-lg">
               <div className="flex items-center justify-between mb-2">
@@ -467,9 +638,27 @@ export default function ArtistasTable() {
                   {selectedArtista.estado}
                 </Badge>
               </div>
+              <div className="mt-2">
+                <span className="text-sm text-gray-500">Fecha de Registro:</span>
+                <p className="text-sm text-gray-700 mt-1">
+                  {new Date(selectedArtista.created_at).toLocaleString('es-MX', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </p>
+              </div>
+              {selectedArtista.folio && (
+                <div className="mt-2">
+                  <span className="text-sm text-gray-500">Folio:</span>
+                  <p className="font-mono font-medium text-sm text-gray-900 mt-1">{selectedArtista.folio}</p>
+                </div>
+              )}
               {selectedArtista.notas_admin && (
-                <div>
-                  <span className="text-sm text-gray-500">Notas:</span>
+                <div className="mt-2">
+                  <span className="text-sm text-gray-500">Notas Admin:</span>
                   <p className="text-sm text-gray-700 mt-1">{selectedArtista.notas_admin}</p>
                 </div>
               )}
