@@ -14,8 +14,18 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  Loader2
+  Loader2,
+  Package,
+  Flag
 } from 'lucide-react'
+
+// Helper para nombres de paquetes
+const PAQUETES = {
+  1: { nombre: 'Básico', color: 'bg-gray-100 text-gray-800' },
+  2: { nombre: 'Estándar', color: 'bg-blue-100 text-blue-800' },
+  3: { nombre: 'Premium', color: 'bg-purple-100 text-purple-800' },
+  4: { nombre: 'VIP', color: 'bg-yellow-100 text-yellow-800' }
+}
 
 export default function ArtistasTable() {
   const [artistas, setArtistas] = useState([])
@@ -199,25 +209,28 @@ export default function ArtistasTable() {
         <table className="w-full">
           <thead className="bg-gray-50 border-b">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                 Folio
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                 Artista
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Email
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                 Categoría
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Fase
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Paquete
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                 Estado
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                 Archivos
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                 Acciones
               </th>
             </tr>
@@ -225,30 +238,30 @@ export default function ArtistasTable() {
           <tbody className="divide-y divide-gray-200">
             {artistas.length === 0 ? (
               <tr>
-                <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
+                <td colSpan="8" className="px-6 py-8 text-center text-gray-500">
                   No hay artistas registrados
                 </td>
               </tr>
             ) : (
               artistas.map((artista) => (
                 <tr key={artista.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-4">
                     <div className="font-mono text-sm font-semibold text-blue-600">
                       {artista.folio || `ART-${artista.id}`}
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-4">
                     <div className="flex items-center gap-3">
                       <img
                         src={artista.foto || '/placeholder-avatar.png'}
                         alt={artista.nombre}
-                        className="w-12 h-12 rounded-full object-cover"
+                        className="w-10 h-10 rounded-full object-cover"
                         onError={(e) => {
                           e.target.src = '/placeholder-avatar.png'
                         }}
                       />
                       <div>
-                        <div className="font-semibold">
+                        <div className="font-semibold text-sm">
                           {artista.nombre} {artista.apellido}
                         </div>
                         {artista.nombre_artistico && (
@@ -256,39 +269,59 @@ export default function ArtistasTable() {
                             "{artista.nombre_artistico}"
                           </div>
                         )}
-                        <div className="text-sm text-gray-500">
-                          {artista.ciudad}, {artista.pais}
+                        <div className="text-xs text-gray-500">
+                          {artista.email}
                         </div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm">
-                    {artista.email}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      {artista.categoria || 'Sin categoría'}
+                  <td className="px-4 py-4">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {artista.categoria || 'N/A'}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-4">
+                    {artista.fase_nombre ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                        <Flag className="h-3 w-3" />
+                        {artista.numero_fase ? `F${artista.numero_fase}` : artista.fase_nombre.substring(0, 10)}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400 text-xs">Sin fase</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-4">
+                    {artista.paquete_id ? (
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${PAQUETES[artista.paquete_id]?.color || 'bg-gray-100 text-gray-800'}`}>
+                        <Package className="h-3 w-3" />
+                        {PAQUETES[artista.paquete_id]?.nombre || `Paq. ${artista.paquete_id}`}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400 text-xs">N/A</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-4">
                     {artista.estado_registro === 'pendiente' && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                         <Clock className="h-3 w-3" /> Pendiente
                       </span>
                     )}
                     {artista.estado_registro === 'aprobado' && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         <CheckCircle className="h-3 w-3" /> Aprobado
                       </span>
                     )}
                     {artista.estado_registro === 'rechazado' && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                         <XCircle className="h-3 w-3" /> Rechazado
                       </span>
                     )}
+                    {!artista.estado_registro && (
+                      <span className="text-gray-400 text-xs">N/A</span>
+                    )}
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex gap-2" title="Archivos subidos">
+                  <td className="px-4 py-4">
+                    <div className="flex gap-1" title="Archivos subidos">
                       {artista.foto && (
                         <Camera className="h-4 w-4 text-green-600" title="Foto" />
                       )}
@@ -304,34 +337,37 @@ export default function ArtistasTable() {
                       {artista.layout_canvas_url && (
                         <Palette className="h-4 w-4 text-green-600" title="Canvas/Lienzo" />
                       )}
-                      {!artista.foto && !artista.cv_url && !artista.portfolio_url && !artista.identificacion_url && (
-                        <span className="text-gray-400 text-xs">Sin archivos</span>
+                      {!artista.foto && !artista.cv_url && !artista.portfolio_url && !artista.identificacion_url && !artista.layout_canvas_url && (
+                        <span className="text-gray-400 text-xs">-</span>
                       )}
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex gap-2">
+                  <td className="px-4 py-4">
+                    <div className="flex gap-1">
                       {artista.estado_registro === 'pendiente' && (
                         <>
                           <button
                             onClick={() => handleAprobar(artista.id)}
-                            className="flex items-center gap-1 text-green-600 hover:text-green-800 text-sm font-medium"
+                            className="p-1 text-green-600 hover:bg-green-100 rounded"
+                            title="Aprobar"
                           >
-                            <Check className="h-4 w-4" /> Aprobar
+                            <Check className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => handleRechazar(artista.id)}
-                            className="flex items-center gap-1 text-red-600 hover:text-red-800 text-sm font-medium"
+                            className="p-1 text-red-600 hover:bg-red-100 rounded"
+                            title="Rechazar"
                           >
-                            <X className="h-4 w-4" /> Rechazar
+                            <X className="h-4 w-4" />
                           </button>
                         </>
                       )}
                       <button
                         onClick={() => window.open(`/admin/artistas/${artista.id}`, '_blank')}
-                        className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm font-medium"
+                        className="p-1 text-blue-600 hover:bg-blue-100 rounded"
+                        title="Ver detalles"
                       >
-                        <Eye className="h-4 w-4" /> Ver detalles
+                        <Eye className="h-4 w-4" />
                       </button>
                     </div>
                   </td>

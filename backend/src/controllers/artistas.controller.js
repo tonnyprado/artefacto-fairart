@@ -32,42 +32,77 @@ export const getAllArtistas = async (req, res) => {
     } = req.query
 
     if (useDatabase()) {
-      // Construir query con filtros
-      let query = 'SELECT * FROM artistas WHERE 1=1'
+      // Construir query con filtros y JOINs para fase
+      let query = `
+        SELECT
+          a.*,
+          af.fase_id,
+          af.seleccionado as fase_seleccionado,
+          f.nombre as fase_nombre,
+          f.numero_fase
+        FROM artistas a
+        LEFT JOIN artistas_fases af ON af.artista_id = a.id
+        LEFT JOIN fases f ON f.id = af.fase_id
+        WHERE 1=1
+      `
       const params = []
       let paramCount = 1
 
       if (categoria) {
-        query += ` AND categoria = $${paramCount}`
+        query += ` AND a.categoria = $${paramCount}`
         params.push(categoria)
         paramCount++
       }
 
       if (aprobado !== undefined) {
-        query += ` AND aprobado = $${paramCount}`
+        query += ` AND a.aprobado = $${paramCount}`
         params.push(aprobado === 'true')
         paramCount++
       }
 
       if (estado_registro) {
-        query += ` AND estado_registro = $${paramCount}`
+        query += ` AND a.estado_registro = $${paramCount}`
         params.push(estado_registro)
         paramCount++
       }
 
       if (search) {
-        query += ` AND (nombre ILIKE $${paramCount} OR apellido ILIKE $${paramCount} OR email ILIKE $${paramCount} OR bio ILIKE $${paramCount})`
+        query += ` AND (a.nombre ILIKE $${paramCount} OR a.apellido ILIKE $${paramCount} OR a.email ILIKE $${paramCount} OR a.bio ILIKE $${paramCount})`
         params.push(`%${search}%`)
         paramCount++
       }
 
-      // Count total antes de paginación
-      const countQuery = query.replace('SELECT *', 'SELECT COUNT(*)')
-      const countResult = await pool.query(countQuery, params)
+      // Count total antes de paginación (sin JOINs para eficiencia)
+      let countQuery = 'SELECT COUNT(*) FROM artistas a WHERE 1=1'
+      const countParams = []
+      let countParamCount = 1
+
+      if (categoria) {
+        countQuery += ` AND a.categoria = $${countParamCount}`
+        countParams.push(categoria)
+        countParamCount++
+      }
+      if (aprobado !== undefined) {
+        countQuery += ` AND a.aprobado = $${countParamCount}`
+        countParams.push(aprobado === 'true')
+        countParamCount++
+      }
+      if (estado_registro) {
+        countQuery += ` AND a.estado_registro = $${countParamCount}`
+        countParams.push(estado_registro)
+        countParamCount++
+      }
+      if (search) {
+        countQuery += ` AND (a.nombre ILIKE $${countParamCount} OR a.apellido ILIKE $${countParamCount} OR a.email ILIKE $${countParamCount} OR a.bio ILIKE $${countParamCount})`
+        countParams.push(`%${search}%`)
+        countParamCount++
+      }
+
+      const countResult = await pool.query(countQuery, countParams)
       const total = parseInt(countResult.rows[0].count)
 
       // Agregar ordenamiento y paginación
-      query += ' ORDER BY created_at DESC'
+      query += ' ORDER BY a.created_at DESC'
       query += ` LIMIT $${paramCount} OFFSET $${paramCount + 1}`
       params.push(parseInt(limit), parseInt(offset))
 
