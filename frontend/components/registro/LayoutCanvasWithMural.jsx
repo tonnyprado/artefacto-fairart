@@ -11,26 +11,28 @@ import { compressImage } from '@/lib/imageCompression'
  * LayoutCanvasWithMural - Canvas con SVG del mural como fondo
  */
 
-// Plantilla única del mural
-const PLANTILLA_URL = '/plantilla-mural.svg'
+// Plantilla nueva del mural
+const PLANTILLA_URL = '/plantilla-base2.svg'
 
-// Dimensiones del canvas basadas en el SVG (1854 x 567)
-const CANVAS_WIDTH = 1854
-const CANVAS_HEIGHT = 567
+// Dimensiones del canvas basadas en el nuevo SVG (1420 x 437)
+const CANVAS_WIDTH = 1420
+const CANVAS_HEIGHT = 437
 
-// Área libre del mural (rectángulo central sin rayado)
-// Basado en el análisis del SVG, el área libre está aproximadamente:
+// Área libre del mural (rectángulo central sin rayado) - basado en plantilla-base2.svg
+// El rectángulo blanco en el SVG está en: x="362.53" y="67.36" width="1417.33" height="432.28"
+// Pero con las transformaciones aplicadas, el área disponible es:
 const FREE_AREA = {
-  x: 130,        // Después de la regla izquierda
-  y: 110,        // Después del área rayada superior
-  width: 1550,   // Ancho del área libre
-  height: 350    // Altura del área libre (hasta el área rayada inferior)
+  x: 2,          // Desde el borde izquierdo (después de transformaciones)
+  y: 2,          // Desde el borde superior
+  width: 1416,   // Ancho del área disponible
+  height: 433    // Alto del área disponible
 }
 
 // Factor de conversión: metros a píxeles en el canvas
-// Asumimos que el FREE_AREA completo representa aproximadamente 10m lineales × 2.4m altura
+// Asumimos que el FREE_AREA completo representa aproximadamente 10m lineales × 3m altura
 // Esto nos da un factor de escala para convertir las medidas reales del paquete a píxeles
-const METROS_A_PIXELES = FREE_AREA.width / 10 // Aproximadamente 155 px por metro
+const METROS_A_PIXELES = FREE_AREA.width / 10 // Aproximadamente 141.6 px por metro
+const ALTURA_MAXIMA_METROS = 3 // Altura máxima en metros del lienzo
 
 // Configuración de reglas
 const RULER_SIZE = 30 // Tamaño de las reglas en píxeles
@@ -45,19 +47,25 @@ const COLLISION_MARGIN_CM = 2.5 // Separación mínima entre obras en cm
 const COLLISION_MARGIN = COLLISION_MARGIN_CM * SCALE_FACTOR // Separación en píxeles
 
 /**
- * Componente de regla horizontal
+ * Componente de regla horizontal (en metros)
  */
 function HorizontalRuler({ width }) {
   const marks = []
-  const step = 50 // Marca cada 50 píxeles
-  const largeStep = 100 // Marcas grandes cada 100 píxeles
+  const metrosStep = 0.5 // Marca cada 0.5 metros
+  const largeMetrosStep = 1 // Marcas grandes cada 1 metro
+  const pixelsPerMeter = METROS_A_PIXELES
 
-  for (let i = 0; i <= width; i += step) {
-    const isLarge = i % largeStep === 0
+  // Calcular cuántos metros representa el ancho total
+  const totalMetros = width / pixelsPerMeter
+
+  for (let metros = 0; metros <= totalMetros; metros += metrosStep) {
+    const x = metros * pixelsPerMeter
+    const isLarge = metros % largeMetrosStep === 0
+
     marks.push(
       <Line
-        key={`hline-${i}`}
-        points={[i, RULER_SIZE, i, isLarge ? RULER_SIZE - 10 : RULER_SIZE - 5]}
+        key={`hline-${metros}`}
+        points={[x, RULER_SIZE, x, isLarge ? RULER_SIZE - 10 : RULER_SIZE - 5]}
         stroke={RULER_LINE_COLOR}
         strokeWidth={1}
       />
@@ -65,10 +73,10 @@ function HorizontalRuler({ width }) {
     if (isLarge) {
       marks.push(
         <Text
-          key={`htext-${i}`}
-          x={i - 15}
+          key={`htext-${metros}`}
+          x={x - 15}
           y={5}
-          text={i.toString()}
+          text={`${metros}m`}
           fontSize={10}
           fill={RULER_TEXT_COLOR}
           width={30}
@@ -93,30 +101,36 @@ function HorizontalRuler({ width }) {
 }
 
 /**
- * Componente de regla vertical
+ * Componente de regla vertical (en metros)
  */
 function VerticalRuler({ height }) {
   const marks = []
-  const step = 50 // Marca cada 50 píxeles
-  const largeStep = 100 // Marcas grandes cada 100 píxeles
+  const metrosStep = 0.5 // Marca cada 0.5 metros
+  const largeMetrosStep = 1 // Marcas grandes cada 1 metro
+  const pixelsPerMeter = METROS_A_PIXELES
 
-  for (let i = 0; i <= height; i += step) {
-    const isLarge = i % largeStep === 0
+  // Calcular cuántos metros representa la altura total
+  const totalMetros = height / pixelsPerMeter
+
+  for (let metros = 0; metros <= totalMetros; metros += metrosStep) {
+    const y = metros * pixelsPerMeter
+    const isLarge = metros % largeMetrosStep === 0
+
     marks.push(
       <Line
-        key={`vline-${i}`}
-        points={[RULER_SIZE, i, isLarge ? RULER_SIZE - 10 : RULER_SIZE - 5, i]}
+        key={`vline-${metros}`}
+        points={[RULER_SIZE, y, isLarge ? RULER_SIZE - 10 : RULER_SIZE - 5, y]}
         stroke={RULER_LINE_COLOR}
         strokeWidth={1}
       />
     )
-    if (isLarge && i > 0) {
+    if (isLarge && metros > 0) {
       marks.push(
         <Text
-          key={`vtext-${i}`}
+          key={`vtext-${metros}`}
           x={3}
-          y={i - 6}
-          text={i.toString()}
+          y={y - 6}
+          text={`${metros}m`}
           fontSize={10}
           fill={RULER_TEXT_COLOR}
         />
@@ -244,6 +258,7 @@ function ObraImage({ obra, onDragEnd, onDragMove, isSelected, onSelect, onDelete
   const stageRef = useRef()
   const [lastValidPos, setLastValidPos] = useState({ x: obra.x, y: obra.y })
   const [isColliding, setIsColliding] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
 
   // Para paquetes 3D, mostramos cuadrados (la "base" de la escultura)
   const esPaquete3D = tipoPaquete === '3D'
@@ -256,30 +271,25 @@ function ObraImage({ obra, onDragEnd, onDragMove, isSelected, onSelect, onDelete
     setLastValidPos({ x: obra.x, y: obra.y })
   }, [obra.x, obra.y])
 
-  // Función para limitar el movimiento y evitar colisiones
-  const dragBoundFunc = (pos) => {
-    // Verificar colisiones con otras obras
+  // Verificar si una posición tiene colisión con otras obras
+  const checkPositionCollision = (pos) => {
     const testObra = {
       ...obra,
       x: pos.x,
       y: pos.y
     }
 
-    // Verificar si colisiona con alguna otra obra
-    let hasCollision = false
     for (const otraObra of otrasObras) {
       if (otraObra.id !== obra.id && checkCollision(testObra, otraObra)) {
-        hasCollision = true
-        break
+        return true
       }
     }
+    return false
+  }
 
-    if (hasCollision) {
-      // Si hay colisión, indicar visualmente y retornar la última posición válida
-      setIsColliding(true)
-      return lastValidPos
-    }
-
+  // Función para limitar el movimiento al área delimitada
+  // PERO permitir movimiento sobre otras obras (solo mostrar indicador visual)
+  const dragBoundFunc = (pos) => {
     // Limitar al área delimitada del paquete (no al FREE_AREA completo)
     const boundedX = Math.max(
       areaRestriccion.x,
@@ -290,13 +300,19 @@ function ObraImage({ obra, onDragEnd, onDragMove, isSelected, onSelect, onDelete
       Math.min(pos.y, areaRestriccion.y + areaRestriccion.height - obra.height)
     )
 
-    const newPos = { x: boundedX, y: boundedY }
+    const boundedPos = { x: boundedX, y: boundedY }
 
-    // Guardar como última posición válida y limpiar estado de colisión
-    setLastValidPos(newPos)
-    setIsColliding(false)
+    // Verificar colisión en la nueva posición
+    const hasCollision = checkPositionCollision(boundedPos)
+    setIsColliding(hasCollision)
 
-    return newPos
+    // Si NO hay colisión, guardar como última posición válida
+    if (!hasCollision) {
+      setLastValidPos(boundedPos)
+    }
+
+    // PERMITIR el movimiento incluso con colisión (para mostrar indicador visual)
+    return boundedPos
   }
 
   // Si es paquete 3D, renderizar cuadrado de base (no mostrar imagen)
@@ -311,19 +327,22 @@ function ObraImage({ obra, onDragEnd, onDragMove, isSelected, onSelect, onDelete
           height={obra.height}
           fill="#D4C4B0"
           stroke={isColliding ? '#FF4444' : isSelected ? '#141210' : '#8B7355'}
-          strokeWidth={isColliding ? 3 : isSelected ? 4 : 2}
+          strokeWidth={isColliding ? 4 : isSelected ? 4 : 2}
           cornerRadius={4}
           draggable
           dragBoundFunc={dragBoundFunc}
           onDragStart={() => {
+            setIsDragging(true)
             setIsColliding(false)
             onDragMove && onDragMove(obra.id, obra.x, obra.y, obra.width, obra.height)
           }}
           onDragMove={(e) => onDragMove && onDragMove(obra.id, e.target.x(), e.target.y(), obra.width, obra.height)}
           onDragEnd={(e) => {
+            setIsDragging(false)
+            const finalCollision = isColliding
             setIsColliding(false)
             onDragMove && onDragMove(null, null, null, null, null)
-            onDragEnd(obra.id, e.target.x(), e.target.y())
+            onDragEnd(obra.id, e.target.x(), e.target.y(), finalCollision, lastValidPos)
           }}
           onClick={() => onSelect(obra.id)}
           onTap={() => onSelect(obra.id)}
@@ -456,14 +475,17 @@ function ObraImage({ obra, onDragEnd, onDragMove, isSelected, onSelect, onDelete
         draggable
         dragBoundFunc={dragBoundFunc}
         onDragStart={() => {
+          setIsDragging(true)
           setIsColliding(false)
           onDragMove && onDragMove(obra.id, obra.x, obra.y, obra.width, obra.height)
         }}
         onDragMove={(e) => onDragMove && onDragMove(obra.id, e.target.x(), e.target.y(), obra.width, obra.height)}
         onDragEnd={(e) => {
+          setIsDragging(false)
+          const finalCollision = isColliding
           setIsColliding(false) // Limpiar estado de colisión
           onDragMove && onDragMove(null, null, null, null, null) // Limpiar guías
-          onDragEnd(obra.id, e.target.x(), e.target.y())
+          onDragEnd(obra.id, e.target.x(), e.target.y(), finalCollision, lastValidPos)
         }}
         onClick={() => onSelect(obra.id)}
         onTap={() => onSelect(obra.id)}
@@ -471,7 +493,7 @@ function ObraImage({ obra, onDragEnd, onDragMove, isSelected, onSelect, onDelete
         shadowColor="black"
         shadowOpacity={0.7}
         stroke={isColliding ? '#FF4444' : isSelected ? '#ffffff' : 'transparent'}
-        strokeWidth={isColliding ? 3 : isSelected ? 4 : 0}
+        strokeWidth={isColliding ? 4 : isSelected ? 4 : 0}
       />
 
       {/* Botón de eliminar cuando está seleccionada */}
@@ -569,7 +591,33 @@ function calcularAreaDelimitada(paquete) {
 }
 
 /**
+ * Componente de línea delimitante usando el SVG personalizado
+ */
+function LineaDelimitante({ x, height }) {
+  const [image] = useImage('/LINEAS_DELIMITANTE.svg')
+
+  if (!image) return null
+
+  // El SVG original tiene viewBox="0 0 231 1981"
+  // Lo escalamos para que tenga el alto que necesitamos
+  const svgAspectRatio = 231 / 1981
+  const width = height * svgAspectRatio
+
+  return (
+    <KonvaImage
+      image={image}
+      x={x - width / 2}
+      y={0}
+      width={width}
+      height={height}
+      listening={false}
+    />
+  )
+}
+
+/**
  * Componente de líneas delimitadoras basadas en las medidas del paquete
+ * Usa el SVG LINEAS_DELIMITANTE.svg para las líneas verticales
  */
 function PaqueteDelimiter({ paquete }) {
   if (!paquete) return null
@@ -579,15 +627,26 @@ function PaqueteDelimiter({ paquete }) {
 
   return (
     <Group>
-      {/* Rectángulo delimitador con borde punteado */}
-      <Rect
-        x={delimiterX}
-        y={delimiterY}
-        width={delimiterWidth}
-        height={delimiterHeight}
-        stroke="#FF6B6B"
-        strokeWidth={3}
-        dash={[15, 10]}
+      {/* Líneas delimitantes usando el SVG personalizado */}
+      {/* Línea izquierda */}
+      <LineaDelimitante x={delimiterX} height={CANVAS_HEIGHT} />
+
+      {/* Línea derecha */}
+      <LineaDelimitante x={delimiterX + delimiterWidth} height={CANVAS_HEIGHT} />
+
+      {/* Líneas horizontales superior e inferior */}
+      <Line
+        points={[delimiterX, delimiterY, delimiterX + delimiterWidth, delimiterY]}
+        stroke="white"
+        strokeWidth={2}
+        dash={[12, 13]}
+        listening={false}
+      />
+      <Line
+        points={[delimiterX, delimiterY + delimiterHeight, delimiterX + delimiterWidth, delimiterY + delimiterHeight]}
+        stroke="white"
+        strokeWidth={2}
+        dash={[12, 13]}
         listening={false}
       />
 
@@ -598,7 +657,7 @@ function PaqueteDelimiter({ paquete }) {
           y={delimiterY - 35}
           width={paquete.tipo === '3D' ? 180 : 200}
           height={28}
-          fill="rgba(255, 107, 107, 0.95)"
+          fill="rgba(184, 48, 48, 0.95)"
           cornerRadius={6}
           listening={false}
         />
@@ -618,40 +677,6 @@ function PaqueteDelimiter({ paquete }) {
           listening={false}
         />
       </Group>
-
-      {/* Etiquetas de esquinas para referencia */}
-      <Text
-        x={delimiterX - 30}
-        y={delimiterY - 5}
-        text="┌"
-        fontSize={24}
-        fill="#FF6B6B"
-        listening={false}
-      />
-      <Text
-        x={delimiterX + delimiterWidth + 5}
-        y={delimiterY - 5}
-        text="┐"
-        fontSize={24}
-        fill="#FF6B6B"
-        listening={false}
-      />
-      <Text
-        x={delimiterX - 30}
-        y={delimiterY + delimiterHeight - 20}
-        text="└"
-        fontSize={24}
-        fill="#FF6B6B"
-        listening={false}
-      />
-      <Text
-        x={delimiterX + delimiterWidth + 5}
-        y={delimiterY + delimiterHeight - 20}
-        text="┘"
-        fontSize={24}
-        fill="#FF6B6B"
-        listening={false}
-      />
     </Group>
   )
 }
@@ -849,23 +874,18 @@ export default function LayoutCanvasWithMural({
     }
   }
 
-  const handleDragEnd = (obraId, newX, newY) => {
+  const handleDragEnd = (obraId, newX, newY, hasCollision, lastValidPos) => {
     const obra = obrasEnCanvas.find((o) => o.id === obraId)
     if (!obra) return
 
-    // Limitar la obra al área libre del mural
-    const boundedX = Math.max(
-      FREE_AREA.x,
-      Math.min(newX, FREE_AREA.x + FREE_AREA.width - obra.width)
-    )
-    const boundedY = Math.max(
-      FREE_AREA.y,
-      Math.min(newY, FREE_AREA.y + FREE_AREA.height - obra.height)
-    )
+    // Si hay colisión al soltar, usar la última posición válida
+    // Si no hay colisión, usar la posición nueva
+    const finalX = hasCollision ? lastValidPos.x : newX
+    const finalY = hasCollision ? lastValidPos.y : newY
 
     setObrasEnCanvas(
       obrasEnCanvas.map((o) =>
-        o.id === obraId ? { ...o, x: boundedX, y: boundedY } : o
+        o.id === obraId ? { ...o, x: finalX, y: finalY } : o
       )
     )
   }
