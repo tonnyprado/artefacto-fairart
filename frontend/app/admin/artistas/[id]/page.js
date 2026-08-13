@@ -3,6 +3,24 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import {
+  ArrowLeft,
+  Check,
+  X as XIcon,
+  Clock,
+  CheckCircle,
+  XCircle,
+  User,
+  FileText,
+  FolderOpen,
+  CreditCard,
+  Palette,
+  Instagram,
+  Globe,
+  Facebook,
+  Loader2,
+  Image as ImageIcon
+} from 'lucide-react'
 
 export default function ArtistaDetalle() {
   const params = useParams()
@@ -71,7 +89,7 @@ export default function ArtistaDetalle() {
     return (
       <div className="min-h-screen bg-gray-100 p-8 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto" />
           <p className="mt-4 text-gray-600">Cargando artista...</p>
         </div>
       </div>
@@ -123,9 +141,9 @@ export default function ArtistaDetalle() {
         <div className="flex items-center gap-4 mb-6">
           <button
             onClick={() => router.back()}
-            className="text-gray-600 hover:text-gray-800"
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
           >
-            &larr; Volver
+            <ArrowLeft className="h-5 w-5" /> Volver
           </button>
           <h1 className="text-3xl font-bold">Detalle del Artista</h1>
         </div>
@@ -138,18 +156,18 @@ export default function ArtistaDetalle() {
                 {artista.folio || `ART-${artista.id}`}
               </span>
               {artista.estado_registro === 'pendiente' && (
-                <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-                  Pendiente
+                <span className="flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                  <Clock className="h-4 w-4" /> Pendiente
                 </span>
               )}
               {artista.estado_registro === 'aprobado' && (
-                <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                  Aprobado
+                <span className="flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                  <CheckCircle className="h-4 w-4" /> Aprobado
                 </span>
               )}
               {artista.estado_registro === 'rechazado' && (
-                <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                  Rechazado
+                <span className="flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                  <XCircle className="h-4 w-4" /> Rechazado
                 </span>
               )}
             </div>
@@ -158,15 +176,15 @@ export default function ArtistaDetalle() {
                 <>
                   <button
                     onClick={handleAprobar}
-                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                    className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
                   >
-                    Aprobar
+                    <Check className="h-4 w-4" /> Aprobar
                   </button>
                   <button
                     onClick={handleRechazar}
-                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+                    className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
                   >
-                    Rechazar
+                    <XIcon className="h-4 w-4" /> Rechazar
                   </button>
                 </>
               )}
@@ -189,7 +207,7 @@ export default function ArtistaDetalle() {
                 />
               ) : (
                 <div className="w-full aspect-square bg-gray-200 rounded-xl flex items-center justify-center">
-                  <span className="text-gray-400 text-6xl">👤</span>
+                  <User className="h-24 w-24 text-gray-400" />
                 </div>
               )}
             </div>
@@ -205,11 +223,11 @@ export default function ArtistaDetalle() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-blue-600 hover:underline"
                   >
-                    <span>📄</span> Ver CV
+                    <FileText className="h-4 w-4" /> Ver CV
                   </a>
                 ) : (
                   <p className="text-gray-400 flex items-center gap-2">
-                    <span>📄</span> CV no subido
+                    <FileText className="h-4 w-4" /> CV no subido
                   </p>
                 )}
 
@@ -220,11 +238,11 @@ export default function ArtistaDetalle() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-blue-600 hover:underline"
                   >
-                    <span>📋</span> Ver Portfolio PDF
+                    <FolderOpen className="h-4 w-4" /> Ver Portfolio PDF
                   </a>
                 ) : (
                   <p className="text-gray-400 flex items-center gap-2">
-                    <span>📋</span> Portfolio no subido
+                    <FolderOpen className="h-4 w-4" /> Portfolio no subido
                   </p>
                 )}
 
@@ -235,11 +253,11 @@ export default function ArtistaDetalle() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-blue-600 hover:underline"
                   >
-                    <span>🪪</span> Ver Identificación
+                    <CreditCard className="h-4 w-4" /> Ver Identificacion
                   </a>
                 ) : (
                   <p className="text-gray-400 flex items-center gap-2">
-                    <span>🪪</span> Identificación no subida
+                    <CreditCard className="h-4 w-4" /> Identificacion no subida
                   </p>
                 )}
 
@@ -250,7 +268,7 @@ export default function ArtistaDetalle() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-blue-600 hover:underline"
                   >
-                    <span>🎨</span> Ver Canvas/Lienzo
+                    <Palette className="h-4 w-4" /> Ver Canvas/Lienzo
                   </a>
                 )}
               </div>
@@ -339,7 +357,7 @@ export default function ArtistaDetalle() {
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-pink-600 hover:underline"
                     >
-                      📷 {artista.instagram || artista.redes_sociales?.instagram}
+                      <Instagram className="h-4 w-4" /> {artista.instagram || artista.redes_sociales?.instagram}
                     </a>
                   )}
                   {(artista.facebook || artista.redes_sociales?.facebook) && (
@@ -349,7 +367,7 @@ export default function ArtistaDetalle() {
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-blue-600 hover:underline"
                     >
-                      👤 Facebook
+                      <Facebook className="h-4 w-4" /> Facebook
                     </a>
                   )}
                   {(artista.website || artista.redes_sociales?.website) && (
@@ -359,7 +377,7 @@ export default function ArtistaDetalle() {
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-gray-600 hover:underline"
                     >
-                      🌐 Sitio web
+                      <Globe className="h-4 w-4" /> Sitio web
                     </a>
                   )}
                 </div>
@@ -386,7 +404,7 @@ export default function ArtistaDetalle() {
                         />
                       ) : (
                         <div className="w-full aspect-square bg-gray-200 flex items-center justify-center">
-                          <span className="text-gray-400">🖼️</span>
+                          <ImageIcon className="h-8 w-8 text-gray-400" />
                         </div>
                       )}
                       <div className="p-2">

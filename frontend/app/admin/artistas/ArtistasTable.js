@@ -1,6 +1,21 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import {
+  RefreshCw,
+  Camera,
+  FileText,
+  FolderOpen,
+  CreditCard,
+  Palette,
+  Check,
+  X,
+  Eye,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Loader2
+} from 'lucide-react'
 
 export default function ArtistasTable() {
   const [artistas, setArtistas] = useState([])
@@ -130,17 +145,12 @@ export default function ArtistasTable() {
           >
             {loading ? (
               <>
-                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
+                <Loader2 className="h-4 w-4 animate-spin" />
                 Actualizando...
               </>
             ) : (
               <>
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
+                <RefreshCw className="h-4 w-4" />
                 Actualizar
               </>
             )}
@@ -262,30 +272,40 @@ export default function ArtistasTable() {
                   </td>
                   <td className="px-6 py-4">
                     {artista.estado_registro === 'pendiente' && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                        ⏳ Pendiente
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        <Clock className="h-3 w-3" /> Pendiente
                       </span>
                     )}
                     {artista.estado_registro === 'aprobado' && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        ✅ Aprobado
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <CheckCircle className="h-3 w-3" /> Aprobado
                       </span>
                     )}
                     {artista.estado_registro === 'rechazado' && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                        ❌ Rechazado
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <XCircle className="h-3 w-3" /> Rechazado
                       </span>
                     )}
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex gap-1 text-xs" title="Archivos subidos">
-                      {artista.foto && <span className="text-green-600" title="Foto">📸</span>}
-                      {artista.cv_url && <span className="text-green-600" title="CV">📄</span>}
-                      {artista.portfolio_url && <span className="text-green-600" title="Portfolio">📋</span>}
-                      {artista.identificacion_url && <span className="text-green-600" title="Identificación">🪪</span>}
-                      {artista.layout_canvas_url && <span className="text-green-600" title="Canvas/Lienzo">🎨</span>}
+                    <div className="flex gap-2" title="Archivos subidos">
+                      {artista.foto && (
+                        <Camera className="h-4 w-4 text-green-600" title="Foto" />
+                      )}
+                      {artista.cv_url && (
+                        <FileText className="h-4 w-4 text-green-600" title="CV" />
+                      )}
+                      {artista.portfolio_url && (
+                        <FolderOpen className="h-4 w-4 text-green-600" title="Portfolio" />
+                      )}
+                      {artista.identificacion_url && (
+                        <CreditCard className="h-4 w-4 text-green-600" title="Identificacion" />
+                      )}
+                      {artista.layout_canvas_url && (
+                        <Palette className="h-4 w-4 text-green-600" title="Canvas/Lienzo" />
+                      )}
                       {!artista.foto && !artista.cv_url && !artista.portfolio_url && !artista.identificacion_url && (
-                        <span className="text-gray-400">Sin archivos</span>
+                        <span className="text-gray-400 text-xs">Sin archivos</span>
                       )}
                     </div>
                   </td>
@@ -295,23 +315,23 @@ export default function ArtistasTable() {
                         <>
                           <button
                             onClick={() => handleAprobar(artista.id)}
-                            className="text-green-600 hover:text-green-800 text-sm font-medium"
+                            className="flex items-center gap-1 text-green-600 hover:text-green-800 text-sm font-medium"
                           >
-                            ✅ Aprobar
+                            <Check className="h-4 w-4" /> Aprobar
                           </button>
                           <button
                             onClick={() => handleRechazar(artista.id)}
-                            className="text-red-600 hover:text-red-800 text-sm font-medium"
+                            className="flex items-center gap-1 text-red-600 hover:text-red-800 text-sm font-medium"
                           >
-                            ❌ Rechazar
+                            <X className="h-4 w-4" /> Rechazar
                           </button>
                         </>
                       )}
                       <button
                         onClick={() => window.open(`/admin/artistas/${artista.id}`, '_blank')}
-                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                        className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm font-medium"
                       >
-                        Ver detalles
+                        <Eye className="h-4 w-4" /> Ver detalles
                       </button>
                     </div>
                   </td>
