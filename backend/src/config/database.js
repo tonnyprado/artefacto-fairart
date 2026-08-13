@@ -13,9 +13,12 @@ if (shouldConnectDB) {
   const isRemoteHost = process.env.DB_HOST && process.env.DB_HOST !== 'localhost' && process.env.DB_HOST !== '127.0.0.1'
   const sslConfig = (process.env.NODE_ENV === 'production' || isRemoteHost) ? { rejectUnauthorized: false } : false
 
+  // Remover sslmode del connection string para usar nuestra config SSL
+  const connectionString = process.env.DATABASE_URL?.replace(/[?&]sslmode=[^&]*/g, '')
+
   const config = process.env.DATABASE_URL
     ? {
-        connectionString: process.env.DATABASE_URL,
+        connectionString: connectionString,
         ssl: sslConfig,
         max: 20,
         idleTimeoutMillis: 30000,
