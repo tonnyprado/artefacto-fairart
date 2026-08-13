@@ -29,10 +29,11 @@ const FREE_AREA = {
 }
 
 // Factor de conversión: metros a píxeles en el canvas
-// Asumimos que el FREE_AREA completo representa aproximadamente 10m lineales × 3m altura
-// Esto nos da un factor de escala para convertir las medidas reales del paquete a píxeles
-const METROS_A_PIXELES = FREE_AREA.width / 10 // Aproximadamente 141.6 px por metro
-const ALTURA_MAXIMA_METROS = 3 // Altura máxima en metros del lienzo
+// IMPORTANTE: Usamos la misma escala para ANCHO y ALTO para mantener proporciones reales
+// Escala base: 10 metros = 1416 píxeles
+const METROS_A_PIXELES = 141.6 // Escala fija: 141.6 píxeles por metro
+const METROS_LINEALES_MAX = 10 // Máximo de metros lineales que caben
+const ALTURA_MAXIMA_METROS = FREE_AREA.height / METROS_A_PIXELES // ~3.06 metros de altura máxima
 
 // Configuración de reglas
 const RULER_SIZE = 30 // Tamaño de las reglas en píxeles
@@ -41,10 +42,12 @@ const RULER_TEXT_COLOR = '#E8E8E8' // Color del texto
 const RULER_LINE_COLOR = '#E8E8E8' // Color de las líneas
 const GUIDE_LINE_COLOR = '#00BFFF' // Color cian para las líneas guía
 
-// Configuración de colisiones
-const SCALE_FACTOR = 2 // Factor de escala para convertir cm a píxeles
+// Configuración de escala de obras
+// IMPORTANTE: La escala de las obras debe ser consistente con la escala del lienzo
+// 1 metro = 141.6 píxeles, por lo tanto: 1 cm = 1.416 píxeles
+const SCALE_FACTOR = METROS_A_PIXELES / 100 // 1.416 píxeles por centímetro
 const COLLISION_MARGIN_CM = 2.5 // Separación mínima entre obras en cm
-const COLLISION_MARGIN = COLLISION_MARGIN_CM * SCALE_FACTOR // Separación en píxeles
+const COLLISION_MARGIN = COLLISION_MARGIN_CM * SCALE_FACTOR // Separación en píxeles (~3.54 px)
 
 /**
  * Componente de regla horizontal (en metros)
@@ -560,6 +563,8 @@ function MuralBackground({ plantillaURL, width, height }) {
 
 /**
  * Calcular área delimitada basada en el paquete
+ * IMPORTANTE: Usa la misma escala (METROS_A_PIXELES) para ancho y alto
+ * para mantener proporciones reales a escala
  */
 function calcularAreaDelimitada(paquete) {
   if (!paquete) return FREE_AREA
@@ -574,8 +579,9 @@ function calcularAreaDelimitada(paquete) {
     delimiterHeight = lado * METROS_A_PIXELES
   } else {
     // Para paquetes 2D: usar metros_lineales × altura_pared
+    // USAR LA MISMA ESCALA para ambos ejes (141.6 px/m)
     delimiterWidth = (paquete.metros_lineales || 3) * METROS_A_PIXELES
-    delimiterHeight = (paquete.altura_pared || 2.4) * (FREE_AREA.height / 2.4)
+    delimiterHeight = (paquete.altura_pared || 2.4) * METROS_A_PIXELES
   }
 
   // Centrar el delimitador en el área libre
@@ -592,6 +598,7 @@ function calcularAreaDelimitada(paquete) {
 
 /**
  * Componente de línea delimitante usando el SVG personalizado
+ * La línea se centra EXACTAMENTE en la posición x proporcionada
  */
 function LineaDelimitante({ x, height }) {
   const [image] = useImage('/LINEAS_DELIMITANTE.svg')
@@ -601,14 +608,18 @@ function LineaDelimitante({ x, height }) {
   // El SVG original tiene viewBox="0 0 231 1981"
   // Lo escalamos para que tenga el alto que necesitamos
   const svgAspectRatio = 231 / 1981
-  const width = height * svgAspectRatio
+  const svgWidth = height * svgAspectRatio
+
+  // Centrar la línea SVG en la posición x
+  // La línea visual está en el centro del SVG, así que restamos la mitad del ancho
+  const offsetX = x - (svgWidth / 2)
 
   return (
     <KonvaImage
       image={image}
-      x={x - width / 2}
+      x={offsetX}
       y={0}
-      width={width}
+      width={svgWidth}
       height={height}
       listening={false}
     />
@@ -618,6 +629,7 @@ function LineaDelimitante({ x, height }) {
 /**
  * Componente de líneas delimitadoras basadas en las medidas del paquete
  * Usa el SVG LINEAS_DELIMITANTE.svg para las líneas verticales
+ * Las líneas se posicionan EXACTAMENTE en los bordes del área delimitada
  */
 function PaqueteDelimiter({ paquete }) {
   if (!paquete) return null
@@ -627,14 +639,15 @@ function PaqueteDelimiter({ paquete }) {
 
   return (
     <Group>
-      {/* Líneas delimitantes usando el SVG personalizado */}
-      {/* Línea izquierda */}
+      {/* Líneas delimitantes verticales usando el SVG personalizado */}
+      {/* Línea izquierda - posicionada en el borde izquierdo del área */}
       <LineaDelimitante x={delimiterX} height={CANVAS_HEIGHT} />
 
-      {/* Línea derecha */}
+      {/* Línea derecha - posicionada en el borde derecho del área */}
       <LineaDelimitante x={delimiterX + delimiterWidth} height={CANVAS_HEIGHT} />
 
       {/* Líneas horizontales superior e inferior */}
+      {/* Línea superior - exactamente en delimiterY */}
       <Line
         points={[delimiterX, delimiterY, delimiterX + delimiterWidth, delimiterY]}
         stroke="white"
@@ -642,6 +655,7 @@ function PaqueteDelimiter({ paquete }) {
         dash={[12, 13]}
         listening={false}
       />
+      {/* Línea inferior - exactamente en delimiterY + delimiterHeight */}
       <Line
         points={[delimiterX, delimiterY + delimiterHeight, delimiterX + delimiterWidth, delimiterY + delimiterHeight]}
         stroke="white"
@@ -650,12 +664,12 @@ function PaqueteDelimiter({ paquete }) {
         listening={false}
       />
 
-      {/* Etiqueta con las medidas */}
+      {/* Etiqueta con las medidas - mejorada */}
       <Group>
         <Rect
           x={delimiterX + 10}
           y={delimiterY - 35}
-          width={paquete.tipo === '3D' ? 180 : 200}
+          width={paquete.tipo === '3D' ? 180 : 220}
           height={28}
           fill="rgba(184, 48, 48, 0.95)"
           cornerRadius={6}
@@ -664,12 +678,12 @@ function PaqueteDelimiter({ paquete }) {
         <Text
           x={delimiterX + 10}
           y={delimiterY - 35}
-          width={paquete.tipo === '3D' ? 180 : 200}
+          width={paquete.tipo === '3D' ? 180 : 220}
           height={28}
           text={paquete.tipo === '3D'
             ? `Área: ${paquete.metros_cuadrados}m² (base)`
-            : `Área: ${paquete.metros_lineales}m × ${paquete.altura_pared}m`}
-          fontSize={13}
+            : `${paquete.metros_lineales}m × ${paquete.altura_pared}m (a escala 1:${(100/METROS_A_PIXELES).toFixed(1)})`}
+          fontSize={12}
           fontStyle="bold"
           fill="white"
           align="center"
@@ -677,6 +691,40 @@ function PaqueteDelimiter({ paquete }) {
           listening={false}
         />
       </Group>
+
+      {/* Esquinas para referencia visual */}
+      <Text
+        x={delimiterX - 15}
+        y={delimiterY - 15}
+        text="┌"
+        fontSize={20}
+        fill="rgba(255, 255, 255, 0.5)"
+        listening={false}
+      />
+      <Text
+        x={delimiterX + delimiterWidth - 5}
+        y={delimiterY - 15}
+        text="┐"
+        fontSize={20}
+        fill="rgba(255, 255, 255, 0.5)"
+        listening={false}
+      />
+      <Text
+        x={delimiterX - 15}
+        y={delimiterY + delimiterHeight - 5}
+        text="└"
+        fontSize={20}
+        fill="rgba(255, 255, 255, 0.5)"
+        listening={false}
+      />
+      <Text
+        x={delimiterX + delimiterWidth - 5}
+        y={delimiterY + delimiterHeight - 5}
+        text="┘"
+        fontSize={20}
+        fill="rgba(255, 255, 255, 0.5)"
+        listening={false}
+      />
     </Group>
   )
 }
