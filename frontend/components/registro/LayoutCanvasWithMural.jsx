@@ -598,7 +598,7 @@ function calcularAreaDelimitada(paquete) {
 
 /**
  * Componente de línea delimitante usando el SVG personalizado
- * La línea se centra EXACTAMENTE en la posición x proporcionada
+ * La línea se posiciona EXACTAMENTE en la coordenada x proporcionada
  */
 function LineaDelimitante({ x, height }) {
   const [image] = useImage('/LINEAS_DELIMITANTE.svg')
@@ -610,9 +610,15 @@ function LineaDelimitante({ x, height }) {
   const svgAspectRatio = 231 / 1981
   const svgWidth = height * svgAspectRatio
 
-  // Centrar la línea SVG en la posición x
-  // La línea visual está en el centro del SVG, así que restamos la mitad del ancho
-  const offsetX = x - (svgWidth / 2)
+  // CRÍTICO: La línea visual dentro del SVG NO está centrada
+  // Análisis del SVG: la línea está en x=1054.73 con transform matrix(4.166667,0,0,4.166667,-4281.978333,-239.306667)
+  // Posición final de la línea: (1054.73 * 4.166667 - 4281.978333) ≈ 111.91 de 231
+  // Proporción: 111.91 / 231 ≈ 0.4845
+  const linePositionRatio = 0.4845 // Posición proporcional de la línea dentro del viewBox
+  const lineOffsetInSvg = svgWidth * linePositionRatio
+
+  // Ajustar offsetX para que la línea visual del SVG quede exactamente en x
+  const offsetX = x - lineOffsetInSvg
 
   return (
     <KonvaImage
@@ -628,7 +634,6 @@ function LineaDelimitante({ x, height }) {
 
 /**
  * Componente de líneas delimitadoras basadas en las medidas del paquete
- * Usa el SVG LINEAS_DELIMITANTE.svg para las líneas verticales
  * Las líneas se posicionan EXACTAMENTE en los bordes del área delimitada
  */
 function PaqueteDelimiter({ paquete }) {
@@ -750,6 +755,9 @@ export default function LayoutCanvasWithMural({
   const [showMetadataForm, setShowMetadataForm] = useState(false)
   // Estado para las líneas guía durante el arrastre
   const [dragGuide, setDragGuide] = useState({ x: null, y: null, width: null, height: null })
+  // Estado para drag & drop desde la fila de obras
+  const [draggedFromRow, setDraggedFromRow] = useState(null)
+  const [dropPreview, setDropPreview] = useState(null)
 
   const obrasDisponibles = todasLasObras.filter(
     (img) => !obrasEnCanvas.some((o) => o.id === img.id)
@@ -936,6 +944,83 @@ export default function LayoutCanvasWithMural({
         o.id === obraId ? { ...o, x: finalX, y: finalY } : o
       )
     )
+  }
+
+  // Handlers para drag & drop desde la fila de obras
+  const handleRowDragStart = (e, obra) => {
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/html', e.target)
+    setDraggedFromRow(obra)
+  }
+
+  const handleCanvasDragOver = (e) => {
+    if (!draggedFromRow) return
+    e.preventDefault()
+
+    // Obtener posición del mouse relativa al Stage
+    const stage = stageRef.current
+    if (!stage) return
+
+    const stageBox = stage.container().getBoundingClientRect()
+    const mouseX = e.clientX - stageBox.left - RULER_SIZE
+    const mouseY = e.clientY - stageBox.top - RULER_SIZE
+
+    // Calcular dimensiones de la obra en píxeles
+    const obraWidth = (draggedFromRow.ancho_cm || 50) * SCALE_FACTOR
+    const obraHeight = (draggedFromRow.alto_cm || 50) * SCALE_FACTOR
+
+    // Centrar el preview en el cursor
+    const previewX = mouseX - obraWidth / 2
+    const previewY = mouseY - obraHeight / 2
+
+    // Limitar al área delimitada
+    const boundedX = Math.max(
+      areaDelimitada.x,
+      Math.min(previewX, areaDelimitada.x + areaDelimitada.width - obraWidth)
+    )
+    const boundedY = Math.max(
+      areaDelimitada.y,
+      Math.min(previewY, areaDelimitada.y + areaDelimitada.height - obraHeight)
+    )
+
+    setDropPreview({
+      x: boundedX,
+      y: boundedY,
+      width: obraWidth,
+      height: obraHeight
+    })
+  }
+
+  const handleCanvasDrop = (e) => {
+    e.preventDefault()
+    if (!draggedFromRow || !dropPreview) return
+
+    // Agregar la obra al canvas en la posición del preview
+    const obraWidth = (draggedFromRow.ancho_cm || 50) * SCALE_FACTOR
+    const obraHeight = (draggedFromRow.alto_cm || 50) * SCALE_FACTOR
+
+    const newObra = {
+      id: draggedFromRow.id,
+      x: dropPreview.x,
+      y: dropPreview.y,
+      width: obraWidth,
+      height: obraHeight,
+      preview: draggedFromRow.preview,
+      titulo: draggedFromRow.titulo,
+      ancho_cm: draggedFromRow.ancho_cm,
+      alto_cm: draggedFromRow.alto_cm,
+      tecnica: draggedFromRow.tecnica,
+      anio: draggedFromRow.anio,
+      precio_mxn: draggedFromRow.precio_mxn
+    }
+
+    setObrasEnCanvas([...obrasEnCanvas, newObra])
+    setDraggedFromRow(null)
+    setDropPreview(null)
+  }
+
+  const handleCanvasDragLeave = () => {
+    setDropPreview(null)
   }
 
   const validateLayout = () => {
@@ -1190,12 +1275,15 @@ export default function LayoutCanvasWithMural({
                 <img
                   src={img.preview}
                   alt={img.titulo || 'Sin título'}
+                  draggable={!isInCanvas && hasMetadata}
+                  onDragStart={(e) => !isInCanvas && hasMetadata && handleRowDragStart(e, img)}
                   style={{
                     width: '200px',
                     height: '150px',
                     objectFit: 'cover',
                     borderRadius: '12px',
-                    marginBottom: '8px'
+                    marginBottom: '8px',
+                    cursor: !isInCanvas && hasMetadata ? 'grab' : 'default'
                   }}
                 />
 
@@ -1392,14 +1480,19 @@ export default function LayoutCanvasWithMural({
         </div>
 
         {/* Canvas sin wrapper card */}
-        <div style={{
-          width: '100%',
-          maxWidth: `${CANVAS_WIDTH + RULER_SIZE}px`,
-          overflow: 'auto',
-          background: 'white',
-          borderRadius: '8px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-        }}>
+        <div
+          style={{
+            width: '100%',
+            maxWidth: `${CANVAS_WIDTH + RULER_SIZE}px`,
+            overflow: 'auto',
+            background: 'white',
+            borderRadius: '8px',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+          }}
+          onDragOver={handleCanvasDragOver}
+          onDrop={handleCanvasDrop}
+          onDragLeave={handleCanvasDragLeave}
+        >
           <Stage ref={stageRef} width={CANVAS_WIDTH + RULER_SIZE} height={CANVAS_HEIGHT + RULER_SIZE}>
             {/* Layer de reglas */}
             <Layer>
@@ -1455,6 +1548,21 @@ export default function LayoutCanvasWithMural({
                 canvasWidth={CANVAS_WIDTH}
                 canvasHeight={CANVAS_HEIGHT}
               />
+
+              {/* Preview durante drag & drop desde la fila */}
+              {dropPreview && (
+                <Rect
+                  x={dropPreview.x}
+                  y={dropPreview.y}
+                  width={dropPreview.width}
+                  height={dropPreview.height}
+                  fill="rgba(20, 18, 16, 0.15)"
+                  stroke="#141210"
+                  strokeWidth={2}
+                  dash={[8, 8]}
+                  listening={false}
+                />
+              )}
             </Layer>
           </Stage>
         </div>
