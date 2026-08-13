@@ -12,8 +12,11 @@ const FONTS = {
 
 /**
  * Progress Bar para formulario multi-step
+ * @param {Array} steps - Array de nombres de pasos
+ * @param {Number} currentStep - Paso actual (1-indexed)
+ * @param {Function} onStepClick - Función callback cuando se hace click en un paso (opcional)
  */
-export default function ProgressBar({ steps, currentStep }) {
+export default function ProgressBar({ steps, currentStep, onStepClick }) {
   return (
     <div style={{ width: '100%' }}>
       {/* Steps */}
@@ -27,6 +30,7 @@ export default function ProgressBar({ steps, currentStep }) {
           const stepNumber = index + 1
           const isActive = stepNumber === currentStep
           const isCompleted = stepNumber < currentStep
+          const isClickable = (isCompleted || isActive) && onStepClick
 
           return (
             <div key={index} style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
@@ -38,6 +42,7 @@ export default function ProgressBar({ steps, currentStep }) {
                 flex: 1
               }}>
                 <div
+                  onClick={() => isClickable && onStepClick(stepNumber)}
                   style={{
                     width: 44,
                     height: 44,
@@ -52,7 +57,19 @@ export default function ProgressBar({ steps, currentStep }) {
                     background: isCompleted ? COLORS.black : isActive ? COLORS.red : 'rgba(20,18,16,0.2)',
                     color: isCompleted || isActive ? COLORS.cream : COLORS.gray,
                     border: isActive ? `3px solid ${COLORS.black}` : 'none',
-                    boxShadow: isActive ? '0 0 0 4px rgba(184,48,48,0.2)' : 'none'
+                    boxShadow: isActive ? '0 0 0 4px rgba(184,48,48,0.2)' : 'none',
+                    cursor: isClickable ? 'pointer' : 'default',
+                    userSelect: 'none'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (isClickable) {
+                      e.currentTarget.style.transform = 'scale(1.05)'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (isClickable) {
+                      e.currentTarget.style.transform = 'scale(1)'
+                    }
                   }}
                 >
                   {isCompleted ? (

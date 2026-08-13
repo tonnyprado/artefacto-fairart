@@ -853,7 +853,7 @@ export default function RegistroPage() {
 
         {/* Progress Bar */}
         <div style={{ marginBottom: 40 }}>
-          <ProgressBar steps={steps} currentStep={currentStep} />
+          <ProgressBar steps={steps} currentStep={currentStep} onStepClick={goToStep} />
         </div>
 
         {/* Form Card */}
