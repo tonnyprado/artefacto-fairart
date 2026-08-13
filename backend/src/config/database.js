@@ -9,10 +9,14 @@ let pool = null
 if (shouldConnectDB) {
   // Configuración del pool de conexiones a PostgreSQL
   // Priorizar DATABASE_URL (Railway) sobre variables individuales (desarrollo local)
+  // SSL requerido para AWS RDS y otros hosts remotos
+  const isRemoteHost = process.env.DB_HOST && process.env.DB_HOST !== 'localhost' && process.env.DB_HOST !== '127.0.0.1'
+  const sslConfig = (process.env.NODE_ENV === 'production' || isRemoteHost) ? { rejectUnauthorized: false } : false
+
   const config = process.env.DATABASE_URL
     ? {
         connectionString: process.env.DATABASE_URL,
-        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+        ssl: sslConfig,
         max: 20,
         idleTimeoutMillis: 30000,
         connectionTimeoutMillis: 5000,
@@ -23,6 +27,7 @@ if (shouldConnectDB) {
         database: process.env.DB_NAME || 'artefact_db',
         user: process.env.DB_USER || 'postgres',
         password: process.env.DB_PASSWORD,
+        ssl: sslConfig,
         max: 20,
         idleTimeoutMillis: 30000,
         connectionTimeoutMillis: 5000,
