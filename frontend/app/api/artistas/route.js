@@ -3,110 +3,61 @@ import { NextResponse } from 'next/server'
 /**
  * API Route para registro de artistas
  *
- * Este endpoint recibe los datos del formulario de registro
- * y los procesa/guarda en la base de datos
+ * Proxy al backend real de Railway que maneja:
+ * - Subida de archivos a AWS S3
+ * - Guardado en PostgreSQL RDS
+ * - Inscripcion a fase activa
  */
 
-// Configuración del route segment para permitir archivos grandes
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
-export const maxDuration = 30 // 30 segundos (aumentado para procesar archivos grandes)
+export const maxDuration = 60 // 60 segundos para archivos grandes
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
 
 export async function POST(request) {
   try {
+    // Obtener el FormData de la request
     const formData = await request.formData()
 
-    // Extraer datos del formulario
-    const artistaData = {
-      // Datos personales
-      nombre: formData.get('nombre'),
-      apellido: formData.get('apellido'),
-      email: formData.get('email'),
-      telefono: formData.get('telefono'),
-      fecha_nacimiento: formData.get('fecha_nacimiento'),
-      pais: formData.get('pais'),
-      ciudad: formData.get('ciudad'),
+    // Log para debugging
+    console.log('=== REGISTRO: Enviando al backend ===')
+    console.log('Backend URL:', BACKEND_URL)
+    console.log('Campos recibidos:', [...formData.keys()])
 
-      // Información artística
-      categoria: formData.get('categoria'),
-      bio: formData.get('bio'),
-      instagram: formData.get('instagram'),
-      website: formData.get('website'),
-
-      // Paquete seleccionado
-      paquete_id: formData.get('paquete_id'),
-
-      // Archivos
-      foto: formData.get('foto'),
-      cv: formData.get('cv'),
-      portfolio: formData.get('portfolio'),
-      identificacion: formData.get('identificacion'),
-
-      // Canvas y obras del lienzo
-      layout_canvas_image: formData.get('layout_canvas_image'),
-      layout_canvas_data: formData.get('layout_canvas_data'),
-
-      // Obras del lienzo (con metadata)
-      obras_lienzo: []
-    }
-
-    // Procesar obras del lienzo
-    const obrasCount = parseInt(formData.get('obras_lienzo_count') || '0')
-    for (let i = 0; i < obrasCount; i++) {
-      artistaData.obras_lienzo.push({
-        file: formData.get(`obra_lienzo_${i}`),
-        titulo: formData.get(`obra_lienzo_${i}_titulo`),
-        alto_cm: formData.get(`obra_lienzo_${i}_alto_cm`),
-        ancho_cm: formData.get(`obra_lienzo_${i}_ancho_cm`),
-        precio_mxn: formData.get(`obra_lienzo_${i}_precio_mxn`)
-      })
-    }
-
-    // Log para debugging (en producción, guardarías esto en DB)
-    console.log('Registro de artista recibido:', {
-      nombre: artistaData.nombre,
-      email: artistaData.email,
-      categoria: artistaData.categoria,
-      paquete_id: artistaData.paquete_id,
-      obras_count: artistaData.obras_lienzo.length,
-      obras_con_precios: artistaData.obras_lienzo.map(o => ({
-        titulo: o.titulo,
-        precio_mxn: o.precio_mxn
-      }))
+    // Enviar al backend real
+    const response = await fetch(`${BACKEND_URL}/registro`, {
+      method: 'POST',
+      body: formData,
+      // No establecer Content-Type, fetch lo hace automaticamente con FormData
     })
 
-    // TODO: Aquí deberías:
-    // 1. Subir archivos a Cloudinary o S3
-    // 2. Guardar datos en base de datos (Supabase/PostgreSQL)
-    // 3. Enviar email de confirmación
-    // 4. Crear registro en sistema de votación/curaduría
+    const data = await response.json()
 
-    // Por ahora, simulamos éxito
-    return NextResponse.json({
-      success: true,
-      message: 'Registro recibido exitosamente',
-      data: {
-        artista_id: `TEMP-${Date.now()}`,
-        nombre: artistaData.nombre,
-        email: artistaData.email,
-        obras_registradas: artistaData.obras_lienzo.length
-      }
-    }, { status: 201 })
+    console.log('=== REGISTRO: Respuesta del backend ===')
+    console.log('Status:', response.status)
+    console.log('Data:', JSON.stringify(data, null, 2))
+
+    if (!response.ok) {
+      return NextResponse.json(data, { status: response.status })
+    }
+
+    return NextResponse.json(data, { status: 201 })
 
   } catch (error) {
     console.error('Error al procesar registro:', error)
     return NextResponse.json({
       success: false,
-      error: 'Error al procesar el registro',
+      error: 'Error al conectar con el servidor',
       message: error.message
     }, { status: 500 })
   }
 }
 
-// Método GET para consultar status (opcional)
 export async function GET(request) {
   return NextResponse.json({
     status: 'API de artistas activa',
-    version: '1.0.0'
+    backend: BACKEND_URL,
+    version: '2.0.0'
   })
 }
