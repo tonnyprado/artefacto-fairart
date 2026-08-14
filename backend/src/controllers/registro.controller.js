@@ -9,6 +9,7 @@
 
 import pool from '../config/database.js'
 import { uploadToS3 } from '../services/upload.service.js'
+import { enviarConfirmacionRegistro, notificarNuevoArtista, isBrevoConfigured } from '../services/email.service.js'
 
 // Verificar si S3 está configurado
 const isS3Configured = () => {
@@ -272,7 +273,39 @@ export const registrarArtista = async (req, res) => {
     console.log('   Nombre:', nuevoArtista.nombre, nuevoArtista.apellido)
 
     // ========================================
-    // 6. RESPUESTA
+    // 6. ENVIAR EMAILS (async, no bloquea respuesta)
+    // ========================================
+    if (isBrevoConfigured()) {
+      // Email de confirmación al artista
+      enviarConfirmacionRegistro({
+        nombre: nuevoArtista.nombre,
+        apellido: nuevoArtista.apellido,
+        email: nuevoArtista.email,
+        folio: nuevoArtista.folio,
+        categoria: nuevoArtista.categoria
+      }).then(result => {
+        if (result.success) {
+          console.log('📧 Email de confirmación enviado al artista')
+        }
+      }).catch(err => console.error('Error enviando email de confirmación:', err))
+
+      // Notificación al admin
+      notificarNuevoArtista({
+        nombre: nuevoArtista.nombre,
+        apellido: nuevoArtista.apellido,
+        email: nuevoArtista.email,
+        folio: nuevoArtista.folio,
+        categoria: nuevoArtista.categoria,
+        paquete_id: nuevoArtista.paquete_id
+      }).then(result => {
+        if (result.success) {
+          console.log('📧 Notificación enviada al admin')
+        }
+      }).catch(err => console.error('Error enviando notificación al admin:', err))
+    }
+
+    // ========================================
+    // 7. RESPUESTA
     // ========================================
     const mensaje = s3Available
       ? '¡Registro exitoso! Tu solicitud está pendiente de aprobación.'

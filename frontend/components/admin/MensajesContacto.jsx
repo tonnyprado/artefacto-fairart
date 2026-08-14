@@ -11,9 +11,12 @@ import Button from '@/components/ui/Button'
  * - Ver todos los mensajes recibidos desde el formulario de contacto
  * - Filtrar por estado (leído/no leído, respondido/pendiente)
  * - Marcar mensajes como leídos
- * - Responder mensajes directamente (con SendGrid)
+ * - Responder mensajes directamente (con Brevo)
  * - Eliminar mensajes
  */
+
+// URL base del API (usar variable de entorno o fallback a localhost)
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
 
 const cardStyle = {
   backgroundColor: 'white',
@@ -44,7 +47,7 @@ export default function MensajesContacto() {
     try {
       setLoading(true)
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/contacto/mensajes', {
+      const response = await fetch('${API_URL}/api/contacto', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -65,7 +68,7 @@ export default function MensajesContacto() {
   const marcarComoLeido = async (id) => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/contacto/mensajes/${id}/leido`, {
+      const response = await fetch(`${API_URL}/api/contacto/${id}/marcar-leido`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -92,8 +95,8 @@ export default function MensajesContacto() {
     try {
       setEnviandoRespuesta(true)
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/contacto/mensajes/${selectedMensaje.id}/responder`, {
-        method: 'POST',
+      const response = await fetch(`${API_URL}/api/contacto/${selectedMensaje.id}/responder`, {
+        method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -105,7 +108,15 @@ export default function MensajesContacto() {
 
       if (!response.ok) throw new Error('Error al enviar respuesta')
 
-      alert('Respuesta enviada correctamente')
+      const result = await response.json()
+
+      // Mostrar mensaje según si se envió el email o no
+      if (result.email_enviado) {
+        alert('Respuesta enviada por email correctamente')
+      } else {
+        alert('Respuesta guardada (email no configurado)')
+      }
+
       setShowResponseModal(false)
       setRespuestaText('')
       fetchMensajes() // Recargar mensajes
@@ -122,7 +133,7 @@ export default function MensajesContacto() {
 
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/contacto/mensajes/${id}`, {
+      const response = await fetch(`${API_URL}/api/contacto/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
