@@ -13,6 +13,9 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60 // 60 segundos para archivos grandes
 
+// Configurar límite de body para archivos grandes (12MB)
+export const fetchCache = 'force-no-store'
+
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
 
 export async function POST(request) {

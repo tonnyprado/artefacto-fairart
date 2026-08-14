@@ -318,6 +318,10 @@ export default function RegistroPage() {
         fileSizes.canvas = Math.round(formData.layout_canvas_blob.size / 1024)
         totalSize += formData.layout_canvas_blob.size
       }
+      if (formData.layout_canvas_pdf_blob) {
+        fileSizes.canvas_pdf = Math.round(formData.layout_canvas_pdf_blob.size / 1024)
+        totalSize += formData.layout_canvas_pdf_blob.size
+      }
       if (formData.obras_lienzo) {
         formData.obras_lienzo.forEach((obra, i) => {
           if (obra.file) {
@@ -333,6 +337,7 @@ export default function RegistroPage() {
       console.log('Portfolio:', fileSizes.portfolio, 'KB')
       console.log('Identificación:', fileSizes.identificacion, 'KB')
       console.log('Canvas:', fileSizes.canvas, 'KB')
+      console.log('Canvas PDF:', fileSizes.canvas_pdf, 'KB')
       Object.keys(fileSizes).filter(k => k.startsWith('obra_')).forEach(k => {
         console.log(k + ':', fileSizes[k], 'KB')
       })

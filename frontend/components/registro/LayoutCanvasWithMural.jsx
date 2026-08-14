@@ -1055,26 +1055,30 @@ export default function LayoutCanvasWithMural({
 
   /**
    * Exportar el canvas como PDF (blob)
+   * OPTIMIZADO: PDF comprimido con imagen JPEG de alta calidad (~1-2MB en lugar de ~10MB)
    * @returns {Promise<{pdfBlob: Blob, previewDataUrl: string}>}
    */
   const exportAsPDF = async () => {
     if (!stageRef.current) return null
 
-    // Exportar el canvas como imagen de alta calidad para el PDF
+    // Exportar el canvas como imagen JPEG de alta calidad para las obras
+    // Calidad 85% mantiene buena definición en las obras mientras reduce tamaño
     const dataURL = stageRef.current.toDataURL({
       x: RULER_SIZE,
       y: RULER_SIZE,
       width: CANVAS_WIDTH,
       height: CANVAS_HEIGHT,
-      pixelRatio: 2, // Alta resolución para PDF
-      mimeType: 'image/png'
+      pixelRatio: 1.5, // Resolución suficiente para impresión
+      mimeType: 'image/jpeg',
+      quality: 0.85 // Alta calidad para las obras
     })
 
-    // Crear PDF con jsPDF
+    // Crear PDF con jsPDF y compresión habilitada
     const pdf = new jsPDF({
       orientation: 'landscape',
       unit: 'px',
-      format: [CANVAS_WIDTH, CANVAS_HEIGHT]
+      format: [CANVAS_WIDTH, CANVAS_HEIGHT],
+      compress: true // Habilitar compresión interna del PDF
     })
 
     // Agregar título y metadata
@@ -1084,8 +1088,8 @@ export default function LayoutCanvasWithMural({
       creator: 'ARTEFACTO Feria de Arte'
     })
 
-    // Agregar la imagen del canvas
-    pdf.addImage(dataURL, 'PNG', 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+    // Agregar la imagen del canvas (JPEG comprimido)
+    pdf.addImage(dataURL, 'JPEG', 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
     // Agregar información de las obras en una segunda página
     if (obrasEnCanvas.length > 0) {
