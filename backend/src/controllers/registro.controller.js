@@ -78,6 +78,7 @@ export const registrarArtista = async (req, res) => {
     let portfolio_url = null
     let identificacion_url = null
     let layout_canvas_url = null
+    let layout_canvas_pdf_url = null
 
     const s3Available = isS3Configured()
 
@@ -116,11 +117,18 @@ export const registrarArtista = async (req, res) => {
         identificacion_url = await uploadToS3(buffer, originalname, mimetype, 'artistas/documentos')
       }
 
-      // Canvas
+      // Canvas imagen (preview)
       if (req.files?.layout_canvas_image?.[0]) {
-        console.log('🎨 Subiendo Canvas...')
+        console.log('🎨 Subiendo Canvas (imagen preview)...')
         const { buffer, originalname, mimetype } = req.files.layout_canvas_image[0]
         layout_canvas_url = await uploadToS3(buffer, originalname, mimetype, 'artistas/canvas')
+      }
+
+      // Canvas PDF (documento completo)
+      if (req.files?.layout_canvas_pdf?.[0]) {
+        console.log('📄 Subiendo Canvas (PDF)...')
+        const { buffer, originalname, mimetype } = req.files.layout_canvas_pdf[0]
+        layout_canvas_pdf_url = await uploadToS3(buffer, originalname, mimetype, 'artistas/canvas')
       }
     }
 
@@ -136,6 +144,11 @@ export const registrarArtista = async (req, res) => {
       } catch (e) {
         console.error('Error parsing layout_canvas_data:', e)
       }
+    }
+
+    // Agregar URL del PDF al layout_canvas_data
+    if (layout_canvas_pdf_url) {
+      parsedLayoutData.pdf_url = layout_canvas_pdf_url
     }
 
     // ========================================

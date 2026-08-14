@@ -83,14 +83,17 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
   const handleSaveAndContinue = (layoutData, layoutUrl, obrasCompletas) => {
     console.log('Step5Paquetes: handleSaveAndContinue llamado con:', {
       layoutUrl: layoutUrl ? 'presente' : 'ausente',
-      obrasCount: obrasCompletas?.length || 0
+      obrasCount: obrasCompletas?.length || 0,
+      hasPdfBlob: layoutData?.canvas_pdf_blob ? 'si' : 'no'
     })
 
-    // Guardar layout
+    // Guardar layout con PDF y preview
     updateFormData({
       layout_canvas_data: layoutData,
       layout_canvas_url: layoutUrl,
-      layout_canvas_blob: layoutData.canvas_image_blob,
+      layout_canvas_blob: layoutData.canvas_image_blob, // Imagen para preview
+      layout_canvas_pdf_blob: layoutData.canvas_pdf_blob, // PDF completo
+      layout_canvas_preview_url: layoutData.canvas_preview_url, // Preview de alta calidad
       obras_lienzo: obrasCompletas || [] // Obras con archivos completos
     })
 

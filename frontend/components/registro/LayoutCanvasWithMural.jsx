@@ -1053,6 +1053,92 @@ export default function LayoutCanvasWithMural({
     return blob
   }
 
+  /**
+   * Exportar el canvas como PDF (blob)
+   * @returns {Promise<{pdfBlob: Blob, previewDataUrl: string}>}
+   */
+  const exportAsPDF = async () => {
+    if (!stageRef.current) return null
+
+    // Exportar el canvas como imagen de alta calidad para el PDF
+    const dataURL = stageRef.current.toDataURL({
+      x: RULER_SIZE,
+      y: RULER_SIZE,
+      width: CANVAS_WIDTH,
+      height: CANVAS_HEIGHT,
+      pixelRatio: 2, // Alta resolución para PDF
+      mimeType: 'image/png'
+    })
+
+    // Crear PDF con jsPDF
+    const pdf = new jsPDF({
+      orientation: 'landscape',
+      unit: 'px',
+      format: [CANVAS_WIDTH, CANVAS_HEIGHT]
+    })
+
+    // Agregar título y metadata
+    pdf.setProperties({
+      title: `Layout - ${paquete?.nombre || 'Artista'}`,
+      subject: 'Layout del Lienzo - ARTEFACTO 2027',
+      creator: 'ARTEFACTO Feria de Arte'
+    })
+
+    // Agregar la imagen del canvas
+    pdf.addImage(dataURL, 'PNG', 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+
+    // Agregar información de las obras en una segunda página
+    if (obrasEnCanvas.length > 0) {
+      pdf.addPage([CANVAS_WIDTH, CANVAS_HEIGHT], 'landscape')
+      pdf.setFontSize(24)
+      pdf.setTextColor(20, 18, 16)
+      pdf.text('Detalle de Obras', 40, 50)
+
+      let yPos = 90
+      pdf.setFontSize(12)
+
+      obrasEnCanvas.forEach((obra, index) => {
+        if (yPos > CANVAS_HEIGHT - 100) {
+          pdf.addPage([CANVAS_WIDTH, CANVAS_HEIGHT], 'landscape')
+          yPos = 50
+        }
+
+        pdf.setFontSize(14)
+        pdf.setTextColor(20, 18, 16)
+        pdf.text(`${index + 1}. ${obra.titulo || 'Sin título'}`, 40, yPos)
+        yPos += 20
+
+        pdf.setFontSize(11)
+        pdf.setTextColor(107, 107, 107)
+        pdf.text(`Dimensiones: ${obra.ancho_cm} × ${obra.alto_cm} cm`, 60, yPos)
+        yPos += 15
+        pdf.text(`Técnica: ${obra.tecnica || '-'}`, 60, yPos)
+        yPos += 15
+        pdf.text(`Año: ${obra.anio || '-'}`, 60, yPos)
+        yPos += 15
+        pdf.text(`Precio: $${obra.precio_mxn?.toLocaleString('es-MX') || '-'} MXN`, 60, yPos)
+        yPos += 15
+
+        if (obra.notas_montaje) {
+          pdf.text(`Notas de montaje: ${obra.notas_montaje}`, 60, yPos)
+          yPos += 15
+        }
+
+        yPos += 20 // Espacio entre obras
+      })
+    }
+
+    // Obtener el PDF como blob
+    const pdfBlob = pdf.output('blob')
+
+    console.log('PDF generado - Tamaño:', Math.round(pdfBlob.size / 1024), 'KB')
+
+    return {
+      pdfBlob,
+      previewDataUrl: dataURL // Para vista previa
+    }
+  }
+
   const generatePDF = () => {
     if (!stageRef.current) return
 
@@ -1127,18 +1213,24 @@ export default function LayoutCanvasWithMural({
     setIsSaving(true)
 
     try {
-      console.log('Exportando canvas...')
-      // Exportar canvas como imagen
-      const imageBlob = await exportAsImage()
-      console.log('Canvas exportado, blob size:', imageBlob.size)
+      console.log('Exportando canvas como PDF...')
 
-      // Convertir blob a data URL para vista previa
-      const reader = new FileReader()
+      // Exportar canvas como PDF
+      const pdfResult = await exportAsPDF()
+      if (!pdfResult) {
+        throw new Error('No se pudo generar el PDF')
+      }
+
+      const { pdfBlob, previewDataUrl } = pdfResult
+      console.log('PDF generado, blob size:', pdfBlob.size)
+
+      // También exportar una imagen de baja resolución para vista previa rápida
+      const imageBlob = await exportAsImage()
+      const imageReader = new FileReader()
       const imageDataURL = await new Promise((resolve) => {
-        reader.onloadend = () => resolve(reader.result)
-        reader.readAsDataURL(imageBlob)
+        imageReader.onloadend = () => resolve(imageReader.result)
+        imageReader.readAsDataURL(imageBlob)
       })
-      console.log('Data URL generado')
 
       // Preparar datos del layout con las obras completas
       const layoutData = {
@@ -1147,8 +1239,12 @@ export default function LayoutCanvasWithMural({
         metros_lineales: paquete.metros_lineales,
         canvas_width: CANVAS_WIDTH,
         canvas_height: CANVAS_HEIGHT,
+        // PDF del lienzo
+        canvas_pdf_blob: pdfBlob,
+        // Imagen de baja resolución para preview
         canvas_image_blob: imageBlob,
-        canvas_image_url: imageDataURL, // Para vista previa inmediata
+        canvas_image_url: imageDataURL, // Para vista previa inmediata (baja resolución)
+        canvas_preview_url: previewDataUrl, // Para vista previa de alta calidad
         obras: obrasEnCanvas.map((obra) => ({
           id: obra.id,
           titulo: obra.titulo,
@@ -1171,10 +1267,10 @@ export default function LayoutCanvasWithMural({
         layoutData.obras.some(obraCanvas => obraCanvas.id === obra.id)
       )
 
-      console.log('Layout data preparado, obras:', obrasCompletas.length)
+      console.log('Layout data preparado con PDF, obras:', obrasCompletas.length)
 
       if (onSaveAndContinue) {
-        // Pasar el layout con la imagen y las obras
+        // Pasar el layout con el PDF, la imagen y las obras
         console.log('Llamando a onSaveAndContinue...')
         onSaveAndContinue(layoutData, imageDataURL, obrasCompletas)
       } else {

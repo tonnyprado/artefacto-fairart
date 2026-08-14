@@ -57,7 +57,8 @@ export const uploadArtistaFiles = upload.fields([
   { name: 'cv', maxCount: 1 },                      // CV PDF
   { name: 'portfolio', maxCount: 1 },               // Portfolio PDF
   { name: 'identificacion', maxCount: 1 },          // Identificación
-  { name: 'layout_canvas_image', maxCount: 1 },     // Canvas generado
+  { name: 'layout_canvas_image', maxCount: 1 },     // Canvas generado (imagen preview)
+  { name: 'layout_canvas_pdf', maxCount: 1 },       // Canvas generado (PDF completo)
   { name: 'obra_lienzo_0', maxCount: 1 },           // Obras del lienzo
   { name: 'obra_lienzo_1', maxCount: 1 },
   { name: 'obra_lienzo_2', maxCount: 1 },

@@ -260,7 +260,12 @@ export default function RegistroPage() {
         formDataToSend.append('paquete_id', formData.paquete_id)
       }
 
-      // Canvas image (blob) - JPEG comprimido para evitar error 413
+      // Canvas PDF (blob) - PDF completo con detalle de obras
+      if (formData.layout_canvas_pdf_blob) {
+        formDataToSend.append('layout_canvas_pdf', formData.layout_canvas_pdf_blob, 'lienzo.pdf')
+      }
+
+      // Canvas image (blob) - JPEG comprimido para preview
       if (formData.layout_canvas_blob) {
         formDataToSend.append('layout_canvas_image', formData.layout_canvas_blob, 'lienzo.jpg')
       }
@@ -364,6 +369,17 @@ export default function RegistroPage() {
       }
 
       console.log('Registro exitoso:', result)
+      // Guardar el preview del canvas antes de limpiar el localStorage
+      // para que la página de confirmación pueda mostrarlo
+      if (formData.layout_canvas_url || formData.layout_canvas_preview_url) {
+        const confirmacionData = {
+          layout_canvas_url: formData.layout_canvas_url || formData.layout_canvas_preview_url,
+          paquete_nombre: formData.layout_canvas_data?.paquete_nombre,
+          obras_count: formData.obras_lienzo?.length || 0
+        }
+        localStorage.setItem('artefacto_confirmacion_data', JSON.stringify(confirmacionData))
+      }
+
       // Limpiar localStorage después de envío exitoso
       localStorage.removeItem('artefacto_registro_draft')
 

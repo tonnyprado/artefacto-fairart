@@ -2,9 +2,11 @@
  * Servicio de Upload a AWS S3 con compresión automática
  * Usa Sharp para comprimir imágenes antes de subirlas
  * Maneja PDFs y otros documentos sin comprimir
+ * Soporta URLs prefirmadas para acceso seguro
  */
 
-import { S3Client } from '@aws-sdk/client-s3'
+import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { Upload } from '@aws-sdk/lib-storage'
 import sharp from 'sharp'
 import path from 'path'
@@ -183,4 +185,86 @@ export const validateFileSize = (buffer, maxSizeMB = 10) => {
  */
 export const validateFileType = (mimetype, allowedTypes) => {
   return allowedTypes.includes(mimetype)
+}
+
+/**
+ * Extraer la Key de S3 desde una URL completa
+ * @param {string} url - URL de S3
+ * @returns {string|null} - Key del objeto en S3
+ */
+const extractKeyFromUrl = (url) => {
+  if (!url) return null
+
+  try {
+    // URL format: https://bucket.s3.region.amazonaws.com/key
+    const urlObj = new URL(url)
+    // Remove leading slash
+    return urlObj.pathname.substring(1)
+  } catch (error) {
+    console.error('Error extrayendo key de URL:', error)
+    return null
+  }
+}
+
+/**
+ * Generar URL prefirmada para acceso temporal a un archivo
+ * @param {string} url - URL pública del archivo en S3
+ * @param {number} expiresIn - Tiempo de expiración en segundos (default: 1 hora)
+ * @returns {Promise<string>} - URL prefirmada
+ */
+export const getPresignedUrl = async (url, expiresIn = 3600) => {
+  try {
+    const key = extractKeyFromUrl(url)
+    if (!key) {
+      console.error('No se pudo extraer key de URL:', url)
+      return url // Devolver URL original si no se puede procesar
+    }
+
+    const command = new GetObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key
+    })
+
+    const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn })
+    return presignedUrl
+  } catch (error) {
+    console.error('Error generando URL prefirmada:', error)
+    return url // Devolver URL original si falla
+  }
+}
+
+/**
+ * Generar URLs prefirmadas para múltiples archivos
+ * @param {Array<string>} urls - Array de URLs de S3
+ * @param {number} expiresIn - Tiempo de expiración en segundos
+ * @returns {Promise<Array<string>>} - Array de URLs prefirmadas
+ */
+export const getPresignedUrls = async (urls, expiresIn = 3600) => {
+  try {
+    const promises = urls.map(url => getPresignedUrl(url, expiresIn))
+    return await Promise.all(promises)
+  } catch (error) {
+    console.error('Error generando URLs prefirmadas:', error)
+    return urls
+  }
+}
+
+/**
+ * Transformar objeto de documentos con URLs prefirmadas
+ * @param {Object} documentos - Objeto con URLs de documentos
+ * @param {number} expiresIn - Tiempo de expiración en segundos
+ * @returns {Promise<Object>} - Objeto con URLs prefirmadas
+ */
+export const getPresignedDocumentos = async (documentos, expiresIn = 3600) => {
+  if (!documentos) return documentos
+
+  const result = {}
+  for (const [key, url] of Object.entries(documentos)) {
+    if (url && typeof url === 'string' && url.includes('s3.')) {
+      result[key] = await getPresignedUrl(url, expiresIn)
+    } else {
+      result[key] = url
+    }
+  }
+  return result
 }

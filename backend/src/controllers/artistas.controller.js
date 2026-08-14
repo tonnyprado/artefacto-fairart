@@ -5,6 +5,7 @@
  */
 
 import pool from '../config/database.js'
+import { getPresignedUrl } from '../services/upload.service.js'
 import {
   artistas,
   artistas_fases,
@@ -32,17 +33,29 @@ export const getAllArtistas = async (req, res) => {
     } = req.query
 
     if (useDatabase()) {
-      // Construir query con filtros y JOINs para fase
+      // Construir query con filtros y JOINs para fase, paquete y votos
       let query = `
         SELECT
           a.*,
           af.fase_id,
           af.seleccionado as fase_seleccionado,
           f.nombre as fase_nombre,
-          f.numero_fase
+          f.numero_fase,
+          f.inscripciones_abiertas as fase_inscripciones_abiertas,
+          f.votaciones_abiertas as fase_votacion_abierta,
+          p.nombre as paquete_nombre,
+          p.tipo as paquete_tipo,
+          p.metros_lineales as paquete_metros_lineales,
+          p.altura_pared as paquete_altura_pared,
+          p.metros_cuadrados as paquete_metros_cuadrados,
+          p.precio as paquete_precio_mxn,
+          p.obras_maximas as paquete_obras_maximas,
+          COALESCE((SELECT COUNT(*) FROM votaciones v WHERE v.artista_id = a.id AND v.voto = true), 0) as votos_favor,
+          COALESCE((SELECT COUNT(*) FROM votaciones v WHERE v.artista_id = a.id AND v.voto = false), 0) as votos_contra
         FROM artistas a
         LEFT JOIN artistas_fases af ON af.artista_id = a.id
         LEFT JOIN fases f ON f.id = af.fase_id
+        LEFT JOIN paquetes p ON p.id = a.paquete_id
         WHERE 1=1
       `
       const params = []
@@ -108,9 +121,54 @@ export const getAllArtistas = async (req, res) => {
 
       const result = await pool.query(query, params)
 
+      // Transformar campos para cada artista
+      const artistasTransformados = result.rows.map(artista => ({
+        ...artista,
+        // Agrupar redes sociales
+        redes_sociales: {
+          instagram: artista.instagram,
+          facebook: artista.facebook,
+          website: artista.website,
+          sitio_web: artista.website // Alias para compatibilidad
+        },
+        // Agrupar documentos
+        documentos: {
+          cv_url: artista.cv_url,
+          cv: artista.cv_url, // Alias
+          portfolio_url: artista.portfolio_url,
+          portfolio: artista.portfolio_url, // Alias
+          identificacion_url: artista.identificacion_url,
+          identificacion: artista.identificacion_url // Alias
+        },
+        // Mapear estado para compatibilidad
+        estado: artista.estado_registro || artista.estado || 'pendiente',
+        // Agregar info del paquete
+        paquete: artista.paquete_id ? {
+          id: artista.paquete_id,
+          nombre: artista.paquete_nombre,
+          tipo: artista.paquete_tipo,
+          metros_lineales: artista.paquete_metros_lineales,
+          altura_pared: artista.paquete_altura_pared,
+          metros_cuadrados: artista.paquete_metros_cuadrados,
+          precio_mxn: artista.paquete_precio_mxn,
+          obras_maximas: artista.paquete_obras_maximas
+        } : null,
+        // Agregar info de fase si está disponible
+        fase_inscripcion: artista.fase_id ? {
+          id: artista.fase_id,
+          nombre: artista.fase_nombre,
+          numero_fase: artista.numero_fase,
+          inscripciones_abiertas: artista.fase_inscripciones_abiertas,
+          votacion_abierta: artista.fase_votacion_abierta
+        } : null,
+        // Votos
+        total_votos_favor: parseInt(artista.votos_favor) || 0,
+        total_votos_contra: parseInt(artista.votos_contra) || 0
+      }))
+
       return res.json({
         success: true,
-        data: result.rows,
+        data: artistasTransformados,
         total: total
       })
     }
@@ -202,23 +260,101 @@ export const getArtistaById = async (req, res) => {
         [id]
       )
 
+      // Obtener información del paquete
+      let paqueteInfo = null
+      if (artista.paquete_id) {
+        const paqueteResult = await pool.query(
+          'SELECT * FROM paquetes WHERE id = $1',
+          [artista.paquete_id]
+        )
+        if (paqueteResult.rows.length > 0) {
+          paqueteInfo = paqueteResult.rows[0]
+        }
+      }
+
+      // Obtener información de la fase de inscripción
+      let faseInfo = null
+      const faseResult = await pool.query(
+        `SELECT f.* FROM fases f
+         INNER JOIN artistas_fases af ON af.fase_id = f.id
+         WHERE af.artista_id = $1
+         LIMIT 1`,
+        [id]
+      )
+      if (faseResult.rows.length > 0) {
+        faseInfo = faseResult.rows[0]
+      }
+
+      // Contar votos a favor y en contra
+      const votosFavorResult = await pool.query(
+        'SELECT COUNT(*) as total FROM votaciones WHERE artista_id = $1 AND voto = true',
+        [id]
+      )
+      const votosContraResult = await pool.query(
+        'SELECT COUNT(*) as total FROM votaciones WHERE artista_id = $1 AND voto = false',
+        [id]
+      )
+
+      // Generar URLs prefirmadas para documentos (válidas por 1 hora)
+      const [fotoUrl, cvUrl, portfolioUrl, identificacionUrl, layoutCanvasUrl] = await Promise.all([
+        artista.foto ? getPresignedUrl(artista.foto) : null,
+        artista.cv_url ? getPresignedUrl(artista.cv_url) : null,
+        artista.portfolio_url ? getPresignedUrl(artista.portfolio_url) : null,
+        artista.identificacion_url ? getPresignedUrl(artista.identificacion_url) : null,
+        artista.layout_canvas_url ? getPresignedUrl(artista.layout_canvas_url) : null
+      ])
+
+      // Generar URLs prefirmadas para las imágenes de las obras
+      const obrasConUrls = await Promise.all(
+        obrasResult.rows.map(async (obra) => ({
+          ...obra,
+          imagen_url: obra.imagen_url ? await getPresignedUrl(obra.imagen_url) : null
+        }))
+      )
+
       return res.json({
         success: true,
         data: {
           ...artista,
+          foto: fotoUrl,
+          layout_canvas_url: layoutCanvasUrl,
           redes_sociales: {
             instagram: artista.instagram,
             facebook: artista.facebook,
-            website: artista.website
+            website: artista.website,
+            sitio_web: artista.website
           },
           documentos: {
-            cv_url: artista.cv_url,
-            portfolio_url: artista.portfolio_url,
-            identificacion_url: artista.identificacion_url,
-            portfolio_images: obrasResult.rows
+            cv_url: cvUrl,
+            cv: cvUrl,
+            portfolio_url: portfolioUrl,
+            portfolio: portfolioUrl,
+            identificacion_url: identificacionUrl,
+            identificacion: identificacionUrl,
+            portfolio_images: obrasConUrls
           },
+          paquete: paqueteInfo ? {
+            id: paqueteInfo.id,
+            nombre: paqueteInfo.nombre,
+            tipo: paqueteInfo.tipo,
+            metros_lineales: paqueteInfo.metros_lineales,
+            altura_pared: paqueteInfo.altura_pared,
+            metros_cuadrados: paqueteInfo.metros_cuadrados,
+            precio_mxn: paqueteInfo.precio
+          } : null,
+          fase_inscripcion: faseInfo ? {
+            id: faseInfo.id,
+            nombre: faseInfo.nombre,
+            numero_fase: faseInfo.numero_fase,
+            inscripciones_abiertas: faseInfo.inscripciones_abiertas,
+            votacion_abierta: faseInfo.votaciones_abiertas,
+            descripcion: faseInfo.descripcion
+          } : null,
           fases: fasesArtista,
-          total_votos: totalVotos
+          total_votos: totalVotos,
+          total_votos_favor: parseInt(votosFavorResult.rows[0].total) || 0,
+          total_votos_contra: parseInt(votosContraResult.rows[0].total) || 0,
+          estado: artista.estado_registro || artista.estado || 'pendiente'
         }
       })
     }

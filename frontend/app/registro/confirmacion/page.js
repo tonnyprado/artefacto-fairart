@@ -14,9 +14,24 @@ function ConfirmacionContent() {
   const email = searchParams.get('email')
 
   const [mounted, setMounted] = useState(false)
+  const [canvasData, setCanvasData] = useState(null)
+  const [showCanvasModal, setShowCanvasModal] = useState(false)
 
   useEffect(() => {
     setMounted(true)
+
+    // Recuperar datos del canvas si están disponibles
+    try {
+      const savedData = localStorage.getItem('artefacto_confirmacion_data')
+      if (savedData) {
+        const parsed = JSON.parse(savedData)
+        setCanvasData(parsed)
+        // Limpiar después de leer (opcional, para que no persista)
+        // localStorage.removeItem('artefacto_confirmacion_data')
+      }
+    } catch (error) {
+      console.error('Error leyendo datos de confirmación:', error)
+    }
   }, [])
 
   if (!mounted) {
@@ -252,6 +267,114 @@ function ConfirmacionContent() {
               </span>
             </p>
           </div>
+
+          {/* Tu Lienzo - Preview del canvas */}
+          {canvasData?.layout_canvas_url && (
+            <div style={{
+              marginTop: '24px',
+              background: '#F3E8FF',
+              borderRadius: '16px',
+              padding: '20px',
+              border: '2px solid #C084FC'
+            }}>
+              <h3 style={{
+                fontWeight: 600,
+                color: '#7C3AED',
+                marginBottom: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontFamily: 'acumin-pro, sans-serif',
+                fontSize: '16px'
+              }}>
+                <span>🎨</span> Tu Lienzo
+                {canvasData.obras_count > 0 && (
+                  <span style={{
+                    fontSize: '12px',
+                    background: '#7C3AED',
+                    color: 'white',
+                    padding: '2px 8px',
+                    borderRadius: '12px'
+                  }}>
+                    {canvasData.obras_count} obra{canvasData.obras_count > 1 ? 's' : ''}
+                  </span>
+                )}
+              </h3>
+
+              {canvasData.paquete_nombre && (
+                <p style={{
+                  fontSize: '14px',
+                  color: '#6B21A8',
+                  marginBottom: '12px',
+                  fontFamily: 'acumin-pro, sans-serif'
+                }}>
+                  Paquete: <strong>{canvasData.paquete_nombre}</strong>
+                </p>
+              )}
+
+              {/* Preview de imagen clickeable */}
+              <div
+                onClick={() => setShowCanvasModal(true)}
+                style={{
+                  cursor: 'pointer',
+                  borderRadius: '12px',
+                  overflow: 'hidden',
+                  border: '2px solid #E9D5FF',
+                  transition: 'border-color 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.borderColor = '#A855F7'}
+                onMouseLeave={(e) => e.currentTarget.style.borderColor = '#E9D5FF'}
+              >
+                <img
+                  src={canvasData.layout_canvas_url}
+                  alt="Tu lienzo"
+                  style={{
+                    width: '100%',
+                    maxHeight: '200px',
+                    objectFit: 'contain',
+                    background: 'white'
+                  }}
+                />
+              </div>
+
+              <p style={{
+                fontSize: '12px',
+                color: '#7C3AED',
+                marginTop: '8px',
+                textAlign: 'center',
+                fontFamily: 'acumin-pro, sans-serif'
+              }}>
+                Click en la imagen para ampliar
+              </p>
+
+              {/* Botón de descarga */}
+              <div style={{ marginTop: '12px', textAlign: 'center' }}>
+                <a
+                  href={canvasData.layout_canvas_url}
+                  download="mi-lienzo-artefacto.jpg"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '10px 20px',
+                    background: '#7C3AED',
+                    color: 'white',
+                    borderRadius: '8px',
+                    textDecoration: 'none',
+                    fontWeight: 500,
+                    fontSize: '14px',
+                    fontFamily: 'acumin-pro, sans-serif',
+                    transition: 'background 0.2s'
+                  }}
+                >
+                  <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  Descargar mi Lienzo
+                </a>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Botones de acción */}
@@ -308,6 +431,114 @@ function ConfirmacionContent() {
           ¿Tienes dudas? Contáctanos en <a href="mailto:contacto@artefact.mx" style={{ color: '#3B82F6', textDecoration: 'none' }}>contacto@artefact.mx</a>
         </p>
       </div>
+
+      {/* Modal para ver el lienzo en grande */}
+      {showCanvasModal && canvasData?.layout_canvas_url && (
+        <div
+          onClick={() => setShowCanvasModal(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'rgba(0, 0, 0, 0.9)',
+            padding: '16px'
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'relative',
+              maxWidth: '95vw',
+              maxHeight: '95vh',
+              background: 'white',
+              borderRadius: '16px',
+              overflow: 'hidden'
+            }}
+          >
+            {/* Header del modal */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '16px 20px',
+              borderBottom: '1px solid #E5E7EB'
+            }}>
+              <h3 style={{
+                margin: 0,
+                fontSize: '18px',
+                fontWeight: 600,
+                color: '#141210',
+                fontFamily: 'acumin-pro, sans-serif'
+              }}>
+                Tu Lienzo - ARTEFACTO 2027
+              </h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <a
+                  href={canvasData.layout_canvas_url}
+                  download="mi-lienzo-artefacto.jpg"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '36px',
+                    height: '36px',
+                    background: '#F3F4F6',
+                    borderRadius: '8px',
+                    color: '#374151',
+                    textDecoration: 'none'
+                  }}
+                  title="Descargar"
+                >
+                  <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                </a>
+                <button
+                  onClick={() => setShowCanvasModal(false)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '36px',
+                    height: '36px',
+                    background: '#F3F4F6',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: '#374151',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Imagen */}
+            <div style={{
+              padding: '16px',
+              background: '#F9FAFB',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <img
+                src={canvasData.layout_canvas_url}
+                alt="Tu lienzo"
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: 'calc(95vh - 100px)',
+                  objectFit: 'contain'
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       <style jsx>{`
         @keyframes bounce {
