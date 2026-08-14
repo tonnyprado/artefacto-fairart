@@ -1,6 +1,23 @@
 import './globals.css'
 import '@/components/artefacto/artefacto.css'
 import FloatingRegistrationButton from '@/components/shared/FloatingRegistrationButton'
+import { Inter_Tight, EB_Garamond } from 'next/font/google'
+
+const interTight = Inter_Tight({
+  subsets: ['latin'],
+  weight: ['400', '600', '700', '800'],
+  style: ['normal', 'italic'],
+  variable: '--font-inter-tight',
+  display: 'swap',
+})
+
+const ebGaramond = EB_Garamond({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  style: ['normal', 'italic'],
+  variable: '--font-eb-garamond',
+  display: 'swap',
+})
 
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
@@ -68,7 +85,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es">
+    <html lang="es" className={`${interTight.variable} ${ebGaramond.variable}`}>
       <body className="antialiased">
         {children}
         <FloatingRegistrationButton />

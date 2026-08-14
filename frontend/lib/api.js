@@ -310,4 +310,32 @@ export const layoutsApi = {
   }
 }
 
+/**
+ * Opiniones API
+ * Sistema de opiniones públicas "¿Qué es arte para ti?"
+ */
+export const opinionesApi = {
+  // Crear nueva opinión (público)
+  create: (data) =>
+    api.post('/opiniones', data),
+
+  // Obtener opinión aleatoria (público)
+  getRandom: () =>
+    api.get('/opiniones/random'),
+
+  // Obtener todas las opiniones (admin)
+  getAll: (params = {}) => {
+    const queryString = new URLSearchParams(params).toString()
+    return api.get(`/opiniones${queryString ? `?${queryString}` : ''}`)
+  },
+
+  // Eliminar opinión (admin)
+  delete: (id) =>
+    api.delete(`/opiniones/${id}`),
+
+  // Cambiar estado de aprobación (admin)
+  toggle: (id) =>
+    api.put(`/opiniones/${id}/toggle`)
+}
+
 export default api

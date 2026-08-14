@@ -8,7 +8,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Agregar colores del branding de ARTEFACT aquí
+        // Colores del branding de ARTE FACTO
         primary: {
           50: '#f0f9ff',
           100: '#e0f2fe',
@@ -21,10 +21,16 @@ module.exports = {
           800: '#075985',
           900: '#0c4a6e',
         },
+        // Colores CONOCE MÁS
+        rojo: '#b93232',
+        azul: '#3459b6',
+        azulclaro: '#7fa3ea',
+        gris: '#eaeaea',
+        rosa: '#ddd3d3',
       },
       fontFamily: {
-        // Agregar fuentes del branding aquí
-        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-inter-tight)', 'Inter Tight', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-eb-garamond)', 'EB Garamond', 'serif'],
       },
     },
   },

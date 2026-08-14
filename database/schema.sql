@@ -71,6 +71,8 @@ CREATE TABLE IF NOT EXISTS mensajes_contacto (
   leido BOOLEAN DEFAULT false,
   respondido BOOLEAN DEFAULT false,
   respuesta TEXT,
+  respondido_por INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+  email_enviado BOOLEAN DEFAULT false, -- Si el email de respuesta fue enviado exitosamente
   fecha_respuesta TIMESTAMP,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -349,3 +351,20 @@ CREATE TRIGGER update_votaciones_updated_at BEFORE UPDATE ON votaciones
 
 CREATE TRIGGER update_artistas_seleccionados_updated_at BEFORE UPDATE ON artistas_seleccionados
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================================================
+-- SISTEMA DE OPINIONES PÚBLICAS ("¿Qué es arte para ti?")
+-- ============================================================================
+
+-- Tabla de opiniones de visitantes
+CREATE TABLE IF NOT EXISTS opiniones_arte (
+  id SERIAL PRIMARY KEY,
+  opinion VARCHAR(100) NOT NULL,
+  nombre VARCHAR(50) NOT NULL,
+  aprobada BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Índices para opiniones_arte
+CREATE INDEX idx_opiniones_arte_aprobada ON opiniones_arte(aprobada);
+CREATE INDEX idx_opiniones_arte_created ON opiniones_arte(created_at DESC);

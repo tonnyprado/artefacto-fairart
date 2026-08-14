@@ -24,6 +24,7 @@ import contenidoRoutes from './routes/contenido.routes.js'
 import contactoRoutes from './routes/contacto.routes.js'
 import uploadRoutes from './routes/upload.routes.js'
 import registroRoutes from './routes/registro.routes.js'
+import opinionesRoutes from './routes/opiniones.routes.js'
 
 // Configuración de __dirname para ES modules
 const __filename = fileURLToPath(import.meta.url)
@@ -117,6 +118,7 @@ app.use('/api/contenido', contenidoRoutes)
 app.use('/api/contacto', contactoRoutes)
 app.use('/api/upload', uploadRoutes)
 app.use('/api/registro', registroRoutes)
+app.use('/api/opiniones', opinionesRoutes)
 
 // Ruta 404
 app.use('*', (req, res) => {
