@@ -44,6 +44,11 @@ export default function LandingArtefacto() {
   const touchStartY = useRef(0);
   const touchEndY = useRef(0);
 
+  // Sistema de buffer de overscroll para espera en límites
+  const overscrollBuffer = useRef(0);
+  const overscrollThreshold = 150; // Cantidad de scroll acumulado necesario para cambiar de página
+  const overscrollDecay = useRef(null); // Timer para resetear el buffer
+
   // Detectar hash en el cliente después de la hidratación
   useEffect(() => {
     const hash = window.location.hash.slice(1);
@@ -163,14 +168,14 @@ export default function LandingArtefacto() {
         const { default: Lenis } = await import('lenis');
         lenis.current = new Lenis({
           autoRaf: true,
-          duration: 1.2,           // Duración estándar más responsiva
+          duration: 2.0,           // Duración más larga para scroll más pesado
           easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Easing suave
-          lerp: 0.15,              // Interpolación más rápida para mejor respuesta
-          wheelMultiplier: 1.0,    // Velocidad normal del scroll (más responsivo)
-          touchMultiplier: 1.5,    // Ajuste para touch
+          lerp: 0.08,              // Interpolación más lenta para sensación pesada
+          wheelMultiplier: 0.7,    // Velocidad reducida del scroll
+          touchMultiplier: 1.0,    // Ajuste para touch más controlado
           smoothWheel: true,       // Suavizar scroll de rueda
           syncTouch: false,
-          syncTouchLerp: 0.1,
+          syncTouchLerp: 0.08,
         });
       } catch { /* lenis no instalado — scroll nativo */ }
     })();
@@ -207,8 +212,26 @@ export default function LandingArtefacto() {
           window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 10;
 
         if (atBottom) {
-          lastScrollTime.current = now; // Actualizar tiempo del último scroll
-          navigate(ORDER[i + 1]);
+          // Acumular scroll en el buffer
+          overscrollBuffer.current += Math.abs(e.deltaY);
+
+          // Resetear el timer de decay
+          if (overscrollDecay.current) {
+            clearTimeout(overscrollDecay.current);
+          }
+          overscrollDecay.current = setTimeout(() => {
+            overscrollBuffer.current = 0;
+          }, 300); // Resetear buffer si no hay scroll en 300ms
+
+          // Solo navegar si el buffer supera el threshold
+          if (overscrollBuffer.current >= overscrollThreshold) {
+            overscrollBuffer.current = 0;
+            lastScrollTime.current = now;
+            navigate(ORDER[i + 1]);
+          }
+        } else {
+          // No estamos en el límite, resetear buffer
+          overscrollBuffer.current = 0;
         }
       }
 
@@ -219,8 +242,26 @@ export default function LandingArtefacto() {
         const atTop = window.scrollY <= 10; // Margen de 10px para detectar tope
 
         if (atTop) {
-          lastScrollTime.current = now; // Actualizar tiempo del último scroll
-          navigate(ORDER[i - 1]);
+          // Acumular scroll en el buffer
+          overscrollBuffer.current += Math.abs(e.deltaY);
+
+          // Resetear el timer de decay
+          if (overscrollDecay.current) {
+            clearTimeout(overscrollDecay.current);
+          }
+          overscrollDecay.current = setTimeout(() => {
+            overscrollBuffer.current = 0;
+          }, 300); // Resetear buffer si no hay scroll en 300ms
+
+          // Solo navegar si el buffer supera el threshold
+          if (overscrollBuffer.current >= overscrollThreshold) {
+            overscrollBuffer.current = 0;
+            lastScrollTime.current = now;
+            navigate(ORDER[i - 1]);
+          }
+        } else {
+          // No estamos en el límite, resetear buffer
+          overscrollBuffer.current = 0;
         }
       }
     };
@@ -244,6 +285,7 @@ export default function LandingArtefacto() {
       if (i < 0) return;
 
       const swipeThreshold = 50; // Mínimo de 50px de swipe
+      const touchOverscrollThreshold = 100; // Threshold más bajo para touch
 
       // Swipe up (scroll down): siguiente sección
       if (deltaY > swipeThreshold) {
@@ -253,8 +295,25 @@ export default function LandingArtefacto() {
           window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 10;
 
         if (atBottom) {
-          lastScrollTime.current = now;
-          navigate(ORDER[i + 1]);
+          // Acumular swipe en el buffer
+          overscrollBuffer.current += Math.abs(deltaY);
+
+          // Resetear el timer de decay
+          if (overscrollDecay.current) {
+            clearTimeout(overscrollDecay.current);
+          }
+          overscrollDecay.current = setTimeout(() => {
+            overscrollBuffer.current = 0;
+          }, 500); // Más tiempo para touch
+
+          // Solo navegar si el buffer supera el threshold
+          if (overscrollBuffer.current >= touchOverscrollThreshold) {
+            overscrollBuffer.current = 0;
+            lastScrollTime.current = now;
+            navigate(ORDER[i + 1]);
+          }
+        } else {
+          overscrollBuffer.current = 0;
         }
       }
 
@@ -265,8 +324,25 @@ export default function LandingArtefacto() {
         const atTop = window.scrollY <= 10;
 
         if (atTop) {
-          lastScrollTime.current = now;
-          navigate(ORDER[i - 1]);
+          // Acumular swipe en el buffer
+          overscrollBuffer.current += Math.abs(deltaY);
+
+          // Resetear el timer de decay
+          if (overscrollDecay.current) {
+            clearTimeout(overscrollDecay.current);
+          }
+          overscrollDecay.current = setTimeout(() => {
+            overscrollBuffer.current = 0;
+          }, 500); // Más tiempo para touch
+
+          // Solo navegar si el buffer supera el threshold
+          if (overscrollBuffer.current >= touchOverscrollThreshold) {
+            overscrollBuffer.current = 0;
+            lastScrollTime.current = now;
+            navigate(ORDER[i - 1]);
+          }
+        } else {
+          overscrollBuffer.current = 0;
         }
       }
     };
@@ -283,6 +359,9 @@ export default function LandingArtefacto() {
       window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('touchend', onTouchEnd);
       lenis.current?.destroy?.();
+      if (overscrollDecay.current) {
+        clearTimeout(overscrollDecay.current);
+      }
     };
   }, []);
 
