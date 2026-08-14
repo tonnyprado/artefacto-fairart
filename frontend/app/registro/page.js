@@ -355,8 +355,11 @@ export default function RegistroPage() {
         return
       }
 
-      // Enviar a la API
-      const response = await fetch('/api/artistas', {
+      // Enviar directamente al backend (evita límite de 4.5MB de Vercel)
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
+      console.log('Enviando a:', `${backendUrl}/registro`)
+
+      const response = await fetch(`${backendUrl}/registro`, {
         method: 'POST',
         body: formDataToSend,
       })
