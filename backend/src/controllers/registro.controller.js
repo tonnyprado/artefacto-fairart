@@ -206,30 +206,50 @@ export const registrarArtista = async (req, res) => {
     try {
       // Buscar la fase activa con inscripciones abiertas
       const faseActivaResult = await pool.query(
-        `SELECT id FROM fases
+        `SELECT id, nombre, tipo, numero_fase FROM fases
          WHERE inscripciones_abiertas = true
          ORDER BY created_at DESC
          LIMIT 1`
       )
 
       if (faseActivaResult.rows.length > 0) {
-        const faseId = faseActivaResult.rows[0].id
+        const faseActiva = faseActivaResult.rows[0]
 
         // Insertar en artistas_fases
         await pool.query(
           `INSERT INTO artistas_fases (artista_id, fase_id, seleccionado)
            VALUES ($1, $2, $3)
            ON CONFLICT (artista_id, fase_id) DO NOTHING`,
-          [nuevoArtista.id, faseId, false]
+          [nuevoArtista.id, faseActiva.id, false]
         )
 
-        console.log(`✅ Artista inscrito a la fase ${faseId}`)
+        // Guardar info de fase para emails
+        nuevoArtista.fase = faseActiva
+
+        console.log(`✅ Artista inscrito a la fase ${faseActiva.id} (${faseActiva.nombre})`)
       } else {
         console.log('⚠️  No hay fases activas con inscripciones abiertas')
       }
     } catch (faseError) {
       console.error('❌ Error al inscribir a fase:', faseError)
       // No fallar el registro si no se puede inscribir a fase
+    }
+
+    // ========================================
+    // 4.6. OBTENER INFO DEL PAQUETE SELECCIONADO
+    // ========================================
+    try {
+      if (nuevoArtista.paquete_id) {
+        const paqueteResult = await pool.query(
+          `SELECT id, nombre, tipo, precio, metros_lineales, metros_cuadrados FROM paquetes WHERE id = $1`,
+          [nuevoArtista.paquete_id]
+        )
+        if (paqueteResult.rows.length > 0) {
+          nuevoArtista.paquete = paqueteResult.rows[0]
+        }
+      }
+    } catch (paqueteError) {
+      console.error('❌ Error al obtener paquete:', paqueteError)
     }
 
     // ========================================
@@ -282,7 +302,17 @@ export const registrarArtista = async (req, res) => {
         apellido: nuevoArtista.apellido,
         email: nuevoArtista.email,
         folio: nuevoArtista.folio,
-        categoria: nuevoArtista.categoria
+        categoria: nuevoArtista.categoria,
+        // Info de fase/concurso
+        fase: nuevoArtista.fase || null,
+        faseNombre: nuevoArtista.fase?.nombre || 'Sin fase asignada',
+        faseTipo: nuevoArtista.fase?.tipo || null, // 'fase' o 'concurso'
+        faseNumero: nuevoArtista.fase?.numero_fase || null,
+        // Info de paquete
+        paquete: nuevoArtista.paquete || null,
+        paqueteNombre: nuevoArtista.paquete?.nombre || 'Sin paquete',
+        paqueteTipo: nuevoArtista.paquete?.tipo || null, // '2D' o '3D'
+        paquetePrecio: nuevoArtista.paquete?.precio || null
       }).then(result => {
         if (result.success) {
           console.log('📧 Email de confirmación enviado al artista')
@@ -296,7 +326,17 @@ export const registrarArtista = async (req, res) => {
         email: nuevoArtista.email,
         folio: nuevoArtista.folio,
         categoria: nuevoArtista.categoria,
-        paquete_id: nuevoArtista.paquete_id
+        // Info de fase/concurso
+        fase: nuevoArtista.fase || null,
+        faseNombre: nuevoArtista.fase?.nombre || 'Sin fase asignada',
+        faseTipo: nuevoArtista.fase?.tipo || null,
+        faseNumero: nuevoArtista.fase?.numero_fase || null,
+        // Info de paquete
+        paquete: nuevoArtista.paquete || null,
+        paqueteNombre: nuevoArtista.paquete?.nombre || 'Sin paquete',
+        paqueteTipo: nuevoArtista.paquete?.tipo || null,
+        paquetePrecio: nuevoArtista.paquete?.precio || null,
+        paqueteMetros: nuevoArtista.paquete?.metros_lineales || nuevoArtista.paquete?.metros_cuadrados || null
       }).then(result => {
         if (result.success) {
           console.log('📧 Notificación enviada al admin')

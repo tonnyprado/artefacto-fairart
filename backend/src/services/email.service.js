@@ -1,6 +1,7 @@
 /**
  * Servicio de Email con Brevo (ex-Sendinblue)
  * Usa la API REST directamente para mayor compatibilidad
+ * Soporta plantillas creadas en Brevo con parámetros dinámicos
  */
 
 const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email'
@@ -10,6 +11,14 @@ const SENDER_EMAIL = process.env.BREVO_SENDER_EMAIL || 'contacto@artefact.mx'
 const SENDER_NAME = process.env.BREVO_SENDER_NAME || 'ARTEFACTO Feria de Arte'
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@artefact.mx'
 
+// IDs de plantillas de Brevo (configurar en .env)
+const TEMPLATES = {
+  CONFIRMACION_REGISTRO: process.env.BREVO_TEMPLATE_CONFIRMACION_REGISTRO,
+  NUEVO_ARTISTA_ADMIN: process.env.BREVO_TEMPLATE_NUEVO_ARTISTA_ADMIN,
+  NUEVO_MENSAJE_ADMIN: process.env.BREVO_TEMPLATE_NUEVO_MENSAJE_ADMIN,
+  RESPUESTA_MENSAJE: process.env.BREVO_TEMPLATE_RESPUESTA_MENSAJE,
+}
+
 /**
  * Verificar si Brevo está configurado
  */
@@ -18,7 +27,7 @@ export const isBrevoConfigured = () => {
 }
 
 /**
- * Enviar email usando la API REST de Brevo
+ * Enviar email usando la API REST de Brevo (con HTML directo)
  */
 export const sendEmail = async ({ to, toName, subject, htmlContent, textContent }) => {
   if (!isBrevoConfigured()) {
@@ -59,11 +68,90 @@ export const sendEmail = async ({ to, toName, subject, htmlContent, textContent 
 }
 
 /**
+ * Enviar email usando una plantilla de Brevo
+ * Los parámetros se usan en la plantilla como {{ params.nombre }}, {{ params.folio }}, etc.
+ *
+ * @param {Object} options
+ * @param {string} options.to - Email del destinatario
+ * @param {string} options.toName - Nombre del destinatario
+ * @param {number} options.templateId - ID de la plantilla en Brevo
+ * @param {Object} options.params - Parámetros para la plantilla (ej: { folio: 'AF-001', nombre: 'Juan' })
+ * @param {string} options.subject - Asunto (opcional, puede estar definido en la plantilla)
+ */
+export const sendEmailWithTemplate = async ({ to, toName, templateId, params, subject }) => {
+  if (!isBrevoConfigured()) {
+    console.warn('⚠️ Brevo no configurado. Email no enviado.')
+    return { success: false, error: 'Brevo no configurado' }
+  }
+
+  if (!templateId) {
+    console.error('❌ No se especificó templateId')
+    return { success: false, error: 'templateId es requerido' }
+  }
+
+  try {
+    const emailData = {
+      sender: { email: SENDER_EMAIL, name: SENDER_NAME },
+      to: [{ email: to, name: toName || to }],
+      templateId: parseInt(templateId),
+      params: params || {}
+    }
+
+    // El subject es opcional si ya está definido en la plantilla
+    if (subject) {
+      emailData.subject = subject
+    }
+
+    const response = await fetch(BREVO_API_URL, {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify(emailData)
+    })
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      console.error('❌ Error de Brevo (template):', result)
+      return { success: false, error: result.message || 'Error de Brevo' }
+    }
+
+    console.log('✅ Email con plantilla enviado:', { to, templateId, messageId: result.messageId })
+    return { success: true, messageId: result.messageId }
+  } catch (error) {
+    console.error('❌ Error enviando email con plantilla:', error.message)
+    return { success: false, error: error.message }
+  }
+}
+
+/**
  * Notificar al admin cuando llega un nuevo mensaje de contacto
+ * Usa plantilla de Brevo si está configurada, sino usa HTML por defecto
  */
 export const notificarNuevoMensaje = async (mensaje) => {
   const { nombre, email, telefono, asunto, mensaje: contenido } = mensaje
 
+  // Si hay plantilla configurada, usarla
+  if (TEMPLATES.NUEVO_MENSAJE_ADMIN) {
+    return sendEmailWithTemplate({
+      to: ADMIN_EMAIL,
+      toName: 'Administrador',
+      templateId: TEMPLATES.NUEVO_MENSAJE_ADMIN,
+      params: {
+        nombre,
+        email,
+        telefono: telefono || 'No proporcionado',
+        asunto,
+        mensaje: contenido,
+        adminUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/admin`
+      }
+    })
+  }
+
+  // Fallback: HTML por defecto
   const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -121,10 +209,28 @@ export const notificarNuevoMensaje = async (mensaje) => {
 
 /**
  * Enviar respuesta a un mensaje de contacto
+ * Usa plantilla de Brevo si está configurada, sino usa HTML por defecto
  */
 export const enviarRespuestaMensaje = async (mensaje, respuesta, adminNombre = 'Equipo ARTEFACTO') => {
   const { nombre, email, asunto } = mensaje
 
+  // Si hay plantilla configurada, usarla
+  if (TEMPLATES.RESPUESTA_MENSAJE) {
+    return sendEmailWithTemplate({
+      to: email,
+      toName: nombre,
+      templateId: TEMPLATES.RESPUESTA_MENSAJE,
+      params: {
+        nombre,
+        asunto,
+        respuesta,
+        mensajeOriginal: mensaje.mensaje ? mensaje.mensaje.substring(0, 200) + (mensaje.mensaje.length > 200 ? '...' : '') : '',
+        adminNombre
+      }
+    })
+  }
+
+  // Fallback: HTML por defecto
   const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -173,9 +279,43 @@ export const enviarRespuestaMensaje = async (mensaje, respuesta, adminNombre = '
 
 /**
  * Enviar confirmación de registro a artista
+ * Usa plantilla de Brevo si está configurada, sino usa HTML por defecto
  */
 export const enviarConfirmacionRegistro = async (artista) => {
-  const { nombre, apellido, email, folio, categoria } = artista
+  const {
+    nombre, apellido, email, folio, categoria,
+    faseNombre, faseTipo, faseNumero,
+    paqueteNombre, paqueteTipo, paquetePrecio
+  } = artista
+
+  // Si hay plantilla configurada, usarla
+  if (TEMPLATES.CONFIRMACION_REGISTRO) {
+    return sendEmailWithTemplate({
+      to: email,
+      toName: `${nombre} ${apellido}`,
+      templateId: TEMPLATES.CONFIRMACION_REGISTRO,
+      params: {
+        nombre,
+        apellido,
+        nombreCompleto: `${nombre} ${apellido}`,
+        folio,
+        categoria,
+        email,
+        // Fase/Concurso
+        faseNombre: faseNombre || 'Sin fase asignada',
+        faseTipo: faseTipo || '',
+        faseNumero: faseNumero || '',
+        esConcurso: faseTipo === 'concurso',
+        // Paquete
+        paqueteNombre: paqueteNombre || 'Sin paquete',
+        paqueteTipo: paqueteTipo || '',
+        paquetePrecio: paquetePrecio ? `$${parseFloat(paquetePrecio).toLocaleString('es-MX')} MXN` : ''
+      }
+    })
+  }
+
+  // Fallback: HTML por defecto
+  const tipoInscripcion = faseTipo === 'concurso' ? 'Concurso' : (faseNombre || 'Convocatoria')
 
   const htmlContent = `
     <!DOCTYPE html>
@@ -188,9 +328,14 @@ export const enviarConfirmacionRegistro = async (artista) => {
         .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 12px 12px; }
         .folio-box { background: linear-gradient(135deg, #3B82F6, #9333EA); color: white; padding: 25px; border-radius: 12px; text-align: center; margin: 20px 0; }
         .folio-number { font-size: 36px; font-weight: 700; font-family: monospace; letter-spacing: 2px; margin: 10px 0; }
+        .info-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #B83030; }
+        .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: #666; font-size: 13px; }
+        .info-value { font-weight: 600; }
         .steps { background: white; padding: 25px; border-radius: 8px; margin: 20px 0; }
         .step { display: flex; align-items: flex-start; margin-bottom: 15px; }
-        .step-number { background: #3B82F6; color: white; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; margin-right: 15px; }
+        .step-number { background: #3B82F6; color: white; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; margin-right: 15px; flex-shrink: 0; }
       </style>
     </head>
     <body>
@@ -206,6 +351,29 @@ export const enviarConfirmacionRegistro = async (artista) => {
             <div style="font-size:14px;opacity:0.9;">Tu folio de registro es:</div>
             <div class="folio-number">${folio}</div>
             <div style="font-size:12px;opacity:0.9;">Guarda este número para dar seguimiento</div>
+          </div>
+          <div class="info-box">
+            <h3 style="margin-top:0;margin-bottom:15px;">Detalles de tu inscripción</h3>
+            <div class="info-row">
+              <span class="info-label">Inscrito en:</span>
+              <span class="info-value">${tipoInscripcion}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Categoría:</span>
+              <span class="info-value">${categoria}</span>
+            </div>
+            ${paqueteNombre ? `
+            <div class="info-row">
+              <span class="info-label">Paquete:</span>
+              <span class="info-value">${paqueteNombre} ${paqueteTipo ? `(${paqueteTipo})` : ''}</span>
+            </div>
+            ` : ''}
+            ${paquetePrecio ? `
+            <div class="info-row">
+              <span class="info-label">Inversión:</span>
+              <span class="info-value">$${parseFloat(paquetePrecio).toLocaleString('es-MX')} MXN</span>
+            </div>
+            ` : ''}
           </div>
           <div class="steps">
             <h3 style="margin-top:0;">Próximos pasos:</h3>
@@ -232,9 +400,45 @@ export const enviarConfirmacionRegistro = async (artista) => {
 
 /**
  * Notificar al admin de nuevo registro de artista
+ * Usa plantilla de Brevo si está configurada, sino usa HTML por defecto
  */
 export const notificarNuevoArtista = async (artista) => {
-  const { nombre, apellido, email, folio, categoria } = artista
+  const {
+    nombre, apellido, email, folio, categoria,
+    faseNombre, faseTipo, faseNumero,
+    paqueteNombre, paqueteTipo, paquetePrecio, paqueteMetros
+  } = artista
+
+  // Si hay plantilla configurada, usarla
+  if (TEMPLATES.NUEVO_ARTISTA_ADMIN) {
+    return sendEmailWithTemplate({
+      to: ADMIN_EMAIL,
+      toName: 'Administrador',
+      templateId: TEMPLATES.NUEVO_ARTISTA_ADMIN,
+      params: {
+        nombre,
+        apellido,
+        nombreCompleto: `${nombre} ${apellido}`,
+        email,
+        folio,
+        categoria,
+        // Fase/Concurso
+        faseNombre: faseNombre || 'Sin fase asignada',
+        faseTipo: faseTipo || '',
+        faseNumero: faseNumero || '',
+        esConcurso: faseTipo === 'concurso',
+        // Paquete
+        paqueteNombre: paqueteNombre || 'Sin paquete',
+        paqueteTipo: paqueteTipo || '',
+        paquetePrecio: paquetePrecio ? `$${parseFloat(paquetePrecio).toLocaleString('es-MX')} MXN` : '',
+        paqueteMetros: paqueteMetros || '',
+        adminUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/admin`
+      }
+    })
+  }
+
+  // Fallback: HTML por defecto
+  const tipoInscripcion = faseTipo === 'concurso' ? 'Concurso' : (faseNombre || 'Convocatoria')
 
   const htmlContent = `
     <!DOCTYPE html>
@@ -247,6 +451,9 @@ export const notificarNuevoArtista = async (artista) => {
         .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 12px 12px; }
         .field { margin-bottom: 15px; }
         .field-label { font-weight: 600; color: #666; font-size: 12px; text-transform: uppercase; }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-fase { background: #DBEAFE; color: #1D4ED8; }
+        .badge-concurso { background: #FEF3C7; color: #B45309; }
         .btn { display: inline-block; background: #B83030; color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; margin-top: 20px; }
       </style>
     </head>
@@ -254,12 +461,29 @@ export const notificarNuevoArtista = async (artista) => {
       <div class="container">
         <div class="header">
           <h1 style="margin:0;font-size:24px;">Nuevo Artista Registrado</h1>
+          <p style="margin:10px 0 0;opacity:0.9;">${tipoInscripcion}</p>
         </div>
         <div class="content">
           <div class="field"><div class="field-label">Nombre</div><div><strong>${nombre} ${apellido}</strong></div></div>
           <div class="field"><div class="field-label">Email</div><div><a href="mailto:${email}">${email}</a></div></div>
           <div class="field"><div class="field-label">Folio</div><div style="font-family:monospace;font-size:18px;">${folio}</div></div>
           <div class="field"><div class="field-label">Categoría</div><div>${categoria}</div></div>
+          <div class="field">
+            <div class="field-label">Inscripción</div>
+            <div><span class="badge ${faseTipo === 'concurso' ? 'badge-concurso' : 'badge-fase'}">${tipoInscripcion}</span></div>
+          </div>
+          ${paqueteNombre ? `
+          <div class="field">
+            <div class="field-label">Paquete</div>
+            <div><strong>${paqueteNombre}</strong> ${paqueteTipo ? `(${paqueteTipo})` : ''} ${paqueteMetros ? `- ${paqueteMetros}m` : ''}</div>
+          </div>
+          ` : ''}
+          ${paquetePrecio ? `
+          <div class="field">
+            <div class="field-label">Inversión</div>
+            <div style="color:#10B981;font-weight:600;">$${parseFloat(paquetePrecio).toLocaleString('es-MX')} MXN</div>
+          </div>
+          ` : ''}
           <center><a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/admin" class="btn">Revisar en Panel de Admin</a></center>
         </div>
       </div>
@@ -270,7 +494,7 @@ export const notificarNuevoArtista = async (artista) => {
   return sendEmail({
     to: ADMIN_EMAIL,
     toName: 'Administrador',
-    subject: `[Nuevo Artista] ${nombre} ${apellido} - ${categoria}`,
+    subject: `[Nuevo Artista] ${nombre} ${apellido} - ${categoria} (${tipoInscripcion})`,
     htmlContent
   })
 }
@@ -278,6 +502,7 @@ export const notificarNuevoArtista = async (artista) => {
 export default {
   isBrevoConfigured,
   sendEmail,
+  sendEmailWithTemplate,
   notificarNuevoMensaje,
   enviarRespuestaMensaje,
   enviarConfirmacionRegistro,
