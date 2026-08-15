@@ -157,82 +157,107 @@ function VerticalRuler({ height }) {
 
 /**
  * Componente de líneas guía que se muestran durante el arrastre
+ * Incluye un rectángulo de preview para mostrar la posición exacta de la obra
  */
-function GuideLines({ x, y, width, height, canvasWidth, canvasHeight }) {
+function GuideLines({ x, y, width, height, canvasWidth, canvasHeight, areaDelimitada, isColliding }) {
   if (x === null || y === null) return null
+
+  // Calcular posición limitada al área delimitada (para mostrar el rectángulo guía correcto)
+  const boundedX = areaDelimitada
+    ? Math.max(areaDelimitada.x, Math.min(x, areaDelimitada.x + areaDelimitada.width - width))
+    : x
+  const boundedY = areaDelimitada
+    ? Math.max(areaDelimitada.y, Math.min(y, areaDelimitada.y + areaDelimitada.height - height))
+    : y
+
+  // Color de las guías: rojo si hay colisión, cyan si no hay
+  const guideColor = isColliding ? '#FF4444' : GUIDE_LINE_COLOR
+  const fillColor = isColliding ? 'rgba(255, 68, 68, 0.2)' : 'rgba(0, 191, 255, 0.15)'
 
   return (
     <Group>
+      {/* Rectángulo de preview - muestra exactamente donde quedará la obra */}
+      <Rect
+        x={boundedX}
+        y={boundedY}
+        width={width}
+        height={height}
+        fill={fillColor}
+        stroke={guideColor}
+        strokeWidth={2}
+        dash={[8, 8]}
+        listening={false}
+      />
       {/* Línea vertical en X */}
       <Line
-        points={[x, 0, x, canvasHeight]}
-        stroke={GUIDE_LINE_COLOR}
+        points={[boundedX, 0, boundedX, canvasHeight]}
+        stroke={guideColor}
         strokeWidth={1}
         dash={[5, 5]}
         opacity={0.8}
       />
       {/* Línea vertical en X + width (borde derecho) */}
       <Line
-        points={[x + width, 0, x + width, canvasHeight]}
-        stroke={GUIDE_LINE_COLOR}
+        points={[boundedX + width, 0, boundedX + width, canvasHeight]}
+        stroke={guideColor}
         strokeWidth={1}
         dash={[5, 5]}
         opacity={0.8}
       />
       {/* Línea horizontal en Y */}
       <Line
-        points={[0, y, canvasWidth, y]}
-        stroke={GUIDE_LINE_COLOR}
+        points={[0, boundedY, canvasWidth, boundedY]}
+        stroke={guideColor}
         strokeWidth={1}
         dash={[5, 5]}
         opacity={0.8}
       />
       {/* Línea horizontal en Y + height (borde inferior) */}
       <Line
-        points={[0, y + height, canvasWidth, y + height]}
-        stroke={GUIDE_LINE_COLOR}
+        points={[0, boundedY + height, canvasWidth, boundedY + height]}
+        stroke={guideColor}
         strokeWidth={1}
         dash={[5, 5]}
         opacity={0.8}
       />
-      {/* Etiqueta de posición X */}
+      {/* Etiqueta de posición X (en metros) */}
       <Group>
         <Rect
-          x={x + 5}
+          x={boundedX + 5}
           y={5}
-          width={60}
+          width={70}
           height={20}
-          fill={GUIDE_LINE_COLOR}
+          fill={guideColor}
           cornerRadius={4}
         />
         <Text
-          x={x + 5}
+          x={boundedX + 5}
           y={9}
-          text={`X: ${Math.round(x)}`}
+          text={`${(boundedX / METROS_A_PIXELES).toFixed(2)}m`}
           fontSize={12}
-          fill="#000"
-          width={60}
+          fill={isColliding ? '#FFF' : '#000'}
+          width={70}
           align="center"
           fontStyle="bold"
         />
       </Group>
-      {/* Etiqueta de posición Y */}
+      {/* Etiqueta de posición Y (en metros) */}
       <Group>
         <Rect
           x={5}
-          y={y + 5}
-          width={60}
+          y={boundedY + 5}
+          width={70}
           height={20}
-          fill={GUIDE_LINE_COLOR}
+          fill={guideColor}
           cornerRadius={4}
         />
         <Text
           x={5}
-          y={y + 9}
-          text={`Y: ${Math.round(y)}`}
+          y={boundedY + 9}
+          text={`${(boundedY / METROS_A_PIXELES).toFixed(2)}m`}
           fontSize={12}
-          fill="#000"
-          width={60}
+          fill={isColliding ? '#FFF' : '#000'}
+          width={70}
           align="center"
           fontStyle="bold"
         />
@@ -337,14 +362,19 @@ function ObraImage({ obra, onDragEnd, onDragMove, isSelected, onSelect, onDelete
           onDragStart={() => {
             setIsDragging(true)
             setIsColliding(false)
-            onDragMove && onDragMove(obra.id, obra.x, obra.y, obra.width, obra.height)
+            onDragMove && onDragMove(obra.id, obra.x, obra.y, obra.width, obra.height, false)
           }}
-          onDragMove={(e) => onDragMove && onDragMove(obra.id, e.target.x(), e.target.y(), obra.width, obra.height)}
+          onDragMove={(e) => {
+            const currentX = e.target.x()
+            const currentY = e.target.y()
+            const currentCollision = checkPositionCollision({ x: currentX, y: currentY })
+            onDragMove && onDragMove(obra.id, currentX, currentY, obra.width, obra.height, currentCollision)
+          }}
           onDragEnd={(e) => {
             setIsDragging(false)
             const finalCollision = isColliding
             setIsColliding(false)
-            onDragMove && onDragMove(null, null, null, null, null)
+            onDragMove && onDragMove(null, null, null, null, null, false)
             onDragEnd(obra.id, e.target.x(), e.target.y(), finalCollision, lastValidPos)
           }}
           onClick={() => onSelect(obra.id)}
@@ -480,14 +510,19 @@ function ObraImage({ obra, onDragEnd, onDragMove, isSelected, onSelect, onDelete
         onDragStart={() => {
           setIsDragging(true)
           setIsColliding(false)
-          onDragMove && onDragMove(obra.id, obra.x, obra.y, obra.width, obra.height)
+          onDragMove && onDragMove(obra.id, obra.x, obra.y, obra.width, obra.height, false)
         }}
-        onDragMove={(e) => onDragMove && onDragMove(obra.id, e.target.x(), e.target.y(), obra.width, obra.height)}
+        onDragMove={(e) => {
+          const currentX = e.target.x()
+          const currentY = e.target.y()
+          const currentCollision = checkPositionCollision({ x: currentX, y: currentY })
+          onDragMove && onDragMove(obra.id, currentX, currentY, obra.width, obra.height, currentCollision)
+        }}
         onDragEnd={(e) => {
           setIsDragging(false)
           const finalCollision = isColliding
           setIsColliding(false) // Limpiar estado de colisión
-          onDragMove && onDragMove(null, null, null, null, null) // Limpiar guías
+          onDragMove && onDragMove(null, null, null, null, null, false) // Limpiar guías
           onDragEnd(obra.id, e.target.x(), e.target.y(), finalCollision, lastValidPos)
         }}
         onClick={() => onSelect(obra.id)}
@@ -754,7 +789,7 @@ export default function LayoutCanvasWithMural({
   const [editingObra, setEditingObra] = useState(null)
   const [showMetadataForm, setShowMetadataForm] = useState(false)
   // Estado para las líneas guía durante el arrastre
-  const [dragGuide, setDragGuide] = useState({ x: null, y: null, width: null, height: null })
+  const [dragGuide, setDragGuide] = useState({ x: null, y: null, width: null, height: null, isColliding: false })
   // Estado para drag & drop desde la fila de obras
   const [draggedFromRow, setDraggedFromRow] = useState(null)
   const [dropPreview, setDropPreview] = useState(null)
@@ -920,13 +955,13 @@ export default function LayoutCanvasWithMural({
     if (selectedObraId === obraId) setSelectedObraId(null)
   }
 
-  const handleDragMove = (obraId, x, y, width, height) => {
+  const handleDragMove = (obraId, x, y, width, height, isColliding = false) => {
     if (obraId === null) {
       // Limpiar guías cuando termina el drag
-      setDragGuide({ x: null, y: null, width: null, height: null })
+      setDragGuide({ x: null, y: null, width: null, height: null, isColliding: false })
     } else {
       // Actualizar guías durante el drag
-      setDragGuide({ x, y, width, height })
+      setDragGuide({ x, y, width, height, isColliding })
     }
   }
 
@@ -1647,6 +1682,8 @@ export default function LayoutCanvasWithMural({
                 height={dragGuide.height}
                 canvasWidth={CANVAS_WIDTH}
                 canvasHeight={CANVAS_HEIGHT}
+                areaDelimitada={areaDelimitada}
+                isColliding={dragGuide.isColliding}
               />
 
               {/* Preview durante drag & drop desde la fila */}
@@ -1951,12 +1988,15 @@ export default function LayoutCanvasWithMural({
                   Precio de venta (MXN) *
                 </label>
                 <input
-                  type="number"
-                  value={editingObra.precio_mxn || ''}
-                  onChange={(e) => handleUpdateMetadata(editingObra.id, 'precio_mxn', e.target.value)}
-                  placeholder="10000"
-                  min="1"
-                  step="1"
+                  type="text"
+                  inputMode="numeric"
+                  value={editingObra.precio_mxn ? Number(editingObra.precio_mxn).toLocaleString('es-MX') : ''}
+                  onChange={(e) => {
+                    // Remover todo excepto dígitos
+                    const rawValue = e.target.value.replace(/[^\d]/g, '')
+                    handleUpdateMetadata(editingObra.id, 'precio_mxn', rawValue)
+                  }}
+                  placeholder="10,000"
                   style={{
                     width: '100%',
                     padding: '12px 16px',
