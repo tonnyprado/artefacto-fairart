@@ -11,9 +11,10 @@ const SENDER_EMAIL = process.env.BREVO_SENDER_EMAIL || 'contacto@artefact.mx'
 const SENDER_NAME = process.env.BREVO_SENDER_NAME || 'ARTEFACTO Feria de Arte'
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@artefact.mx'
 
-// IDs de plantillas de Brevo (configurar en .env)
+// IDs de plantillas de Brevo (configurar en .env o usar defaults)
+// ID=1 es la plantilla de confirmación de registro en Brevo
 const TEMPLATES = {
-  CONFIRMACION_REGISTRO: process.env.BREVO_TEMPLATE_CONFIRMACION_REGISTRO,
+  CONFIRMACION_REGISTRO: process.env.BREVO_TEMPLATE_CONFIRMACION_REGISTRO || '1', // Default: plantilla ID 1
   NUEVO_ARTISTA_ADMIN: process.env.BREVO_TEMPLATE_NUEVO_ARTISTA_ADMIN,
   NUEVO_MENSAJE_ADMIN: process.env.BREVO_TEMPLATE_NUEVO_MENSAJE_ADMIN,
   RESPUESTA_MENSAJE: process.env.BREVO_TEMPLATE_RESPUESTA_MENSAJE,
@@ -279,7 +280,15 @@ export const enviarRespuestaMensaje = async (mensaje, respuesta, adminNombre = '
 
 /**
  * Enviar confirmación de registro a artista
- * Usa plantilla de Brevo si está configurada, sino usa HTML por defecto
+ * Usa plantilla de Brevo (ID=1 por defecto) con parámetros dinámicos
+ *
+ * Parámetros disponibles para la plantilla de Brevo:
+ * - nombre, apellido, nombreCompleto
+ * - email, folio, categoria
+ * - faseNombre, faseTipo, faseNumero, esConcurso
+ * - paqueteNombre, paqueteTipo, paquetePrecio
+ * - fecha (fecha actual)
+ * - anio (año del evento)
  */
 export const enviarConfirmacionRegistro = async (artista) => {
   const {
@@ -288,28 +297,46 @@ export const enviarConfirmacionRegistro = async (artista) => {
     paqueteNombre, paqueteTipo, paquetePrecio
   } = artista
 
-  // Si hay plantilla configurada, usarla
+  // Siempre intentar usar plantilla de Brevo (ID=1 por defecto)
   if (TEMPLATES.CONFIRMACION_REGISTRO) {
+    console.log('📧 Enviando email con plantilla Brevo ID:', TEMPLATES.CONFIRMACION_REGISTRO)
+
     return sendEmailWithTemplate({
       to: email,
       toName: `${nombre} ${apellido}`,
       templateId: TEMPLATES.CONFIRMACION_REGISTRO,
       params: {
+        // Datos del artista
         nombre,
         apellido,
         nombreCompleto: `${nombre} ${apellido}`,
+        NOMBRE: nombre, // Alias en mayúsculas por si la plantilla lo usa así
+        APELLIDO: apellido,
         folio,
+        FOLIO: folio,
         categoria,
+        CATEGORIA: categoria,
         email,
+        EMAIL: email,
         // Fase/Concurso
         faseNombre: faseNombre || 'Sin fase asignada',
         faseTipo: faseTipo || '',
         faseNumero: faseNumero || '',
         esConcurso: faseTipo === 'concurso',
+        fase: faseNombre || 'Convocatoria General',
+        FASE: faseNombre || 'Convocatoria General',
         // Paquete
         paqueteNombre: paqueteNombre || 'Sin paquete',
         paqueteTipo: paqueteTipo || '',
-        paquetePrecio: paquetePrecio ? `$${parseFloat(paquetePrecio).toLocaleString('es-MX')} MXN` : ''
+        paquetePrecio: paquetePrecio ? `$${parseFloat(paquetePrecio).toLocaleString('es-MX')} MXN` : '',
+        paquete: paqueteNombre || 'Sin paquete',
+        PAQUETE: paqueteNombre || 'Sin paquete',
+        precio: paquetePrecio ? `$${parseFloat(paquetePrecio).toLocaleString('es-MX')} MXN` : '',
+        PRECIO: paquetePrecio ? `$${parseFloat(paquetePrecio).toLocaleString('es-MX')} MXN` : '',
+        // Fechas
+        fecha: new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }),
+        anio: '2027',
+        year: '2027'
       }
     })
   }

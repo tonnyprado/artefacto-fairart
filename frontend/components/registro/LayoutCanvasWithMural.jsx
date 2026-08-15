@@ -1126,45 +1126,118 @@ export default function LayoutCanvasWithMural({
     // Agregar la imagen del canvas (JPEG comprimido)
     pdf.addImage(dataURL, 'JPEG', 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
-    // Agregar información de las obras en una segunda página
+    // Agregar ficha técnica de cada obra con foto en páginas adicionales
     if (obrasEnCanvas.length > 0) {
-      pdf.addPage([CANVAS_WIDTH, CANVAS_HEIGHT], 'landscape')
-      pdf.setFontSize(24)
-      pdf.setTextColor(20, 18, 16)
-      pdf.text('Detalle de Obras', 40, 50)
+      // Una página por cada obra para mejor calidad de imagen
+      for (let index = 0; index < obrasEnCanvas.length; index++) {
+        const obra = obrasEnCanvas[index]
+        pdf.addPage([CANVAS_WIDTH, CANVAS_HEIGHT], 'landscape')
 
-      let yPos = 90
-      pdf.setFontSize(12)
+        // Título de la página
+        pdf.setFontSize(20)
+        pdf.setTextColor(184, 48, 48) // Color rojo ARTEFACTO
+        pdf.text(`FICHA TÉCNICA - OBRA ${index + 1}`, 40, 40)
 
-      obrasEnCanvas.forEach((obra, index) => {
-        if (yPos > CANVAS_HEIGHT - 100) {
-          pdf.addPage([CANVAS_WIDTH, CANVAS_HEIGHT], 'landscape')
-          yPos = 50
+        // Línea divisora
+        pdf.setDrawColor(184, 48, 48)
+        pdf.setLineWidth(2)
+        pdf.line(40, 50, CANVAS_WIDTH - 40, 50)
+
+        // Layout: Imagen a la izquierda (60%), Ficha técnica a la derecha (40%)
+        const imageAreaWidth = (CANVAS_WIDTH - 80) * 0.55
+        const textAreaX = 40 + imageAreaWidth + 30
+
+        // Agregar imagen de la obra (lado izquierdo) con alta calidad
+        if (obra.preview) {
+          try {
+            // Calcular dimensiones manteniendo proporción
+            const maxImgWidth = imageAreaWidth
+            const maxImgHeight = CANVAS_HEIGHT - 120
+            const aspectRatio = obra.ancho_cm / obra.alto_cm
+
+            let imgWidth, imgHeight
+            if (aspectRatio > maxImgWidth / maxImgHeight) {
+              imgWidth = maxImgWidth
+              imgHeight = maxImgWidth / aspectRatio
+            } else {
+              imgHeight = maxImgHeight
+              imgWidth = maxImgHeight * aspectRatio
+            }
+
+            // Centrar verticalmente la imagen
+            const imgY = 70 + (maxImgHeight - imgHeight) / 2
+
+            // Agregar la imagen de la obra
+            pdf.addImage(obra.preview, 'JPEG', 40, imgY, imgWidth, imgHeight)
+
+            // Marco alrededor de la imagen
+            pdf.setDrawColor(200, 200, 200)
+            pdf.setLineWidth(1)
+            pdf.rect(40, imgY, imgWidth, imgHeight)
+          } catch (imgError) {
+            console.warn(`Error agregando imagen de obra ${index + 1}:`, imgError)
+            // Placeholder si no se puede cargar la imagen
+            pdf.setFillColor(240, 240, 240)
+            pdf.rect(40, 70, imageAreaWidth, 300, 'F')
+            pdf.setTextColor(150, 150, 150)
+            pdf.setFontSize(14)
+            pdf.text('Imagen no disponible', 40 + imageAreaWidth / 2 - 60, 220)
+          }
         }
 
-        pdf.setFontSize(14)
+        // Ficha técnica (lado derecho)
+        let yPos = 80
+        const lineHeight = 28
+
+        // Título de la obra
+        pdf.setFontSize(18)
         pdf.setTextColor(20, 18, 16)
-        pdf.text(`${index + 1}. ${obra.titulo || 'Sin título'}`, 40, yPos)
-        yPos += 20
+        pdf.text(obra.titulo || 'Sin título', textAreaX, yPos)
+        yPos += lineHeight + 10
 
-        pdf.setFontSize(11)
-        pdf.setTextColor(107, 107, 107)
-        pdf.text(`Dimensiones: ${obra.ancho_cm} × ${obra.alto_cm} cm`, 60, yPos)
-        yPos += 15
-        pdf.text(`Técnica: ${obra.tecnica || '-'}`, 60, yPos)
-        yPos += 15
-        pdf.text(`Año: ${obra.anio || '-'}`, 60, yPos)
-        yPos += 15
-        pdf.text(`Precio: $${obra.precio_mxn?.toLocaleString('es-MX') || '-'} MXN`, 60, yPos)
-        yPos += 15
+        // Datos de la ficha técnica con estilo mejorado
+        const fichaData = [
+          { label: 'Dimensiones', value: `${obra.ancho_cm} × ${obra.alto_cm} cm` },
+          { label: 'Técnica', value: obra.tecnica || '-' },
+          { label: 'Año', value: obra.anio?.toString() || '-' },
+          { label: 'Precio', value: obra.precio_mxn ? `$${obra.precio_mxn.toLocaleString('es-MX')} MXN` : '-' }
+        ]
 
+        fichaData.forEach(({ label, value }) => {
+          // Label en gris
+          pdf.setFontSize(11)
+          pdf.setTextColor(107, 107, 107)
+          pdf.text(label.toUpperCase(), textAreaX, yPos)
+          yPos += 18
+
+          // Valor en negro
+          pdf.setFontSize(14)
+          pdf.setTextColor(20, 18, 16)
+          pdf.text(value, textAreaX, yPos)
+          yPos += lineHeight
+        })
+
+        // Notas de montaje (si existen)
         if (obra.notas_montaje) {
-          pdf.text(`Notas de montaje: ${obra.notas_montaje}`, 60, yPos)
-          yPos += 15
+          yPos += 10
+          pdf.setFontSize(11)
+          pdf.setTextColor(107, 107, 107)
+          pdf.text('NOTAS DE MONTAJE', textAreaX, yPos)
+          yPos += 18
+
+          pdf.setFontSize(12)
+          pdf.setTextColor(20, 18, 16)
+          // Dividir notas largas en múltiples líneas
+          const maxWidth = CANVAS_WIDTH - textAreaX - 40
+          const lines = pdf.splitTextToSize(obra.notas_montaje, maxWidth)
+          pdf.text(lines, textAreaX, yPos)
         }
 
-        yPos += 20 // Espacio entre obras
-      })
+        // Pie de página
+        pdf.setFontSize(10)
+        pdf.setTextColor(150, 150, 150)
+        pdf.text(`ARTEFACTO 2027 - ${paquete?.nombre || 'Lienzo'} - Obra ${index + 1} de ${obrasEnCanvas.length}`, 40, CANVAS_HEIGHT - 30)
+      }
     }
 
     // Obtener el PDF como blob

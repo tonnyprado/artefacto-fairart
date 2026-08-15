@@ -391,16 +391,16 @@ export default function RegistroPage() {
       }
 
       console.log('Registro exitoso:', result)
-      // Guardar el preview del canvas antes de limpiar el localStorage
-      // para que la página de confirmación pueda mostrarlo
-      if (formData.layout_canvas_url || formData.layout_canvas_preview_url) {
-        const confirmacionData = {
-          layout_canvas_url: formData.layout_canvas_url || formData.layout_canvas_preview_url,
-          paquete_nombre: formData.layout_canvas_data?.paquete_nombre,
-          obras_count: formData.obras_lienzo?.length || 0
-        }
-        localStorage.setItem('artefacto_confirmacion_data', JSON.stringify(confirmacionData))
+      // Guardar datos del canvas para la página de confirmación
+      // Incluir URL del PDF que viene del backend (subido a S3)
+      const confirmacionData = {
+        layout_canvas_url: formData.layout_canvas_url || formData.layout_canvas_preview_url,
+        // URL del PDF desde el backend (guardado en layout_canvas_data.pdf_url)
+        layout_canvas_pdf_url: result.data?.layout_canvas_data?.pdf_url || null,
+        paquete_nombre: formData.layout_canvas_data?.paquete_nombre,
+        obras_count: formData.obras_lienzo?.length || 0
       }
+      localStorage.setItem('artefacto_confirmacion_data', JSON.stringify(confirmacionData))
 
       // Limpiar localStorage después de envío exitoso
       localStorage.removeItem('artefacto_registro_draft')

@@ -19,7 +19,9 @@ import {
   Globe,
   Facebook,
   Loader2,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Download,
+  Eye
 } from 'lucide-react'
 
 export default function ArtistaDetalle() {
@@ -199,12 +201,29 @@ export default function ArtistaDetalle() {
             <div className="bg-white rounded-2xl shadow p-6 mb-6">
               <h2 className="text-lg font-semibold mb-4">Foto de Perfil</h2>
               {artista.foto ? (
-                <img
-                  src={artista.foto}
-                  alt={artista.nombre}
-                  className="w-full aspect-square object-cover rounded-xl cursor-pointer hover:opacity-90"
-                  onClick={() => setImageModal(artista.foto)}
-                />
+                <>
+                  <img
+                    src={artista.foto}
+                    alt={artista.nombre}
+                    className="w-full aspect-square object-cover rounded-xl cursor-pointer hover:opacity-90"
+                    onClick={() => setImageModal(artista.foto)}
+                  />
+                  <div className="flex gap-2 mt-3">
+                    <button
+                      onClick={() => setImageModal(artista.foto)}
+                      className="flex-1 flex items-center justify-center gap-2 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg hover:bg-gray-200 text-sm"
+                    >
+                      <Eye className="h-4 w-4" /> Ver
+                    </button>
+                    <a
+                      href={artista.foto}
+                      download={`foto-${artista.nombre}-${artista.apellido}.jpg`}
+                      className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-2 px-3 rounded-lg hover:bg-blue-700 text-sm"
+                    >
+                      <Download className="h-4 w-4" /> Descargar
+                    </a>
+                  </div>
+                </>
               ) : (
                 <div className="w-full aspect-square bg-gray-200 rounded-xl flex items-center justify-center">
                   <User className="h-24 w-24 text-gray-400" />
@@ -396,12 +415,32 @@ export default function ArtistaDetalle() {
                   {obras.map((obra, index) => (
                     <div key={obra.id || index} className="border rounded-xl overflow-hidden">
                       {obra.imagen_url ? (
-                        <img
-                          src={obra.imagen_url}
-                          alt={obra.titulo || `Obra ${index + 1}`}
-                          className="w-full aspect-square object-cover cursor-pointer hover:opacity-90"
-                          onClick={() => setImageModal(obra.imagen_url)}
-                        />
+                        <>
+                          <img
+                            src={obra.imagen_url}
+                            alt={obra.titulo || `Obra ${index + 1}`}
+                            className="w-full aspect-square object-cover cursor-pointer hover:opacity-90"
+                            onClick={() => setImageModal(obra.imagen_url)}
+                          />
+                          {/* Botones de ver/descargar */}
+                          <div className="flex gap-1 p-2 bg-gray-50">
+                            <button
+                              onClick={() => setImageModal(obra.imagen_url)}
+                              className="flex-1 flex items-center justify-center gap-1 bg-gray-200 text-gray-700 py-1.5 px-2 rounded-lg hover:bg-gray-300 text-xs"
+                              title="Ver imagen"
+                            >
+                              <Eye className="h-3 w-3" />
+                            </button>
+                            <a
+                              href={obra.imagen_url}
+                              download={`obra-${obra.titulo || index + 1}.jpg`}
+                              className="flex-1 flex items-center justify-center gap-1 bg-blue-600 text-white py-1.5 px-2 rounded-lg hover:bg-blue-700 text-xs"
+                              title="Descargar imagen"
+                            >
+                              <Download className="h-3 w-3" />
+                            </a>
+                          </div>
+                        </>
                       ) : (
                         <div className="w-full aspect-square bg-gray-200 flex items-center justify-center">
                           <ImageIcon className="h-8 w-8 text-gray-400" />
