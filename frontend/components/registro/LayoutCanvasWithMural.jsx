@@ -1089,6 +1089,34 @@ export default function LayoutCanvasWithMural({
   }
 
   /**
+   * Convierte una URL de imagen (blob o normal) a base64
+   * Necesario porque las URLs de blob expiran y jsPDF no puede cargarlas
+   */
+  const imageUrlToBase64 = async (url) => {
+    if (!url) return null
+
+    // Si ya es base64, retornar directamente
+    if (url.startsWith('data:')) {
+      return url
+    }
+
+    try {
+      const response = await fetch(url)
+      const blob = await response.blob()
+
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onloadend = () => resolve(reader.result)
+        reader.onerror = reject
+        reader.readAsDataURL(blob)
+      })
+    } catch (error) {
+      console.warn('Error convirtiendo imagen a base64:', error)
+      return null
+    }
+  }
+
+  /**
    * Exportar el canvas como PDF (blob)
    * OPTIMIZADO: PDF comprimido con imagen JPEG de alta calidad (~1-2MB en lugar de ~10MB)
    * @returns {Promise<{pdfBlob: Blob, previewDataUrl: string}>}
@@ -1107,6 +1135,16 @@ export default function LayoutCanvasWithMural({
       mimeType: 'image/jpeg',
       quality: 0.85 // Alta calidad para las obras
     })
+
+    // Pre-cargar todas las imágenes de obras como base64 antes de crear el PDF
+    // Esto evita el error de URLs de blob expiradas
+    console.log('Convirtiendo imágenes de obras a base64...')
+    const obrasConBase64 = await Promise.all(
+      obrasEnCanvas.map(async (obra) => {
+        const base64Image = await imageUrlToBase64(obra.preview)
+        return { ...obra, base64Image }
+      })
+    )
 
     // Crear PDF con jsPDF y compresión habilitada
     const pdf = new jsPDF({
@@ -1127,10 +1165,10 @@ export default function LayoutCanvasWithMural({
     pdf.addImage(dataURL, 'JPEG', 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
     // Agregar ficha técnica de cada obra con foto en páginas adicionales
-    if (obrasEnCanvas.length > 0) {
+    if (obrasConBase64.length > 0) {
       // Una página por cada obra para mejor calidad de imagen
-      for (let index = 0; index < obrasEnCanvas.length; index++) {
-        const obra = obrasEnCanvas[index]
+      for (let index = 0; index < obrasConBase64.length; index++) {
+        const obra = obrasConBase64[index]
         pdf.addPage([CANVAS_WIDTH, CANVAS_HEIGHT], 'landscape')
 
         // Título de la página
@@ -1148,7 +1186,8 @@ export default function LayoutCanvasWithMural({
         const textAreaX = 40 + imageAreaWidth + 30
 
         // Agregar imagen de la obra (lado izquierdo) con alta calidad
-        if (obra.preview) {
+        // Usar la imagen base64 pre-cargada en lugar de la URL de blob
+        if (obra.base64Image) {
           try {
             // Calcular dimensiones manteniendo proporción
             const maxImgWidth = imageAreaWidth
@@ -1167,8 +1206,8 @@ export default function LayoutCanvasWithMural({
             // Centrar verticalmente la imagen
             const imgY = 70 + (maxImgHeight - imgHeight) / 2
 
-            // Agregar la imagen de la obra
-            pdf.addImage(obra.preview, 'JPEG', 40, imgY, imgWidth, imgHeight)
+            // Agregar la imagen de la obra (usando base64)
+            pdf.addImage(obra.base64Image, 'JPEG', 40, imgY, imgWidth, imgHeight)
 
             // Marco alrededor de la imagen
             pdf.setDrawColor(200, 200, 200)
@@ -1183,6 +1222,13 @@ export default function LayoutCanvasWithMural({
             pdf.setFontSize(14)
             pdf.text('Imagen no disponible', 40 + imageAreaWidth / 2 - 60, 220)
           }
+        } else {
+          // Placeholder si no hay imagen
+          pdf.setFillColor(240, 240, 240)
+          pdf.rect(40, 70, imageAreaWidth, 300, 'F')
+          pdf.setTextColor(150, 150, 150)
+          pdf.setFontSize(14)
+          pdf.text('Imagen no disponible', 40 + imageAreaWidth / 2 - 60, 220)
         }
 
         // Ficha técnica (lado derecho)

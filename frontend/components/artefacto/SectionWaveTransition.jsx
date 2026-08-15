@@ -4,29 +4,31 @@ import { gsap } from 'gsap';
 import { COLORS } from './theme';
 
 /*
-  SectionWaveTransition — Preview de onda curva con nombre de sección
+  SectionWaveTransition — Transición de onda curva con nombre de sección
 
-  Muestra una onda curva que aparece al llegar al límite de una sección,
-  con el nombre de la siguiente sección visible. Este es solo el PREVIEW,
-  la transición real se maneja por ScrollTransition o CurvedWipeTransition.
+  Dos fases:
+  1. 'preview': Bloque pequeño aparece desde el borde con el nombre
+  2. 'fullscreen': El bloque se expande a toda la pantalla
 
   Props:
-    isActive: boolean - si mostrar el preview
+    phase: 'preview' | 'fullscreen' | null
     direction: 'up' | 'down' - dirección del scroll
     targetSection: string - nombre de la sección destino
     targetColor: string - color de la sección destino
+    onFullscreenComplete: callback cuando termina la expansión a fullscreen
 */
 
 export default function SectionWaveTransition({
-  isActive,
+  phase,
   direction = 'down',
   targetSection,
   targetColor,
+  onFullscreenComplete,
 }) {
   const containerRef = useRef(null);
   const waveRef = useRef(null);
   const textRef = useRef(null);
-  const isAnimating = useRef(false);
+  const lastPhase = useRef(null);
 
   useEffect(() => {
     if (!containerRef.current || !waveRef.current || !textRef.current) return;
@@ -34,14 +36,15 @@ export default function SectionWaveTransition({
     const container = containerRef.current;
     const wave = waveRef.current;
     const text = textRef.current;
+    const isDown = direction === 'down';
 
-    if (isActive && targetSection && !isAnimating.current) {
-      isAnimating.current = true;
+    // Evitar re-animaciones innecesarias
+    if (phase === lastPhase.current) return;
+    lastPhase.current = phase;
 
+    if (phase === 'preview') {
       // Kill any existing animations
       gsap.killTweensOf([container, wave, text]);
-
-      const isDown = direction === 'down';
 
       // Setup inicial
       gsap.set(container, {
@@ -51,61 +54,73 @@ export default function SectionWaveTransition({
 
       gsap.set(wave, {
         backgroundColor: targetColor || COLORS.cream,
-        y: isDown ? '100%' : '-100%',
-        opacity: 1,
+        [isDown ? 'bottom' : 'top']: 0,
+        [isDown ? 'top' : 'bottom']: 'auto',
+        height: '0px',
       });
 
       gsap.set(text, {
         opacity: 0,
-        scale: 0.9,
+        scale: 0.8,
       });
 
-      // Animación de entrada
+      // Animación de entrada del preview
+      gsap.to(wave, {
+        height: '160px',
+        duration: 0.4,
+        ease: 'power3.out',
+      });
+
+      gsap.to(text, {
+        opacity: 1,
+        scale: 1,
+        duration: 0.35,
+        delay: 0.15,
+        ease: 'power2.out',
+      });
+
+    } else if (phase === 'fullscreen') {
+      // Kill any existing animations
+      gsap.killTweensOf([container, wave, text]);
+
+      // Expandir a pantalla completa
       const tl = gsap.timeline({
         onComplete: () => {
-          isAnimating.current = false;
+          onFullscreenComplete?.();
         }
       });
 
       tl.to(wave, {
-        y: isDown ? 'calc(100vh - 140px)' : 'calc(-100vh + 140px)',
+        height: '100vh',
         duration: 0.5,
-        ease: 'power3.out',
+        ease: 'power2.inOut',
       })
       .to(text, {
-        opacity: 1,
-        scale: 1,
-        duration: 0.4,
-        ease: 'power2.out',
+        scale: 1.15,
+        duration: 0.3,
       }, '-=0.3');
 
-    } else if (!isActive && container.style.display !== 'none') {
-      isAnimating.current = true;
-
-      // Kill any existing animations
+    } else if (phase === null && container.style.display !== 'none') {
+      // Ocultar
       gsap.killTweensOf([container, wave, text]);
 
-      const isDown = direction === 'down';
-
-      // Animación de salida
       gsap.to(text, {
         opacity: 0,
-        scale: 0.9,
+        scale: 0.8,
         duration: 0.2,
         ease: 'power2.in',
       });
 
       gsap.to(wave, {
-        y: isDown ? '100%' : '-100%',
-        duration: 0.4,
+        height: '0px',
+        duration: 0.3,
         ease: 'power3.in',
         onComplete: () => {
           gsap.set(container, { display: 'none' });
-          isAnimating.current = false;
         },
       });
     }
-  }, [isActive, direction, targetSection, targetColor]);
+  }, [phase, direction, targetSection, targetColor, onFullscreenComplete]);
 
   // Determinar colores según la sección destino
   const textColor = targetColor === COLORS.red ? COLORS.cream : COLORS.black;
@@ -117,7 +132,7 @@ export default function SectionWaveTransition({
       style={{
         position: 'fixed',
         inset: 0,
-        zIndex: 94, // Debajo de las transiciones reales (95-96)
+        zIndex: 100, // Por encima de todo
         pointerEvents: 'none',
         display: 'none',
         overflow: 'hidden',
@@ -130,9 +145,7 @@ export default function SectionWaveTransition({
           position: 'absolute',
           left: 0,
           right: 0,
-          height: '140px',
-          [isDown ? 'bottom' : 'top']: 0,
-          willChange: 'transform',
+          willChange: 'height',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -167,11 +180,9 @@ export default function SectionWaveTransition({
             color: textColor,
             fontFamily: "'Inter Tight', sans-serif",
             fontWeight: 900,
-            fontSize: 'clamp(1.2rem, 3vw, 2rem)',
+            fontSize: 'clamp(1.5rem, 5vw, 3rem)',
             letterSpacing: '0.2em',
             textTransform: 'uppercase',
-            paddingTop: isDown ? '20px' : '0',
-            paddingBottom: isDown ? '0' : '20px',
           }}
         >
           {targetSection}

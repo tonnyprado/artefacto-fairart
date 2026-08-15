@@ -37,13 +37,17 @@ export default function LandingArtefacto() {
   const [loaderComplete, setLoaderComplete] = useState(false);
   const [heroExiting, setHeroExiting] = useState(false);
   const [skipLoader, setSkipLoader] = useState(false);
-  // Estados para la transición wave preview
-  const [wavePreview, setWavePreview] = useState({
-    active: false,
+  // Estados para la transición wave
+  // phase: null | 'preview' | 'fullscreen'
+  const [waveState, setWaveState] = useState({
+    phase: null,
     direction: 'down',
     targetSection: null,
     targetColor: null,
+    targetIndex: null,
   });
+  const waveBlocking = useRef(false); // Bloquear scroll durante fullscreen
+
   const busy = useRef(false);
   const screenRef = useRef(screen);
   screenRef.current = screen;
@@ -62,28 +66,89 @@ export default function LandingArtefacto() {
   const getScrollConfig = () => {
     const mobile = isMobile.current;
     return {
-      scrollCooldown: mobile ? 1000 : 800, // Más cooldown en móvil
-      overscrollThreshold: mobile ? 200 : 150, // Menos sensible en móvil
-      touchOverscrollThreshold: 150, // Threshold para touch
-      overscrollDecayTime: mobile ? 600 : 400, // Tiempo para resetear buffer (aumentado para ver mejor el preview)
-      maxBuffer: mobile ? 300 : 225, // Límite máximo del buffer (threshold * 1.5)
+      scrollCooldown: mobile ? 1000 : 800,
+      previewDecayTime: mobile ? 800 : 600, // Tiempo para que desaparezca el preview si no hay más scroll
     };
   };
 
-  // Mostrar preview de wave cuando el buffer empieza a acumularse
+  // Mostrar preview de wave (primera fase)
   const showWavePreview = (direction, targetIndex) => {
+    if (waveState.phase !== null) return; // Ya hay un wave activo
+
     const targetId = ORDER[targetIndex];
-    setWavePreview({
-      active: true,
+    setWaveState({
+      phase: 'preview',
       direction,
       targetSection: SCREEN_NAMES[targetId],
       targetColor: SCREEN_COLORS[targetId],
+      targetIndex,
     });
+  };
+
+  // Expandir wave a fullscreen (segunda fase) - bloquea scroll
+  const expandWaveToFullscreen = () => {
+    if (waveState.phase !== 'preview') return;
+
+    waveBlocking.current = true;
+    setWaveState(prev => ({ ...prev, phase: 'fullscreen' }));
+  };
+
+  // Callback cuando el fullscreen termina de animarse
+  const handleFullscreenComplete = () => {
+    // Esperar 1.5 segundos mostrando el fullscreen
+    setTimeout(() => {
+      // Navegar a la siguiente sección SIN transición
+      const targetId = ORDER[waveState.targetIndex];
+      const isNavigatingUp = waveState.targetIndex < ORDER.indexOf(screenRef.current);
+
+      // Actualizar URL
+      if (targetId === 'hero') {
+        window.history.pushState(null, '', '/');
+      } else {
+        window.history.pushState(null, '', `#${targetId}`);
+      }
+
+      // Cambiar sección
+      setScreen(targetId);
+
+      // Posicionar scroll
+      requestAnimationFrame(() => {
+        if (isNavigatingUp) {
+          const scrollHeight = document.documentElement.scrollHeight;
+          const windowHeight = window.innerHeight;
+          const scrollTo = Math.max(0, scrollHeight - windowHeight);
+          lenis.current?.scrollTo?.(scrollTo, { immediate: true });
+          window.scrollTo(0, scrollTo);
+        } else {
+          lenis.current?.scrollTo?.(0, { immediate: true });
+          window.scrollTo(0, 0);
+        }
+      });
+
+      // Ocultar wave y desbloquear
+      setWaveState({
+        phase: null,
+        direction: 'down',
+        targetSection: null,
+        targetColor: null,
+        targetIndex: null,
+      });
+      waveBlocking.current = false;
+      lastScrollTime.current = Date.now();
+    }, 1500);
   };
 
   // Ocultar preview de wave
   const hideWavePreview = () => {
-    setWavePreview(prev => ({ ...prev, active: false }));
+    if (waveState.phase === 'preview') {
+      setWaveState({
+        phase: null,
+        direction: 'down',
+        targetSection: null,
+        targetColor: null,
+        targetIndex: null,
+      });
+    }
   };
 
   // Detectar hash en el cliente después de la hidratación
@@ -251,9 +316,12 @@ export default function LandingArtefacto() {
     // Scroll down → siguiente sección | Scroll up → sección anterior
     const onWheel = (e) => {
       const config = getScrollConfig();
+      const now = Date.now();
+
+      // Si el wave está bloqueando (fullscreen), ignorar todo scroll
+      if (waveBlocking.current) return;
 
       // Verificar si está ocupado, en cooldown, o es navegación por click
-      const now = Date.now();
       if (busy.current || isClickNavigation.current || (now - lastScrollTime.current < config.scrollCooldown)) {
         return;
       }
@@ -261,7 +329,6 @@ export default function LandingArtefacto() {
       const i = ORDER.indexOf(screenRef.current);
       if (i < 0) return;
 
-      // Threshold optimizado para mejor respuesta
       const scrollThreshold = 20;
 
       // Scroll down: siguiente sección
@@ -272,37 +339,30 @@ export default function LandingArtefacto() {
           window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 10;
 
         if (atBottom) {
-          // Acumular scroll en el buffer CON LÍMITE MÁXIMO
-          overscrollBuffer.current = Math.min(
-            overscrollBuffer.current + Math.abs(e.deltaY),
-            config.maxBuffer
-          );
-
-          // Mostrar preview de wave SIEMPRE que hay buffer (excepto en Hero que tiene su propia animación)
-          if (screenRef.current !== 'hero' && overscrollBuffer.current > 0) {
-            showWavePreview('down', i + 1);
+          // Hero tiene su propia animación - usar transición normal
+          if (screenRef.current === 'hero') {
+            lastScrollTime.current = now;
+            navigate(ORDER[i + 1]);
+            return;
           }
 
-          // Resetear el timer de decay
+          // Cancelar timer de decay anterior
           if (overscrollDecay.current) {
             clearTimeout(overscrollDecay.current);
           }
-          overscrollDecay.current = setTimeout(() => {
-            overscrollBuffer.current = 0;
-            hideWavePreview();
-          }, config.overscrollDecayTime);
 
-          // Solo navegar si el buffer supera el threshold
-          if (overscrollBuffer.current >= config.overscrollThreshold) {
-            overscrollBuffer.current = 0;
-            lastScrollTime.current = now;
-            navigate(ORDER[i + 1]);
-            // Ocultar preview después de que empiece la transición
-            setTimeout(hideWavePreview, 200);
+          // Lógica de dos fases para wave
+          if (waveState.phase === null) {
+            // Primera vez en el límite → mostrar preview
+            showWavePreview('down', i + 1);
+            // Timer para ocultar si no hay más scroll
+            overscrollDecay.current = setTimeout(hideWavePreview, config.previewDecayTime);
+          } else if (waveState.phase === 'preview') {
+            // Ya hay preview → expandir a fullscreen
+            expandWaveToFullscreen();
           }
         } else {
-          // No estamos en el límite, resetear buffer
-          overscrollBuffer.current = 0;
+          // No estamos en el límite, ocultar preview
           hideWavePreview();
         }
       }
@@ -314,38 +374,32 @@ export default function LandingArtefacto() {
         const atTop = window.scrollY <= 10; // Margen de 10px para detectar tope
 
         if (atTop) {
-          // Acumular scroll en el buffer CON LÍMITE MÁXIMO
-          overscrollBuffer.current = Math.min(
-            overscrollBuffer.current + Math.abs(e.deltaY),
-            config.maxBuffer
-          );
-
-          // Mostrar preview de wave SIEMPRE que hay buffer (no mostrar preview hacia Hero)
           const targetIndex = i - 1;
-          if (ORDER[targetIndex] !== 'hero' && overscrollBuffer.current > 0) {
-            showWavePreview('up', targetIndex);
+
+          // Si vamos hacia el Hero, usar transición normal
+          if (ORDER[targetIndex] === 'hero') {
+            lastScrollTime.current = now;
+            navigate(ORDER[targetIndex]);
+            return;
           }
 
-          // Resetear el timer de decay
+          // Cancelar timer de decay anterior
           if (overscrollDecay.current) {
             clearTimeout(overscrollDecay.current);
           }
-          overscrollDecay.current = setTimeout(() => {
-            overscrollBuffer.current = 0;
-            hideWavePreview();
-          }, config.overscrollDecayTime);
 
-          // Solo navegar si el buffer supera el threshold
-          if (overscrollBuffer.current >= config.overscrollThreshold) {
-            overscrollBuffer.current = 0;
-            lastScrollTime.current = now;
-            navigate(ORDER[i - 1]);
-            // Ocultar preview después de que empiece la transición
-            setTimeout(hideWavePreview, 200);
+          // Lógica de dos fases para wave
+          if (waveState.phase === null) {
+            // Primera vez en el límite → mostrar preview
+            showWavePreview('up', targetIndex);
+            // Timer para ocultar si no hay más scroll
+            overscrollDecay.current = setTimeout(hideWavePreview, config.previewDecayTime);
+          } else if (waveState.phase === 'preview') {
+            // Ya hay preview → expandir a fullscreen
+            expandWaveToFullscreen();
           }
         } else {
-          // No estamos en el límite, resetear buffer
-          overscrollBuffer.current = 0;
+          // No estamos en el límite, ocultar preview
           hideWavePreview();
         }
       }
@@ -366,6 +420,9 @@ export default function LandingArtefacto() {
       const config = getScrollConfig();
       const now = Date.now();
 
+      // Si el wave está bloqueando, ignorar
+      if (waveBlocking.current) return;
+
       // Ignorar si es navegación por click o está en cooldown
       if (busy.current || isClickNavigation.current || (now - lastScrollTime.current < config.scrollCooldown)) {
         return;
@@ -377,94 +434,74 @@ export default function LandingArtefacto() {
       if (i < 0) return;
 
       // Solo procesar si fue un swipe real (no un tap)
-      // Un tap típico dura menos de 200ms y tiene poco movimiento
       const isTap = touchDuration < 200 && Math.abs(deltaY) < 30;
       if (isTap) {
-        return; // Es un tap, no un swipe - no procesar
+        return;
       }
 
-      const swipeThreshold = 80; // Aumentado para evitar swipes accidentales
+      const swipeThreshold = 80;
 
       // Swipe up (scroll down): siguiente sección
       if (deltaY > swipeThreshold) {
-        if (i === ORDER.length - 1) return; // Ya está en la última sección
+        if (i === ORDER.length - 1) return;
 
         const atBottom = screenRef.current === 'hero' ||
           window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 10;
 
         if (atBottom) {
-          // Acumular swipe en el buffer CON LÍMITE
-          overscrollBuffer.current = Math.min(
-            overscrollBuffer.current + Math.abs(deltaY),
-            config.maxBuffer
-          );
-
-          // Mostrar preview de wave SIEMPRE que hay buffer (excepto en Hero)
-          if (screenRef.current !== 'hero' && overscrollBuffer.current > 0) {
-            showWavePreview('down', i + 1);
+          // Hero usa transición normal
+          if (screenRef.current === 'hero') {
+            lastScrollTime.current = now;
+            navigate(ORDER[i + 1]);
+            return;
           }
 
-          // Resetear el timer de decay
+          // Cancelar timer de decay anterior
           if (overscrollDecay.current) {
             clearTimeout(overscrollDecay.current);
           }
-          overscrollDecay.current = setTimeout(() => {
-            overscrollBuffer.current = 0;
-            hideWavePreview();
-          }, config.overscrollDecayTime);
 
-          // Solo navegar si el buffer supera el threshold
-          if (overscrollBuffer.current >= config.touchOverscrollThreshold) {
-            overscrollBuffer.current = 0;
-            lastScrollTime.current = now;
-            navigate(ORDER[i + 1]);
-            // Ocultar preview después de que empiece la transición
-            setTimeout(hideWavePreview, 200);
+          // Lógica de dos fases para wave
+          if (waveState.phase === null) {
+            showWavePreview('down', i + 1);
+            overscrollDecay.current = setTimeout(hideWavePreview, config.previewDecayTime);
+          } else if (waveState.phase === 'preview') {
+            expandWaveToFullscreen();
           }
         } else {
-          overscrollBuffer.current = 0;
           hideWavePreview();
         }
       }
 
       // Swipe down (scroll up): sección anterior
       else if (deltaY < -swipeThreshold) {
-        if (i === 0) return; // Ya está en la primera sección (hero)
+        if (i === 0) return;
 
         const atTop = window.scrollY <= 10;
 
         if (atTop) {
-          // Acumular swipe en el buffer CON LÍMITE
-          overscrollBuffer.current = Math.min(
-            overscrollBuffer.current + Math.abs(deltaY),
-            config.maxBuffer
-          );
-
-          // Mostrar preview de wave SIEMPRE que hay buffer (no mostrar preview hacia Hero)
           const targetIndex = i - 1;
-          if (ORDER[targetIndex] !== 'hero' && overscrollBuffer.current > 0) {
-            showWavePreview('up', targetIndex);
+
+          // Si vamos hacia el Hero, usar transición normal
+          if (ORDER[targetIndex] === 'hero') {
+            lastScrollTime.current = now;
+            navigate(ORDER[targetIndex]);
+            return;
           }
 
-          // Resetear el timer de decay
+          // Cancelar timer de decay anterior
           if (overscrollDecay.current) {
             clearTimeout(overscrollDecay.current);
           }
-          overscrollDecay.current = setTimeout(() => {
-            overscrollBuffer.current = 0;
-            hideWavePreview();
-          }, config.overscrollDecayTime);
 
-          // Solo navegar si el buffer supera el threshold
-          if (overscrollBuffer.current >= config.touchOverscrollThreshold) {
-            overscrollBuffer.current = 0;
-            lastScrollTime.current = now;
-            navigate(ORDER[i - 1]);
-            // Ocultar preview después de que empiece la transición
-            setTimeout(hideWavePreview, 200);
+          // Lógica de dos fases para wave
+          if (waveState.phase === null) {
+            showWavePreview('up', targetIndex);
+            overscrollDecay.current = setTimeout(hideWavePreview, config.previewDecayTime);
+          } else if (waveState.phase === 'preview') {
+            expandWaveToFullscreen();
           }
         } else {
-          overscrollBuffer.current = 0;
           hideWavePreview();
         }
       }
@@ -521,12 +558,13 @@ export default function LandingArtefacto() {
         <ScrollTransition phase={transitionPhase} color={ovColor} />
       )}
 
-      {/* Preview de wave transition cuando el usuario está en el límite de una sección */}
+      {/* Wave transition cuando el usuario está en el límite de una sección */}
       <SectionWaveTransition
-        isActive={wavePreview.active}
-        direction={wavePreview.direction}
-        targetSection={wavePreview.targetSection}
-        targetColor={wavePreview.targetColor}
+        phase={waveState.phase}
+        direction={waveState.direction}
+        targetSection={waveState.targetSection}
+        targetColor={waveState.targetColor}
+        onFullscreenComplete={handleFullscreenComplete}
       />
 
       <CustomCursor />
