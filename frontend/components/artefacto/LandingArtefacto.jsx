@@ -24,7 +24,7 @@ import { getTransitionType, getTransitionTimings, TRANSITION_TYPES } from './tra
   - Lenis (smooth scroll) se inicializa si está instalado: `npm i lenis`.
 */
 const ORDER = ['hero', 'about', 'calendario', 'convocatoria', 'contacto'];
-const SCREEN_NAMES = { hero: 'Inicio', about: 'Acerca de', calendario: 'Calendario', convocatoria: 'Convocatoria', contacto: 'Contacto' };
+const SCREEN_NAMES = { hero: 'Inicio', about: 'Conoce más', calendario: 'Calendario', convocatoria: 'Convocatoria', contacto: 'Contacto' };
 const SCREEN_COLORS = { hero: COLORS.red, about: COLORS.cream, calendario: COLORS.cream, convocatoria: COLORS.red, contacto: COLORS.cream };
 
 export default function LandingArtefacto() {
@@ -65,9 +65,8 @@ export default function LandingArtefacto() {
       scrollCooldown: mobile ? 1000 : 800, // Más cooldown en móvil
       overscrollThreshold: mobile ? 200 : 150, // Menos sensible en móvil
       touchOverscrollThreshold: 150, // Threshold para touch
-      overscrollDecayTime: mobile ? 500 : 300, // Más tiempo para resetear en móvil
+      overscrollDecayTime: mobile ? 600 : 400, // Tiempo para resetear buffer (aumentado para ver mejor el preview)
       maxBuffer: mobile ? 300 : 225, // Límite máximo del buffer (threshold * 1.5)
-      wavePreviewThreshold: mobile ? 60 : 50, // Threshold para mostrar preview de wave
     };
   };
 
@@ -274,14 +273,13 @@ export default function LandingArtefacto() {
 
         if (atBottom) {
           // Acumular scroll en el buffer CON LÍMITE MÁXIMO
-          const prevBuffer = overscrollBuffer.current;
           overscrollBuffer.current = Math.min(
             overscrollBuffer.current + Math.abs(e.deltaY),
             config.maxBuffer
           );
 
-          // Mostrar preview de wave cuando el buffer supere el threshold de preview
-          if (prevBuffer < config.wavePreviewThreshold && overscrollBuffer.current >= config.wavePreviewThreshold) {
+          // Mostrar preview de wave SIEMPRE que hay buffer (excepto en Hero que tiene su propia animación)
+          if (screenRef.current !== 'hero' && overscrollBuffer.current > 0) {
             showWavePreview('down', i + 1);
           }
 
@@ -298,8 +296,9 @@ export default function LandingArtefacto() {
           if (overscrollBuffer.current >= config.overscrollThreshold) {
             overscrollBuffer.current = 0;
             lastScrollTime.current = now;
-            hideWavePreview();
             navigate(ORDER[i + 1]);
+            // Ocultar preview después de que empiece la transición
+            setTimeout(hideWavePreview, 200);
           }
         } else {
           // No estamos en el límite, resetear buffer
@@ -316,15 +315,15 @@ export default function LandingArtefacto() {
 
         if (atTop) {
           // Acumular scroll en el buffer CON LÍMITE MÁXIMO
-          const prevBuffer = overscrollBuffer.current;
           overscrollBuffer.current = Math.min(
             overscrollBuffer.current + Math.abs(e.deltaY),
             config.maxBuffer
           );
 
-          // Mostrar preview de wave cuando el buffer supere el threshold de preview
-          if (prevBuffer < config.wavePreviewThreshold && overscrollBuffer.current >= config.wavePreviewThreshold) {
-            showWavePreview('up', i - 1);
+          // Mostrar preview de wave SIEMPRE que hay buffer (no mostrar preview hacia Hero)
+          const targetIndex = i - 1;
+          if (ORDER[targetIndex] !== 'hero' && overscrollBuffer.current > 0) {
+            showWavePreview('up', targetIndex);
           }
 
           // Resetear el timer de decay
@@ -340,8 +339,9 @@ export default function LandingArtefacto() {
           if (overscrollBuffer.current >= config.overscrollThreshold) {
             overscrollBuffer.current = 0;
             lastScrollTime.current = now;
-            hideWavePreview();
             navigate(ORDER[i - 1]);
+            // Ocultar preview después de que empiece la transición
+            setTimeout(hideWavePreview, 200);
           }
         } else {
           // No estamos en el límite, resetear buffer
@@ -394,14 +394,13 @@ export default function LandingArtefacto() {
 
         if (atBottom) {
           // Acumular swipe en el buffer CON LÍMITE
-          const prevBuffer = overscrollBuffer.current;
           overscrollBuffer.current = Math.min(
             overscrollBuffer.current + Math.abs(deltaY),
             config.maxBuffer
           );
 
-          // Mostrar preview de wave cuando el buffer supere el threshold de preview
-          if (prevBuffer < config.wavePreviewThreshold && overscrollBuffer.current >= config.wavePreviewThreshold) {
+          // Mostrar preview de wave SIEMPRE que hay buffer (excepto en Hero)
+          if (screenRef.current !== 'hero' && overscrollBuffer.current > 0) {
             showWavePreview('down', i + 1);
           }
 
@@ -418,8 +417,9 @@ export default function LandingArtefacto() {
           if (overscrollBuffer.current >= config.touchOverscrollThreshold) {
             overscrollBuffer.current = 0;
             lastScrollTime.current = now;
-            hideWavePreview();
             navigate(ORDER[i + 1]);
+            // Ocultar preview después de que empiece la transición
+            setTimeout(hideWavePreview, 200);
           }
         } else {
           overscrollBuffer.current = 0;
@@ -435,15 +435,15 @@ export default function LandingArtefacto() {
 
         if (atTop) {
           // Acumular swipe en el buffer CON LÍMITE
-          const prevBuffer = overscrollBuffer.current;
           overscrollBuffer.current = Math.min(
             overscrollBuffer.current + Math.abs(deltaY),
             config.maxBuffer
           );
 
-          // Mostrar preview de wave cuando el buffer supere el threshold de preview
-          if (prevBuffer < config.wavePreviewThreshold && overscrollBuffer.current >= config.wavePreviewThreshold) {
-            showWavePreview('up', i - 1);
+          // Mostrar preview de wave SIEMPRE que hay buffer (no mostrar preview hacia Hero)
+          const targetIndex = i - 1;
+          if (ORDER[targetIndex] !== 'hero' && overscrollBuffer.current > 0) {
+            showWavePreview('up', targetIndex);
           }
 
           // Resetear el timer de decay
@@ -459,8 +459,9 @@ export default function LandingArtefacto() {
           if (overscrollBuffer.current >= config.touchOverscrollThreshold) {
             overscrollBuffer.current = 0;
             lastScrollTime.current = now;
-            hideWavePreview();
             navigate(ORDER[i - 1]);
+            // Ocultar preview después de que empiece la transición
+            setTimeout(hideWavePreview, 200);
           }
         } else {
           overscrollBuffer.current = 0;

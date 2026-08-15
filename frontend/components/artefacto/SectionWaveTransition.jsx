@@ -1,28 +1,20 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { COLORS } from './theme';
 
 /*
-  SectionWaveTransition — Transición con onda curva y nombre de sección
+  SectionWaveTransition — Preview de onda curva con nombre de sección
 
   Muestra una onda curva que aparece al llegar al límite de una sección,
-  con el nombre de la siguiente sección visible. Si el usuario continúa
-  haciendo scroll, la onda se expande y completa la transición.
-
-  Fases:
-  1. 'preview': Wave aparece desde el borde con nombre de sección (0.4s)
-  2. 'pause': Se mantiene visible mostrando el nombre (1.5s)
-  3. 'expand': Wave se expande cubriendo toda la pantalla (0.6s)
-  4. 'complete': Transición finalizada
+  con el nombre de la siguiente sección visible. Este es solo el PREVIEW,
+  la transición real se maneja por ScrollTransition o CurvedWipeTransition.
 
   Props:
-    isActive: boolean - si mostrar la transición
+    isActive: boolean - si mostrar el preview
     direction: 'up' | 'down' - dirección del scroll
     targetSection: string - nombre de la sección destino
     targetColor: string - color de la sección destino
-    onTransitionComplete: callback cuando termina la transición completa
-    onPreviewEnd: callback cuando termina el preview (para cancelar si deja de hacer scroll)
 */
 
 export default function SectionWaveTransition({
@@ -30,121 +22,94 @@ export default function SectionWaveTransition({
   direction = 'down',
   targetSection,
   targetColor,
-  onTransitionComplete,
-  onPreviewEnd,
 }) {
   const containerRef = useRef(null);
   const waveRef = useRef(null);
   const textRef = useRef(null);
-  const timelineRef = useRef(null);
-  const [phase, setPhase] = useState(null); // 'preview' | 'pause' | 'expand' | 'complete' | null
+  const isAnimating = useRef(false);
 
   useEffect(() => {
-    if (!containerRef.current || !waveRef.current) return;
+    if (!containerRef.current || !waveRef.current || !textRef.current) return;
 
-    // Limpiar timeline anterior
-    if (timelineRef.current) {
-      timelineRef.current.kill();
-      timelineRef.current = null;
-    }
+    const container = containerRef.current;
+    const wave = waveRef.current;
+    const text = textRef.current;
 
-    if (isActive && targetSection) {
-      setPhase('preview');
-      gsap.set(containerRef.current, { display: 'flex' });
+    if (isActive && targetSection && !isAnimating.current) {
+      isAnimating.current = true;
+
+      // Kill any existing animations
+      gsap.killTweensOf([container, wave, text]);
 
       const isDown = direction === 'down';
-      const startY = isDown ? '100%' : '-100%';
-      const waveHeight = '120px'; // Altura inicial de la onda
 
-      // Configurar posición inicial
-      gsap.set(waveRef.current, {
-        backgroundColor: targetColor || COLORS.cream,
-        y: startY,
-        height: waveHeight,
+      // Setup inicial
+      gsap.set(container, {
+        display: 'flex',
         opacity: 1,
       });
 
-      gsap.set(textRef.current, {
-        opacity: 0,
-        y: isDown ? 20 : -20,
+      gsap.set(wave, {
+        backgroundColor: targetColor || COLORS.cream,
+        y: isDown ? '100%' : '-100%',
+        opacity: 1,
       });
 
-      const tl = gsap.timeline();
-      timelineRef.current = tl;
+      gsap.set(text, {
+        opacity: 0,
+        scale: 0.9,
+      });
 
-      // Fase 1: Preview - Wave aparece (0.4s)
-      tl.to(waveRef.current, {
-        y: isDown ? 'calc(100% - 120px)' : 'calc(-100% + 120px)',
+      // Animación de entrada
+      const tl = gsap.timeline({
+        onComplete: () => {
+          isAnimating.current = false;
+        }
+      });
+
+      tl.to(wave, {
+        y: isDown ? 'calc(100vh - 140px)' : 'calc(-100vh + 140px)',
+        duration: 0.5,
+        ease: 'power3.out',
+      })
+      .to(text, {
+        opacity: 1,
+        scale: 1,
         duration: 0.4,
         ease: 'power2.out',
-      })
-      .to(textRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 0.3,
-        ease: 'power2.out',
-      }, '-=0.2')
-      // Fase 2: Pausa (1.5s)
-      .call(() => setPhase('pause'))
-      .to({}, { duration: 1.5 })
-      .call(() => {
-        onPreviewEnd?.();
-      })
-      // Fase 3: Expand - Wave cubre toda la pantalla (0.6s)
-      .call(() => setPhase('expand'))
-      .to(waveRef.current, {
-        y: '0%',
-        height: '100%',
-        duration: 0.6,
-        ease: 'power2.inOut',
-      })
-      .to(textRef.current, {
-        scale: 1.1,
-        duration: 0.3,
-      }, '-=0.3')
-      // Fase 4: Complete
-      .call(() => {
-        setPhase('complete');
-        onTransitionComplete?.();
-      })
-      // Fade out
-      .to(containerRef.current, {
+      }, '-=0.3');
+
+    } else if (!isActive && container.style.display !== 'none') {
+      isAnimating.current = true;
+
+      // Kill any existing animations
+      gsap.killTweensOf([container, wave, text]);
+
+      const isDown = direction === 'down';
+
+      // Animación de salida
+      gsap.to(text, {
         opacity: 0,
-        duration: 0.3,
-        onComplete: () => {
-          gsap.set(containerRef.current, { display: 'none', opacity: 1 });
-          setPhase(null);
-        },
+        scale: 0.9,
+        duration: 0.2,
+        ease: 'power2.in',
       });
 
-    } else if (!isActive && phase !== null) {
-      // Cancelar transición si se desactiva
-      if (timelineRef.current) {
-        timelineRef.current.kill();
-      }
-
-      // Animar salida suave
-      gsap.to(waveRef.current, {
-        y: direction === 'down' ? '100%' : '-100%',
-        duration: 0.3,
-        ease: 'power2.in',
+      gsap.to(wave, {
+        y: isDown ? '100%' : '-100%',
+        duration: 0.4,
+        ease: 'power3.in',
         onComplete: () => {
-          gsap.set(containerRef.current, { display: 'none' });
-          setPhase(null);
+          gsap.set(container, { display: 'none' });
+          isAnimating.current = false;
         },
       });
     }
+  }, [isActive, direction, targetSection, targetColor]);
 
-    return () => {
-      if (timelineRef.current) {
-        timelineRef.current.kill();
-      }
-    };
-  }, [isActive, direction, targetSection, targetColor, onTransitionComplete, onPreviewEnd, phase]);
-
-  // Determinar posición del texto según dirección
-  const textPosition = direction === 'down' ? { bottom: '40px' } : { top: '40px' };
+  // Determinar colores según la sección destino
   const textColor = targetColor === COLORS.red ? COLORS.cream : COLORS.black;
+  const isDown = direction === 'down';
 
   return (
     <div
@@ -152,44 +117,42 @@ export default function SectionWaveTransition({
       style={{
         position: 'fixed',
         inset: 0,
-        zIndex: 96,
+        zIndex: 94, // Debajo de las transiciones reales (95-96)
         pointerEvents: 'none',
         display: 'none',
-        alignItems: direction === 'down' ? 'flex-end' : 'flex-start',
-        justifyContent: 'center',
         overflow: 'hidden',
       }}
     >
-      {/* Onda curva con SVG para el borde */}
+      {/* Bloque de wave */}
       <div
         ref={waveRef}
         style={{
           position: 'absolute',
           left: 0,
           right: 0,
-          willChange: 'transform, height',
-          transform: 'translateZ(0)',
+          height: '140px',
+          [isDown ? 'bottom' : 'top']: 0,
+          willChange: 'transform',
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: direction === 'down' ? 'flex-start' : 'flex-end',
+          justifyContent: 'center',
         }}
       >
         {/* Borde curvo SVG */}
         <svg
-          viewBox="0 0 1440 60"
+          viewBox="0 0 1440 80"
           preserveAspectRatio="none"
           style={{
             position: 'absolute',
-            [direction === 'down' ? 'top' : 'bottom']: '-1px',
+            [isDown ? 'top' : 'bottom']: '-1px',
             left: 0,
             width: '100%',
-            height: '60px',
-            transform: direction === 'down' ? 'rotate(180deg)' : 'none',
+            height: '80px',
+            transform: isDown ? 'rotate(180deg)' : 'none',
           }}
         >
           <path
-            d="M0,30 Q360,60 720,30 T1440,30 L1440,60 L0,60 Z"
+            d="M0,40 Q360,80 720,40 T1440,40 L1440,80 L0,80 Z"
             fill={targetColor || COLORS.cream}
           />
         </svg>
@@ -198,16 +161,17 @@ export default function SectionWaveTransition({
         <div
           ref={textRef}
           style={{
-            position: 'absolute',
-            ...textPosition,
+            position: 'relative',
+            zIndex: 1,
             textAlign: 'center',
             color: textColor,
             fontFamily: "'Inter Tight', sans-serif",
             fontWeight: 900,
-            fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
-            letterSpacing: '0.15em',
+            fontSize: 'clamp(1.2rem, 3vw, 2rem)',
+            letterSpacing: '0.2em',
             textTransform: 'uppercase',
-            willChange: 'transform, opacity',
+            paddingTop: isDown ? '20px' : '0',
+            paddingBottom: isDown ? '0' : '20px',
           }}
         >
           {targetSection}
