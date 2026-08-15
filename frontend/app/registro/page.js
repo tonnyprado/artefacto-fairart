@@ -358,11 +358,25 @@ export default function RegistroPage() {
       // Enviar directamente al backend (evita límite de 4.5MB de Vercel)
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
       console.log('Enviando a:', `${backendUrl}/registro`)
+      console.log('Tamaño total FormData:', totalMB, 'MB')
 
-      const response = await fetch(`${backendUrl}/registro`, {
-        method: 'POST',
-        body: formDataToSend,
-      })
+      // Timeout de 3 minutos para upload de archivos grandes
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => {
+        controller.abort()
+        console.error('❌ Timeout: La solicitud tardó más de 3 minutos')
+      }, 180000) // 3 minutos
+
+      let response
+      try {
+        response = await fetch(`${backendUrl}/registro`, {
+          method: 'POST',
+          body: formDataToSend,
+          signal: controller.signal,
+        })
+      } finally {
+        clearTimeout(timeoutId)
+      }
 
       let result
       try {

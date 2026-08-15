@@ -139,11 +139,18 @@ app.use((err, req, res, next) => {
 
 // Iniciar servidor solo si no está en Vercel (serverless)
 if (process.env.VERCEL !== '1') {
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     console.log(`🚀 Servidor corriendo en puerto ${PORT}`)
     console.log(`📍 Entorno: ${process.env.NODE_ENV}`)
-    console.log(`🔗 Health check: http://localhost:${PORT}/health`)
   })
+
+  // Configurar timeouts más largos para uploads de archivos grandes
+  server.timeout = 300000 // 5 minutos
+  server.keepAliveTimeout = 120000 // 2 minutos
+  server.headersTimeout = 310000 // 5 minutos + 10 segundos
+
+  console.log('⏱️  Timeouts configurados: 5 minutos para requests')
+  console.log(`🔗 Health check: http://localhost:${PORT}/health`)
 }
 
 export default app
