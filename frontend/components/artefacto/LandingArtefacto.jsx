@@ -68,8 +68,8 @@ export default function LandingArtefacto() {
   const getScrollConfig = () => {
     const mobile = isMobile.current;
     return {
-      scrollCooldown: mobile ? 1000 : 800,
-      previewDecayTime: mobile ? 800 : 600, // Tiempo para que desaparezca el preview si no hay más scroll
+      scrollCooldown: mobile ? 600 : 500, // Reducido para respuesta más rápida
+      previewDecayTime: mobile ? 2000 : 1500, // Más tiempo antes de ocultar el preview
     };
   };
 
