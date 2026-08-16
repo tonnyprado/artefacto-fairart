@@ -16,7 +16,6 @@ export default function Navbar({ screen, onOpenMenu }) {
   const labelCol = rojo ? COLORS.cream : COLORS.black;
   const logoRef = useRef(null);
   const [logoVisible, setLogoVisible] = useState(false);
-  const [scrolledFromAbout, setScrolledFromAbout] = useState(false);
 
   const left = [
     { src: `/assets/glyph-a-${suf}.svg`, label: 'Conoce Más', href: '#about' },
@@ -35,35 +34,14 @@ export default function Navbar({ screen, onOpenMenu }) {
     initialDelay: 300,
   });
 
-  // Detectar scroll en la sección about
+  // Animación de entrada del logo - siempre visible en todas las secciones
   useEffect(() => {
-    const handleScroll = () => {
-      if (screen === 'about') {
-        // Si estamos en about, NUNCA mostrar el logo del navbar
-        // El logo animado de ConoceMasSection toma el control
-        setScrolledFromAbout(false);
-      } else {
-        // En otras secciones, siempre mostrar el logo
-        setScrolledFromAbout(true);
-      }
-    };
-
-    handleScroll(); // Ejecutar inmediatamente
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [screen]);
-
-  // Animación de entrada del logo
-  useEffect(() => {
-    if (logoRef.current && screen !== 'about') {
+    if (logoRef.current) {
       setTimeout(() => {
         setLogoVisible(true);
       }, 200);
-    } else if (screen === 'about') {
-      // En la sección about, el logo siempre está oculto
-      setLogoVisible(false);
     }
-  }, [screen, scrolledFromAbout]);
+  }, [screen]);
 
   const item = (n, index) => (
     <a key={n.href} className="arte-navitem" href={n.href}
