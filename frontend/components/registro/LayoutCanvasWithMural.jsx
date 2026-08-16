@@ -2,9 +2,7 @@
  * LayoutCanvasWithMural
  * Componente refactorizado aplicando principios SOLID
  *
- * Este archivo mantiene la compatibilidad con imports existentes,
- * pero ahora importa el componente modularizado desde la carpeta LayoutCanvasWithMural/
- *
+ * Este archivo mantiene la compatibilidad con imports existentes.
  * El componente original de 2550 líneas ha sido refactorizado en:
  * - 5 hooks custom para lógica reutilizable
  * - 12+ componentes separados por responsabilidad
@@ -20,4 +18,6 @@
  * - Dependency Inversion: Hooks inyectables y servicios desacoplados
  */
 
-export { default } from './LayoutCanvasWithMural/index.jsx'
+import LayoutCanvasWithMural from './LayoutCanvasWithMural/index.jsx'
+
+export default LayoutCanvasWithMural

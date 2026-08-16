@@ -203,12 +203,13 @@ export default function SectionWaveTransition({
               color: textColor,
               fontFamily: "'Inter Tight', sans-serif",
               fontWeight: 900,
-              fontSize: 'clamp(2rem, 7vw, 4rem)',
-              letterSpacing: '0.12em',
+              fontSize: 'clamp(1.4rem, 5vw, 2.5rem)',
+              letterSpacing: '0.1em',
               textTransform: 'uppercase',
               textAlign: 'center',
-              lineHeight: 1,
+              lineHeight: 1.1,
               willChange: 'transform',
+              maxWidth: '90%',
             }}
           >
             {targetSection || 'Sección'}

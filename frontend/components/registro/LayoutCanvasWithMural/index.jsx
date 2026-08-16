@@ -46,6 +46,13 @@ export default function LayoutCanvasWithMural({
   // Referencias
   const stageRef = useRef()
 
+  // Estado local - DEBE IR PRIMERO antes de los hooks que lo usan
+  const [obrasEnCanvas, setObrasEnCanvas] = useState(initialLayout?.obras || [])
+  const [selectedObraId, setSelectedObraId] = useState(null)
+  const [dragGuide, setDragGuide] = useState({ x: null, y: null, width: null, height: null, isColliding: false })
+  const [draggedFromRow, setDraggedFromRow] = useState(null)
+  const [dropPreview, setDropPreview] = useState(null)
+
   // Hooks personalizados
   const { es3D, canvasWidth, canvasHeight, freeArea, plantillaURL, areaDelimitada } =
     useCanvasDimensions(paquete)
@@ -70,13 +77,6 @@ export default function LayoutCanvasWithMural({
     obrasEnCanvas,
     paquete
   )
-
-  // Estado local
-  const [obrasEnCanvas, setObrasEnCanvas] = useState(initialLayout?.obras || [])
-  const [selectedObraId, setSelectedObraId] = useState(null)
-  const [dragGuide, setDragGuide] = useState({ x: null, y: null, width: null, height: null, isColliding: false })
-  const [draggedFromRow, setDraggedFromRow] = useState(null)
-  const [dropPreview, setDropPreview] = useState(null)
 
   const { validationErrors, isSaving, setIsSaving, validate } = useLayoutValidation(
     obrasEnCanvas,

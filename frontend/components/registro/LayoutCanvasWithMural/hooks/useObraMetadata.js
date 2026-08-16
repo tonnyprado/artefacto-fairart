@@ -83,27 +83,34 @@ export function useObraMetadata(initialPortfolioImages = [], es3D = false) {
       )
     )
 
-    if (editingObra?.id === obraId) {
-      setEditingObra(prev => ({ ...prev, [field]: value }))
-    }
-  }, [editingObra])
+    setEditingObra(prev => {
+      if (prev?.id === obraId) {
+        return { ...prev, [field]: value }
+      }
+      return prev
+    })
+  }, [])
 
   /**
    * Elimina una obra
    */
   const deleteObra = useCallback((obraId) => {
-    const obra = todasLasObras.find(o => o.id === obraId)
-    if (obra?.preview?.startsWith('blob:')) {
-      URL.revokeObjectURL(obra.preview)
-    }
+    setTodasLasObras(prev => {
+      const obra = prev.find(o => o.id === obraId)
+      if (obra?.preview?.startsWith('blob:')) {
+        URL.revokeObjectURL(obra.preview)
+      }
+      return prev.filter(o => o.id !== obraId)
+    })
 
-    setTodasLasObras(prev => prev.filter(o => o.id !== obraId))
-
-    if (editingObra?.id === obraId) {
-      setEditingObra(null)
-      setShowMetadataForm(false)
-    }
-  }, [todasLasObras, editingObra])
+    setEditingObra(prev => {
+      if (prev?.id === obraId) {
+        setShowMetadataForm(false)
+        return null
+      }
+      return prev
+    })
+  }, [])
 
   /**
    * Abre el modal de edición de metadata
