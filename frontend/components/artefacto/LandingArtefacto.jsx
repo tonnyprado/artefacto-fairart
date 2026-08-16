@@ -47,6 +47,8 @@ export default function LandingArtefacto() {
     targetIndex: null,
   });
   const waveBlocking = useRef(false); // Bloquear scroll durante fullscreen
+  const wavePhaseRef = useRef(null); // Ref para acceder a la fase desde los handlers
+  const waveTargetIndexRef = useRef(null); // Ref para el índice destino
 
   const busy = useRef(false);
   const screenRef = useRef(screen);
@@ -73,9 +75,11 @@ export default function LandingArtefacto() {
 
   // Mostrar preview de wave (primera fase)
   const showWavePreview = (direction, targetIndex) => {
-    if (waveState.phase !== null) return; // Ya hay un wave activo
+    if (wavePhaseRef.current !== null) return; // Ya hay un wave activo
 
     const targetId = ORDER[targetIndex];
+    wavePhaseRef.current = 'preview';
+    waveTargetIndexRef.current = targetIndex;
     setWaveState({
       phase: 'preview',
       direction,
@@ -87,9 +91,10 @@ export default function LandingArtefacto() {
 
   // Expandir wave a fullscreen (segunda fase) - bloquea scroll
   const expandWaveToFullscreen = () => {
-    if (waveState.phase !== 'preview') return;
+    if (wavePhaseRef.current !== 'preview') return;
 
     waveBlocking.current = true;
+    wavePhaseRef.current = 'fullscreen';
     setWaveState(prev => ({ ...prev, phase: 'fullscreen' }));
   };
 
@@ -126,6 +131,8 @@ export default function LandingArtefacto() {
       });
 
       // Ocultar wave y desbloquear
+      wavePhaseRef.current = null;
+      waveTargetIndexRef.current = null;
       setWaveState({
         phase: null,
         direction: 'down',
@@ -140,7 +147,9 @@ export default function LandingArtefacto() {
 
   // Ocultar preview de wave
   const hideWavePreview = () => {
-    if (waveState.phase === 'preview') {
+    if (wavePhaseRef.current === 'preview') {
+      wavePhaseRef.current = null;
+      waveTargetIndexRef.current = null;
       setWaveState({
         phase: null,
         direction: 'down',
@@ -352,12 +361,12 @@ export default function LandingArtefacto() {
           }
 
           // Lógica de dos fases para wave
-          if (waveState.phase === null) {
+          if (wavePhaseRef.current === null) {
             // Primera vez en el límite → mostrar preview
             showWavePreview('down', i + 1);
             // Timer para ocultar si no hay más scroll
             overscrollDecay.current = setTimeout(hideWavePreview, config.previewDecayTime);
-          } else if (waveState.phase === 'preview') {
+          } else if (wavePhaseRef.current === 'preview') {
             // Ya hay preview → expandir a fullscreen
             expandWaveToFullscreen();
           }
@@ -389,12 +398,12 @@ export default function LandingArtefacto() {
           }
 
           // Lógica de dos fases para wave
-          if (waveState.phase === null) {
+          if (wavePhaseRef.current === null) {
             // Primera vez en el límite → mostrar preview
             showWavePreview('up', targetIndex);
             // Timer para ocultar si no hay más scroll
             overscrollDecay.current = setTimeout(hideWavePreview, config.previewDecayTime);
-          } else if (waveState.phase === 'preview') {
+          } else if (wavePhaseRef.current === 'preview') {
             // Ya hay preview → expandir a fullscreen
             expandWaveToFullscreen();
           }
@@ -462,10 +471,10 @@ export default function LandingArtefacto() {
           }
 
           // Lógica de dos fases para wave
-          if (waveState.phase === null) {
+          if (wavePhaseRef.current === null) {
             showWavePreview('down', i + 1);
             overscrollDecay.current = setTimeout(hideWavePreview, config.previewDecayTime);
-          } else if (waveState.phase === 'preview') {
+          } else if (wavePhaseRef.current === 'preview') {
             expandWaveToFullscreen();
           }
         } else {
@@ -495,10 +504,10 @@ export default function LandingArtefacto() {
           }
 
           // Lógica de dos fases para wave
-          if (waveState.phase === null) {
+          if (wavePhaseRef.current === null) {
             showWavePreview('up', targetIndex);
             overscrollDecay.current = setTimeout(hideWavePreview, config.previewDecayTime);
-          } else if (waveState.phase === 'preview') {
+          } else if (wavePhaseRef.current === 'preview') {
             expandWaveToFullscreen();
           }
         } else {
