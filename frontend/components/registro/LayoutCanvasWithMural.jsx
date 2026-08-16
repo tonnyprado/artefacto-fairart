@@ -11,22 +11,40 @@ import { compressImage } from '@/lib/imageCompression'
  * LayoutCanvasWithMural - Canvas con SVG del mural como fondo
  */
 
-// Plantilla nueva del mural
-const PLANTILLA_URL = '/plantilla-base2.svg'
+// Plantilla para 2D (mural horizontal)
+const PLANTILLA_2D_URL = '/plantilla-base2.svg'
+// Plantilla para 3D (área cuadrada para esculturas)
+const PLANTILLA_3D_URL = '/PLANTILLA_3D.svg'
 
-// Dimensiones del canvas basadas en el nuevo SVG (1420 x 437)
-const CANVAS_WIDTH = 1420
-const CANVAS_HEIGHT = 437
+// Dimensiones del canvas 2D basadas en el SVG (1420 x 437)
+const CANVAS_2D_WIDTH = 1420
+const CANVAS_2D_HEIGHT = 437
 
-// Área libre del mural (rectángulo central sin rayado) - basado en plantilla-base2.svg
-// El rectángulo blanco en el SVG está en: x="362.53" y="67.36" width="1417.33" height="432.28"
-// Pero con las transformaciones aplicadas, el área disponible es:
-const FREE_AREA = {
-  x: 2,          // Desde el borde izquierdo (después de transformaciones)
-  y: 2,          // Desde el borde superior
-  width: 1416,   // Ancho del área disponible
-  height: 433    // Alto del área disponible
+// Dimensiones del canvas 3D basadas en el SVG (431 x 429)
+const CANVAS_3D_WIDTH = 431
+const CANVAS_3D_HEIGHT = 429
+
+// Área libre para 2D (mural horizontal)
+const FREE_AREA_2D = {
+  x: 2,
+  y: 2,
+  width: 1416,
+  height: 433
 }
+
+// Área libre para 3D (cuadrado central del SVG)
+// Basado en: x="581.68" y="73.07" width="425.2" height="425.2" (pero ajustado al viewBox)
+const FREE_AREA_3D = {
+  x: 3,
+  y: 3,
+  width: 425,
+  height: 423
+}
+
+// Valores por defecto (se seleccionan dinámicamente según el paquete)
+const CANVAS_WIDTH = CANVAS_2D_WIDTH
+const CANVAS_HEIGHT = CANVAS_2D_HEIGHT
+const FREE_AREA = FREE_AREA_2D
 
 // Factor de conversión: metros a píxeles en el canvas
 // IMPORTANTE: Usamos la misma escala para ANCHO y ALTO para mantener proporciones reales
@@ -280,8 +298,10 @@ function checkCollision(obra1, obra2, margin = COLLISION_MARGIN) {
 
 /**
  * Componente de obra individual con cursor y botón de eliminar
+ * @param {number} obraIndex - Índice de la obra (para mostrar número en 3D)
+ * @param {Object} freeArea - Área libre dinámica (2D o 3D) para fallback
  */
-function ObraImage({ obra, onDragEnd, onDragMove, isSelected, onSelect, onDelete, otrasObras, tipoPaquete, areaDelimitada }) {
+function ObraImage({ obra, onDragEnd, onDragMove, isSelected, onSelect, onDelete, otrasObras, tipoPaquete, areaDelimitada, obraIndex = 0, freeArea = FREE_AREA }) {
   const [image, status] = useImage(obra.preview, 'anonymous')
   const stageRef = useRef()
   const [lastValidPos, setLastValidPos] = useState({ x: obra.x, y: obra.y })
@@ -291,8 +311,8 @@ function ObraImage({ obra, onDragEnd, onDragMove, isSelected, onSelect, onDelete
   // Para paquetes 3D, mostramos cuadrados (la "base" de la escultura)
   const esPaquete3D = tipoPaquete === '3D'
 
-  // Usar área delimitada o FREE_AREA por defecto
-  const areaRestriccion = areaDelimitada || FREE_AREA
+  // Usar área delimitada o freeArea dinámica por defecto
+  const areaRestriccion = areaDelimitada || freeArea
 
   // Actualizar última posición válida cuando cambia la obra
   useEffect(() => {
@@ -343,18 +363,21 @@ function ObraImage({ obra, onDragEnd, onDragMove, isSelected, onSelect, onDelete
     return boundedPos
   }
 
-  // Si es paquete 3D, renderizar cuadrado de base (no mostrar imagen)
+  // Si es paquete 3D, renderizar cuadrado de base con número identificador
   if (esPaquete3D) {
+    const numeroObra = obraIndex + 1
+
     return (
       <Group>
+        {/* Base del cuadrado */}
         <Rect
           id={obra.id}
           x={obra.x}
           y={obra.y}
           width={obra.width}
           height={obra.height}
-          fill="#D4C4B0"
-          stroke={isColliding ? '#FF4444' : isSelected ? '#141210' : '#8B7355'}
+          fill="#F4EDE4"
+          stroke={isColliding ? '#FF4444' : isSelected ? '#B83030' : '#141210'}
           strokeWidth={isColliding ? 4 : isSelected ? 4 : 2}
           cornerRadius={4}
           draggable
@@ -381,15 +404,39 @@ function ObraImage({ obra, onDragEnd, onDragMove, isSelected, onSelect, onDelete
           onTap={() => onSelect(obra.id)}
           shadowBlur={isSelected ? 10 : 5}
           shadowColor="black"
-          shadowOpacity={0.4}
+          shadowOpacity={0.3}
         />
 
-        {/* Texto centrado indicando que es una base */}
+        {/* Número grande identificador en esquina superior izquierda */}
+        <Rect
+          x={obra.x + 6}
+          y={obra.y + 6}
+          width={32}
+          height={32}
+          fill="#B83030"
+          cornerRadius={16}
+          listening={false}
+        />
+        <Text
+          x={obra.x + 6}
+          y={obra.y + 6}
+          width={32}
+          height={32}
+          text={`${numeroObra}`}
+          fontSize={18}
+          fontStyle="bold"
+          fill="#FFFFFF"
+          align="center"
+          verticalAlign="middle"
+          listening={false}
+        />
+
+        {/* Texto centrado con info de la escultura */}
         <Text
           x={obra.x}
-          y={obra.y + obra.height / 2 - 20}
-          text={obra.titulo || 'Base Escultura'}
-          fontSize={14}
+          y={obra.y + obra.height / 2 - 12}
+          text={obra.titulo || `Escultura ${numeroObra}`}
+          fontSize={13}
           fontStyle="bold"
           fill="#141210"
           width={obra.width}
@@ -398,21 +445,10 @@ function ObraImage({ obra, onDragEnd, onDragMove, isSelected, onSelect, onDelete
         />
         <Text
           x={obra.x}
-          y={obra.y + obra.height / 2}
+          y={obra.y + obra.height / 2 + 4}
           text={`${obra.ancho_cm} × ${obra.alto_cm} cm`}
           fontSize={11}
           fill="#6B6B6B"
-          width={obra.width}
-          align="center"
-          listening={false}
-        />
-        <Text
-          x={obra.x}
-          y={obra.y + obra.height / 2 + 16}
-          text="(Base 3D)"
-          fontSize={10}
-          fontStyle="italic"
-          fill="#8B7355"
           width={obra.width}
           align="center"
           listening={false}
@@ -600,9 +636,11 @@ function MuralBackground({ plantillaURL, width, height }) {
  * Calcular área delimitada basada en el paquete
  * IMPORTANTE: Usa la misma escala (METROS_A_PIXELES) para ancho y alto
  * para mantener proporciones reales a escala
+ * @param {Object} paquete - Paquete seleccionado
+ * @param {Object} freeArea - Área libre dinámica (2D o 3D)
  */
-function calcularAreaDelimitada(paquete) {
-  if (!paquete) return FREE_AREA
+function calcularAreaDelimitada(paquete, freeArea = FREE_AREA) {
+  if (!paquete) return freeArea
 
   let delimiterWidth, delimiterHeight
 
@@ -620,8 +658,8 @@ function calcularAreaDelimitada(paquete) {
   }
 
   // Centrar el delimitador en el área libre
-  const delimiterX = FREE_AREA.x + (FREE_AREA.width - delimiterWidth) / 2
-  const delimiterY = FREE_AREA.y + (FREE_AREA.height - delimiterHeight) / 2
+  const delimiterX = freeArea.x + (freeArea.width - delimiterWidth) / 2
+  const delimiterY = freeArea.y + (freeArea.height - delimiterHeight) / 2
 
   return {
     x: delimiterX,
@@ -670,21 +708,24 @@ function LineaDelimitante({ x, height }) {
 /**
  * Componente de líneas delimitadoras basadas en las medidas del paquete
  * Las líneas se posicionan EXACTAMENTE en los bordes del área delimitada
+ * @param {Object} paquete - Paquete seleccionado
+ * @param {Object} freeArea - Área libre dinámica (2D o 3D)
+ * @param {number} canvasHeight - Altura del canvas (dinámica según tipo)
  */
-function PaqueteDelimiter({ paquete }) {
+function PaqueteDelimiter({ paquete, freeArea, canvasHeight }) {
   if (!paquete) return null
 
-  const areaDelimitada = calcularAreaDelimitada(paquete)
+  const areaDelimitada = calcularAreaDelimitada(paquete, freeArea)
   const { x: delimiterX, y: delimiterY, width: delimiterWidth, height: delimiterHeight } = areaDelimitada
 
   return (
     <Group>
       {/* Líneas delimitantes verticales usando el SVG personalizado */}
       {/* Línea izquierda - posicionada en el borde izquierdo del área */}
-      <LineaDelimitante x={delimiterX} height={CANVAS_HEIGHT} />
+      <LineaDelimitante x={delimiterX} height={canvasHeight} />
 
       {/* Línea derecha - posicionada en el borde derecho del área */}
-      <LineaDelimitante x={delimiterX + delimiterWidth} height={CANVAS_HEIGHT} />
+      <LineaDelimitante x={delimiterX + delimiterWidth} height={canvasHeight} />
 
       {/* Líneas horizontales superior e inferior */}
       {/* Línea superior - exactamente en delimiterY */}
@@ -709,7 +750,7 @@ function PaqueteDelimiter({ paquete }) {
         <Rect
           x={delimiterX + 10}
           y={delimiterY - 35}
-          width={paquete.tipo === '3D' ? 180 : 220}
+          width={60}
           height={28}
           fill="rgba(184, 48, 48, 0.95)"
           cornerRadius={6}
@@ -718,12 +759,12 @@ function PaqueteDelimiter({ paquete }) {
         <Text
           x={delimiterX + 10}
           y={delimiterY - 35}
-          width={paquete.tipo === '3D' ? 180 : 220}
+          width={60}
           height={28}
           text={paquete.tipo === '3D'
-            ? `Área: ${paquete.metros_cuadrados}m² (base)`
-            : `${paquete.metros_lineales}m × ${paquete.altura_pared}m (a escala 1:${(100/METROS_A_PIXELES).toFixed(1)})`}
-          fontSize={12}
+            ? `${paquete.metros_cuadrados}m²`
+            : `${paquete.metros_lineales}m`}
+          fontSize={14}
           fontStyle="bold"
           fill="white"
           align="center"
@@ -798,8 +839,15 @@ export default function LayoutCanvasWithMural({
     (img) => !obrasEnCanvas.some((o) => o.id === img.id)
   )
 
+  // Determinar dimensiones y plantilla según tipo de paquete (movido antes de calcularAreaDelimitada)
+  const es3D = paquete?.tipo === '3D'
+  const canvasWidth = es3D ? CANVAS_3D_WIDTH : CANVAS_2D_WIDTH
+  const canvasHeight = es3D ? CANVAS_3D_HEIGHT : CANVAS_2D_HEIGHT
+  const freeArea = es3D ? FREE_AREA_3D : FREE_AREA_2D
+  const plantillaURL = es3D ? PLANTILLA_3D_URL : PLANTILLA_2D_URL
+
   // Calcular área delimitada del paquete para restringir el movimiento de las obras
-  const areaDelimitada = calcularAreaDelimitada(paquete)
+  const areaDelimitada = calcularAreaDelimitada(paquete, freeArea)
 
   useEffect(() => {
     setTodasLasObras(portfolioImages)
@@ -981,6 +1029,17 @@ export default function LayoutCanvasWithMural({
     )
   }
 
+  // Verificar si una posición colisiona con obras existentes (para drag & drop)
+  const checkDropCollision = (x, y, width, height) => {
+    const testObra = { x, y, width, height }
+    for (const obra of obrasEnCanvas) {
+      if (checkCollision(testObra, obra)) {
+        return true
+      }
+    }
+    return false
+  }
+
   // Handlers para drag & drop desde la fila de obras
   const handleRowDragStart = (e, obra) => {
     e.dataTransfer.effectAllowed = 'move'
@@ -1001,8 +1060,8 @@ export default function LayoutCanvasWithMural({
     const mouseY = e.clientY - stageBox.top - RULER_SIZE
 
     // Calcular dimensiones de la obra en píxeles
-    const obraWidth = (draggedFromRow.ancho_cm || 50) * SCALE_FACTOR
-    const obraHeight = (draggedFromRow.alto_cm || 50) * SCALE_FACTOR
+    const obraWidth = parseFloat(draggedFromRow.ancho_cm || 50) * SCALE_FACTOR
+    const obraHeight = parseFloat(draggedFromRow.alto_cm || 50) * SCALE_FACTOR
 
     // Centrar el preview en el cursor
     const previewX = mouseX - obraWidth / 2
@@ -1018,11 +1077,15 @@ export default function LayoutCanvasWithMural({
       Math.min(previewY, areaDelimitada.y + areaDelimitada.height - obraHeight)
     )
 
+    // Verificar colisión con obras existentes
+    const hasCollision = checkDropCollision(boundedX, boundedY, obraWidth, obraHeight)
+
     setDropPreview({
       x: boundedX,
       y: boundedY,
       width: obraWidth,
-      height: obraHeight
+      height: obraHeight,
+      isColliding: hasCollision
     })
   }
 
@@ -1030,23 +1093,44 @@ export default function LayoutCanvasWithMural({
     e.preventDefault()
     if (!draggedFromRow || !dropPreview) return
 
-    // Agregar la obra al canvas en la posición del preview
-    const obraWidth = (draggedFromRow.ancho_cm || 50) * SCALE_FACTOR
-    const obraHeight = (draggedFromRow.alto_cm || 50) * SCALE_FACTOR
+    // Si hay colisión, no permitir el drop
+    if (dropPreview.isColliding) {
+      setDraggedFromRow(null)
+      setDropPreview(null)
+      return
+    }
 
+    // Verificar que la obra tenga metadata completa
+    if (!draggedFromRow.titulo || !draggedFromRow.alto_cm || !draggedFromRow.ancho_cm || !draggedFromRow.tecnica || !draggedFromRow.anio || !draggedFromRow.precio_mxn) {
+      alert('Por favor completa todos los campos requeridos de la obra antes de agregarla al lienzo')
+      setDraggedFromRow(null)
+      setDropPreview(null)
+      return
+    }
+
+    // Verificar límite de obras
+    if (obrasEnCanvas.length >= paquete.obras_maximas) {
+      alert(`El paquete ${paquete.nombre} permite máximo ${paquete.obras_maximas} obras`)
+      setDraggedFromRow(null)
+      setDropPreview(null)
+      return
+    }
+
+    // Agregar la obra al canvas en la posición del preview
     const newObra = {
       id: draggedFromRow.id,
       x: dropPreview.x,
       y: dropPreview.y,
-      width: obraWidth,
-      height: obraHeight,
+      width: dropPreview.width,
+      height: dropPreview.height,
       preview: draggedFromRow.preview,
       titulo: draggedFromRow.titulo,
-      ancho_cm: draggedFromRow.ancho_cm,
-      alto_cm: draggedFromRow.alto_cm,
+      ancho_cm: parseFloat(draggedFromRow.ancho_cm),
+      alto_cm: parseFloat(draggedFromRow.alto_cm),
       tecnica: draggedFromRow.tecnica,
-      anio: draggedFromRow.anio,
-      precio_mxn: draggedFromRow.precio_mxn
+      anio: parseInt(draggedFromRow.anio),
+      precio_mxn: parseFloat(draggedFromRow.precio_mxn),
+      notas_montaje: draggedFromRow.notas_montaje || ''
     }
 
     setObrasEnCanvas([...obrasEnCanvas, newObra])
@@ -1075,8 +1159,8 @@ export default function LayoutCanvasWithMural({
     const dataURL = stageRef.current.toDataURL({
       x: RULER_SIZE,
       y: RULER_SIZE,
-      width: CANVAS_WIDTH,
-      height: CANVAS_HEIGHT,
+      width: canvasWidth,
+      height: canvasHeight,
       pixelRatio: 0.5, // Reducido a 0.5 para menor tamaño (resolución más baja)
       mimeType: 'image/jpeg',
       quality: 0.6 // Compresión JPEG al 60% (más agresiva)
@@ -1129,8 +1213,8 @@ export default function LayoutCanvasWithMural({
     const dataURL = stageRef.current.toDataURL({
       x: RULER_SIZE,
       y: RULER_SIZE,
-      width: CANVAS_WIDTH,
-      height: CANVAS_HEIGHT,
+      width: canvasWidth,
+      height: canvasHeight,
       pixelRatio: 1.5, // Resolución suficiente para impresión
       mimeType: 'image/jpeg',
       quality: 0.85 // Alta calidad para las obras
@@ -1150,7 +1234,7 @@ export default function LayoutCanvasWithMural({
     const pdf = new jsPDF({
       orientation: 'landscape',
       unit: 'px',
-      format: [CANVAS_WIDTH, CANVAS_HEIGHT],
+      format: [canvasWidth, canvasHeight],
       compress: true // Habilitar compresión interna del PDF
     })
 
@@ -1162,14 +1246,14 @@ export default function LayoutCanvasWithMural({
     })
 
     // Agregar la imagen del canvas (JPEG comprimido)
-    pdf.addImage(dataURL, 'JPEG', 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+    pdf.addImage(dataURL, 'JPEG', 0, 0, canvasWidth, canvasHeight)
 
     // Agregar ficha técnica de cada obra con foto en páginas adicionales
     if (obrasConBase64.length > 0) {
       // Una página por cada obra para mejor calidad de imagen
       for (let index = 0; index < obrasConBase64.length; index++) {
         const obra = obrasConBase64[index]
-        pdf.addPage([CANVAS_WIDTH, CANVAS_HEIGHT], 'landscape')
+        pdf.addPage([canvasWidth, canvasHeight], 'landscape')
 
         // Título de la página
         pdf.setFontSize(20)
@@ -1179,10 +1263,10 @@ export default function LayoutCanvasWithMural({
         // Línea divisora
         pdf.setDrawColor(184, 48, 48)
         pdf.setLineWidth(2)
-        pdf.line(40, 50, CANVAS_WIDTH - 40, 50)
+        pdf.line(40, 50, canvasWidth - 40, 50)
 
         // Layout: Imagen a la izquierda (60%), Ficha técnica a la derecha (40%)
-        const imageAreaWidth = (CANVAS_WIDTH - 80) * 0.55
+        const imageAreaWidth = (canvasWidth - 80) * 0.55
         const textAreaX = 40 + imageAreaWidth + 30
 
         // Agregar imagen de la obra (lado izquierdo) con alta calidad
@@ -1191,7 +1275,7 @@ export default function LayoutCanvasWithMural({
           try {
             // Calcular dimensiones manteniendo proporción
             const maxImgWidth = imageAreaWidth
-            const maxImgHeight = CANVAS_HEIGHT - 120
+            const maxImgHeight = canvasHeight - 120
             const aspectRatio = obra.ancho_cm / obra.alto_cm
 
             let imgWidth, imgHeight
@@ -1274,7 +1358,7 @@ export default function LayoutCanvasWithMural({
           pdf.setFontSize(12)
           pdf.setTextColor(20, 18, 16)
           // Dividir notas largas en múltiples líneas
-          const maxWidth = CANVAS_WIDTH - textAreaX - 40
+          const maxWidth = canvasWidth - textAreaX - 40
           const lines = pdf.splitTextToSize(obra.notas_montaje, maxWidth)
           pdf.text(lines, textAreaX, yPos)
         }
@@ -1282,7 +1366,7 @@ export default function LayoutCanvasWithMural({
         // Pie de página
         pdf.setFontSize(10)
         pdf.setTextColor(150, 150, 150)
-        pdf.text(`ARTEFACTO 2027 - ${paquete?.nombre || 'Lienzo'} - Obra ${index + 1} de ${obrasEnCanvas.length}`, 40, CANVAS_HEIGHT - 30)
+        pdf.text(`ARTEFACTO 2027 - ${paquete?.nombre || 'Lienzo'} - Obra ${index + 1} de ${obrasEnCanvas.length}`, 40, canvasHeight - 30)
       }
     }
 
@@ -1304,18 +1388,18 @@ export default function LayoutCanvasWithMural({
     const dataURL = stageRef.current.toDataURL({
       x: RULER_SIZE,
       y: RULER_SIZE,
-      width: CANVAS_WIDTH,
-      height: CANVAS_HEIGHT,
+      width: canvasWidth,
+      height: canvasHeight,
       pixelRatio: 1
     })
 
     const pdf = new jsPDF({
       orientation: 'landscape',
       unit: 'px',
-      format: [CANVAS_WIDTH, CANVAS_HEIGHT]
+      format: [canvasWidth, canvasHeight]
     })
 
-    pdf.addImage(dataURL, 'PNG', 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+    pdf.addImage(dataURL, 'PNG', 0, 0, canvasWidth, canvasHeight)
     pdf.save(`layout-${paquete.nombre.toLowerCase().replace(/ /g, '-')}.pdf`)
   }
 
@@ -1333,8 +1417,8 @@ export default function LayoutCanvasWithMural({
 
       const layoutData = {
         paquete_id: paquete.id,
-        canvas_width: CANVAS_WIDTH,
-        canvas_height: CANVAS_HEIGHT,
+        canvas_width: canvasWidth,
+        canvas_height: canvasHeight,
         obras: obrasEnCanvas.map((obra) => ({
           id: obra.id,
           titulo: obra.titulo,
@@ -1395,8 +1479,8 @@ export default function LayoutCanvasWithMural({
         paquete_id: paquete.id,
         paquete_nombre: paquete.nombre,
         metros_lineales: paquete.metros_lineales,
-        canvas_width: CANVAS_WIDTH,
-        canvas_height: CANVAS_HEIGHT,
+        canvas_width: canvasWidth,
+        canvas_height: canvasHeight,
         // PDF del lienzo
         canvas_pdf_blob: pdfBlob,
         // Imagen de baja resolución para preview
@@ -1625,25 +1709,6 @@ export default function LayoutCanvasWithMural({
                   >
                     Editar
                   </button>
-                  {!isInCanvas && hasMetadata && (
-                    <button
-                      type="button"
-                      onClick={() => handleAddToCanvas(img)}
-                      style={{
-                        flex: 1,
-                        fontSize: '11px',
-                        padding: '6px 12px',
-                        background: '#141210',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        fontWeight: '600'
-                      }}
-                    >
-                      + Lienzo
-                    </button>
-                  )}
                   <button
                     type="button"
                     onClick={() => handleDeleteObra(img.id)}
@@ -1737,7 +1802,7 @@ export default function LayoutCanvasWithMural({
         <div
           style={{
             width: '100%',
-            maxWidth: `${CANVAS_WIDTH + RULER_SIZE}px`,
+            maxWidth: `${canvasWidth + RULER_SIZE}px`,
             overflow: 'auto',
             background: 'white',
             borderRadius: '8px',
@@ -1747,7 +1812,7 @@ export default function LayoutCanvasWithMural({
           onDrop={handleCanvasDrop}
           onDragLeave={handleCanvasDragLeave}
         >
-          <Stage ref={stageRef} width={CANVAS_WIDTH + RULER_SIZE} height={CANVAS_HEIGHT + RULER_SIZE}>
+          <Stage ref={stageRef} width={canvasWidth + RULER_SIZE} height={canvasHeight + RULER_SIZE}>
             {/* Layer de reglas */}
             <Layer>
               {/* Esquina superior izquierda (vacía) */}
@@ -1760,29 +1825,30 @@ export default function LayoutCanvasWithMural({
               />
               {/* Regla horizontal */}
               <Group x={RULER_SIZE} y={0}>
-                <HorizontalRuler width={CANVAS_WIDTH} />
+                <HorizontalRuler width={canvasWidth} />
               </Group>
               {/* Regla vertical */}
               <Group x={0} y={RULER_SIZE}>
-                <VerticalRuler height={CANVAS_HEIGHT} />
+                <VerticalRuler height={canvasHeight} />
               </Group>
             </Layer>
 
             {/* Layer del canvas y obras */}
             <Layer x={RULER_SIZE} y={RULER_SIZE}>
               <MuralBackground
-                plantillaURL={PLANTILLA_URL}
-                width={CANVAS_WIDTH}
-                height={CANVAS_HEIGHT}
+                plantillaURL={plantillaURL}
+                width={canvasWidth}
+                height={canvasHeight}
               />
 
               {/* Delimitador del paquete */}
-              <PaqueteDelimiter paquete={paquete} />
+              <PaqueteDelimiter paquete={paquete} freeArea={freeArea} canvasHeight={canvasHeight} />
 
-              {obrasEnCanvas.map((obra) => (
+              {obrasEnCanvas.map((obra, index) => (
                 <ObraImage
                   key={obra.id}
                   obra={obra}
+                  obraIndex={index}
                   onDragEnd={handleDragEnd}
                   onDragMove={handleDragMove}
                   isSelected={selectedObraId === obra.id}
@@ -1791,6 +1857,7 @@ export default function LayoutCanvasWithMural({
                   otrasObras={obrasEnCanvas.filter(o => o.id !== obra.id)}
                   tipoPaquete={paquete?.tipo}
                   areaDelimitada={areaDelimitada}
+                  freeArea={freeArea}
                 />
               ))}
               {/* Líneas guía durante el arrastre */}
@@ -1799,8 +1866,8 @@ export default function LayoutCanvasWithMural({
                 y={dragGuide.y}
                 width={dragGuide.width}
                 height={dragGuide.height}
-                canvasWidth={CANVAS_WIDTH}
-                canvasHeight={CANVAS_HEIGHT}
+                canvasWidth={canvasWidth}
+                canvasHeight={canvasHeight}
                 areaDelimitada={areaDelimitada}
                 isColliding={dragGuide.isColliding}
               />
@@ -1812,9 +1879,9 @@ export default function LayoutCanvasWithMural({
                   y={dropPreview.y}
                   width={dropPreview.width}
                   height={dropPreview.height}
-                  fill="rgba(20, 18, 16, 0.15)"
-                  stroke="#141210"
-                  strokeWidth={2}
+                  fill={dropPreview.isColliding ? "rgba(255, 68, 68, 0.3)" : "rgba(20, 18, 16, 0.15)"}
+                  stroke={dropPreview.isColliding ? "#FF4444" : "#141210"}
+                  strokeWidth={dropPreview.isColliding ? 3 : 2}
                   dash={[8, 8]}
                   listening={false}
                 />
@@ -1900,7 +1967,7 @@ export default function LayoutCanvasWithMural({
           margin: 0,
           flex: 1
         }}>
-          Agrega obras con el botón "+ Agregar obra" y completa su metadata (título, dimensiones y precio). Haz clic en "+ Lienzo" para agregar la obra al mural. Arrastra las obras dentro del área delimitada (rectángulo con bordes punteados rojos) que representa el espacio disponible según tu paquete seleccionado{paquete?.tipo === '3D' ? '. Para paquetes 3D, las obras se muestran como cuadrados de base donde colocarás tu escultura' : ''}. Haz clic en una obra para seleccionarla y poder eliminarla con el botón rojo. Guarda el layout antes de continuar al siguiente paso.
+          Agrega obras con el botón "+ Agregar obra" y completa su metadata (título, dimensiones, técnica, año y precio). Arrastra las obras desde la fila superior hacia el lienzo para colocarlas. Las obras solo pueden soltarse en áreas sin colisión (el preview se muestra en rojo si hay conflicto){paquete?.tipo === '3D' ? '. Para paquetes 3D, las obras se muestran como cuadrados de base donde colocarás tu escultura' : ''}. Haz clic en una obra en el lienzo para seleccionarla y poder eliminarla. Guarda el layout antes de continuar al siguiente paso.
         </p>
       </div>
 
