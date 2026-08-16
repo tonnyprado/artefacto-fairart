@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { gsap } from 'gsap'
+import { FlipGallery } from '@/components/gallery'
 
 /**
  * Paso 5: Confirmación y Términos
@@ -647,7 +648,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                 </div>
               </div>
 
-              {/* Lista de obras */}
+              {/* Lista de obras con galería animada */}
               {formData.layout_canvas_data.obras && formData.layout_canvas_data.obras.length > 0 && (
                 <div>
                   <span style={{
@@ -658,76 +659,14 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                     marginBottom: '16px',
                     fontFamily: FONTS.body
                   }}>
-                    Obras en tu lienzo:
+                    Obras en tu lienzo (click para ver detalle):
                   </span>
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-                    gap: '16px'
-                  }}>
-                    {formData.layout_canvas_data.obras.map((obra, index) => (
-                      <div
-                        key={obra.id || index}
-                        style={{
-                          background: 'rgba(20, 18, 16, 0.4)',
-                          padding: '12px',
-                          borderRadius: '12px',
-                          border: `1px solid rgba(244, 237, 228, 0.15)`,
-                          textAlign: 'center'
-                        }}
-                      >
-                        {obra.preview && (
-                          <div style={{
-                            width: '100%',
-                            height: '120px',
-                            overflow: 'hidden',
-                            borderRadius: '8px',
-                            marginBottom: '8px',
-                            background: '#fff'
-                          }}>
-                            <img
-                              src={obra.preview}
-                              alt={obra.titulo || `Obra ${index + 1}`}
-                              style={{
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover'
-                              }}
-                            />
-                          </div>
-                        )}
-                        <p style={{
-                          color: COLORS.cream,
-                          fontSize: '13px',
-                          fontWeight: '600',
-                          margin: '0 0 4px 0',
-                          fontFamily: FONTS.body
-                        }}>
-                          {obra.titulo || `Obra ${index + 1}`}
-                        </p>
-                        <p style={{
-                          color: COLORS.cream,
-                          opacity: 0.6,
-                          fontSize: '12px',
-                          margin: '0 0 4px 0',
-                          fontFamily: FONTS.body
-                        }}>
-                          {obra.alto_cm} × {obra.ancho_cm} cm
-                        </p>
-                        {obra.precio_mxn && (
-                          <p style={{
-                            color: COLORS.cream,
-                            fontSize: '13px',
-                            fontWeight: '700',
-                            margin: 0,
-                            fontFamily: FONTS.body
-                          }}>
-                            ${parseFloat(obra.precio_mxn).toLocaleString('es-MX')} MXN
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                  <FlipGallery
+                    obras={formData.layout_canvas_data.obras}
+                    columns={3}
+                    gap={16}
+                    variant="dark"
+                  />
                 </div>
               )}
             </div>

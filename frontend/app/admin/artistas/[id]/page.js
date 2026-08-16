@@ -19,10 +19,10 @@ import {
   Globe,
   Facebook,
   Loader2,
-  Image as ImageIcon,
   Download,
   Eye
 } from 'lucide-react'
+import { FlipGallery } from '@/components/gallery'
 
 export default function ArtistaDetalle() {
   const params = useParams()
@@ -403,69 +403,16 @@ export default function ArtistaDetalle() {
               </div>
             )}
 
-            {/* Obras */}
+            {/* Obras con galería animada */}
             <div className="bg-white rounded-2xl shadow p-6">
               <h2 className="text-lg font-semibold mb-4">
                 Obras ({obras.length})
               </h2>
-              {obras.length === 0 ? (
-                <p className="text-gray-400">No hay obras registradas</p>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {obras.map((obra, index) => (
-                    <div key={obra.id || index} className="border rounded-xl overflow-hidden">
-                      {obra.imagen_url ? (
-                        <>
-                          <img
-                            src={obra.imagen_url}
-                            alt={obra.titulo || `Obra ${index + 1}`}
-                            className="w-full aspect-square object-cover cursor-pointer hover:opacity-90"
-                            onClick={() => setImageModal(obra.imagen_url)}
-                          />
-                          {/* Botones de ver/descargar */}
-                          <div className="flex gap-1 p-2 bg-gray-50">
-                            <button
-                              onClick={() => setImageModal(obra.imagen_url)}
-                              className="flex-1 flex items-center justify-center gap-1 bg-gray-200 text-gray-700 py-1.5 px-2 rounded-lg hover:bg-gray-300 text-xs"
-                              title="Ver imagen"
-                            >
-                              <Eye className="h-3 w-3" />
-                            </button>
-                            <a
-                              href={obra.imagen_url}
-                              download={`obra-${obra.titulo || index + 1}.jpg`}
-                              className="flex-1 flex items-center justify-center gap-1 bg-blue-600 text-white py-1.5 px-2 rounded-lg hover:bg-blue-700 text-xs"
-                              title="Descargar imagen"
-                            >
-                              <Download className="h-3 w-3" />
-                            </a>
-                          </div>
-                        </>
-                      ) : (
-                        <div className="w-full aspect-square bg-gray-200 flex items-center justify-center">
-                          <ImageIcon className="h-8 w-8 text-gray-400" />
-                        </div>
-                      )}
-                      <div className="p-2">
-                        <p className="font-medium text-sm truncate">{obra.titulo || `Obra ${index + 1}`}</p>
-                        {(obra.alto_cm || obra.ancho_cm) && (
-                          <p className="text-xs text-gray-500">
-                            {obra.alto_cm} × {obra.ancho_cm} cm
-                          </p>
-                        )}
-                        {obra.tecnica && (
-                          <p className="text-xs text-gray-500">{obra.tecnica}</p>
-                        )}
-                        {obra.precio_mxn && (
-                          <p className="text-xs font-medium text-green-600">
-                            ${Number(obra.precio_mxn).toLocaleString('es-MX')} MXN
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <FlipGallery
+                obras={obras}
+                columns={3}
+                gap={16}
+              />
             </div>
           </div>
         </div>
