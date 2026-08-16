@@ -64,7 +64,9 @@ export function Obra2D({
     const finalCollision = isColliding
     resetCollision()
     onDragMove && onDragMove(null, null, null, null, null, false)
-    onDragEnd(obra.id, e.target.x(), e.target.y(), finalCollision, lastValidPos)
+    // IMPORTANTE: Usar lastValidPos siempre para respetar los límites del dragBoundFunc
+    // e.target.x() y e.target.y() pueden estar fuera de los límites
+    onDragEnd(obra.id, lastValidPos.x, lastValidPos.y, finalCollision, lastValidPos)
   }
 
   const handleSelect = () => {

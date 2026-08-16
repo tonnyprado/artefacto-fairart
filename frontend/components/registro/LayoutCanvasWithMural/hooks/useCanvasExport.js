@@ -73,7 +73,7 @@ export function useCanvasExport(stageRef, config, obrasEnCanvas, paquete) {
 
   /**
    * Exporta el canvas como PDF con fichas técnicas de obras
-   * @returns {Promise<{pdfBlob: Blob, previewDataUrl: string}>}
+   * @returns {Promise<{pdfBlob: Blob, previewDataUrl: string, obrasConBase64: Array}>}
    */
   const exportAsPDF = useCallback(async () => {
     if (!stageRef.current) return null
@@ -94,7 +94,7 @@ export function useCanvasExport(stageRef, config, obrasEnCanvas, paquete) {
     const obrasConBase64 = await Promise.all(
       obrasEnCanvas.map(async (obra) => {
         const base64Image = await imageUrlToBase64(obra.preview)
-        return { ...obra, base64Image }
+        return { ...obra, base64Image, preview: base64Image }  // Reemplazar preview con base64
       })
     )
 
@@ -237,7 +237,8 @@ export function useCanvasExport(stageRef, config, obrasEnCanvas, paquete) {
 
     return {
       pdfBlob,
-      previewDataUrl: dataURL
+      previewDataUrl: dataURL,
+      obrasConBase64  // Devolver obras con preview convertido a base64
     }
   }, [stageRef, canvasWidth, canvasHeight, obrasEnCanvas, paquete, imageUrlToBase64])
 

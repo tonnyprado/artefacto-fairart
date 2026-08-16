@@ -220,7 +220,7 @@ export default function LayoutCanvasWithMural({
         throw new Error('No se pudo generar el PDF')
       }
 
-      const { pdfBlob, previewDataUrl } = pdfResult
+      const { pdfBlob, previewDataUrl, obrasConBase64 } = pdfResult
       console.log('PDF generado, blob size:', pdfBlob.size)
 
       const imageBlob = await exportAsImage()
@@ -240,7 +240,7 @@ export default function LayoutCanvasWithMural({
         canvas_image_blob: imageBlob,
         canvas_image_url: imageDataURL,
         canvas_preview_url: previewDataUrl,
-        obras: obrasEnCanvas.map((obra) => ({
+        obras: obrasConBase64.map((obra) => ({
           id: obra.id,
           titulo: obra.titulo,
           preview: obra.preview,
