@@ -6,6 +6,7 @@ import useImage from 'use-image'
 import jsPDF from 'jspdf'
 import { layoutsApi } from '@/lib/api'
 import { compressImage } from '@/lib/imageCompression'
+import { FlipGallery } from '@/components/gallery'
 
 /**
  * LayoutCanvasWithMural - Canvas con SVG del mural como fondo
@@ -834,6 +835,8 @@ export default function LayoutCanvasWithMural({
   // Estado para drag & drop desde la fila de obras
   const [draggedFromRow, setDraggedFromRow] = useState(null)
   const [dropPreview, setDropPreview] = useState(null)
+  // Estado para mostrar la galería modal
+  const [showGallery, setShowGallery] = useState(false)
 
   const obrasDisponibles = todasLasObras.filter(
     (img) => !obrasEnCanvas.some((o) => o.id === img.id)
@@ -930,11 +933,32 @@ export default function LayoutCanvasWithMural({
   }
 
   const handleUpdateMetadata = (obraId, field, value) => {
+    // Actualizar en todasLasObras
     setTodasLasObras(todasLasObras.map(obra =>
       obra.id === obraId ? { ...obra, [field]: value } : obra
     ))
+
+    // Actualizar en editingObra
     if (editingObra?.id === obraId) {
       setEditingObra({ ...editingObra, [field]: value })
+    }
+
+    // Si la obra está en el canvas, actualizar también ahí
+    // Para campos que afectan dimensiones, recalcular width/height
+    const obraEnCanvas = obrasEnCanvas.find(o => o.id === obraId)
+    if (obraEnCanvas) {
+      let updates = { [field]: value }
+
+      // Si cambian las dimensiones, recalcular el tamaño en píxeles
+      if (field === 'ancho_cm') {
+        updates.width = parseFloat(value) * SCALE_FACTOR
+      } else if (field === 'alto_cm') {
+        updates.height = parseFloat(value) * SCALE_FACTOR
+      }
+
+      setObrasEnCanvas(obrasEnCanvas.map(obra =>
+        obra.id === obraId ? { ...obra, ...updates } : obra
+      ))
     }
   }
 
@@ -1557,6 +1581,33 @@ export default function LayoutCanvasWithMural({
               }}>
                 En Lienzo: {obrasEnCanvas.length}/{paquete.obras_maximas}
               </span>
+            )}
+            {todasLasObras.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowGallery(true)}
+                style={{
+                  padding: '10px 20px',
+                  borderRadius: '12px',
+                  background: 'white',
+                  color: '#141210',
+                  border: '1px solid #E8DED1',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="3" width="7" height="7" rx="1" />
+                  <rect x="14" y="3" width="7" height="7" rx="1" />
+                  <rect x="3" y="14" width="7" height="7" rx="1" />
+                  <rect x="14" y="14" width="7" height="7" rx="1" />
+                </svg>
+                Ver galería
+              </button>
             )}
             <button
               type="button"
@@ -2332,6 +2383,91 @@ export default function LayoutCanvasWithMural({
                 Guardar
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de galería con FlipGallery */}
+      {showGallery && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(20, 18, 16, 0.95)',
+          display: 'flex',
+          flexDirection: 'column',
+          zIndex: 9999,
+          padding: '24px'
+        }}>
+          {/* Header del modal */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '24px',
+            paddingBottom: '16px',
+            borderBottom: '1px solid rgba(255,255,255,0.1)'
+          }}>
+            <h2 style={{
+              fontSize: '24px',
+              fontWeight: '600',
+              color: '#F4EDE4',
+              margin: 0
+            }}>
+              Galería de Obras ({todasLasObras.length})
+            </h2>
+            <button
+              type="button"
+              onClick={() => setShowGallery(false)}
+              style={{
+                width: '40px',
+                height: '40px',
+                background: 'rgba(255,255,255,0.1)',
+                border: 'none',
+                borderRadius: '50%',
+                color: '#F4EDE4',
+                fontSize: '24px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              ×
+            </button>
+          </div>
+
+          {/* Contenido con FlipGallery */}
+          <div style={{
+            flex: 1,
+            overflow: 'auto',
+            padding: '0 16px'
+          }}>
+            <FlipGallery
+              obras={todasLasObras.map(obra => ({
+                ...obra,
+                imagen_url: obra.preview // FlipGallery espera imagen_url
+              }))}
+              columns={4}
+              gap={20}
+              variant="dark"
+            />
+          </div>
+
+          {/* Instrucciones */}
+          <div style={{
+            marginTop: '16px',
+            padding: '12px 20px',
+            background: 'rgba(255,255,255,0.05)',
+            borderRadius: '12px',
+            textAlign: 'center'
+          }}>
+            <p style={{
+              fontSize: '13px',
+              color: 'rgba(244, 237, 228, 0.7)',
+              margin: 0
+            }}>
+              Haz clic en cualquier obra para verla en detalle con animación
+            </p>
           </div>
         </div>
       )}
