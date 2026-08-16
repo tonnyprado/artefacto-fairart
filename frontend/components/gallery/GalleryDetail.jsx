@@ -1,6 +1,6 @@
 'use client'
 
-import { forwardRef } from 'react'
+import { forwardRef, useState } from 'react'
 import { COLORS, FONTS } from './constants'
 
 /**
@@ -14,9 +14,14 @@ const GalleryDetail = forwardRef(function GalleryDetail({
   contentRef,
   imageRef,
 }, ref) {
+  const [imageError, setImageError] = useState(false)
+
   if (!obra) return null
 
-  const hasImage = !!obra.imagen_url || !!obra.preview
+  const imageSrc = obra.imagen_url || obra.preview
+  // Verificar que la URL no sea de blob (ya que expiran y causan errores)
+  const isValidUrl = imageSrc && !imageSrc.startsWith('blob:')
+  const hasImage = isValidUrl && !imageError
 
   return (
     <div
@@ -53,8 +58,9 @@ const GalleryDetail = forwardRef(function GalleryDetail({
         {hasImage ? (
           <img
             ref={imageRef}
-            src={obra.imagen_url || obra.preview}
+            src={imageSrc}
             alt={obra.titulo}
+            onError={() => setImageError(true)}
             style={{
               maxWidth: '100%',
               maxHeight: '100%',

@@ -271,8 +271,12 @@ export const registrarArtista = async (req, res) => {
           const ancho_cm = parseFloat(req.body[`obra_lienzo_${i}_ancho_cm`]) || null
           const tecnica = req.body[`obra_lienzo_${i}_tecnica`] || null
           const anio = parseInt(req.body[`obra_lienzo_${i}_anio`]) || null
-          const precio_mxn = parseFloat(req.body[`obra_lienzo_${i}_precio`]) || null
-          const notas_montaje = req.body[`obra_lienzo_${i}_notas`] || null
+          // Aceptar ambos nombres de campo: precio_mxn (frontend) o precio (legacy)
+          const precio_mxn = parseFloat(req.body[`obra_lienzo_${i}_precio_mxn`] || req.body[`obra_lienzo_${i}_precio`]) || null
+          // Aceptar ambos nombres: notas_montaje (frontend) o notas (legacy)
+          const notas_montaje = req.body[`obra_lienzo_${i}_notas_montaje`] || req.body[`obra_lienzo_${i}_notas`] || null
+
+          console.log(`   📝 Obra ${i + 1}: ${titulo} (${ancho_cm}x${alto_cm}cm, $${precio_mxn || 'sin precio'})`)
 
           const obraResult = await pool.query(
             `INSERT INTO obras (artista_id, titulo, imagen_url, alto_cm, ancho_cm, tecnica, anio, precio_mxn, notas_montaje)

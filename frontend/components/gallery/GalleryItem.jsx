@@ -1,6 +1,6 @@
 'use client'
 
-import { forwardRef } from 'react'
+import { forwardRef, useState } from 'react'
 import { COLORS, COLORS_DARK, FONTS } from './constants'
 
 /**
@@ -9,7 +9,11 @@ import { COLORS, COLORS_DARK, FONTS } from './constants'
  * @param {string} variant - 'light' (default) o 'dark'
  */
 const GalleryItem = forwardRef(function GalleryItem({ obra, index, onClick, variant = 'light' }, ref) {
-  const hasImage = !!obra.imagen_url || !!obra.preview
+  const [imageError, setImageError] = useState(false)
+  const imageSrc = obra.imagen_url || obra.preview
+  // Verificar que la URL no sea de blob (ya que expiran y causan errores)
+  const isValidUrl = imageSrc && !imageSrc.startsWith('blob:')
+  const hasImage = isValidUrl && !imageError
   const colors = variant === 'dark' ? COLORS_DARK : COLORS
 
   return (
@@ -43,8 +47,9 @@ const GalleryItem = forwardRef(function GalleryItem({ obra, index, onClick, vari
       }}>
         {hasImage ? (
           <img
-            src={obra.imagen_url || obra.preview}
+            src={imageSrc}
             alt={obra.titulo || `Obra ${index + 1}`}
+            onError={() => setImageError(true)}
             style={{
               width: '100%',
               height: '100%',

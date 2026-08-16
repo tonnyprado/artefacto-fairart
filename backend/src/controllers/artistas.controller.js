@@ -306,10 +306,31 @@ export const getArtistaById = async (req, res) => {
 
       // Generar URLs prefirmadas para las imágenes de las obras
       const obrasConUrls = await Promise.all(
-        obrasResult.rows.map(async (obra) => ({
-          ...obra,
-          imagen_url: obra.imagen_url ? await getPresignedUrl(obra.imagen_url) : null
-        }))
+        obrasResult.rows.map(async (obra) => {
+          let imagenUrl = null
+
+          if (obra.imagen_url) {
+            // Verificar si es una URL de blob (no debería estar en DB)
+            if (obra.imagen_url.startsWith('blob:')) {
+              console.warn(`⚠️ Obra ${obra.id} tiene URL de blob inválida:`, obra.imagen_url)
+              imagenUrl = null
+            } else {
+              try {
+                imagenUrl = await getPresignedUrl(obra.imagen_url)
+              } catch (err) {
+                console.error(`❌ Error generando URL prefirmada para obra ${obra.id}:`, err.message)
+                imagenUrl = null
+              }
+            }
+          }
+
+          return {
+            ...obra,
+            imagen_url: imagenUrl,
+            // Incluir URL original para debugging si falla
+            _original_url: obra.imagen_url
+          }
+        })
       )
 
       return res.json({
