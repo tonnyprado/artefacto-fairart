@@ -1,0 +1,150 @@
+'use client'
+
+import { useEffect } from 'react'
+import { Group, Image as KonvaImage, Rect, Text } from 'react-konva'
+import useImage from 'use-image'
+import { useObraCollision } from '../../hooks/useObraCollision'
+import { ObraDeleteButton } from './ObraDeleteButton'
+import { COLORS, SHADOWS } from '../../constants/style.constants'
+
+/**
+ * Componente de obra 2D (imagen pintada/fotografía)
+ * @param {Object} obra - Datos de la obra
+ * @param {Function} onDragEnd - Callback al terminar arrastre
+ * @param {Function} onDragMove - Callback durante el arrastre
+ * @param {boolean} isSelected - Si la obra está seleccionada
+ * @param {Function} onSelect - Callback al seleccionar
+ * @param {Function} onDelete - Callback al eliminar
+ * @param {Array} otrasObras - Otras obras en el canvas
+ * @param {Object} areaDelimitada - Área delimitada del paquete
+ * @param {Object} freeArea - Área libre por defecto
+ */
+export function Obra2D({
+  obra,
+  onDragEnd,
+  onDragMove,
+  isSelected,
+  onSelect,
+  onDelete,
+  otrasObras,
+  areaDelimitada,
+  freeArea
+}) {
+  const [image, status] = useImage(obra.preview, 'anonymous')
+  const areaRestriccion = areaDelimitada || freeArea
+
+  const {
+    lastValidPos,
+    isColliding,
+    dragBoundFunc,
+    resetCollision,
+    updateLastValidPos,
+    setIsColliding,
+    checkPositionHasCollision
+  } = useObraCollision(obra, otrasObras, areaRestriccion)
+
+  // Actualizar última posición válida cuando cambia la obra
+  useEffect(() => {
+    updateLastValidPos({ x: obra.x, y: obra.y })
+  }, [obra.x, obra.y, updateLastValidPos])
+
+  const handleDragStart = () => {
+    resetCollision()
+    onDragMove && onDragMove(obra.id, obra.x, obra.y, obra.width, obra.height, false)
+  }
+
+  const handleDragMove = (e) => {
+    const currentX = e.target.x()
+    const currentY = e.target.y()
+    const currentCollision = checkPositionHasCollision({ x: currentX, y: currentY })
+    onDragMove && onDragMove(obra.id, currentX, currentY, obra.width, obra.height, currentCollision)
+  }
+
+  const handleDragEnd = (e) => {
+    const finalCollision = isColliding
+    resetCollision()
+    onDragMove && onDragMove(null, null, null, null, null, false)
+    onDragEnd(obra.id, e.target.x(), e.target.y(), finalCollision, lastValidPos)
+  }
+
+  const handleSelect = () => {
+    onSelect(obra.id)
+  }
+
+  // Estado de carga
+  if (!image || status === 'loading') {
+    return (
+      <>
+        <Rect
+          x={obra.x}
+          y={obra.y}
+          width={obra.width}
+          height={obra.height}
+          fill={COLORS.grayLightest}
+          stroke={COLORS.grayMedium}
+          strokeWidth={2}
+          cornerRadius={4}
+        />
+        <Text
+          x={obra.x}
+          y={obra.y + obra.height / 2 - 10}
+          text="Cargando..."
+          fontSize={12}
+          fill={COLORS.grayLight}
+          width={obra.width}
+          align="center"
+        />
+      </>
+    )
+  }
+
+  // Estado de error
+  if (status === 'failed') {
+    return (
+      <Rect
+        x={obra.x}
+        y={obra.y}
+        width={obra.width}
+        height={obra.height}
+        fill={COLORS.redLight}
+        stroke={COLORS.redDark}
+        strokeWidth={2}
+        cornerRadius={4}
+      />
+    )
+  }
+
+  return (
+    <Group>
+      <KonvaImage
+        id={obra.id}
+        image={image}
+        x={obra.x}
+        y={obra.y}
+        width={obra.width}
+        height={obra.height}
+        draggable
+        dragBoundFunc={dragBoundFunc}
+        onDragStart={handleDragStart}
+        onDragMove={handleDragMove}
+        onDragEnd={handleDragEnd}
+        onClick={handleSelect}
+        onTap={handleSelect}
+        shadowBlur={isSelected ? SHADOWS.selected.blur : SHADOWS.medium.blur}
+        shadowColor={COLORS.black}
+        shadowOpacity={isSelected ? SHADOWS.selected.opacity : SHADOWS.medium.opacity}
+        stroke={isColliding ? COLORS.redBright : isSelected ? COLORS.white : 'transparent'}
+        strokeWidth={isColliding || isSelected ? 4 : 0}
+      />
+
+      {/* Botón de eliminar cuando está seleccionada */}
+      {isSelected && (
+        <ObraDeleteButton
+          x={obra.x + obra.width - 30}
+          y={obra.y - 10}
+          onClick={() => onDelete(obra.id)}
+        />
+      )}
+    </Group>
+  )
+}

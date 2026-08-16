@@ -1,0 +1,444 @@
+/* Estilos del componente LayoutCanvasWithMural */
+
+/* Layout principal */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+/* Sección de galería de obras */
+.galeriaSection {
+  background: #F4EDE4;
+  padding: 20px 24px;
+  border-radius: 24px;
+}
+
+.galeriaHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.galeriaTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #141210;
+  margin: 0;
+}
+
+.galeriaActions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.contadorObras {
+  font-size: 14px;
+  color: #6B6B6B;
+  background: white;
+  padding: 8px 16px;
+  border-radius: 12px;
+}
+
+.btnAgregarObra {
+  padding: 10px 20px;
+  border-radius: 12px;
+  background: #141210;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btnAgregarObra:hover {
+  background: #2C2C2C;
+}
+
+.fileInput {
+  display: none;
+}
+
+/* Lista de obras */
+.obrasLista {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+/* Tarjeta de obra */
+.obraCard {
+  min-width: 200px;
+  background: white;
+  padding: 12px;
+  border-radius: 16px;
+  position: relative;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.obraCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.obraCardImage {
+  width: 200px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.obraCardInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.obraCardTitle {
+  font-weight: 600;
+  font-size: 13px;
+  color: #141210;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.obraCardDimensions {
+  font-size: 11px;
+  color: #6B6B6B;
+}
+
+/* Indicadores de estado */
+.obraCardBadges {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.badgeEnCanvas {
+  background: #E8DED1;
+  color: #6B6B6B;
+}
+
+.badgeSinMetadata {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
+/* Botones de acción de obra */
+.obraActions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.btnEditar {
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: #E8DED1;
+  color: #141210;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  flex: 1;
+}
+
+.btnEditar:hover {
+  background: #D4C9BC;
+}
+
+.btnEliminar {
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: #B83030;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  width: 36px;
+}
+
+.btnEliminar:hover {
+  background: #9A2626;
+}
+
+/* Sección del canvas */
+.canvasSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  width: 100%;
+}
+
+.canvasActions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  width: 100%;
+}
+
+.btnExportarPDF {
+  padding: 12px 24px;
+  border-radius: 16px;
+  background: #E8DED1;
+  color: #141210;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btnExportarPDF:hover {
+  background: #D4C9BC;
+}
+
+.btnGuardarContinuar {
+  padding: 12px 32px;
+  border-radius: 16px;
+  background: #141210;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btnGuardarContinuar:hover {
+  background: #2C2C2C;
+}
+
+.btnGuardarContinuar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Canvas wrapper */
+.canvasWrapper {
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Mensajes de error */
+.erroresContainer {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.error {
+  padding: 12px 16px;
+  background: #FEE2E2;
+  color: #DC2626;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Sección de instrucciones */
+.instruccionesSection {
+  background: #F4EDE4;
+  padding: 24px;
+  border-radius: 24px;
+}
+
+.instruccionesTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #141210;
+  margin: 0 0 16px 0;
+}
+
+.instruccionesLista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.instruccionItem {
+  font-size: 14px;
+  color: #6B6B6B;
+  padding-left: 24px;
+  position: relative;
+}
+
+.instruccionItem::before {
+  content: '•';
+  position: absolute;
+  left: 8px;
+  color: #B83030;
+  font-weight: bold;
+}
+
+/* Modal de metadata */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 24px;
+  padding: 32px;
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.modalTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: #141210;
+  margin: 0;
+}
+
+.btnCerrarModal {
+  background: #E8DED1;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 24px;
+  color: #141210;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btnCerrarModal:hover {
+  background: #D4C9BC;
+}
+
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modalPreviewImage {
+  width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  border-radius: 16px;
+  background: #F4EDE4;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.formLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #141210;
+}
+
+.formInput,
+.formTextarea {
+  padding: 12px 16px;
+  border: 2px solid #E8DED1;
+  border-radius: 12px;
+  font-size: 14px;
+  color: #141210;
+  background: white;
+  transition: border-color 0.2s;
+}
+
+.formInput:focus,
+.formTextarea:focus {
+  outline: none;
+  border-color: #B83030;
+}
+
+.formTextarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.modalActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.btnGuardarMetadata {
+  padding: 12px 24px;
+  border-radius: 12px;
+  background: #141210;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.btnGuardarMetadata:hover {
+  background: #2C2C2C;
+}
+
+/* Cargando */
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #6B6B6B;
+  font-size: 16px;
+}
