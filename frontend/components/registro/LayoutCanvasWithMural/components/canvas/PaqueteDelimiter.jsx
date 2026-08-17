@@ -25,6 +25,25 @@ export function PaqueteDelimiter({ paquete, areaDelimitada, canvasWidth, canvasH
       {/* Línea derecha - posicionada en el borde derecho del área */}
       <LineaDelimitante x={delimiterX + delimiterWidth} height={canvasHeight} />
 
+      {/* Líneas delimitantes horizontales */}
+      {/* Línea superior - posicionada en el borde superior del área */}
+      <Line
+        points={[delimiterX, delimiterY, delimiterX + delimiterWidth, delimiterY]}
+        stroke="white"
+        strokeWidth={2}
+        dash={[10, 5]}
+        listening={false}
+      />
+
+      {/* Línea inferior - posicionada en el borde inferior del área */}
+      <Line
+        points={[delimiterX, delimiterY + delimiterHeight, delimiterX + delimiterWidth, delimiterY + delimiterHeight]}
+        stroke="white"
+        strokeWidth={2}
+        dash={[10, 5]}
+        listening={false}
+      />
+
       {/* Etiqueta con las medidas */}
       <Group>
         <Rect
