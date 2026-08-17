@@ -17,6 +17,10 @@ export function PaqueteDelimiter({ paquete, areaDelimitada, canvasHeight }) {
 
   // DEBUG: Ver qué área se está dibujando
   console.log('PaqueteDelimiter areaDelimitada:', areaDelimitada)
+  console.log('PaqueteDelimiter línea superior Y:', delimiterY)
+  console.log('PaqueteDelimiter línea inferior Y:', delimiterY + delimiterHeight)
+  console.log('PaqueteDelimiter línea izquierda X:', delimiterX)
+  console.log('PaqueteDelimiter línea derecha X:', delimiterX + delimiterWidth)
 
   return (
     <Group>

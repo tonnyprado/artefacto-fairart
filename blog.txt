@@ -1,0 +1,326 @@
+[Log] Main component - areaDelimitada from hook: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] Main component - paquete: – {id: 7, nombre: "Estándar 3D", tipo: "3D", …} (426.43b55b8a52296c21.js, line 1)
+{id: 7, nombre: "Estándar 3D", tipo: "3D", descripcion: "Paquete estándar para obra tridimensional", precio: 15500, …}Object
+[Log] PaqueteDelimiter areaDelimitada: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - areaRestriccion: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - obra dimensions: – {width: 141.6, height: 141.6} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - pos: – {x: 89.37367978398487, y: 280.37367978398487} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - boundedPos: – {x: 115.37367978398487, y: 173.02632021601514} (426.43b55b8a52296c21.js, line 1)
+[Log] Main component - areaDelimitada from hook: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] Main component - paquete: – {id: 7, nombre: "Estándar 3D", tipo: "3D", …} (426.43b55b8a52296c21.js, line 1)
+{id: 7, nombre: "Estándar 3D", tipo: "3D", descripcion: "Paquete estándar para obra tridimensional", precio: 15500, …}Object
+[Log] PaqueteDelimiter areaDelimitada: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - areaRestriccion: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - obra dimensions: – {width: 141.6, height: 141.6} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - pos: – {x: 86.37367978398487, y: 300.37367978398487} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - boundedPos: – {x: 115.37367978398487, y: 173.02632021601514} (426.43b55b8a52296c21.js, line 1)
+[Log] Main component - areaDelimitada from hook: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] Main component - paquete: – {id: 7, nombre: "Estándar 3D", tipo: "3D", …} (426.43b55b8a52296c21.js, line 1)
+{id: 7, nombre: "Estándar 3D", tipo: "3D", descripcion: "Paquete estándar para obra tridimensional", precio: 15500, …}Object
+[Log] PaqueteDelimiter areaDelimitada: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - areaRestriccion: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - obra dimensions: – {width: 141.6, height: 141.6} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - pos: – {x: 83.37367978398487, y: 315.37367978398487} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - boundedPos: – {x: 115.37367978398487, y: 173.02632021601514} (426.43b55b8a52296c21.js, line 1)
+[Log] Main component - areaDelimitada from hook: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] Main component - paquete: – {id: 7, nombre: "Estándar 3D", tipo: "3D", …} (426.43b55b8a52296c21.js, line 1)
+{id: 7, nombre: "Estándar 3D", tipo: "3D", descripcion: "Paquete estándar para obra tridimensional", precio: 15500, …}Object
+[Log] PaqueteDelimiter areaDelimitada: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - areaRestriccion: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - obra dimensions: – {width: 141.6, height: 141.6} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - pos: – {x: 81.37367978398487, y: 327.37367978398487} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - boundedPos: – {x: 115.37367978398487, y: 173.02632021601514} (426.43b55b8a52296c21.js, line 1)
+[Log] Main component - areaDelimitada from hook: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] Main component - paquete: – {id: 7, nombre: "Estándar 3D", tipo: "3D", …} (426.43b55b8a52296c21.js, line 1)
+{id: 7, nombre: "Estándar 3D", tipo: "3D", descripcion: "Paquete estándar para obra tridimensional", precio: 15500, …}Object
+[Log] PaqueteDelimiter areaDelimitada: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - areaRestriccion: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - obra dimensions: – {width: 141.6, height: 141.6} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - pos: – {x: 79.37367978398487, y: 336.37367978398487} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - boundedPos: – {x: 115.37367978398487, y: 173.02632021601514} (426.43b55b8a52296c21.js, line 1)
+[Log] Main component - areaDelimitada from hook: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] Main component - paquete: – {id: 7, nombre: "Estándar 3D", tipo: "3D", …} (426.43b55b8a52296c21.js, line 1)
+{id: 7, nombre: "Estándar 3D", tipo: "3D", descripcion: "Paquete estándar para obra tridimensional", precio: 15500, …}Object
+[Log] PaqueteDelimiter areaDelimitada: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - areaRestriccion: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - obra dimensions: – {width: 141.6, height: 141.6} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - pos: – {x: 77.37367978398487, y: 343.37367978398487} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - boundedPos: – {x: 115.37367978398487, y: 173.02632021601514} (426.43b55b8a52296c21.js, line 1)
+[Log] Main component - areaDelimitada from hook: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] Main component - paquete: – {id: 7, nombre: "Estándar 3D", tipo: "3D", …} (426.43b55b8a52296c21.js, line 1)
+{id: 7, nombre: "Estándar 3D", tipo: "3D", descripcion: "Paquete estándar para obra tridimensional", precio: 15500, …}Object
+[Log] PaqueteDelimiter areaDelimitada: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - areaRestriccion: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - obra dimensions: – {width: 141.6, height: 141.6} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - pos: – {x: 76.37367978398487, y: 348.37367978398487} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - boundedPos: – {x: 115.37367978398487, y: 173.02632021601514} (426.43b55b8a52296c21.js, line 1)
+[Log] Main component - areaDelimitada from hook: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] Main component - paquete: – {id: 7, nombre: "Estándar 3D", tipo: "3D", …} (426.43b55b8a52296c21.js, line 1)
+{id: 7, nombre: "Estándar 3D", tipo: "3D", descripcion: "Paquete estándar para obra tridimensional", precio: 15500, …}Object
+[Log] PaqueteDelimiter areaDelimitada: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - areaRestriccion: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - obra dimensions: – {width: 141.6, height: 141.6} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - pos: – {x: 75.37367978398487, y: 352.37367978398487} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - boundedPos: – {x: 115.37367978398487, y: 173.02632021601514} (426.43b55b8a52296c21.js, line 1)
+[Log] Main component - areaDelimitada from hook: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] Main component - paquete: – {id: 7, nombre: "Estándar 3D", tipo: "3D", …} (426.43b55b8a52296c21.js, line 1)
+{id: 7, nombre: "Estándar 3D", tipo: "3D", descripcion: "Paquete estándar para obra tridimensional", precio: 15500, …}Object
+[Log] PaqueteDelimiter areaDelimitada: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - areaRestriccion: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - obra dimensions: – {width: 141.6, height: 141.6} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - pos: – {x: 75.37367978398487, y: 354.37367978398487} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - boundedPos: – {x: 115.37367978398487, y: 173.02632021601514} (426.43b55b8a52296c21.js, line 1)
+[Log] Main component - areaDelimitada from hook: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] Main component - paquete: – {id: 7, nombre: "Estándar 3D", tipo: "3D", …} (426.43b55b8a52296c21.js, line 1)
+{id: 7, nombre: "Estándar 3D", tipo: "3D", descripcion: "Paquete estándar para obra tridimensional", precio: 15500, …}Object
+[Log] PaqueteDelimiter areaDelimitada: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - areaRestriccion: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - obra dimensions: – {width: 141.6, height: 141.6} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - pos: – {x: 74.37367978398487, y: 356.37367978398487} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - boundedPos: – {x: 115.37367978398487, y: 173.02632021601514} (426.43b55b8a52296c21.js, line 1)
+[Log] Main component - areaDelimitada from hook: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] Main component - paquete: – {id: 7, nombre: "Estándar 3D", tipo: "3D", …} (426.43b55b8a52296c21.js, line 1)
+{id: 7, nombre: "Estándar 3D", tipo: "3D", descripcion: "Paquete estándar para obra tridimensional", precio: 15500, …}Object
+[Log] PaqueteDelimiter areaDelimitada: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - areaRestriccion: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - obra dimensions: – {width: 141.6, height: 141.6} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - pos: – {x: 74.37367978398487, y: 357.37367978398487} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - boundedPos: – {x: 115.37367978398487, y: 173.02632021601514} (426.43b55b8a52296c21.js, line 1)
+[Log] Main component - areaDelimitada from hook: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] Main component - paquete: – {id: 7, nombre: "Estándar 3D", tipo: "3D", …} (426.43b55b8a52296c21.js, line 1)
+{id: 7, nombre: "Estándar 3D", tipo: "3D", descripcion: "Paquete estándar para obra tridimensional", precio: 15500, …}Object
+[Log] PaqueteDelimiter areaDelimitada: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - areaRestriccion: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - obra dimensions: – {width: 141.6, height: 141.6} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - pos: – {x: 74.37367978398487, y: 357.37367978398487} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - boundedPos: – {x: 115.37367978398487, y: 173.02632021601514} (426.43b55b8a52296c21.js, line 1)
+[Log] Main component - areaDelimitada from hook: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] Main component - paquete: – {id: 7, nombre: "Estándar 3D", tipo: "3D", …} (426.43b55b8a52296c21.js, line 1)
+{id: 7, nombre: "Estándar 3D", tipo: "3D", descripcion: "Paquete estándar para obra tridimensional", precio: 15500, …}Object
+[Log] PaqueteDelimiter areaDelimitada: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - areaRestriccion: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - obra dimensions: – {width: 141.6, height: 141.6} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - pos: – {x: 74.37367978398487, y: 358.37367978398487} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - boundedPos: – {x: 115.37367978398487, y: 173.02632021601514} (426.43b55b8a52296c21.js, line 1)
+[Log] Main component - areaDelimitada from hook: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] Main component - paquete: – {id: 7, nombre: "Estándar 3D", tipo: "3D", …} (426.43b55b8a52296c21.js, line 1)
+{id: 7, nombre: "Estándar 3D", tipo: "3D", descripcion: "Paquete estándar para obra tridimensional", precio: 15500, …}Object
+[Log] PaqueteDelimiter areaDelimitada: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - areaRestriccion: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - obra dimensions: – {width: 141.6, height: 141.6} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - pos: – {x: 74.37367978398487, y: 358.37367978398487} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - boundedPos: – {x: 115.37367978398487, y: 173.02632021601514} (426.43b55b8a52296c21.js, line 1)
+[Log] Main component - areaDelimitada from hook: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] Main component - paquete: – {id: 7, nombre: "Estándar 3D", tipo: "3D", …} (426.43b55b8a52296c21.js, line 1)
+{id: 7, nombre: "Estándar 3D", tipo: "3D", descripcion: "Paquete estándar para obra tridimensional", precio: 15500, …}Object
+[Log] PaqueteDelimiter areaDelimitada: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - areaRestriccion: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - obra dimensions: – {width: 141.6, height: 141.6} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - pos: – {x: 74.37367978398487, y: 358.37367978398487} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - boundedPos: – {x: 115.37367978398487, y: 173.02632021601514} (426.43b55b8a52296c21.js, line 1)
+[Log] Main component - areaDelimitada from hook: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] Main component - paquete: – {id: 7, nombre: "Estándar 3D", tipo: "3D", …} (426.43b55b8a52296c21.js, line 1)
+{id: 7, nombre: "Estándar 3D", tipo: "3D", descripcion: "Paquete estándar para obra tridimensional", precio: 15500, …}Object
+[Log] PaqueteDelimiter areaDelimitada: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - areaRestriccion: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - obra dimensions: – {width: 141.6, height: 141.6} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - pos: – {x: 73.37367978398487, y: 358.37367978398487} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - boundedPos: – {x: 115.37367978398487, y: 173.02632021601514} (426.43b55b8a52296c21.js, line 1)
+[Log] Main component - areaDelimitada from hook: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] Main component - paquete: – {id: 7, nombre: "Estándar 3D", tipo: "3D", …} (426.43b55b8a52296c21.js, line 1)
+{id: 7, nombre: "Estándar 3D", tipo: "3D", descripcion: "Paquete estándar para obra tridimensional", precio: 15500, …}Object
+[Log] PaqueteDelimiter areaDelimitada: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - areaRestriccion: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
+[Log] dragBoundFunc - obra dimensions: – {width: 141.6, height: 141.6} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - pos: – {x: 73.37367978398487, y: 358.37367978398487} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - boundedPos: – {x: 115.37367978398487, y: 173.02632021601514} (426.43b55b8a52296c21.js, line 1)
+[Log] Main component - areaDelimitada from hook: (426.43b55b8a52296c21.js, line 1)
+Object
+
+height: 200.25264043203026
+
+width: 200.25264043203026
+
+x: 115.37367978398487
+
+y: 114.37367978398487
+
+Object Prototype
+[Log] Main component - paquete: (426.43b55b8a52296c21.js, line 1)
+Object
+
+activo: true
+
+beneficios: ["2 metros cuadrados de espacio", "Bootcamp de cerámica con material incluido", "5 boletos dobles de cortesía", "Asesores de venta durante la feria", "Acceso a 1-2 talleres en Estudio ARTE FACTO", "Difusión masiva en redes", "Playeras y totebags con serigrafías de tu arte", "Publicaciones y entrevistas previas al evento"] (8)
+
+created_at: "2026-08-10T10:00:00Z"
+
+descripcion: "Paquete estándar para obra tridimensional"
+
+id: 7
+
+metros_cuadrados: 2
+
+nombre: "Estándar 3D"
+
+precio: 15500
+
+precio_fase1: 12400
+
+precio_fase2: 13950
+
+precio_fase3: 15500
+
+tipo: "3D"
+
+updated_at: "2026-08-10T10:00:00Z"
+
+Object Prototype
+[Log] PaqueteDelimiter areaDelimitada: (426.43b55b8a52296c21.js, line 1)
+Object
+
+height: 200.25264043203026
+
+width: 200.25264043203026
+
+x: 115.37367978398487
+
+y: 114.37367978398487
+
+Object Prototype
+[Log] dragBoundFunc - areaRestriccion: (426.43b55b8a52296c21.js, line 1)
+Object
+
+height: 200.25264043203026
+
+width: 200.25264043203026
+
+x: 115.37367978398487
+
+y: 114.37367978398487
+
+Object Prototype
+[Log] dragBoundFunc - obra dimensions: – {width: 141.6, height: 141.6} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - pos: – {x: 72.37367978398487, y: 357.37367978398487} (426.43b55b8a52296c21.js, line 1)
+[Log] dragBoundFunc - boundedPos: – {x: 115.37367978398487, y: 173.02632021601514} (426.43b55b8a52296c21.js, line 1)
+[Log] Main component - areaDelimitada from hook: (426.43b55b8a52296c21.js, line 1)
+Object
+
+height: 200.25264043203026
+
+width: 200.25264043203026
+
+x: 115.37367978398487
+
+y: 114.37367978398487
+
+Object Prototype
+[Log] Main component - paquete: (426.43b55b8a52296c21.js, line 1)
+Object
+
+activo: true
+
+beneficios: ["2 metros cuadrados de espacio", "Bootcamp de cerámica con material incluido", "5 boletos dobles de cortesía", "Asesores de venta durante la feria", "Acceso a 1-2 talleres en Estudio ARTE FACTO", "Difusión masiva en redes", "Playeras y totebags con serigrafías de tu arte", "Publicaciones y entrevistas previas al evento"] (8)
+
+created_at: "2026-08-10T10:00:00Z"
+
+descripcion: "Paquete estándar para obra tridimensional"
+
+id: 7
+
+metros_cuadrados: 2
+
+nombre: "Estándar 3D"
+
+precio: 15500
+
+precio_fase1: 12400
+
+precio_fase2: 13950
+
+precio_fase3: 15500
+
+tipo: "3D"
+
+updated_at: "2026-08-10T10:00:00Z"
+
+Object Prototype
+[Log] PaqueteDelimiter areaDelimitada: (426.43b55b8a52296c21.js, line 1)
+Object
+
+height: 200.25264043203026
+
+width: 200.25264043203026
+
+x: 115.37367978398487
+
+y: 114.37367978398487
+
+Object Prototype
+[Log] Main component - areaDelimitada from hook: (426.43b55b8a52296c21.js, line 1)
+Object
+
+height: 200.25264043203026
+
+width: 200.25264043203026
+
+x: 115.37367978398487
+
+y: 114.37367978398487
+
+Object Prototype
+[Log] Main component - paquete: – {id: 7, nombre: "Estándar 3D", tipo: "3D", …} (426.43b55b8a52296c21.js, line 1)
+{id: 7, nombre: "Estándar 3D", tipo: "3D", descripcion: "Paquete estándar para obra tridimensional", precio: 15500, …}Object
+[Log] PaqueteDelimiter areaDelimitada: – {x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, …} (426.43b55b8a52296c21.js, line 1)
+{x: 115.37367978398487, y: 114.37367978398487, width: 200.25264043203026, height: 200.25264043203026}Object
