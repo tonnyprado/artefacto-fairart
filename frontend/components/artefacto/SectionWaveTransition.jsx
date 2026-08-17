@@ -229,7 +229,7 @@ export default function SectionWaveTransition({
               maxWidth: '90%',
             }}
           >
-            {targetSection || 'Sección'}
+            {targetSection}
           </div>
 
           {/* Instrucción: Desliza para continuar */}

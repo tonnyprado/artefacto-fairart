@@ -2,19 +2,17 @@
 
 import { Group, Line, Rect, Text } from 'react-konva'
 import { LineaDelimitante } from './LineaDelimitante'
-import { calcularAreaDelimitada } from '../../utils/scaling.utils'
 
 /**
  * Componente de líneas delimitadoras basadas en las medidas del paquete
  * Las líneas se posicionan EXACTAMENTE en los bordes del área delimitada
  * @param {Object} paquete - Paquete seleccionado
- * @param {Object} freeArea - Área libre dinámica (2D o 3D)
+ * @param {Object} areaDelimitada - Área delimitada calculada (debe ser la misma que usan las obras para drag)
  * @param {number} canvasHeight - Altura del canvas (dinámica según tipo)
  */
-export function PaqueteDelimiter({ paquete, freeArea, canvasHeight }) {
-  if (!paquete) return null
+export function PaqueteDelimiter({ paquete, areaDelimitada, canvasHeight }) {
+  if (!paquete || !areaDelimitada) return null
 
-  const areaDelimitada = calcularAreaDelimitada(paquete, freeArea)
   const { x: delimiterX, y: delimiterY, width: delimiterWidth, height: delimiterHeight } = areaDelimitada
 
   return (

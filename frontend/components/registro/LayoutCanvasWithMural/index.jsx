@@ -374,7 +374,7 @@ export default function LayoutCanvasWithMural({
             {/* Layer del canvas y obras */}
             <Layer x={RULER_SIZE} y={RULER_SIZE}>
               <MuralBackground plantillaURL={plantillaURL} width={canvasWidth} height={canvasHeight} />
-              <PaqueteDelimiter paquete={paquete} freeArea={freeArea} canvasHeight={canvasHeight} />
+              <PaqueteDelimiter paquete={paquete} areaDelimitada={areaDelimitada} canvasHeight={canvasHeight} />
 
               {/* Obras en el canvas */}
               {obrasEnCanvas.map((obra, index) => {

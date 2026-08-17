@@ -415,19 +415,28 @@ export default function LandingArtefacto() {
     };
     // Touch events para móvil - con mejor prevención de scroll accidental
     let touchStartTime = 0;
+    let touchMoved = false; // Flag para detectar si hubo movimiento
 
     const onTouchStart = (e) => {
       touchStartY.current = e.touches[0].clientY;
+      touchEndY.current = e.touches[0].clientY; // Reset al mismo valor
       touchStartTime = Date.now();
+      touchMoved = false; // Reset flag de movimiento
     };
 
     const onTouchMove = (e) => {
       touchEndY.current = e.touches[0].clientY;
+      touchMoved = true; // Hubo movimiento
     };
 
     const onTouchEnd = () => {
       const config = getScrollConfig();
       const now = Date.now();
+
+      // Si no hubo movimiento, es un tap - no hacer nada
+      if (!touchMoved) {
+        return;
+      }
 
       // Si el wave está bloqueando, ignorar
       if (waveBlocking.current) return;
