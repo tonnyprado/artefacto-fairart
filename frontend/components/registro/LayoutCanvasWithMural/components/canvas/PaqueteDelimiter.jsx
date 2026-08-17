@@ -15,13 +15,6 @@ export function PaqueteDelimiter({ paquete, areaDelimitada, canvasHeight }) {
 
   const { x: delimiterX, y: delimiterY, width: delimiterWidth, height: delimiterHeight } = areaDelimitada
 
-  // DEBUG: Ver qué área se está dibujando
-  console.log('PaqueteDelimiter areaDelimitada:', areaDelimitada)
-  console.log('PaqueteDelimiter línea superior Y:', delimiterY)
-  console.log('PaqueteDelimiter línea inferior Y:', delimiterY + delimiterHeight)
-  console.log('PaqueteDelimiter línea izquierda X:', delimiterX)
-  console.log('PaqueteDelimiter línea derecha X:', delimiterX + delimiterWidth)
-
   return (
     <Group>
       {/* Líneas delimitantes verticales usando el SVG personalizado */}
@@ -31,22 +24,52 @@ export function PaqueteDelimiter({ paquete, areaDelimitada, canvasHeight }) {
       {/* Línea derecha - posicionada en el borde derecho del área */}
       <LineaDelimitante x={delimiterX + delimiterWidth} height={canvasHeight} />
 
-      {/* Líneas horizontales superior e inferior */}
-      {/* Línea superior - exactamente en delimiterY */}
-      <Line
-        points={[delimiterX, delimiterY, delimiterX + delimiterWidth, delimiterY]}
-        stroke="white"
-        strokeWidth={2}
-        dash={[12, 13]}
+      {/* Rectángulo del área válida - muy visible */}
+      <Rect
+        x={delimiterX}
+        y={delimiterY}
+        width={delimiterWidth}
+        height={delimiterHeight}
+        stroke="#00FF00"
+        strokeWidth={4}
+        dash={[15, 10]}
         listening={false}
+        shadowColor="rgba(0, 255, 0, 0.5)"
+        shadowBlur={10}
+        shadowEnabled={true}
       />
 
-      {/* Línea inferior - exactamente en delimiterY + delimiterHeight */}
-      <Line
-        points={[delimiterX, delimiterY + delimiterHeight, delimiterX + delimiterWidth, delimiterY + delimiterHeight]}
-        stroke="white"
-        strokeWidth={2}
-        dash={[12, 13]}
+      {/* Área externa oscurecida para mostrar claramente el límite */}
+      <Rect
+        x={0}
+        y={0}
+        width={canvasWidth}
+        height={delimiterY}
+        fill="rgba(0, 0, 0, 0.3)"
+        listening={false}
+      />
+      <Rect
+        x={0}
+        y={delimiterY + delimiterHeight}
+        width={canvasWidth}
+        height={canvasHeight - delimiterY - delimiterHeight}
+        fill="rgba(0, 0, 0, 0.3)"
+        listening={false}
+      />
+      <Rect
+        x={0}
+        y={delimiterY}
+        width={delimiterX}
+        height={delimiterHeight}
+        fill="rgba(0, 0, 0, 0.3)"
+        listening={false}
+      />
+      <Rect
+        x={delimiterX + delimiterWidth}
+        y={delimiterY}
+        width={canvasWidth - delimiterX - delimiterWidth}
+        height={delimiterHeight}
+        fill="rgba(0, 0, 0, 0.3)"
         listening={false}
       />
 

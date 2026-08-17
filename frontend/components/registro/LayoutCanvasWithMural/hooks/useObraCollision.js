@@ -36,15 +36,8 @@ export function useObraCollision(obra, otrasObras, areaRestriccion) {
    */
   const dragBoundFunc = useCallback(
     (pos) => {
-      // DEBUG: Ver qué área se está usando para limitar
-      console.log('dragBoundFunc - areaRestriccion:', areaRestriccion)
-      console.log('dragBoundFunc - obra dimensions:', { width: obra.width, height: obra.height })
-      console.log('dragBoundFunc - pos:', pos)
-
       // Limitar al área de restricción
       const boundedPos = boundToArea(pos, areaRestriccion, obra.width, obra.height)
-
-      console.log('dragBoundFunc - boundedPos:', boundedPos)
 
       // Verificar colisión en la nueva posición
       const hasCollision = checkPositionHasCollision(boundedPos)

@@ -33,11 +33,6 @@ export function Obra2D({
   const [image, status] = useImage(obra.preview, 'anonymous')
   const areaRestriccion = areaDelimitada || freeArea
 
-  // DEBUG: Ver qué área recibe la obra
-  console.log('Obra2D - areaDelimitada:', areaDelimitada)
-  console.log('Obra2D - areaRestriccion:', areaRestriccion)
-  console.log('Obra2D - obra:', { id: obra.id, x: obra.x, y: obra.y, width: obra.width, height: obra.height })
-
   const {
     lastValidPos,
     isColliding,

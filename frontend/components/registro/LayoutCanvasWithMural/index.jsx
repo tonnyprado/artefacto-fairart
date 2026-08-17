@@ -57,10 +57,6 @@ export default function LayoutCanvasWithMural({
   const { es3D, canvasWidth, canvasHeight, freeArea, plantillaURL, areaDelimitada } =
     useCanvasDimensions(paquete)
 
-  // DEBUG: Ver qué área se está calculando
-  console.log('Main component - areaDelimitada from hook:', areaDelimitada)
-  console.log('Main component - paquete:', paquete)
-
   const {
     todasLasObras,
     setTodasLasObras,
