@@ -40,7 +40,6 @@ const CATEGORIAS = [
   { value: 'ceramica', label: 'Cerámica', tipo: '3D' },
   { value: 'arte_textil', label: 'Arte Textil', tipo: '2D' },
   { value: 'arte_mixto', label: 'Arte Mixto', tipo: '2D' },
-  { value: 'otro', label: 'Otro', tipo: '2D' },
 ]
 
 export default function Step5Paquetes({ formData, updateFormData, errors, onContinue }) {
