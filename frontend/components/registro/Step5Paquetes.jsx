@@ -110,110 +110,113 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
   return (
     <div style={{ position: 'relative', minHeight: '75vh' }}>
 
-      {/* BOTONES DE ACCIÓN - Fuera del canvas, en la parte superior */}
+      {/* BARRA SUPERIOR - Botones de paneles (izq) y acciones (der) */}
       <div style={{
         display: 'flex',
-        justifyContent: 'flex-end',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         gap: '12px',
         marginBottom: '16px',
       }}>
-        <button
-          type="button"
-          onClick={() => canvasFunctionsRef.current?.exportPDF?.()}
-          disabled={canvasState.obrasCount === 0}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '8px',
-            padding: '12px 20px',
-            background: 'transparent',
-            border: `2px solid ${COLORS.cream}`,
-            color: COLORS.cream,
-            borderRadius: '12px',
-            fontFamily: FONTS.body,
-            fontWeight: 600,
-            fontSize: '14px',
-            cursor: canvasState.obrasCount === 0 ? 'not-allowed' : 'pointer',
-            opacity: canvasState.obrasCount === 0 ? 0.5 : 1,
-            transition: 'all 0.2s ease',
-          }}
-        >
-          <Download size={18} />
-          Exportar PDF
-        </button>
-        <button
-          type="button"
-          onClick={() => canvasFunctionsRef.current?.saveAndContinue?.()}
-          disabled={canvasState.isSaving || canvasState.obrasCount === 0}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '8px',
-            padding: '12px 24px',
-            background: COLORS.black,
-            border: 'none',
-            color: COLORS.cream,
-            borderRadius: '12px',
-            fontFamily: FONTS.body,
-            fontWeight: 600,
-            fontSize: '14px',
-            cursor: (canvasState.isSaving || canvasState.obrasCount === 0) ? 'not-allowed' : 'pointer',
-            opacity: (canvasState.isSaving || canvasState.obrasCount === 0) ? 0.5 : 1,
-            transition: 'all 0.2s ease',
-          }}
-        >
-          {canvasState.isSaving ? 'Guardando...' : 'Guardar y Continuar'}
-          <ArrowRight size={18} />
-        </button>
-      </div>
-
-      {/* CONTENEDOR PRINCIPAL - Con botones a los lados */}
-      <div style={{ display: 'flex', alignItems: 'stretch', gap: '0' }}>
-
-        {/* BOTÓN IZQUIERDO - Fuera del canvas */}
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-start',
-          paddingTop: '16px',
-          paddingRight: '8px',
-        }}>
+        {/* Botones de paneles - IZQUIERDA */}
+        <div style={{ display: 'flex', gap: '8px' }}>
           <button
             onClick={() => setLeftPanelOpen(!leftPanelOpen)}
             style={{
-              width: '44px',
-              height: '120px',
-              background: COLORS.black,
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '10px 16px',
+              background: leftPanelOpen ? COLORS.red : COLORS.black,
               border: 'none',
-              borderRadius: '12px 0 0 12px',
+              color: COLORS.cream,
+              borderRadius: '10px',
+              fontFamily: FONTS.body,
+              fontWeight: 600,
+              fontSize: '13px',
               cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              boxShadow: '2px 0 12px rgba(0,0,0,0.2)',
+              transition: 'all 0.2s ease',
             }}
           >
-            {leftPanelOpen ? <ChevronLeft size={22} color={COLORS.cream} /> : <ChevronRight size={22} color={COLORS.cream} />}
-            <span style={{
-              writingMode: 'vertical-rl',
-              textOrientation: 'mixed',
-              transform: 'rotate(180deg)',
-              fontFamily: FONTS.body,
-              fontSize: '11px',
-              fontWeight: 600,
+            <Palette size={16} />
+            Mis Obras
+            {leftPanelOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </button>
+          <button
+            onClick={() => setRightPanelOpen(!rightPanelOpen)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '10px 16px',
+              background: rightPanelOpen ? COLORS.red : COLORS.black,
+              border: 'none',
               color: COLORS.cream,
-              letterSpacing: '0.5px',
-            }}>
-              OBRAS
-            </span>
+              borderRadius: '10px',
+              fontFamily: FONTS.body,
+              fontWeight: 600,
+              fontSize: '13px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <Box size={16} />
+            Paquetes
+            {rightPanelOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </button>
         </div>
 
-        {/* CANVAS - Siempre visible al 100% */}
-        <div style={{
-          flex: 1,
-          position: 'relative',
-          minHeight: '70vh',
-          overflow: 'visible',
-        }}>
+        {/* Botones de acción - DERECHA */}
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button
+            type="button"
+            onClick={() => canvasFunctionsRef.current?.exportPDF?.()}
+            disabled={canvasState.obrasCount === 0}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '10px 16px',
+              background: 'transparent',
+              border: `2px solid ${COLORS.cream}`,
+              color: COLORS.cream,
+              borderRadius: '10px',
+              fontFamily: FONTS.body,
+              fontWeight: 600,
+              fontSize: '13px',
+              cursor: canvasState.obrasCount === 0 ? 'not-allowed' : 'pointer',
+              opacity: canvasState.obrasCount === 0 ? 0.5 : 1,
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <Download size={16} />
+            Exportar PDF
+          </button>
+          <button
+            type="button"
+            onClick={() => canvasFunctionsRef.current?.saveAndContinue?.()}
+            disabled={canvasState.isSaving || canvasState.obrasCount === 0}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '10px 20px',
+              background: COLORS.black,
+              border: 'none',
+              color: COLORS.cream,
+              borderRadius: '10px',
+              fontFamily: FONTS.body,
+              fontWeight: 600,
+              fontSize: '13px',
+              cursor: (canvasState.isSaving || canvasState.obrasCount === 0) ? 'not-allowed' : 'pointer',
+              opacity: (canvasState.isSaving || canvasState.obrasCount === 0) ? 0.5 : 1,
+              transition: 'all 0.2s ease',
+            }}
+          >
+            {canvasState.isSaving ? 'Guardando...' : 'Guardar y Continuar'}
+            <ArrowRight size={16} />
+          </button>
+        </div>
+      </div>
+
+      {/* CANVAS - Siempre visible al 100% */}
+      <div style={{
+        position: 'relative',
+        width: '100%',
+        minHeight: '70vh',
+      }}>
           {confirmedPaquete ? (
             <LayoutCanvas
               paquete={confirmedPaquete}
@@ -461,47 +464,6 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
           )}
         </div>
 
-        {/* BOTÓN DERECHO - Fuera del canvas */}
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-start',
-          paddingTop: '16px',
-          paddingLeft: '8px',
-        }}>
-          <button
-            onClick={() => setRightPanelOpen(!rightPanelOpen)}
-            style={{
-              width: '44px',
-              height: '120px',
-              background: COLORS.black,
-              border: 'none',
-              borderRadius: '0 12px 12px 0',
-              cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              boxShadow: '-2px 0 12px rgba(0,0,0,0.2)',
-            }}
-          >
-            {rightPanelOpen ? <ChevronRight size={22} color={COLORS.cream} /> : <ChevronLeft size={22} color={COLORS.cream} />}
-            <span style={{
-              writingMode: 'vertical-rl',
-              textOrientation: 'mixed',
-              fontFamily: FONTS.body,
-              fontSize: '11px',
-              fontWeight: 600,
-              color: COLORS.cream,
-              letterSpacing: '0.5px',
-            }}>
-              PAQUETES
-            </span>
-          </button>
-        </div>
-      </div>
-
       {/* Modal edición obra */}
       {editingObra && (
         <ObraModal
@@ -545,7 +507,7 @@ function CanvasPlaceholder() {
           Selecciona un Paquete
         </h3>
         <p style={{ fontFamily: FONTS.body, fontSize: '15px', color: COLORS.gray, maxWidth: '300px', lineHeight: 1.6, margin: 0 }}>
-          Abre el panel de la derecha y elige tu espacio
+          Haz clic en "Paquetes" arriba y elige tu espacio
         </p>
       </div>
     </div>
