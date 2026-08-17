@@ -25,52 +25,52 @@ export function PaqueteDelimiter({ paquete, areaDelimitada, canvasWidth, canvasH
       {/* Línea derecha - posicionada en el borde derecho del área */}
       <LineaDelimitante x={delimiterX + delimiterWidth} height={canvasHeight} />
 
-      {/* Rectángulo del área válida - muy visible */}
+      {/* Rectángulo del área válida - MUY VISIBLE con borde grueso amarillo */}
       <Rect
         x={delimiterX}
         y={delimiterY}
         width={delimiterWidth}
         height={delimiterHeight}
-        stroke="#00FF00"
-        strokeWidth={4}
-        dash={[15, 10]}
+        stroke="#FFD700"
+        strokeWidth={6}
         listening={false}
-        shadowColor="rgba(0, 255, 0, 0.5)"
-        shadowBlur={10}
-        shadowEnabled={true}
       />
 
-      {/* Área externa oscurecida para mostrar claramente el límite */}
-      <Rect
-        x={0}
-        y={0}
-        width={canvasWidth}
-        height={delimiterY}
-        fill="rgba(0, 0, 0, 0.3)"
+      {/* Texto en las esquinas para indicar el límite */}
+      <Text
+        x={delimiterX + 5}
+        y={delimiterY + 5}
+        text="LÍMITE"
+        fontSize={14}
+        fontStyle="bold"
+        fill="#FFD700"
         listening={false}
       />
-      <Rect
-        x={0}
-        y={delimiterY + delimiterHeight}
-        width={canvasWidth}
-        height={canvasHeight - delimiterY - delimiterHeight}
-        fill="rgba(0, 0, 0, 0.3)"
+      <Text
+        x={delimiterX + delimiterWidth - 55}
+        y={delimiterY + 5}
+        text="LÍMITE"
+        fontSize={14}
+        fontStyle="bold"
+        fill="#FFD700"
         listening={false}
       />
-      <Rect
-        x={0}
-        y={delimiterY}
-        width={delimiterX}
-        height={delimiterHeight}
-        fill="rgba(0, 0, 0, 0.3)"
+      <Text
+        x={delimiterX + 5}
+        y={delimiterY + delimiterHeight - 20}
+        text="LÍMITE"
+        fontSize={14}
+        fontStyle="bold"
+        fill="#FFD700"
         listening={false}
       />
-      <Rect
-        x={delimiterX + delimiterWidth}
-        y={delimiterY}
-        width={canvasWidth - delimiterX - delimiterWidth}
-        height={delimiterHeight}
-        fill="rgba(0, 0, 0, 0.3)"
+      <Text
+        x={delimiterX + delimiterWidth - 55}
+        y={delimiterY + delimiterHeight - 20}
+        text="LÍMITE"
+        fontSize={14}
+        fontStyle="bold"
+        fill="#FFD700"
         listening={false}
       />
 
