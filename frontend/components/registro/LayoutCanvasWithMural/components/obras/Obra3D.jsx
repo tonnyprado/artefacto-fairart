@@ -40,7 +40,8 @@ export function Obra3D({
     dragBoundFunc,
     resetCollision,
     updateLastValidPos,
-    checkPositionHasCollision
+    checkPositionHasCollision,
+    setIsColliding
   } = useObraCollision(obra, otrasObras, areaRestriccion)
 
   const numeroObra = obraIndex + 1
@@ -56,9 +57,36 @@ export function Obra3D({
   }
 
   const handleDragMove = (e) => {
-    const currentX = e.target.x()
-    const currentY = e.target.y()
+    let currentX = e.target.x()
+    let currentY = e.target.y()
+
+    // Aplicar límites del área delimitada
+    const minX = areaRestriccion.x
+    const maxX = areaRestriccion.x + areaRestriccion.width - obra.width
+    const minY = areaRestriccion.y
+    const maxY = areaRestriccion.y + areaRestriccion.height - obra.height
+
+    // Limitar X
+    if (currentX < minX) {
+      e.target.x(minX)
+      currentX = minX
+    } else if (currentX > maxX) {
+      e.target.x(maxX)
+      currentX = maxX
+    }
+
+    // Limitar Y
+    if (currentY < minY) {
+      e.target.y(minY)
+      currentY = minY
+    } else if (currentY > maxY) {
+      e.target.y(maxY)
+      currentY = maxY
+    }
+
+    // Verificar colisión y actualizar guías
     const currentCollision = checkPositionHasCollision({ x: currentX, y: currentY })
+    setIsColliding(currentCollision)
     onDragMove && onDragMove(obra.id, currentX, currentY, obra.width, obra.height, currentCollision)
   }
 
@@ -91,7 +119,6 @@ export function Obra3D({
         strokeWidth={isColliding ? 4 : isSelected ? 4 : 2}
         cornerRadius={4}
         draggable
-        dragBoundFunc={dragBoundFunc}
         onDragStart={handleDragStart}
         onDragMove={handleDragMove}
         onDragEnd={handleDragEnd}

@@ -36,7 +36,6 @@ export function Obra2D({
   const {
     lastValidPos,
     isColliding,
-    dragBoundFunc,
     resetCollision,
     updateLastValidPos,
     setIsColliding,
@@ -54,9 +53,36 @@ export function Obra2D({
   }
 
   const handleDragMove = (e) => {
-    const currentX = e.target.x()
-    const currentY = e.target.y()
+    let currentX = e.target.x()
+    let currentY = e.target.y()
+
+    // Aplicar límites del área delimitada
+    const minX = areaRestriccion.x
+    const maxX = areaRestriccion.x + areaRestriccion.width - obra.width
+    const minY = areaRestriccion.y
+    const maxY = areaRestriccion.y + areaRestriccion.height - obra.height
+
+    // Limitar X
+    if (currentX < minX) {
+      e.target.x(minX)
+      currentX = minX
+    } else if (currentX > maxX) {
+      e.target.x(maxX)
+      currentX = maxX
+    }
+
+    // Limitar Y
+    if (currentY < minY) {
+      e.target.y(minY)
+      currentY = minY
+    } else if (currentY > maxY) {
+      e.target.y(maxY)
+      currentY = maxY
+    }
+
+    // Verificar colisión y actualizar guías
     const currentCollision = checkPositionHasCollision({ x: currentX, y: currentY })
+    setIsColliding(currentCollision)
     onDragMove && onDragMove(obra.id, currentX, currentY, obra.width, obra.height, currentCollision)
   }
 
@@ -128,7 +154,6 @@ export function Obra2D({
         width={obra.width}
         height={obra.height}
         draggable
-        dragBoundFunc={dragBoundFunc}
         onDragStart={handleDragStart}
         onDragMove={handleDragMove}
         onDragEnd={handleDragEnd}
