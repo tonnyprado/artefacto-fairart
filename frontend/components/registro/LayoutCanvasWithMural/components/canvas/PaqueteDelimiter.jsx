@@ -8,9 +8,10 @@ import { LineaDelimitante } from './LineaDelimitante'
  * Las líneas se posicionan EXACTAMENTE en los bordes del área delimitada
  * @param {Object} paquete - Paquete seleccionado
  * @param {Object} areaDelimitada - Área delimitada calculada (debe ser la misma que usan las obras para drag)
+ * @param {number} canvasWidth - Ancho del canvas (dinámica según tipo)
  * @param {number} canvasHeight - Altura del canvas (dinámica según tipo)
  */
-export function PaqueteDelimiter({ paquete, areaDelimitada, canvasHeight }) {
+export function PaqueteDelimiter({ paquete, areaDelimitada, canvasWidth, canvasHeight }) {
   if (!paquete || !areaDelimitada) return null
 
   const { x: delimiterX, y: delimiterY, width: delimiterWidth, height: delimiterHeight } = areaDelimitada
