@@ -2,3 +2,13 @@ En la sección de REGISTRO, debemos mover las etapas de REGISTRO, la etapa 1 sig
 La etapa de Tu Lienzo debe cambiar la vista, la plataforma ya en ese punto tiene el dato de Disciplina Artística Principal por lo tanto ya debe de darle por default los paquetes que le pertenecen a ese artista, pero ahora la pantalla que debe de salir en esa etapa es el lienzo/canvas SIN LAS LIMITANTES, del lado derecho de la pantalla debe de mostrarse la lista de paquetes que se le ofrecen al artista, al dar click a una obra se desplaza abriendo su cuadro con la info de ese paquete y deben confirmar seleccionar ese paquete para que ahora si se dibujen las limitantes de ese paquete en el canvas, 
 las funcionalidades del canvas son iguales solo se mueven los botones de esta sección. La lista de obras se puede abrir y cerrar con un chevron y debe de abrirse adentro del canvas o sea el canvas debe quedar enmedio y en grande asi como si fuera photoshop, de un lado izqueirdo debe estar un botón para abrir la lista de obras y del lado derecho debe de estar una lista en forma de barra (igual que la del lado izquierdo) con la lista de paquetes y con un chevron, estas dos barras van a ser como el "navbar" de esta etapa de Tu Lienzo.
 ----------
+ por cierto veo que metros lineales aparece como Metros Lineales
+  N/Am o creo qye ya se resolvió igual checa. 
+  ---
+en admin panel en la lista de artista cuando se abren los Detalles del artista en la parte donde se muestran sus obras, las obras deben de poder clickearse y abrir su foto con su ficha tecnica en grande. También no se porque se repite dos veces los botones de 
+Ver CV
+Ver PORTFOLIO
+Ver IDENTIFICACION
+A veces aparecen más redes sociales incluso aunque el artista solo ingreso 1 o 2 redes, de hecho Facebook ni se pide, Website y Sitio_Web es lo mismo. 
+a veces los artistas solo ingresan su username tipo "tphrado" entonces la página debe de armar la url en automatico para mostrar el link hacia el perfil de ese artista.
+Debe de haber un botón de "enviar mensaje a artista" y se le debe de mostrar un modal como de bandeja de entrada con el correo del artista y campos para mandarle el correo a ese artista, incluso la opción de contactar por whatsapp, un botón para que cuando den click al numero del artista en automatico los mande a su whatsapp.

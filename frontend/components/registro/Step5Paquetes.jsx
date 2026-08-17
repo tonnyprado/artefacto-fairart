@@ -3,27 +3,29 @@
 import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { usePaquetesStore } from '@/stores/paquetesStore'
-import { Palette, Box } from 'lucide-react'
+import PaquetesSidebar from './PaquetesSidebar'
+import ObrasSidebar from './ObrasSidebar'
 
-// Importación dinámica de LayoutCanvasWithMural para evitar SSR (Konva solo funciona en cliente)
+// Importación dinámica del canvas para evitar SSR (Konva solo funciona en cliente)
 const LayoutCanvas = dynamic(() => import('./LayoutCanvasWithMural'), {
   ssr: false,
   loading: () => (
-    <div className="text-center py-12">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-      <p className="text-gray-600 mt-4">Cargando lienzo...</p>
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100%',
+      minHeight: '500px',
+    }}>
+      <div style={{ textAlign: 'center' }}>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto" />
+        <p style={{ color: '#6B6B6B', marginTop: '16px', fontFamily: 'acumin-pro, sans-serif' }}>
+          Cargando lienzo...
+        </p>
+      </div>
     </div>
   )
 })
-
-/**
- * Paso 5: Tu Lienzo - Selección de Paquete y Diseño de Layout
- *
- * FLUJO:
- * 1. Sub-paso A: Mostrar paquetes disponibles → usuario selecciona
- * 2. Sub-paso B: Cargar obras y diseñar layout en el canvas
- * 3. Guardar: layout_canvas_data (JSON) + layout_canvas_url (PNG en Cloudinary)
- */
 
 const COLORS = {
   red: '#B83030',
@@ -35,42 +37,50 @@ const COLORS = {
 
 const FONTS = {
   display: 'ivypresto-display, Georgia, serif',
-  displayWeight: 600,
-  displayStyle: 'italic',
   body: 'acumin-pro, sans-serif',
-  bodyWeight: 400,
 }
 
+/**
+ * Step5Paquetes - Tu Lienzo (ahora Etapa 2)
+ *
+ * Nuevo diseño estilo Photoshop:
+ * - Canvas centrado SIN limitantes inicialmente
+ * - Sidebar izquierdo: Lista de obras con chevron
+ * - Sidebar derecho: Lista de paquetes con chevron
+ * - Al confirmar paquete → se dibujan las limitantes
+ */
 export default function Step5Paquetes({ formData, updateFormData, errors, onContinue }) {
-  const [subStep, setSubStep] = useState(formData.paquete_id ? 'layout' : 'seleccion')
-  const [selectedPaquetePreview, setSelectedPaquetePreview] = useState(null)
+  const [selectedPaquete, setSelectedPaquete] = useState(null)
+  const [confirmedPaquete, setConfirmedPaquete] = useState(
+    formData.paquete_id ? { id: formData.paquete_id } : null
+  )
+
   const { paquetes, fetchPaquetes, isLoading } = usePaquetesStore()
 
   useEffect(() => {
     fetchPaquetes()
   }, [])
 
-  // Filtrar paquetes según el tipo de artista
-  // Si es escultura → solo paquetes 3D
-  // Si NO es escultura → solo paquetes 2D
-  const esArtista3D = formData.categoria === 'escultura'
-  const paquetesFiltrados = paquetes.filter(paquete => {
-    if (esArtista3D) {
-      return paquete.tipo === '3D'
-    } else {
-      return paquete.tipo === '2D'
+  // Actualizar paquete confirmado cuando se cargan los paquetes
+  useEffect(() => {
+    if (formData.paquete_id && paquetes.length > 0 && !confirmedPaquete?.nombre) {
+      const paquete = paquetes.find(p => p.id === formData.paquete_id)
+      if (paquete) {
+        setConfirmedPaquete(paquete)
+      }
     }
-  })
+  }, [paquetes, formData.paquete_id])
 
-  const handleSelectPaquete = (paqueteId) => {
-    updateFormData({ paquete_id: paqueteId })
-    setSubStep('layout')
-    setSelectedPaquetePreview(null)
+  // Determinar si es artista 3D
+  const esArtista3D = formData.categoria === 'escultura'
+
+  const handleSelectPaquete = (paquete) => {
+    setSelectedPaquete(paquete)
   }
 
-  const handleBackToSelection = () => {
-    setSubStep('seleccion')
-    setSelectedPaquetePreview(null)
+  const handleConfirmPaquete = (paquete) => {
+    setConfirmedPaquete(paquete)
+    updateFormData({ paquete_id: paquete.id })
   }
 
   const handleSaveLayout = (layoutData, layoutUrl) => {
@@ -81,394 +91,489 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
   }
 
   const handleSaveAndContinue = (layoutData, layoutUrl, obrasCompletas) => {
-    console.log('Step5Paquetes: handleSaveAndContinue llamado con:', {
-      layoutUrl: layoutUrl ? 'presente' : 'ausente',
-      obrasCount: obrasCompletas?.length || 0,
-      hasPdfBlob: layoutData?.canvas_pdf_blob ? 'si' : 'no'
-    })
-
-    // Guardar layout con PDF y preview
     updateFormData({
       layout_canvas_data: layoutData,
       layout_canvas_url: layoutUrl,
-      layout_canvas_blob: layoutData.canvas_image_blob, // Imagen para preview
-      layout_canvas_pdf_blob: layoutData.canvas_pdf_blob, // PDF completo
-      layout_canvas_preview_url: layoutData.canvas_preview_url, // Preview de alta calidad
-      obras_lienzo: obrasCompletas || [] // Obras con archivos completos
+      layout_canvas_blob: layoutData.canvas_image_blob,
+      layout_canvas_pdf_blob: layoutData.canvas_pdf_blob,
+      layout_canvas_preview_url: layoutData.canvas_preview_url,
+      obras_lienzo: obrasCompletas || []
     })
 
-    console.log('Step5Paquetes: formData actualizado, esperando antes de continuar...')
-
     if (onContinue) {
-      // Skip validation porque sabemos que los datos están presentes
-      // (aunque el estado de React aún no se haya actualizado)
       setTimeout(() => {
-        console.log('Step5Paquetes: llamando a onContinue(true) para saltar validación')
-        onContinue(true) // true = skipValidation
+        onContinue(true)
       }, 150)
-    } else {
-      console.warn('Step5Paquetes: onContinue no está definido')
     }
   }
 
-  const handlePaqueteClick = (paquete) => {
-    setSelectedPaquetePreview(paquete)
+  // Hook para gestión de obras (simplificado - el canvas maneja la lógica completa)
+  const [todasLasObras, setTodasLasObras] = useState([])
+  const [editingObra, setEditingObra] = useState(null)
+
+  const handleAddNewObra = (files) => {
+    const newObras = Array.from(files).map((file, index) => ({
+      id: `obra-${Date.now()}-${index}`,
+      file,
+      preview: URL.createObjectURL(file),
+      titulo: '',
+      ancho_cm: '',
+      alto_cm: '',
+      tecnica: '',
+      anio: new Date().getFullYear(),
+      precio_mxn: '',
+      notas_montaje: ''
+    }))
+    setTodasLasObras(prev => [...prev, ...newObras])
+    // Abrir modal de edición para la primera obra nueva
+    if (newObras.length > 0) {
+      setEditingObra(newObras[0])
+    }
   }
 
-  // ============================================================
-  // SUB-PASO A: Selección de Paquete
-  // ============================================================
-  if (subStep === 'seleccion') {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h2 style={{
-            fontFamily: FONTS.display,
-            fontWeight: FONTS.displayWeight,
-            fontStyle: FONTS.displayStyle,
-            fontSize: 'clamp(28px, 4vw, 42px)',
-            letterSpacing: '0.04em',
-            textTransform: 'uppercase',
-            color: COLORS.cream,
-            marginBottom: '8px',
-            textAlign: 'center'
-          }}>
-            ELIGE TU PAQUETE
-          </h2>
-          <p style={{
-            textAlign: 'center',
-            color: COLORS.cream,
-            opacity: 0.9,
-            fontFamily: FONTS.body,
-            fontSize: '16px',
-            marginBottom: '8px'
-          }}>
-            Selecciona el paquete que mejor se adapte a tu propuesta artística
-          </p>
-          <div style={{
-            background: 'rgba(244, 237, 228, 0.15)',
-            borderLeft: `4px solid ${COLORS.cream}`,
-            padding: '12px 16px',
-            borderRadius: '0 8px 8px 0',
-            maxWidth: '600px',
-            margin: '0 auto'
-          }}>
-            <p style={{
-              color: COLORS.cream,
-              fontFamily: FONTS.body,
-              fontSize: '14px',
-              margin: 0,
-              lineHeight: '1.6',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
-              {esArtista3D ? (
-                <>
-                  <Box size={18} style={{ flexShrink: 0 }} />
-                  <span>Como artista de Escultura, solo puedes seleccionar paquetes 3D (espacio de base/piso para obras tridimensionales).</span>
-                </>
-              ) : (
-                <>
-                  <Palette size={18} style={{ flexShrink: 0 }} />
-                  <span>Solo puedes seleccionar paquetes 2D (espacio de pared para obras bidimensionales).</span>
-                </>
-              )}
-            </p>
-          </div>
-        </div>
+  const hasCompleteMetadata = (obra) => {
+    return obra.titulo && obra.ancho_cm && obra.alto_cm && obra.tecnica && obra.precio_mxn
+  }
 
-        {isLoading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
-            <p style={{ color: COLORS.cream, marginTop: '16px', fontFamily: FONTS.body }}>
-              Cargando paquetes...
-            </p>
-          </div>
-        ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: selectedPaquetePreview ? '1fr 1fr' : '1fr',
-            gap: '32px',
-            alignItems: 'start'
-          }}>
-            {/* Lado Izquierdo: Instrucciones */}
-            <div style={{
-              background: COLORS.cream,
-              padding: '32px',
-              borderRadius: '16px',
-              color: COLORS.black
-            }}>
-              <h3 style={{
-                fontFamily: FONTS.display,
-                fontWeight: FONTS.displayWeight,
-                fontStyle: FONTS.displayStyle,
-                fontSize: '24px',
-                marginBottom: '16px',
-                color: COLORS.red
-              }}>
-                Instrucciones
-              </h3>
-              <ol style={{
-                fontFamily: FONTS.body,
-                fontSize: '15px',
-                lineHeight: '1.7',
-                paddingLeft: '20px',
-                margin: 0
-              }}>
-                <li style={{ marginBottom: '12px' }}>
-                  Abre este documento en un programa de edición (ej. Photoshop) para colocar tu obra propuesta para <strong>ARTE FACTO</strong>.
-                </li>
-                <li style={{ marginBottom: '12px' }}>
-                  Utiliza la regla al costado izquierdo de este documento para escalar debidamente las dimensiones de tu obra.
-                </li>
-                <li style={{ marginBottom: '12px' }}>
-                  No olvides contemplar las medidas del enmarcado, si es que la pieza tiene.
-                </li>
-                <li style={{ marginBottom: '12px' }}>
-                  Guarda tu archivo como: <br />
-                  <code style={{
-                    background: 'rgba(0,0,0,0.05)',
-                    padding: '4px 8px',
-                    borderRadius: '4px',
-                    fontSize: '13px',
-                    fontFamily: 'monospace'
-                  }}>
-                    Plantilla_XmetroslineaIes_NombreArtistaColectivo
-                  </code>
-                </li>
-                <li style={{ marginBottom: '12px' }}>
-                  Adjunta tu archivo en el campo correspondiente en tu registro en{' '}
-                  <strong style={{ color: COLORS.red }}>arte-facto.com/convocatoria</strong>
-                </li>
-                <li>
-                  Dudas y aclaraciones a través de{' '}
-                  <strong style={{ color: COLORS.red }}>curatoria1@artefacto.com</strong>
-                </li>
-              </ol>
-            </div>
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '16px',
+      minHeight: '70vh',
+    }}>
+      {/* Header */}
+      <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+        <h2 style={{
+          fontFamily: FONTS.display,
+          fontWeight: 600,
+          fontStyle: 'italic',
+          fontSize: 'clamp(28px, 4vw, 42px)',
+          letterSpacing: '0.04em',
+          textTransform: 'uppercase',
+          color: COLORS.cream,
+          marginBottom: '8px',
+        }}>
+          TU LIENZO
+        </h2>
+        <p style={{
+          color: COLORS.cream,
+          opacity: 0.9,
+          fontFamily: FONTS.body,
+          fontSize: '16px',
+          maxWidth: '600px',
+          margin: '0 auto',
+        }}>
+          {confirmedPaquete
+            ? `Arrastra tus obras al espacio de ${confirmedPaquete.nombre}`
+            : 'Selecciona un paquete del panel derecho para comenzar a diseñar tu mural'}
+        </p>
+      </div>
 
-            {/* Lado Derecho: Botones de Paquetes */}
+      {/* Layout principal: Sidebars + Canvas */}
+      <div style={{
+        display: 'flex',
+        flex: 1,
+        gap: '0',
+        minHeight: '600px',
+        background: 'rgba(0, 0, 0, 0.05)',
+        borderRadius: '16px',
+        overflow: 'hidden',
+      }}>
+        {/* Sidebar Izquierdo - Obras */}
+        <ObrasSidebar
+          obras={todasLasObras}
+          obrasEnCanvas={formData.obras_lienzo || []}
+          obrasMaximas={confirmedPaquete?.obras_maximas || 5}
+          onAddObra={handleAddNewObra}
+          onEditObra={setEditingObra}
+          onDeleteObra={(id) => setTodasLasObras(prev => prev.filter(o => o.id !== id))}
+          onDragStart={(e, obra) => {
+            e.dataTransfer.setData('text/plain', obra.id)
+            e.dataTransfer.effectAllowed = 'move'
+          }}
+          hasCompleteMetadata={hasCompleteMetadata}
+          paqueteConfirmado={!!confirmedPaquete}
+        />
+
+        {/* Canvas Central */}
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          background: COLORS.cream,
+          minWidth: 0,
+        }}>
+          {confirmedPaquete ? (
+            <LayoutCanvas
+              paquete={confirmedPaquete}
+              portfolioImages={todasLasObras}
+              initialLayout={formData.layout_canvas_data}
+              onSave={handleSaveLayout}
+              onSaveAndContinue={handleSaveAndContinue}
+              errors={errors}
+            />
+          ) : (
+            /* Canvas vacío - sin paquete seleccionado */
             <div style={{
+              flex: 1,
               display: 'flex',
               flexDirection: 'column',
-              gap: '16px'
-            }}>
-              {paquetesFiltrados.map((paquete) => (
-                <button
-                  key={paquete.id}
-                  onClick={() => handlePaqueteClick(paquete)}
-                  type="button"
-                  style={{
-                    background: selectedPaquetePreview?.id === paquete.id ? COLORS.black : COLORS.cream,
-                    color: selectedPaquetePreview?.id === paquete.id ? COLORS.cream : COLORS.black,
-                    border: 'none',
-                    padding: '24px 32px',
-                    fontFamily: FONTS.display,
-                    fontWeight: FONTS.displayWeight,
-                    fontStyle: FONTS.displayStyle,
-                    fontSize: '28px',
-                    letterSpacing: '0.04em',
-                    textTransform: 'uppercase',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    borderRadius: '16px',
-                    textAlign: 'center'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (selectedPaquetePreview?.id !== paquete.id) {
-                      e.target.style.background = COLORS.creamDark
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (selectedPaquetePreview?.id !== paquete.id) {
-                      e.target.style.background = COLORS.cream
-                    }
-                  }}
-                >
-                  {paquete.nombre}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Descripción del Paquete Seleccionado */}
-        {selectedPaquetePreview && (
-          <div style={{
-            background: COLORS.cream,
-            padding: '32px',
-            borderRadius: '16px',
-            marginTop: '24px'
-          }}>
-            <h3 style={{
-              fontFamily: FONTS.display,
-              fontWeight: FONTS.displayWeight,
-              fontStyle: FONTS.displayStyle,
-              fontSize: '28px',
-              marginBottom: '16px',
-              color: COLORS.red,
-              textTransform: 'uppercase'
-            }}>
-              {selectedPaquetePreview.nombre}
-            </h3>
-            <p style={{
-              fontFamily: FONTS.body,
-              fontSize: '16px',
-              lineHeight: '1.7',
-              color: COLORS.black,
-              marginBottom: '24px'
-            }}>
-              {selectedPaquetePreview.descripcion}
-            </p>
-            <div style={{
-              display: 'flex',
-              gap: '16px',
-              flexWrap: 'wrap',
-              marginBottom: '24px'
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '40px',
+              textAlign: 'center',
             }}>
               <div style={{
-                background: 'rgba(184, 48, 48, 0.1)',
-                padding: '12px 16px',
-                borderRadius: '8px'
-              }}>
-                <span style={{
-                  fontFamily: FONTS.body,
-                  fontSize: '14px',
-                  color: COLORS.gray
-                }}>
-                  {selectedPaquetePreview.tipo === '3D' ? 'Metros cuadrados:' : 'Metros lineales:'}
-                </span>
-                <span style={{
-                  fontFamily: FONTS.display,
-                  fontWeight: FONTS.displayWeight,
-                  fontSize: '18px',
-                  color: COLORS.red,
-                  marginLeft: '8px'
-                }}>
-                  {selectedPaquetePreview.tipo === '3D'
-                    ? `${selectedPaquetePreview.metros_cuadrados}m²`
-                    : `${selectedPaquetePreview.metros_lineales}m`}
-                </span>
-              </div>
-              <div style={{
-                background: 'rgba(184, 48, 48, 0.1)',
-                padding: '12px 16px',
-                borderRadius: '8px'
-              }}>
-                <span style={{
-                  fontFamily: FONTS.body,
-                  fontSize: '14px',
-                  color: COLORS.gray
-                }}>
-                  Precio:
-                </span>
-                <span style={{
-                  fontFamily: FONTS.display,
-                  fontWeight: FONTS.displayWeight,
-                  fontSize: '18px',
-                  color: COLORS.red,
-                  marginLeft: '8px'
-                }}>
-                  ${selectedPaquetePreview.precio} MXN
-                </span>
-              </div>
-            </div>
-            <button
-              onClick={() => handleSelectPaquete(selectedPaquetePreview.id)}
-              type="button"
-              style={{
-                background: COLORS.black,
-                color: COLORS.cream,
-                border: 'none',
-                padding: '16px 40px',
-                fontFamily: FONTS.body,
-                fontWeight: 700,
-                fontSize: '14px',
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
+                width: '100%',
+                maxWidth: '800px',
+                aspectRatio: '4/3',
+                background: 'white',
                 borderRadius: '16px',
-                display: 'inline-block'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.background = COLORS.red
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = COLORS.black
-              }}
-            >
-              ELEGIR
-            </button>
-          </div>
-        )}
+                border: `2px dashed ${COLORS.creamDark}`,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '40px',
+              }}>
+                <svg
+                  width="80"
+                  height="80"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke={COLORS.creamDark}
+                  strokeWidth="1.5"
+                  style={{ marginBottom: '20px' }}
+                >
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <path d="M3 9h18M9 3v18" />
+                </svg>
+                <h3 style={{
+                  fontFamily: FONTS.display,
+                  fontWeight: 600,
+                  fontStyle: 'italic',
+                  fontSize: '24px',
+                  color: COLORS.gray,
+                  marginBottom: '12px',
+                }}>
+                  Selecciona un Paquete
+                </h3>
+                <p style={{
+                  fontFamily: FONTS.body,
+                  fontSize: '15px',
+                  color: COLORS.gray,
+                  maxWidth: '400px',
+                  lineHeight: 1.6,
+                }}>
+                  Abre el panel de paquetes a la derecha y selecciona el espacio
+                  que mejor se adapte a tu propuesta artística.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
 
-        {errors?.paquete_id && (
-          <p style={{
-            color: COLORS.cream,
-            fontFamily: FONTS.body,
-            fontSize: '14px',
-            textAlign: 'center'
-          }}>
-            {errors.paquete_id}
-          </p>
-        )}
+        {/* Sidebar Derecho - Paquetes */}
+        <PaquetesSidebar
+          paquetes={paquetes}
+          es3D={esArtista3D}
+          selectedPaquete={selectedPaquete}
+          confirmedPaquete={confirmedPaquete}
+          onSelectPaquete={handleSelectPaquete}
+          onConfirmPaquete={handleConfirmPaquete}
+          isLoading={isLoading}
+        />
       </div>
-    )
+
+      {/* Error de paquete */}
+      {errors?.paquete_id && (
+        <p style={{
+          color: COLORS.cream,
+          fontFamily: FONTS.body,
+          fontSize: '14px',
+          textAlign: 'center',
+          marginTop: '8px',
+        }}>
+          {errors.paquete_id}
+        </p>
+      )}
+
+      {/* Modal de edición de obra - Se mostraría aquí o usar el del canvas */}
+      {editingObra && (
+        <ObraMetadataModalSimple
+          obra={editingObra}
+          onSave={(updatedObra) => {
+            setTodasLasObras(prev =>
+              prev.map(o => o.id === updatedObra.id ? updatedObra : o)
+            )
+            setEditingObra(null)
+          }}
+          onClose={() => setEditingObra(null)}
+        />
+      )}
+    </div>
+  )
+}
+
+/**
+ * Modal simplificado para editar metadata de obra
+ */
+function ObraMetadataModalSimple({ obra, onSave, onClose }) {
+  const [formData, setFormData] = useState({
+    titulo: obra.titulo || '',
+    ancho_cm: obra.ancho_cm || '',
+    alto_cm: obra.alto_cm || '',
+    tecnica: obra.tecnica || '',
+    anio: obra.anio || new Date().getFullYear(),
+    precio_mxn: obra.precio_mxn || '',
+    notas_montaje: obra.notas_montaje || '',
+  })
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  // ============================================================
-  // SUB-PASO B: Canvas Layout con Carga de Obras
-  // ============================================================
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 style={{
-            fontFamily: FONTS.display,
-            fontWeight: FONTS.displayWeight,
-            fontStyle: FONTS.displayStyle,
-            fontSize: 'clamp(24px, 4vw, 36px)',
-            color: COLORS.cream,
-            marginBottom: '8px'
-          }}>
-            Diseña tu Lienzo
-          </h2>
-          <p style={{
-            color: COLORS.cream,
-            opacity: 0.9,
-            fontFamily: FONTS.body,
-            fontSize: '16px'
-          }}>
-            Arrastra tus obras al espacio y organízalas
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={handleBackToSelection}
-          style={{
-            color: COLORS.cream,
-            textDecoration: 'underline',
-            fontFamily: FONTS.body,
-            fontSize: '14px',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer'
-          }}
-        >
-          ← Cambiar paquete
-        </button>
-      </div>
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    onSave({ ...obra, ...formData })
+  }
 
-      <LayoutCanvas
-        paquete={paquetes.find((p) => p.id === formData.paquete_id)}
-        portfolioImages={formData.portfolio_images || []}
-        initialLayout={formData.layout_canvas_data}
-        onSave={handleSaveLayout}
-        onSaveAndContinue={handleSaveAndContinue}
-        errors={errors}
-      />
+  return (
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      background: 'rgba(0, 0, 0, 0.7)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+      padding: '20px',
+    }}>
+      <div style={{
+        background: COLORS.cream,
+        borderRadius: '20px',
+        maxWidth: '500px',
+        width: '100%',
+        maxHeight: '90vh',
+        overflow: 'auto',
+      }}>
+        <div style={{
+          padding: '24px',
+          borderBottom: `1px solid ${COLORS.creamDark}`,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}>
+          <h3 style={{
+            fontFamily: FONTS.display,
+            fontWeight: 600,
+            fontStyle: 'italic',
+            fontSize: '22px',
+            color: COLORS.black,
+            margin: 0,
+          }}>
+            Datos de la Obra
+          </h3>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              fontSize: '24px',
+              cursor: 'pointer',
+              color: COLORS.gray,
+            }}
+          >
+            ×
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} style={{ padding: '24px' }}>
+          {/* Preview */}
+          {obra.preview && (
+            <div style={{
+              width: '100%',
+              height: '150px',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              marginBottom: '20px',
+            }}>
+              <img
+                src={obra.preview}
+                alt="Preview"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </div>
+          )}
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <InputField
+              label="Título de la obra *"
+              name="titulo"
+              value={formData.titulo}
+              onChange={handleChange}
+              placeholder="Ej: Atardecer en la ciudad"
+              required
+            />
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <InputField
+                label="Ancho (cm) *"
+                name="ancho_cm"
+                type="number"
+                value={formData.ancho_cm}
+                onChange={handleChange}
+                placeholder="80"
+                required
+              />
+              <InputField
+                label="Alto (cm) *"
+                name="alto_cm"
+                type="number"
+                value={formData.alto_cm}
+                onChange={handleChange}
+                placeholder="60"
+                required
+              />
+            </div>
+
+            <InputField
+              label="Técnica *"
+              name="tecnica"
+              value={formData.tecnica}
+              onChange={handleChange}
+              placeholder="Ej: Óleo sobre lienzo"
+              required
+            />
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <InputField
+                label="Año"
+                name="anio"
+                type="number"
+                value={formData.anio}
+                onChange={handleChange}
+              />
+              <InputField
+                label="Precio (MXN) *"
+                name="precio_mxn"
+                type="number"
+                value={formData.precio_mxn}
+                onChange={handleChange}
+                placeholder="15000"
+                required
+              />
+            </div>
+
+            <InputField
+              label="Notas de montaje"
+              name="notas_montaje"
+              value={formData.notas_montaje}
+              onChange={handleChange}
+              placeholder="Instrucciones especiales para instalar la obra"
+              multiline
+            />
+          </div>
+
+          <div style={{
+            display: 'flex',
+            gap: '12px',
+            marginTop: '24px',
+          }}>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                flex: 1,
+                padding: '14px',
+                background: 'transparent',
+                border: `2px solid ${COLORS.gray}`,
+                borderRadius: '12px',
+                fontFamily: FONTS.body,
+                fontWeight: 600,
+                fontSize: '14px',
+                color: COLORS.gray,
+                cursor: 'pointer',
+              }}
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              style={{
+                flex: 1,
+                padding: '14px',
+                background: COLORS.red,
+                border: 'none',
+                borderRadius: '12px',
+                fontFamily: FONTS.body,
+                fontWeight: 600,
+                fontSize: '14px',
+                color: COLORS.cream,
+                cursor: 'pointer',
+              }}
+            >
+              Guardar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Campo de input reutilizable
+ */
+function InputField({ label, name, value, onChange, placeholder, type = 'text', required, multiline }) {
+  const inputStyles = {
+    width: '100%',
+    padding: '12px 14px',
+    border: `1px solid ${COLORS.creamDark}`,
+    borderRadius: '10px',
+    fontFamily: FONTS.body,
+    fontSize: '14px',
+    background: 'white',
+    color: COLORS.black,
+    outline: 'none',
+    transition: 'border-color 0.2s ease',
+  }
+
+  return (
+    <div>
+      <label style={{
+        display: 'block',
+        fontFamily: FONTS.body,
+        fontSize: '13px',
+        fontWeight: 600,
+        color: COLORS.black,
+        marginBottom: '6px',
+      }}>
+        {label}
+      </label>
+      {multiline ? (
+        <textarea
+          name={name}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          required={required}
+          rows={3}
+          style={{ ...inputStyles, resize: 'vertical' }}
+        />
+      ) : (
+        <input
+          type={type}
+          name={name}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          required={required}
+          style={inputStyles}
+        />
+      )}
     </div>
   )
 }

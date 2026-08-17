@@ -626,7 +626,9 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                     fontFamily: FONTS.display,
                     fontStyle: FONTS.displayStyle
                   }}>
-                    {formData.layout_canvas_data.metros_lineales || 'N/A'}m
+                    {formData.layout_canvas_data.metros_lineales
+                      ? `${formData.layout_canvas_data.metros_lineales}m`
+                      : 'N/A'}
                   </span>
                 </div>
                 <div style={{

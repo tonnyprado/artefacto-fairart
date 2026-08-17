@@ -2,7 +2,7 @@
 
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
-import { Info } from 'lucide-react'
+import { Info, Palette } from 'lucide-react'
 
 /**
  * Paso 1: Datos Personales del Artista
@@ -17,6 +17,7 @@ import { Info } from 'lucide-react'
  *   - pais VARCHAR(100)
  *   - ciudad VARCHAR(100)
  *   - direccion TEXT
+ *   - categoria VARCHAR(100) NOT NULL -- Disciplina artística (movido de Step2)
  */
 
 export default function Step1DatosPersonales({ formData, updateFormData, errors }) {
@@ -39,8 +40,51 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
     { value: 'OTHER', label: 'Otro' },
   ]
 
+  // Categorías artísticas (movido desde Step2InfoArtistica)
+  const categorias = [
+    { value: 'pintura', label: 'Pintura' },
+    { value: 'escultura', label: 'Escultura' },
+    { value: 'fotografia', label: 'Fotografía' },
+    { value: 'ilustracion', label: 'Ilustración' },
+    { value: 'arte_digital', label: 'Arte Digital' },
+    { value: 'grabado', label: 'Grabado' },
+    { value: 'instalacion', label: 'Instalación' },
+    { value: 'performance', label: 'Performance' },
+    { value: 'video_arte', label: 'Video Arte' },
+    { value: 'arte_textil', label: 'Arte Textil' },
+    { value: 'ceramica', label: 'Cerámica' },
+    { value: 'arte_mixto', label: 'Arte Mixto' },
+    { value: 'otro', label: 'Otro' },
+  ]
+
   return (
     <div className="space-y-6">
+      {/* Mensaje de enganche */}
+      <div style={{
+        background: 'linear-gradient(135deg, rgba(184, 48, 48, 0.15), rgba(184, 48, 48, 0.05))',
+        border: '2px solid rgba(184, 48, 48, 0.4)',
+        borderRadius: '20px',
+        padding: '24px 28px',
+        marginBottom: '8px',
+        textAlign: 'center'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+          <Palette size={32} color="#B83030" />
+          <h3 style={{
+            color: '#141210',
+            fontWeight: '700',
+            fontSize: '20px',
+            margin: 0,
+            fontFamily: 'ivypresto-display, Georgia, serif',
+            fontStyle: 'italic',
+            letterSpacing: '0.02em'
+          }}>
+            LLENA TUS DATOS PERSONALES PARA ARMAR TU MURAL
+          </h3>
+          <Palette size={32} color="#B83030" />
+        </div>
+      </div>
+
       {/* Disclaimer inicial */}
       <div style={{
         background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1))',
@@ -168,6 +212,18 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
         error={errors?.ciudad}
         required
         placeholder="Ciudad de México"
+      />
+
+      {/* Disciplina Artística Principal - Movido desde Step2 */}
+      <Select
+        label="Disciplina Artística Principal"
+        name="categoria"
+        value={formData.categoria || ''}
+        onChange={handleChange}
+        error={errors?.categoria}
+        required
+        options={categorias}
+        placeholder="Selecciona tu disciplina"
       />
 
       <div style={{

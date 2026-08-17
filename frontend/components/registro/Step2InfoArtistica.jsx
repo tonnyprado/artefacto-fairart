@@ -1,16 +1,16 @@
 'use client'
 
 import Input, { Textarea } from '@/components/ui/Input'
-import Select from '@/components/ui/Select'
 
 /**
- * Paso 2: Información Artística
+ * Paso 2: Información Artística (ahora paso 3 después del reorden)
  *
  * CAMPOS QUE VAN A BASE DE DATOS:
  * - Tabla: artistas
- *   - categoria VARCHAR(100) NOT NULL -- Disciplina artística
  *   - bio TEXT -- Biografía/declaración artística
- *   - redes_sociales JSONB -- {instagram, facebook, website, behance, etc.}
+ *   - redes_sociales JSONB -- {instagram, website}
+ *
+ * NOTA: categoria fue movido a Step1DatosPersonales
  */
 
 export default function Step2InfoArtistica({ formData, updateFormData, errors }) {
@@ -29,24 +29,6 @@ export default function Step2InfoArtistica({ formData, updateFormData, errors })
     })
   }
 
-  // HARDCODED: Categorías artísticas
-  // En producción: vendrá de tabla "categorias" o config
-  const categorias = [
-    { value: 'pintura', label: 'Pintura' },
-    { value: 'escultura', label: 'Escultura' },
-    { value: 'fotografia', label: 'Fotografía' },
-    { value: 'ilustracion', label: 'Ilustración' },
-    { value: 'arte_digital', label: 'Arte Digital' },
-    { value: 'grabado', label: 'Grabado' },
-    { value: 'instalacion', label: 'Instalación' },
-    { value: 'performance', label: 'Performance' },
-    { value: 'video_arte', label: 'Video Arte' },
-    { value: 'arte_textil', label: 'Arte Textil' },
-    { value: 'ceramica', label: 'Cerámica' },
-    { value: 'arte_mixto', label: 'Arte Mixto' },
-    { value: 'otro', label: 'Otro' },
-  ]
-
   return (
     <div className="space-y-6">
       <div>
@@ -55,17 +37,6 @@ export default function Step2InfoArtistica({ formData, updateFormData, errors })
         </h2>
         <p style={{ color: '#F4EDE4', fontSize: '15px' }}>Cuéntanos sobre tu trabajo artístico</p>
       </div>
-
-      <Select
-        label="Disciplina Artística Principal"
-        name="categoria"
-        value={formData.categoria || ''}
-        onChange={handleChange}
-        error={errors?.categoria}
-        required
-        options={categorias}
-        placeholder="Selecciona tu disciplina"
-      />
 
       <Textarea
         label="Semblanza"

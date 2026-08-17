@@ -106,7 +106,8 @@ export default function RegistroPage() {
     layout_canvas_data: {}
   })
 
-  const steps = ['Datos Personales', 'Info Artística', 'Documentos', 'Tu Lienzo', 'Confirmar']
+  // Nuevo orden de etapas: Tu Lienzo pasa a ser Etapa 2
+  const steps = ['Datos Personales', 'Tu Lienzo', 'Info Artística', 'Documentos', 'Confirmar']
 
   const updateFormData = (newData) => {
     setFormData((prev) => {
@@ -145,6 +146,7 @@ export default function RegistroPage() {
 
     switch (step) {
       case 1:
+        // Datos Personales + Disciplina Artística
         if (!formData.nombre) newErrors.nombre = 'Nombre es requerido'
         if (!formData.apellido) newErrors.apellido = 'Apellido es requerido'
         if (!formData.email) newErrors.email = 'Email es requerido'
@@ -153,10 +155,18 @@ export default function RegistroPage() {
           newErrors.fecha_nacimiento = 'Fecha de nacimiento es requerida'
         if (!formData.pais) newErrors.pais = 'País es requerido'
         if (!formData.ciudad) newErrors.ciudad = 'Ciudad es requerida'
+        if (!formData.categoria) newErrors.categoria = 'Disciplina artística es requerida'
         break
 
       case 2:
-        if (!formData.categoria) newErrors.categoria = 'Categoría es requerida'
+        // Tu Lienzo (antes era paso 4)
+        if (!formData.paquete_id) newErrors.paquete_id = 'Debes seleccionar un paquete'
+        if (!formData.layout_canvas_url)
+          newErrors.layout = 'Debes guardar el layout del canvas'
+        break
+
+      case 3:
+        // Info Artística (antes era paso 2)
         if (!formData.bio) newErrors.bio = 'Semblanza es requerida'
         if (formData.bio && formData.bio.length > 950)
           newErrors.bio = 'La semblanza debe tener máximo 950 caracteres'
@@ -164,7 +174,8 @@ export default function RegistroPage() {
           newErrors.instagram = 'Instagram es requerido'
         break
 
-      case 3:
+      case 4:
+        // Documentos (antes era paso 3)
         if (!formData.foto) newErrors.foto = 'Foto de perfil es requerida'
         if (!formData.documentos?.cv) newErrors.cv = 'CV artístico es requerido'
         if (!formData.documentos?.portfolio) newErrors.portfolio = 'Portafolio es requerido'
@@ -172,14 +183,8 @@ export default function RegistroPage() {
           newErrors.identificacion = 'Identificación es requerida'
         break
 
-      case 4:
-        if (!formData.paquete_id) newErrors.paquete_id = 'Debes seleccionar un paquete'
-        if (!formData.layout_canvas_url)
-          newErrors.layout = 'Debes guardar el layout del canvas'
-        break
-
       case 5:
-        // Validar términos (esto se maneja en el paso 5)
+        // Confirmación - se maneja en el componente
         break
     }
 
@@ -905,7 +910,7 @@ export default function RegistroPage() {
             borderRadius: '24px',
           }}
         >
-          {/* Steps */}
+          {/* Steps - Nuevo orden: Datos Personales → Tu Lienzo → Info Artística → Documentos → Confirmar */}
           {currentStep === 1 && (
             <Step1DatosPersonales
               formData={formData}
@@ -914,25 +919,25 @@ export default function RegistroPage() {
             />
           )}
           {currentStep === 2 && (
+            <Step5Paquetes
+              formData={formData}
+              updateFormData={updateFormData}
+              errors={errors}
+              onContinue={handleNext}
+            />
+          )}
+          {currentStep === 3 && (
             <Step2InfoArtistica
               formData={formData}
               updateFormData={updateFormData}
               errors={errors}
             />
           )}
-          {currentStep === 3 && (
+          {currentStep === 4 && (
             <Step3Documentos
               formData={formData}
               updateFormData={updateFormData}
               errors={errors}
-            />
-          )}
-          {currentStep === 4 && (
-            <Step5Paquetes
-              formData={formData}
-              updateFormData={updateFormData}
-              errors={errors}
-              onContinue={handleNext}
             />
           )}
           {currentStep === 5 && (
@@ -945,8 +950,8 @@ export default function RegistroPage() {
             />
           )}
 
-          {/* Navigation Buttons - Ocultos en step 5 (confirmación) */}
-          {currentStep !== 5 && (
+          {/* Navigation Buttons - Ocultos en step 5 (confirmación) y step 2 (Tu Lienzo tiene su propia navegación) */}
+          {currentStep !== 5 && currentStep !== 2 && (
           <div style={{
             marginTop: 48,
             display: 'flex',
@@ -954,7 +959,7 @@ export default function RegistroPage() {
             alignItems: 'center',
             gap: 16,
           }}>
-            {currentStep > 1 && currentStep !== 4 && (
+            {currentStep > 1 && (
               <button
                 onClick={handleBack}
                 style={{
@@ -999,135 +1004,51 @@ export default function RegistroPage() {
                 Anterior
               </button>
             )}
-            {currentStep < 4 ? (
-              <button
-                onClick={handleNext}
-                style={{
-                  marginLeft: 'auto',
-                  background: COLORS.black,
-                  color: COLORS.cream,
-                  border: 'none',
-                  padding: '16px 32px',
-                  fontFamily: FONTS.body,
-                  fontWeight: 700,
-                  fontSize: 14,
-                  letterSpacing: '0.12em',
-                  textTransform: 'uppercase',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  transition: 'all 0.2s ease',
-                  borderRadius: '16px',
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = COLORS.cream
-                  e.target.style.color = COLORS.black
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = COLORS.black
-                  e.target.style.color = COLORS.cream
-                }}
+            {/* Botón Siguiente - visible en pasos 1, 3, 4 (paso 2 y 5 tienen su propia navegación) */}
+            <button
+              onClick={handleNext}
+              style={{
+                marginLeft: 'auto',
+                background: COLORS.black,
+                color: COLORS.cream,
+                border: 'none',
+                padding: '16px 32px',
+                fontFamily: FONTS.body,
+                fontWeight: 700,
+                fontSize: 14,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                transition: 'all 0.2s ease',
+                borderRadius: '16px',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = COLORS.cream
+                e.target.style.color = COLORS.black
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = COLORS.black
+                e.target.style.color = COLORS.cream
+              }}
+            >
+              Siguiente
+              <svg
+                style={{ width: 20, height: 20 }}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                Siguiente
-                <svg
-                  style={{ width: 20, height: 20 }}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
-            ) : currentStep === 5 ? (
-              <button
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                style={{
-                  marginLeft: 'auto',
-                  background: COLORS.black,
-                  color: COLORS.cream,
-                  border: 'none',
-                  padding: '16px 32px',
-                  fontFamily: FONTS.body,
-                  fontWeight: 700,
-                  fontSize: 14,
-                  letterSpacing: '0.12em',
-                  textTransform: 'uppercase',
-                  cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  transition: 'all 0.2s ease',
-                  opacity: isSubmitting ? 0.7 : 1,
-                  borderRadius: '16px',
-                }}
-                onMouseEnter={(e) => {
-                  if (!isSubmitting) {
-                    e.target.style.background = COLORS.cream
-                    e.target.style.color = COLORS.black
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isSubmitting) {
-                    e.target.style.background = COLORS.black
-                    e.target.style.color = COLORS.cream
-                  }
-                }}
-              >
-                {isSubmitting ? (
-                  <>
-                    <svg
-                      style={{
-                        width: 20,
-                        height: 20,
-                        animation: 'spin 1s linear infinite'
-                      }}
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        style={{ opacity: 0.25 }}
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        style={{ opacity: 0.75 }}
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Enviando...
-                  </>
-                ) : (
-                  <>
-                    Enviar Inscripción
-                    <svg
-                      style={{ width: 20, height: 20 }}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  </>
-                )}
-              </button>
-            ) : null}
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
           </div>
           )}
 
