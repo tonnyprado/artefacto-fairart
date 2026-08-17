@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useLayoutEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { usePaquetesStore } from '@/stores/paquetesStore'
-import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Check, Plus, Edit2, Trash2, GripVertical, AlertCircle, Palette, Box, Download, ArrowRight } from 'lucide-react'
+import { ChevronDown, ChevronUp, Check, Plus, Edit2, Trash2, GripVertical, AlertCircle, Palette, Box, Download, ArrowRight, X } from 'lucide-react'
+import gsap from 'gsap'
 
 const LayoutCanvas = dynamic(() => import('./LayoutCanvasWithMural'), {
   ssr: false,
@@ -35,6 +36,12 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
   const [rightPanelOpen, setRightPanelOpen] = useState(true)
   const [expandedPaqueteId, setExpandedPaqueteId] = useState(null)
 
+  // Referencias para animaciones GSAP
+  const leftPanelRef = useRef(null)
+  const rightPanelRef = useRef(null)
+  const paqueteIndicatorRef = useRef(null)
+  const canvasContainerRef = useRef(null)
+
   // Referencia a funciones del canvas
   const canvasFunctionsRef = useRef(null)
   const [canvasState, setCanvasState] = useState({ obrasCount: 0, isSaving: false })
@@ -54,14 +61,92 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
     }
   }, [paquetes, formData.paquete_id])
 
+  // Animación de paneles
+  useLayoutEffect(() => {
+    if (leftPanelRef.current) {
+      if (leftPanelOpen) {
+        gsap.fromTo(leftPanelRef.current,
+          { opacity: 0, y: -20, scale: 0.95 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.3, ease: 'power2.out' }
+        )
+      }
+    }
+  }, [leftPanelOpen])
+
+  useLayoutEffect(() => {
+    if (rightPanelRef.current) {
+      if (rightPanelOpen) {
+        gsap.fromTo(rightPanelRef.current,
+          { opacity: 0, y: -20, scale: 0.95 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.3, ease: 'power2.out' }
+        )
+      }
+    }
+  }, [rightPanelOpen])
+
+  // Animación del indicador de paquete
+  useLayoutEffect(() => {
+    if (paqueteIndicatorRef.current && confirmedPaquete) {
+      gsap.fromTo(paqueteIndicatorRef.current,
+        { opacity: 0, scale: 0.8, y: -10 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: 'back.out(1.7)' }
+      )
+    }
+  }, [confirmedPaquete?.id])
+
+  // Animación del canvas cuando cambia el paquete
+  useLayoutEffect(() => {
+    if (canvasContainerRef.current && confirmedPaquete) {
+      gsap.fromTo(canvasContainerRef.current,
+        { opacity: 0.5 },
+        { opacity: 1, duration: 0.5, ease: 'power2.out' }
+      )
+    }
+  }, [confirmedPaquete?.id])
+
   const esArtista3D = formData.categoria === 'escultura'
   const paquetesFiltrados = paquetes.filter(p => esArtista3D ? p.tipo === '3D' : p.tipo === '2D')
 
   const handleConfirmPaquete = (paquete) => {
-    setConfirmedPaquete(paquete)
-    updateFormData({ paquete_id: paquete.id })
-    setExpandedPaqueteId(null)
-    setRightPanelOpen(false)
+    // Animación de salida del panel
+    if (rightPanelRef.current) {
+      gsap.to(rightPanelRef.current, {
+        opacity: 0,
+        y: -10,
+        scale: 0.95,
+        duration: 0.2,
+        ease: 'power2.in',
+        onComplete: () => {
+          setConfirmedPaquete(paquete)
+          updateFormData({ paquete_id: paquete.id })
+          setExpandedPaqueteId(null)
+          setRightPanelOpen(false)
+        }
+      })
+    } else {
+      setConfirmedPaquete(paquete)
+      updateFormData({ paquete_id: paquete.id })
+      setExpandedPaqueteId(null)
+      setRightPanelOpen(false)
+    }
+  }
+
+  const handleClosePanel = (panel) => {
+    const ref = panel === 'left' ? leftPanelRef : rightPanelRef
+    const setter = panel === 'left' ? setLeftPanelOpen : setRightPanelOpen
+
+    if (ref.current) {
+      gsap.to(ref.current, {
+        opacity: 0,
+        y: -10,
+        scale: 0.95,
+        duration: 0.2,
+        ease: 'power2.in',
+        onComplete: () => setter(false)
+      })
+    } else {
+      setter(false)
+    }
   }
 
   const handleSaveAndContinue = (layoutData, layoutUrl, obrasCompletas) => {
@@ -100,7 +185,6 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
 
   const hasCompleteMetadata = (obra) => obra.titulo && obra.ancho_cm && obra.alto_cm && obra.tecnica && obra.precio_mxn
 
-  // Handler para iniciar drag de obra
   const handleObraDragStart = (e, obra) => {
     if (canvasFunctionsRef.current?.handleRowDragStart) {
       canvasFunctionsRef.current.handleRowDragStart(e, obra)
@@ -110,56 +194,310 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
   return (
     <div style={{ position: 'relative', minHeight: '75vh' }}>
 
-      {/* BARRA SUPERIOR - Botones de paneles (izq) y acciones (der) */}
+      {/* BARRA SUPERIOR */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         gap: '12px',
         marginBottom: '16px',
+        position: 'relative',
+        zIndex: 200,
       }}>
         {/* Botones de paneles - IZQUIERDA */}
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button
-            onClick={() => setLeftPanelOpen(!leftPanelOpen)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              padding: '10px 16px',
-              background: leftPanelOpen ? COLORS.red : COLORS.black,
-              border: 'none',
-              color: COLORS.cream,
-              borderRadius: '10px',
-              fontFamily: FONTS.body,
-              fontWeight: 600,
-              fontSize: '13px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            <Palette size={16} />
-            Mis Obras
-            {leftPanelOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-          </button>
-          <button
-            onClick={() => setRightPanelOpen(!rightPanelOpen)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              padding: '10px 16px',
-              background: rightPanelOpen ? COLORS.red : COLORS.black,
-              border: 'none',
-              color: COLORS.cream,
-              borderRadius: '10px',
-              fontFamily: FONTS.body,
-              fontWeight: 600,
-              fontSize: '13px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            <Box size={16} />
-            Paquetes
-            {rightPanelOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-          </button>
+        <div style={{ display: 'flex', gap: '8px', position: 'relative' }}>
+          {/* Botón Mis Obras */}
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => {
+                if (leftPanelOpen) {
+                  handleClosePanel('left')
+                } else {
+                  setLeftPanelOpen(true)
+                  if (rightPanelOpen) handleClosePanel('right')
+                }
+              }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '8px',
+                padding: '10px 16px',
+                background: leftPanelOpen ? COLORS.red : COLORS.black,
+                border: 'none',
+                color: COLORS.cream,
+                borderRadius: leftPanelOpen ? '10px 10px 0 0' : '10px',
+                fontFamily: FONTS.body,
+                fontWeight: 600,
+                fontSize: '13px',
+                cursor: 'pointer',
+                transition: 'background 0.2s ease',
+              }}
+            >
+              <Palette size={16} />
+              Mis Obras
+              {leftPanelOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
+
+            {/* Panel Mis Obras - Dropdown */}
+            {leftPanelOpen && (
+              <div
+                ref={leftPanelRef}
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  width: '320px',
+                  maxHeight: '500px',
+                  background: COLORS.cream,
+                  borderRadius: '0 12px 12px 12px',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+                  overflow: 'hidden',
+                  zIndex: 300,
+                }}
+              >
+                <div style={{ padding: '12px 16px', borderBottom: `1px solid ${COLORS.creamDark}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.gray }}>
+                    {todasLasObras.length} obra{todasLasObras.length !== 1 ? 's' : ''}
+                  </span>
+                  <label style={{
+                    display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 10px',
+                    background: COLORS.black, color: COLORS.cream, borderRadius: '6px',
+                    fontFamily: FONTS.body, fontSize: '11px', fontWeight: 600, cursor: 'pointer',
+                  }}>
+                    <Plus size={12} /> Agregar
+                    <input type="file" multiple accept="image/*" onChange={(e) => handleAddNewObra(e.target.files)} style={{ display: 'none' }} />
+                  </label>
+                </div>
+
+                <div style={{ maxHeight: '400px', overflow: 'auto', padding: '12px' }}>
+                  {!confirmedPaquete && todasLasObras.length > 0 && (
+                    <div style={{ background: 'rgba(184,48,48,0.08)', borderRadius: '8px', padding: '8px 10px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <AlertCircle size={14} color={COLORS.red} />
+                      <span style={{ fontFamily: FONTS.body, fontSize: '11px', color: COLORS.black }}>
+                        Selecciona un paquete primero
+                      </span>
+                    </div>
+                  )}
+
+                  {todasLasObras.map((obra) => {
+                    const isInCanvas = canvasState.obrasEnCanvas?.some(o => o.id === obra.id) || (formData.obras_lienzo || []).some(o => o.id === obra.id)
+                    const hasMetadata = hasCompleteMetadata(obra)
+                    const canDrag = confirmedPaquete && hasMetadata && !isInCanvas
+
+                    return (
+                      <div
+                        key={obra.id}
+                        draggable={canDrag}
+                        onDragStart={(e) => canDrag && handleObraDragStart(e, obra)}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: '8px', padding: '8px',
+                          background: isInCanvas ? 'rgba(184,48,48,0.08)' : 'white',
+                          border: `1px solid ${isInCanvas ? COLORS.red : COLORS.creamDark}`,
+                          borderRadius: '8px', marginBottom: '6px',
+                          cursor: canDrag ? 'grab' : 'default', opacity: isInCanvas ? 0.6 : 1,
+                        }}
+                      >
+                        {canDrag && <GripVertical size={14} color={COLORS.gray} />}
+                        <div style={{ width: '36px', height: '36px', borderRadius: '4px', overflow: 'hidden', background: COLORS.creamDark, flexShrink: 0 }}>
+                          {obra.preview && <img src={obra.preview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontFamily: FONTS.body, fontSize: '12px', fontWeight: 600, color: COLORS.black, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {obra.titulo || 'Sin título'}
+                          </div>
+                          <div style={{ fontFamily: FONTS.body, fontSize: '10px', color: COLORS.gray }}>
+                            {obra.ancho_cm && obra.alto_cm ? `${obra.ancho_cm} × ${obra.alto_cm} cm` : 'Sin medidas'}
+                          </div>
+                        </div>
+                        {isInCanvas && <Check size={14} color={COLORS.red} />}
+                        {!hasMetadata && !isInCanvas && <AlertCircle size={14} color={COLORS.red} />}
+                        <button onClick={() => setEditingObra(obra)} style={{ padding: '4px', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                          <Edit2 size={12} color={COLORS.gray} />
+                        </button>
+                        {!isInCanvas && (
+                          <button onClick={() => setTodasLasObras(prev => prev.filter(o => o.id !== obra.id))} style={{ padding: '4px', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                            <Trash2 size={12} color={COLORS.red} />
+                          </button>
+                        )}
+                      </div>
+                    )
+                  })}
+
+                  {todasLasObras.length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '24px 12px', background: 'white', borderRadius: '8px', border: `2px dashed ${COLORS.creamDark}` }}>
+                      <p style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.gray, margin: 0 }}>
+                        No has agregado obras.<br />Haz clic en "Agregar".
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Botón Paquetes */}
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => {
+                if (rightPanelOpen) {
+                  handleClosePanel('right')
+                } else {
+                  setRightPanelOpen(true)
+                  if (leftPanelOpen) handleClosePanel('left')
+                }
+              }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '8px',
+                padding: '10px 16px',
+                background: rightPanelOpen ? COLORS.red : COLORS.black,
+                border: 'none',
+                color: COLORS.cream,
+                borderRadius: rightPanelOpen ? '10px 10px 0 0' : '10px',
+                fontFamily: FONTS.body,
+                fontWeight: 600,
+                fontSize: '13px',
+                cursor: 'pointer',
+                transition: 'background 0.2s ease',
+              }}
+            >
+              <Box size={16} />
+              Paquetes
+              {rightPanelOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
+
+            {/* Panel Paquetes - Dropdown */}
+            {rightPanelOpen && (
+              <div
+                ref={rightPanelRef}
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  width: '340px',
+                  maxHeight: '500px',
+                  background: COLORS.cream,
+                  borderRadius: '0 12px 12px 12px',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+                  overflow: 'hidden',
+                  zIndex: 300,
+                }}
+              >
+                <div style={{ padding: '10px 16px', background: 'rgba(184,48,48,0.05)', borderBottom: `1px solid ${COLORS.creamDark}`, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {esArtista3D ? <Box size={14} color={COLORS.red} /> : <Palette size={14} color={COLORS.red} />}
+                  <span style={{ fontFamily: FONTS.body, fontSize: '11px', color: COLORS.black, fontWeight: 600 }}>
+                    {esArtista3D ? 'Paquetes 3D' : 'Paquetes 2D'}
+                  </span>
+                </div>
+
+                <div style={{ maxHeight: '420px', overflow: 'auto', padding: '12px' }}>
+                  {isLoading ? (
+                    <div style={{ textAlign: 'center', padding: '24px' }}>
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 mx-auto" />
+                    </div>
+                  ) : (
+                    paquetesFiltrados.map((paquete) => {
+                      const isExpanded = expandedPaqueteId === paquete.id
+                      const isConfirmed = confirmedPaquete?.id === paquete.id
+
+                      return (
+                        <div key={paquete.id} style={{
+                          background: isConfirmed ? 'rgba(184,48,48,0.1)' : 'white',
+                          border: isConfirmed ? `2px solid ${COLORS.red}` : `1px solid ${COLORS.creamDark}`,
+                          borderRadius: '10px', marginBottom: '8px', overflow: 'hidden',
+                        }}>
+                          <button
+                            onClick={() => setExpandedPaqueteId(isExpanded ? null : paquete.id)}
+                            style={{
+                              width: '100%', padding: '12px 14px', background: 'transparent', border: 'none',
+                              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              {isConfirmed && <Check size={16} color={COLORS.red} />}
+                              <span style={{ fontFamily: FONTS.display, fontWeight: 600, fontStyle: 'italic', fontSize: '14px', color: COLORS.black }}>
+                                {paquete.nombre}
+                              </span>
+                            </div>
+                            {isExpanded ? <ChevronUp size={18} color={COLORS.gray} /> : <ChevronDown size={18} color={COLORS.gray} />}
+                          </button>
+
+                          {isExpanded && (
+                            <div style={{ padding: '0 14px 14px', borderTop: `1px solid ${COLORS.creamDark}` }}>
+                              <p style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.gray, lineHeight: 1.5, margin: '10px 0' }}>
+                                {paquete.descripcion}
+                              </p>
+                              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '12px' }}>
+                                <span style={{ background: 'rgba(184,48,48,0.1)', padding: '4px 8px', borderRadius: '6px', fontFamily: FONTS.body, fontSize: '11px', color: COLORS.black }}>
+                                  {esArtista3D ? `${paquete.metros_cuadrados}m²` : `${paquete.metros_lineales}m`}
+                                </span>
+                                <span style={{ background: 'rgba(184,48,48,0.1)', padding: '4px 8px', borderRadius: '6px', fontFamily: FONTS.body, fontSize: '11px', color: COLORS.black }}>
+                                  ${paquete.precio} MXN
+                                </span>
+                              </div>
+                              {!isConfirmed ? (
+                                <button
+                                  onClick={() => handleConfirmPaquete(paquete)}
+                                  style={{
+                                    width: '100%', padding: '10px', background: COLORS.black, color: COLORS.cream,
+                                    border: 'none', borderRadius: '8px', fontFamily: FONTS.body, fontWeight: 600,
+                                    fontSize: '12px', textTransform: 'uppercase', cursor: 'pointer',
+                                  }}
+                                >
+                                  Seleccionar
+                                </button>
+                              ) : (
+                                <div style={{
+                                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                                  padding: '10px', background: COLORS.red, color: COLORS.cream, borderRadius: '8px',
+                                  fontFamily: FONTS.body, fontWeight: 600, fontSize: '12px',
+                                }}>
+                                  <Check size={14} /> Seleccionado
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Indicador de paquete seleccionado */}
+          {confirmedPaquete && (
+            <div
+              ref={paqueteIndicatorRef}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '8px',
+                padding: '10px 16px',
+                background: COLORS.red,
+                color: COLORS.cream,
+                borderRadius: '10px',
+                fontFamily: FONTS.body,
+                fontSize: '13px',
+                fontWeight: 600,
+                marginLeft: '8px',
+              }}
+            >
+              <Check size={16} />
+              {confirmedPaquete.nombre}
+              <button
+                onClick={() => {
+                  gsap.to(paqueteIndicatorRef.current, {
+                    opacity: 0, scale: 0.8, duration: 0.2,
+                    onComplete: () => {
+                      setConfirmedPaquete(null)
+                      updateFormData({ paquete_id: null })
+                      setRightPanelOpen(true)
+                    }
+                  })
+                }}
+                style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: COLORS.cream }}
+              >
+                <X size={12} />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Botones de acción - DERECHA */}
@@ -211,258 +549,31 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
         </div>
       </div>
 
-      {/* CANVAS - Siempre visible al 100% */}
-      <div style={{
-        position: 'relative',
-        width: '100%',
-        minHeight: '70vh',
-      }}>
-          {confirmedPaquete ? (
-            <LayoutCanvas
-              paquete={confirmedPaquete}
-              portfolioImages={todasLasObras}
-              initialLayout={formData.layout_canvas_data}
-              onSave={(data, url) => updateFormData({ layout_canvas_data: data, layout_canvas_url: url })}
-              onSaveAndContinue={handleSaveAndContinue}
-              errors={errors}
-              hideGallery={true}
-              hideActions={true}
-              onCanvasReady={handleCanvasReady}
-            />
-          ) : (
-            <CanvasPlaceholder />
-          )}
-
-          {/* PANEL IZQUIERDO - MIS OBRAS (flota SOBRE el canvas cuando está abierto) */}
-          {leftPanelOpen && (
-            <div style={{
-              position: 'absolute',
-              top: '16px',
-              left: '16px',
-              bottom: '16px',
-              width: '300px',
-              background: COLORS.cream,
-              borderRadius: '12px',
-              boxShadow: '4px 0 24px rgba(0,0,0,0.2)',
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
-              zIndex: 100,
-            }}>
-              <div style={{ padding: '16px', borderBottom: `1px solid ${COLORS.creamDark}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ margin: 0, fontFamily: FONTS.display, fontWeight: 600, fontStyle: 'italic', fontSize: '18px', color: COLORS.black }}>
-                  Mis Obras
-                </h3>
-                <label style={{
-                  display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px',
-                  background: COLORS.black, color: COLORS.cream, borderRadius: '8px',
-                  fontFamily: FONTS.body, fontSize: '12px', fontWeight: 600, cursor: 'pointer',
-                }}>
-                  <Plus size={14} /> Agregar
-                  <input type="file" multiple accept="image/*" onChange={(e) => handleAddNewObra(e.target.files)} style={{ display: 'none' }} />
-                </label>
-              </div>
-
-              <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
-                {!confirmedPaquete && todasLasObras.length > 0 && (
-                  <div style={{ background: 'rgba(184,48,48,0.08)', borderRadius: '10px', padding: '10px 12px', marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                    <AlertCircle size={16} color={COLORS.red} style={{ marginTop: '2px', flexShrink: 0 }} />
-                    <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.black, lineHeight: 1.4 }}>
-                      Selecciona un paquete primero
-                    </span>
-                  </div>
-                )}
-
-                {todasLasObras.map((obra) => {
-                  const isInCanvas = canvasState.obrasEnCanvas?.some(o => o.id === obra.id) || (formData.obras_lienzo || []).some(o => o.id === obra.id)
-                  const hasMetadata = hasCompleteMetadata(obra)
-                  const canDrag = confirmedPaquete && hasMetadata && !isInCanvas
-
-                  return (
-                    <div
-                      key={obra.id}
-                      draggable={canDrag}
-                      onDragStart={(e) => canDrag && handleObraDragStart(e, obra)}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: '10px', padding: '10px',
-                        background: isInCanvas ? 'rgba(184,48,48,0.08)' : 'white',
-                        border: `1px solid ${isInCanvas ? COLORS.red : COLORS.creamDark}`,
-                        borderRadius: '10px', marginBottom: '8px',
-                        cursor: canDrag ? 'grab' : 'default', opacity: isInCanvas ? 0.6 : 1,
-                      }}
-                    >
-                      {canDrag && <GripVertical size={16} color={COLORS.gray} />}
-                      <div style={{ width: '44px', height: '44px', borderRadius: '6px', overflow: 'hidden', background: COLORS.creamDark, flexShrink: 0 }}>
-                        {obra.preview && <img src={obra.preview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontFamily: FONTS.body, fontSize: '13px', fontWeight: 600, color: COLORS.black, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {obra.titulo || 'Sin título'}
-                        </div>
-                        <div style={{ fontFamily: FONTS.body, fontSize: '11px', color: COLORS.gray }}>
-                          {obra.ancho_cm && obra.alto_cm ? `${obra.ancho_cm} × ${obra.alto_cm} cm` : 'Sin medidas'}
-                        </div>
-                      </div>
-                      {isInCanvas && <Check size={16} color={COLORS.red} />}
-                      {!hasMetadata && !isInCanvas && <AlertCircle size={16} color={COLORS.red} />}
-                      <button onClick={() => setEditingObra(obra)} style={{ padding: '6px', background: 'transparent', border: 'none', cursor: 'pointer' }}>
-                        <Edit2 size={14} color={COLORS.gray} />
-                      </button>
-                      {!isInCanvas && (
-                        <button onClick={() => setTodasLasObras(prev => prev.filter(o => o.id !== obra.id))} style={{ padding: '6px', background: 'transparent', border: 'none', cursor: 'pointer' }}>
-                          <Trash2 size={14} color={COLORS.red} />
-                        </button>
-                      )}
-                    </div>
-                  )
-                })}
-
-                {todasLasObras.length === 0 && (
-                  <div style={{ textAlign: 'center', padding: '32px 16px', background: 'white', borderRadius: '12px', border: `2px dashed ${COLORS.creamDark}` }}>
-                    <p style={{ fontFamily: FONTS.body, fontSize: '13px', color: COLORS.gray, margin: 0 }}>
-                      No has agregado obras.<br />Haz clic en "Agregar".
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* PANEL DERECHO - PAQUETES (flota SOBRE el canvas cuando está abierto) */}
-          {rightPanelOpen && (
-            <div style={{
-              position: 'absolute',
-              top: '16px',
-              right: '16px',
-              bottom: '16px',
-              width: '320px',
-              background: COLORS.cream,
-              borderRadius: '12px',
-              boxShadow: '-4px 0 24px rgba(0,0,0,0.2)',
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
-              zIndex: 100,
-            }}>
-              <div style={{ padding: '16px', borderBottom: `1px solid ${COLORS.creamDark}` }}>
-                <h3 style={{ margin: 0, fontFamily: FONTS.display, fontWeight: 600, fontStyle: 'italic', fontSize: '18px', color: COLORS.black }}>
-                  Paquetes
-                </h3>
-              </div>
-
-              <div style={{ padding: '12px', background: 'rgba(184,48,48,0.05)', borderBottom: `1px solid ${COLORS.creamDark}`, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                {esArtista3D ? <Box size={16} color={COLORS.red} /> : <Palette size={16} color={COLORS.red} />}
-                <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.black }}>
-                  {esArtista3D ? 'Paquetes 3D' : 'Paquetes 2D'}
-                </span>
-              </div>
-
-              <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
-                {isLoading ? (
-                  <div style={{ textAlign: 'center', padding: '24px' }}>
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto" />
-                  </div>
-                ) : (
-                  paquetesFiltrados.map((paquete) => {
-                    const isExpanded = expandedPaqueteId === paquete.id
-                    const isConfirmed = confirmedPaquete?.id === paquete.id
-
-                    return (
-                      <div key={paquete.id} style={{
-                        background: isConfirmed ? 'rgba(184,48,48,0.1)' : 'white',
-                        border: isConfirmed ? `2px solid ${COLORS.red}` : `1px solid ${COLORS.creamDark}`,
-                        borderRadius: '12px', marginBottom: '10px', overflow: 'hidden',
-                      }}>
-                        <button
-                          onClick={() => setExpandedPaqueteId(isExpanded ? null : paquete.id)}
-                          style={{
-                            width: '100%', padding: '14px 16px', background: 'transparent', border: 'none',
-                            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            {isConfirmed && <Check size={18} color={COLORS.red} />}
-                            <span style={{ fontFamily: FONTS.display, fontWeight: 600, fontStyle: 'italic', fontSize: '16px', color: COLORS.black }}>
-                              {paquete.nombre}
-                            </span>
-                          </div>
-                          {isExpanded ? <ChevronUp size={20} color={COLORS.gray} /> : <ChevronDown size={20} color={COLORS.gray} />}
-                        </button>
-
-                        {isExpanded && (
-                          <div style={{ padding: '0 16px 16px', borderTop: `1px solid ${COLORS.creamDark}` }}>
-                            <p style={{ fontFamily: FONTS.body, fontSize: '13px', color: COLORS.gray, lineHeight: 1.5, margin: '12px 0' }}>
-                              {paquete.descripcion}
-                            </p>
-                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '14px' }}>
-                              <span style={{ background: 'rgba(184,48,48,0.1)', padding: '6px 10px', borderRadius: '8px', fontFamily: FONTS.body, fontSize: '12px', color: COLORS.black }}>
-                                {esArtista3D ? `${paquete.metros_cuadrados}m²` : `${paquete.metros_lineales}m`}
-                              </span>
-                              <span style={{ background: 'rgba(184,48,48,0.1)', padding: '6px 10px', borderRadius: '8px', fontFamily: FONTS.body, fontSize: '12px', color: COLORS.black }}>
-                                ${paquete.precio} MXN
-                              </span>
-                            </div>
-                            {!isConfirmed ? (
-                              <button
-                                onClick={() => handleConfirmPaquete(paquete)}
-                                style={{
-                                  width: '100%', padding: '12px', background: COLORS.black, color: COLORS.cream,
-                                  border: 'none', borderRadius: '10px', fontFamily: FONTS.body, fontWeight: 600,
-                                  fontSize: '13px', textTransform: 'uppercase', cursor: 'pointer',
-                                }}
-                              >
-                                Seleccionar
-                              </button>
-                            ) : (
-                              <div style={{
-                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                                padding: '12px', background: COLORS.red, color: COLORS.cream, borderRadius: '10px',
-                                fontFamily: FONTS.body, fontWeight: 600, fontSize: '13px',
-                              }}>
-                                <Check size={16} /> Seleccionado
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Indicador de paquete (centro superior) */}
-          {confirmedPaquete && (
-            <div style={{
-              position: 'absolute',
-              top: '16px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              background: COLORS.red,
-              color: COLORS.cream,
-              padding: '10px 20px',
-              borderRadius: '30px',
-              fontFamily: FONTS.body,
-              fontSize: '14px',
-              fontWeight: 600,
-              boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-              zIndex: 50,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-            }}>
-              <Check size={16} />
-              {confirmedPaquete.nombre}
-              <button
-                onClick={() => { setConfirmedPaquete(null); updateFormData({ paquete_id: null }); setRightPanelOpen(true) }}
-                style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', width: '22px', height: '22px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: '4px', color: COLORS.cream }}
-              >
-                ×
-              </button>
-            </div>
-          )}
-        </div>
+      {/* CANVAS */}
+      <div
+        ref={canvasContainerRef}
+        style={{
+          position: 'relative',
+          width: '100%',
+          minHeight: '70vh',
+        }}
+      >
+        {confirmedPaquete ? (
+          <LayoutCanvas
+            paquete={confirmedPaquete}
+            portfolioImages={todasLasObras}
+            initialLayout={formData.layout_canvas_data}
+            onSave={(data, url) => updateFormData({ layout_canvas_data: data, layout_canvas_url: url })}
+            onSaveAndContinue={handleSaveAndContinue}
+            errors={errors}
+            hideGallery={true}
+            hideActions={true}
+            onCanvasReady={handleCanvasReady}
+          />
+        ) : (
+          <CanvasPlaceholder />
+        )}
+      </div>
 
       {/* Modal edición obra */}
       {editingObra && (
@@ -515,6 +626,9 @@ function CanvasPlaceholder() {
 }
 
 function ObraModal({ obra, onSave, onClose }) {
+  const modalRef = useRef(null)
+  const contentRef = useRef(null)
+
   const [form, setForm] = useState({
     titulo: obra.titulo || '',
     ancho_cm: obra.ancho_cm || '',
@@ -524,12 +638,28 @@ function ObraModal({ obra, onSave, onClose }) {
     precio_mxn: obra.precio_mxn || '',
   })
 
+  useLayoutEffect(() => {
+    if (contentRef.current) {
+      gsap.fromTo(contentRef.current,
+        { opacity: 0, scale: 0.9, y: 20 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.3, ease: 'back.out(1.7)' }
+      )
+    }
+  }, [])
+
+  const handleClose = () => {
+    gsap.to(contentRef.current, {
+      opacity: 0, scale: 0.9, y: 20, duration: 0.2,
+      onComplete: onClose
+    })
+  }
+
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
-      <div style={{ background: COLORS.cream, borderRadius: '20px', maxWidth: '480px', width: '100%', maxHeight: '90vh', overflow: 'auto' }}>
+    <div ref={modalRef} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+      <div ref={contentRef} style={{ background: COLORS.cream, borderRadius: '20px', maxWidth: '480px', width: '100%', maxHeight: '90vh', overflow: 'auto' }}>
         <div style={{ padding: '20px 24px', borderBottom: `1px solid ${COLORS.creamDark}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ fontFamily: FONTS.display, fontWeight: 600, fontStyle: 'italic', fontSize: '20px', color: COLORS.black, margin: 0 }}>Datos de la Obra</h3>
-          <button onClick={onClose} style={{ background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer', color: COLORS.gray }}>×</button>
+          <button onClick={handleClose} style={{ background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer', color: COLORS.gray }}>×</button>
         </div>
         <form onSubmit={(e) => { e.preventDefault(); onSave({ ...obra, ...form }) }} style={{ padding: '24px' }}>
           {obra.preview && (
@@ -550,7 +680,7 @@ function ObraModal({ obra, onSave, onClose }) {
             </div>
           </div>
           <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-            <button type="button" onClick={onClose} style={{ flex: 1, padding: '14px', background: 'transparent', border: `2px solid ${COLORS.gray}`, borderRadius: '12px', fontFamily: FONTS.body, fontWeight: 600, color: COLORS.gray, cursor: 'pointer' }}>Cancelar</button>
+            <button type="button" onClick={handleClose} style={{ flex: 1, padding: '14px', background: 'transparent', border: `2px solid ${COLORS.gray}`, borderRadius: '12px', fontFamily: FONTS.body, fontWeight: 600, color: COLORS.gray, cursor: 'pointer' }}>Cancelar</button>
             <button type="submit" style={{ flex: 1, padding: '14px', background: COLORS.red, border: 'none', borderRadius: '12px', fontFamily: FONTS.body, fontWeight: 600, color: COLORS.cream, cursor: 'pointer' }}>Guardar</button>
           </div>
         </form>
