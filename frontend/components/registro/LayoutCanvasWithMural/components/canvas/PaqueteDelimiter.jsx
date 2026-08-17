@@ -15,6 +15,9 @@ export function PaqueteDelimiter({ paquete, areaDelimitada, canvasHeight }) {
 
   const { x: delimiterX, y: delimiterY, width: delimiterWidth, height: delimiterHeight } = areaDelimitada
 
+  // DEBUG: Ver qué área se está dibujando
+  console.log('PaqueteDelimiter areaDelimitada:', areaDelimitada)
+
   return (
     <Group>
       {/* Líneas delimitantes verticales usando el SVG personalizado */}
