@@ -212,9 +212,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
           flex: 1,
           position: 'relative',
           minHeight: '70vh',
-          background: COLORS.cream,
-          borderRadius: '16px',
-          overflow: 'hidden',
+          overflow: 'visible',
         }}>
           {confirmedPaquete ? (
             <LayoutCanvas
