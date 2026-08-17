@@ -756,8 +756,8 @@ function CanvasPlaceholder() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundImage: 'url(/plantilla-mural.svg)',
-      backgroundSize: 'contain',
+      backgroundImage: 'url(/plantilla-base2.svg)',
+      backgroundSize: 'cover',
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',
     }}>
