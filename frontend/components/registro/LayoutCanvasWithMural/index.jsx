@@ -34,6 +34,10 @@ import styles from './styles/LayoutCanvas.module.css'
 /**
  * LayoutCanvasWithMural - Canvas principal con gestión de obras
  * Refactorizado aplicando principios SOLID
+ *
+ * @param {boolean} hideGallery - Oculta la galería de obras (para manejo externo)
+ * @param {boolean} hideActions - Oculta los botones de exportar/guardar (para manejo externo)
+ * @param {Function} onCanvasReady - Callback con funciones de exportar/guardar cuando el canvas está listo
  */
 export default function LayoutCanvasWithMural({
   paquete,
@@ -41,7 +45,10 @@ export default function LayoutCanvasWithMural({
   initialLayout,
   onSave,
   onSaveAndContinue,
-  errors
+  errors,
+  hideGallery = false,
+  hideActions = false,
+  onCanvasReady
 }) {
   // Referencias
   const stageRef = useRef()
@@ -279,6 +286,32 @@ export default function LayoutCanvasWithMural({
     }
   }
 
+  // ========== EXPONER FUNCIONES AL PADRE ==========
+
+  useEffect(() => {
+    if (onCanvasReady && stageRef.current) {
+      onCanvasReady({
+        exportPDF: async () => {
+          if (!stageRef.current) return
+          const dataURL = stageRef.current.toDataURL({
+            x: RULER_SIZE,
+            y: RULER_SIZE,
+            width: canvasWidth,
+            height: canvasHeight,
+            pixelRatio: 1
+          })
+          const link = document.createElement('a')
+          link.href = dataURL
+          link.download = `layout-${paquete?.nombre?.toLowerCase().replace(/ /g, '-') || 'lienzo'}.png`
+          link.click()
+        },
+        saveAndContinue: handleSaveAndContinueLayout,
+        getObrasEnCanvas: () => obrasEnCanvas,
+        isSaving,
+      })
+    }
+  }, [onCanvasReady, stageRef.current, obrasEnCanvas.length, isSaving])
+
   // ========== RENDERIZADO ==========
 
   if (!paquete) {
@@ -291,52 +324,56 @@ export default function LayoutCanvasWithMural({
 
   return (
     <div className={styles.container}>
-      {/* Galería de obras */}
-      <ObrasGallery
-        obras={todasLasObras}
-        obrasEnCanvas={obrasEnCanvas}
-        obrasMaximas={paquete.obras_maximas}
-        onAddNewObra={(e) => handleAddNewObra(e.target.files)}
-        onEditObra={openMetadataForm}
-        onDeleteObra={deleteObra}
-        onDragStart={handleRowDragStart}
-        hasCompleteMetadata={hasCompleteMetadata}
-      />
+      {/* Galería de obras - opcional */}
+      {!hideGallery && (
+        <ObrasGallery
+          obras={todasLasObras}
+          obrasEnCanvas={obrasEnCanvas}
+          obrasMaximas={paquete.obras_maximas}
+          onAddNewObra={(e) => handleAddNewObra(e.target.files)}
+          onEditObra={openMetadataForm}
+          onDeleteObra={deleteObra}
+          onDragStart={handleRowDragStart}
+          hasCompleteMetadata={hasCompleteMetadata}
+        />
+      )}
 
       {/* Canvas */}
       <div className={styles.canvasSection}>
-        {/* Botones de acción */}
-        <div className={styles.canvasActions}>
-          <button
-            type="button"
-            onClick={() => {
-              if (!stageRef.current) return
-              const dataURL = stageRef.current.toDataURL({
-                x: RULER_SIZE,
-                y: RULER_SIZE,
-                width: canvasWidth,
-                height: canvasHeight,
-                pixelRatio: 1
-              })
-              const link = document.createElement('a')
-              link.href = dataURL
-              link.download = `layout-${paquete.nombre.toLowerCase().replace(/ /g, '-')}.png`
-              link.click()
-            }}
-            disabled={obrasEnCanvas.length === 0}
-            className={styles.btnExportarPDF}
-          >
-            Exportar PDF
-          </button>
-          <button
-            type="button"
-            onClick={handleSaveAndContinueLayout}
-            disabled={isSaving || obrasEnCanvas.length === 0}
-            className={styles.btnGuardarContinuar}
-          >
-            {isSaving ? 'Guardando...' : 'Guardar y Continuar Registro'}
-          </button>
-        </div>
+        {/* Botones de acción - opcional */}
+        {!hideActions && (
+          <div className={styles.canvasActions}>
+            <button
+              type="button"
+              onClick={() => {
+                if (!stageRef.current) return
+                const dataURL = stageRef.current.toDataURL({
+                  x: RULER_SIZE,
+                  y: RULER_SIZE,
+                  width: canvasWidth,
+                  height: canvasHeight,
+                  pixelRatio: 1
+                })
+                const link = document.createElement('a')
+                link.href = dataURL
+                link.download = `layout-${paquete.nombre.toLowerCase().replace(/ /g, '-')}.png`
+                link.click()
+              }}
+              disabled={obrasEnCanvas.length === 0}
+              className={styles.btnExportarPDF}
+            >
+              Exportar PDF
+            </button>
+            <button
+              type="button"
+              onClick={handleSaveAndContinueLayout}
+              disabled={isSaving || obrasEnCanvas.length === 0}
+              className={styles.btnGuardarContinuar}
+            >
+              {isSaving ? 'Guardando...' : 'Guardar y Continuar Registro'}
+            </button>
+          </div>
+        )}
 
         {/* Canvas wrapper */}
         <div

@@ -7,7 +7,7 @@ import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
 import * as XLSX from 'xlsx'
-import { Download } from 'lucide-react'
+import { Download, Mail, MessageCircle, Phone, X } from 'lucide-react'
 
 /**
  * ArtistasTable - Tabla de gestión de artistas
@@ -59,6 +59,11 @@ export default function ArtistasTable() {
   const [notasEstado, setNotasEstado] = useState('')
   // Estado para modal de visualización de documentos/imágenes
   const [viewerModal, setViewerModal] = useState({ open: false, url: '', type: '', title: '' })
+  // Estado para modal de obra individual
+  const [obraModal, setObraModal] = useState({ open: false, obra: null })
+  // Estado para modal de mensaje
+  const [mensajeModal, setMensajeModal] = useState({ open: false, artista: null })
+  const [mensajeForm, setMensajeForm] = useState({ asunto: '', mensaje: '' })
 
   // Cargar artistas al montar
   useEffect(() => {
@@ -98,8 +103,84 @@ export default function ArtistasTable() {
     if (lowerUrl.match(/\.(jpg|jpeg|png|webp|gif)/i)) {
       return 'image'
     }
-    // Si no tiene extensión clara, intentar adivinar por el nombre del campo
     return 'unknown'
+  }
+
+  // Auto-armar URLs de redes sociales cuando solo ponen username
+  const formatSocialUrl = (key, value) => {
+    if (!value) return null
+    // Si ya es una URL completa, devolverla
+    if (value.startsWith('http://') || value.startsWith('https://')) {
+      return value
+    }
+    // Limpiar @ al inicio si existe
+    const cleanValue = value.replace(/^@/, '')
+    // Armar URL según la red social
+    switch (key.toLowerCase()) {
+      case 'instagram':
+        return `https://instagram.com/${cleanValue}`
+      case 'twitter':
+      case 'x':
+        return `https://x.com/${cleanValue}`
+      case 'tiktok':
+        return `https://tiktok.com/@${cleanValue}`
+      case 'behance':
+        return `https://behance.net/${cleanValue}`
+      case 'linkedin':
+        return `https://linkedin.com/in/${cleanValue}`
+      default:
+        // Para website/sitio_web, agregar https si no tiene protocolo
+        if (key.includes('web') || key.includes('sitio')) {
+          return value.includes('.') ? `https://${cleanValue}` : value
+        }
+        return value
+    }
+  }
+
+  // Filtrar y normalizar redes sociales (quitar duplicados y Facebook)
+  const getFilteredSocialNetworks = (redes) => {
+    if (!redes) return []
+    const filtered = {}
+    const seen = new Set()
+
+    Object.entries(redes).forEach(([key, value]) => {
+      if (!value) return
+      // Ignorar Facebook (no se pide)
+      if (key.toLowerCase() === 'facebook') return
+      // Normalizar website/sitio_web para evitar duplicados
+      const normalizedKey = key.toLowerCase().includes('sitio') || key.toLowerCase().includes('website')
+        ? 'website'
+        : key.toLowerCase()
+      // Solo agregar si no hemos visto esta red
+      if (!seen.has(normalizedKey)) {
+        seen.add(normalizedKey)
+        filtered[normalizedKey] = formatSocialUrl(normalizedKey, value)
+      }
+    })
+
+    return Object.entries(filtered)
+  }
+
+  // Abrir WhatsApp
+  const handleWhatsApp = (telefono, nombre) => {
+    if (!telefono) return
+    const cleanPhone = telefono.replace(/\D/g, '')
+    const message = encodeURIComponent(`Hola ${nombre}, te contactamos desde ARTEFACTO 2027.`)
+    window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank')
+  }
+
+  // Abrir modal de mensaje
+  const handleOpenMensaje = (artista) => {
+    setMensajeModal({ open: true, artista })
+    setMensajeForm({ asunto: `ARTEFACTO 2027 - ${artista.nombre} ${artista.apellido}`, mensaje: '' })
+  }
+
+  // Enviar email (abre cliente de correo)
+  const handleEnviarEmail = () => {
+    if (!mensajeModal.artista) return
+    const mailto = `mailto:${mensajeModal.artista.email}?subject=${encodeURIComponent(mensajeForm.asunto)}&body=${encodeURIComponent(mensajeForm.mensaje)}`
+    window.open(mailto)
+    setMensajeModal({ open: false, artista: null })
   }
 
   const handleCambiarEstado = (artista) => {
@@ -475,25 +556,47 @@ export default function ArtistasTable() {
               <p className="text-gray-700 text-sm">{selectedArtista.bio}</p>
             </div>
 
-            {/* Redes sociales */}
+            {/* Redes sociales - filtradas y con URLs auto-armadas */}
             {selectedArtista.redes_sociales && Object.keys(selectedArtista.redes_sociales).length > 0 && (
               <div>
                 <h4 className="text-sm font-semibold text-gray-900 mb-2">Redes Sociales</h4>
-                <div className="flex flex-wrap gap-2">
-                  {Object.entries(selectedArtista.redes_sociales).map(([key, value]) => (
+                <div className="flex flex-wrap gap-3">
+                  {getFilteredSocialNetworks(selectedArtista.redes_sociales).map(([key, url]) => (
                     <a
                       key={key}
-                      href={value}
+                      href={url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-blue-600 hover:underline"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700 hover:text-gray-900 transition-colors"
                     >
+                      {key === 'instagram' && <span className="text-pink-500">@</span>}
+                      {key === 'website' && <span className="text-blue-500">🌐</span>}
                       {key.charAt(0).toUpperCase() + key.slice(1)}
                     </a>
                   ))}
                 </div>
               </div>
             )}
+
+            {/* Botones de contacto */}
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => handleOpenMensaje(selectedArtista)}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+              >
+                <Mail size={16} />
+                Enviar Mensaje
+              </button>
+              {selectedArtista.telefono && (
+                <button
+                  onClick={() => handleWhatsApp(selectedArtista.telefono, selectedArtista.nombre)}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                >
+                  <MessageCircle size={16} />
+                  WhatsApp
+                </button>
+              )}
+            </div>
 
             {/* Documentos */}
             <div>
@@ -623,47 +726,31 @@ export default function ArtistasTable() {
               </div>
             )}
 
-            {/* Obras del Lienzo */}
+            {/* Obras del Lienzo - Clickeables */}
             {selectedArtista.layout_canvas_data && selectedArtista.layout_canvas_data.obras && selectedArtista.layout_canvas_data.obras.length > 0 && (
               <div className="bg-green-50 p-4 rounded-lg">
                 <h4 className="text-sm font-semibold text-gray-900 mb-3">
                   Obras para Exhibición ({selectedArtista.layout_canvas_data.obras.length})
                 </h4>
-                <div className="space-y-3">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {selectedArtista.layout_canvas_data.obras.map((obra, index) => (
-                    <div key={index} className="bg-white p-3 rounded-lg border border-gray-200">
-                      <div className="flex items-start gap-3">
-                        {obra.preview && (
+                    <div
+                      key={index}
+                      onClick={() => setObraModal({ open: true, obra })}
+                      className="bg-white p-3 rounded-lg border border-gray-200 hover:border-green-400 hover:shadow-md transition-all cursor-pointer group"
+                    >
+                      {obra.preview && (
+                        <div className="aspect-square rounded-lg overflow-hidden mb-2 bg-gray-100">
                           <img
                             src={obra.preview}
                             alt={obra.titulo}
-                            className="w-16 h-16 rounded object-cover"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                           />
-                        )}
-                        <div className="flex-1">
-                          <p className="font-medium text-gray-900">{obra.titulo || `Obra ${index + 1}`}</p>
-                          <div className="grid grid-cols-2 gap-2 mt-2 text-xs text-gray-600">
-                            <div>
-                              <span className="text-gray-500">Dimensiones:</span> {obra.ancho_cm} × {obra.alto_cm} cm
-                            </div>
-                            <div>
-                              <span className="text-gray-500">Técnica:</span> {obra.tecnica}
-                            </div>
-                            <div>
-                              <span className="text-gray-500">Año:</span> {obra.anio}
-                            </div>
-                            <div>
-                              <span className="text-gray-500">Precio:</span> ${obra.precio_mxn?.toLocaleString('es-MX')} MXN
-                            </div>
-                          </div>
-                          {obra.notas_montaje && (
-                            <div className="mt-2 text-xs">
-                              <span className="text-gray-500">Notas de montaje:</span>
-                              <p className="text-gray-700 italic">{obra.notas_montaje}</p>
-                            </div>
-                          )}
                         </div>
-                      </div>
+                      )}
+                      <p className="font-medium text-gray-900 text-sm truncate">{obra.titulo || `Obra ${index + 1}`}</p>
+                      <p className="text-xs text-gray-500">{obra.ancho_cm} × {obra.alto_cm} cm</p>
+                      <p className="text-xs text-green-600 font-medium mt-1">${obra.precio_mxn?.toLocaleString('es-MX')} MXN</p>
                     </div>
                   ))}
                 </div>
@@ -847,6 +934,148 @@ export default function ArtistasTable() {
                   />
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Obra Individual - Foto grande + Ficha técnica */}
+      {obraModal.open && obraModal.obra && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4"
+          onClick={() => setObraModal({ open: false, obra: null })}
+        >
+          <div
+            className="relative max-w-4xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Botón cerrar */}
+            <button
+              onClick={() => setObraModal({ open: false, obra: null })}
+              className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="flex flex-col md:flex-row">
+              {/* Imagen grande */}
+              <div className="md:w-2/3 bg-gray-900 flex items-center justify-center p-4">
+                {obraModal.obra.preview && (
+                  <img
+                    src={obraModal.obra.preview}
+                    alt={obraModal.obra.titulo}
+                    className="max-w-full max-h-[70vh] object-contain"
+                  />
+                )}
+              </div>
+
+              {/* Ficha técnica */}
+              <div className="md:w-1/3 p-6 bg-white">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">
+                  {obraModal.obra.titulo || 'Sin título'}
+                </h3>
+
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-xs text-gray-500 uppercase tracking-wide">Dimensiones</span>
+                      <p className="font-medium text-gray-900">{obraModal.obra.ancho_cm} × {obraModal.obra.alto_cm} cm</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500 uppercase tracking-wide">Año</span>
+                      <p className="font-medium text-gray-900">{obraModal.obra.anio || '-'}</p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-xs text-gray-500 uppercase tracking-wide">Técnica</span>
+                    <p className="font-medium text-gray-900">{obraModal.obra.tecnica || '-'}</p>
+                  </div>
+
+                  <div className="pt-4 border-t">
+                    <span className="text-xs text-gray-500 uppercase tracking-wide">Precio</span>
+                    <p className="text-2xl font-bold text-green-600">
+                      ${obraModal.obra.precio_mxn?.toLocaleString('es-MX')} MXN
+                    </p>
+                  </div>
+
+                  {obraModal.obra.notas_montaje && (
+                    <div className="pt-4 border-t">
+                      <span className="text-xs text-gray-500 uppercase tracking-wide">Notas de montaje</span>
+                      <p className="text-sm text-gray-700 mt-1 italic">{obraModal.obra.notas_montaje}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Mensaje al Artista */}
+      {mensajeModal.open && mensajeModal.artista && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4"
+          onClick={() => setMensajeModal({ open: false, artista: null })}
+        >
+          <div
+            className="relative max-w-lg w-full bg-white rounded-2xl overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b bg-gray-50">
+              <div>
+                <h3 className="font-semibold text-gray-900">Enviar mensaje</h3>
+                <p className="text-sm text-gray-500">a {mensajeModal.artista.nombre} {mensajeModal.artista.apellido}</p>
+              </div>
+              <button
+                onClick={() => setMensajeModal({ open: false, artista: null })}
+                className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Contenido */}
+            <div className="p-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Asunto</label>
+                <input
+                  type="text"
+                  value={mensajeForm.asunto}
+                  onChange={(e) => setMensajeForm(prev => ({ ...prev, asunto: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Mensaje</label>
+                <textarea
+                  value={mensajeForm.mensaje}
+                  onChange={(e) => setMensajeForm(prev => ({ ...prev, mensaje: e.target.value }))}
+                  rows={6}
+                  placeholder="Escribe tu mensaje aquí..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-between p-4 border-t bg-gray-50">
+              <button
+                onClick={() => handleWhatsApp(mensajeModal.artista.telefono, mensajeModal.artista.nombre)}
+                disabled={!mensajeModal.artista.telefono}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
+                <MessageCircle size={18} />
+                WhatsApp
+              </button>
+              <button
+                onClick={handleEnviarEmail}
+                className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                <Mail size={18} />
+                Enviar Email
+              </button>
             </div>
           </div>
         </div>

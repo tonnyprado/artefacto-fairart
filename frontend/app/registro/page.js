@@ -830,7 +830,7 @@ export default function RegistroPage() {
         background: COLORS.cream,
         padding: '80px 24px 60px',
       }}>
-        <div style={{ maxWidth: currentStep === 4 ? 1950 : 900, margin: '0 auto', transition: 'max-width 0.3s ease' }}>
+        <div style={{ maxWidth: currentStep === 2 ? 1950 : 900, margin: '0 auto', transition: 'max-width 0.3s ease' }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 48 }}>
           <button
