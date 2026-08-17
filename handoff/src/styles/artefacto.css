@@ -1,0 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,900;1,400;1,500;1,600;1,900&display=swap');
+
+/* Base de la sección Conocer Más */
+html,
+body {
+  margin: 0;
+  background: #f4ede4;
+  color: #2d1515;
+}
+
+::selection {
+  background: #b93232;
+  color: #f4ede4;
+}
+
+a {
+  color: #b93232;
+  text-decoration: none;
+}
+a:hover {
+  color: #2d1515;
+}

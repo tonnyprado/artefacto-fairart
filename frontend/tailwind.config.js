@@ -27,6 +27,8 @@ module.exports = {
         azulclaro: '#7fa3ea',
         gris: '#eaeaea',
         rosa: '#ddd3d3',
+        crema: '#F4EDE4',
+        tinta: '#2D1515',
       },
       fontFamily: {
         sans: ['var(--font-inter-tight)', 'Inter Tight', 'system-ui', 'sans-serif'],
