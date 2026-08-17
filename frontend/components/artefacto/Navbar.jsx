@@ -10,10 +10,13 @@ import { useTextScrambleMultiple } from './useTextScramble';
   Props: screen (sección actual), onOpenMenu.
   La navegación real la maneja el click delegado de LandingArtefacto (anchors #...).
 */
+// Secciones con fondo rojo (donde los iconos deben ser blancos/cream)
+const SECCIONES_FONDO_ROJO = ['convocatoria'];
+
 export default function Navbar({ screen, onOpenMenu }) {
-  const rojo = screen === 'contacto';
-  const suf = rojo ? 'white' : 'red';
-  const labelCol = rojo ? COLORS.cream : COLORS.black;
+  const fondoRojo = SECCIONES_FONDO_ROJO.includes(screen);
+  const suf = fondoRojo ? 'white' : 'red';
+  const labelCol = fondoRojo ? COLORS.cream : COLORS.black;
   const logoRef = useRef(null);
   const [logoVisible, setLogoVisible] = useState(false);
 
@@ -66,7 +69,7 @@ export default function Navbar({ screen, onOpenMenu }) {
         height: '100%',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
-        backgroundColor: rojo ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
+        backgroundColor: fondoRojo ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
         zIndex: 1,
         pointerEvents: 'none'
       }} />
@@ -93,7 +96,7 @@ export default function Navbar({ screen, onOpenMenu }) {
               display: logoVisible ? 'block' : 'none',
             }}
           >
-            <img src={rojo ? '/assets/wordmark-cream.svg' : '/assets/wordmark-black.svg'} alt="ARTEFACTO" style={{ height: 36, display: 'block' }} />
+            <img src={fondoRojo ? '/assets/wordmark-cream.svg' : '/assets/wordmark-black.svg'} alt="ARTEFACTO" style={{ height: 36, display: 'block' }} />
           </a>
         </div>
         <div style={{ display: 'flex', gap: 26, justifyContent: 'flex-end' }}>{right.map((n, i) => item(n, i + left.length))}</div>
@@ -119,7 +122,7 @@ export default function Navbar({ screen, onOpenMenu }) {
           onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
           onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
         >
-          <img src={rojo ? '/assets/star-cream.svg' : '/assets/star-black.svg'} alt="" style={{ width: 50, height: 50, display: 'block' }} />
+          <img src={fondoRojo ? '/assets/star-cream.svg' : '/assets/star-black.svg'} alt="" style={{ width: 50, height: 50, display: 'block' }} />
         </button>
       </div>
     </nav>
