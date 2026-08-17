@@ -78,8 +78,10 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
 
   const handleCanvasReady = (functions) => {
     canvasFunctionsRef.current = functions
+    const obrasEnCanvas = functions.getObrasEnCanvas?.() || []
     setCanvasState({
-      obrasCount: functions.getObrasEnCanvas?.()?.length || 0,
+      obrasCount: obrasEnCanvas.length,
+      obrasEnCanvas: obrasEnCanvas,
       isSaving: functions.isSaving
     })
   }
@@ -97,6 +99,13 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
   }
 
   const hasCompleteMetadata = (obra) => obra.titulo && obra.ancho_cm && obra.alto_cm && obra.tecnica && obra.precio_mxn
+
+  // Handler para iniciar drag de obra
+  const handleObraDragStart = (e, obra) => {
+    if (canvasFunctionsRef.current?.handleRowDragStart) {
+      canvasFunctionsRef.current.handleRowDragStart(e, obra)
+    }
+  }
 
   return (
     <div style={{ position: 'relative', minHeight: '75vh' }}>
@@ -154,67 +163,90 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
         </button>
       </div>
 
-      {/* CANVAS - Siempre visible al 100% */}
-      <div style={{
-        position: 'relative',
-        width: '100%',
-        minHeight: '70vh',
-        background: COLORS.cream,
-        borderRadius: '16px',
-        overflow: 'hidden',
-      }}>
-        {confirmedPaquete ? (
-          <LayoutCanvas
-            paquete={confirmedPaquete}
-            portfolioImages={todasLasObras}
-            initialLayout={formData.layout_canvas_data}
-            onSave={(data, url) => updateFormData({ layout_canvas_data: data, layout_canvas_url: url })}
-            onSaveAndContinue={handleSaveAndContinue}
-            errors={errors}
-            hideGallery={true}
-            hideActions={true}
-            onCanvasReady={handleCanvasReady}
-          />
-        ) : (
-          <CanvasPlaceholder />
-        )}
+      {/* CONTENEDOR PRINCIPAL - Con botones a los lados */}
+      <div style={{ display: 'flex', alignItems: 'stretch', gap: '0' }}>
 
-        {/* SIDEBAR IZQUIERDO - MIS OBRAS (flota SOBRE el canvas) */}
+        {/* BOTÓN IZQUIERDO - Fuera del canvas */}
         <div style={{
-          position: 'absolute',
-          top: '16px',
-          left: '16px',
-          bottom: '16px',
           display: 'flex',
-          zIndex: 100,
-          pointerEvents: 'auto',
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
+          paddingTop: '16px',
+          paddingRight: '8px',
         }}>
           <button
             onClick={() => setLeftPanelOpen(!leftPanelOpen)}
             style={{
               width: '44px',
+              height: '120px',
               background: COLORS.black,
               border: 'none',
-              borderRadius: leftPanelOpen ? '0 12px 12px 0' : '12px',
+              borderRadius: '12px 0 0 12px',
               cursor: 'pointer',
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
+              gap: '8px',
               boxShadow: '2px 0 12px rgba(0,0,0,0.2)',
             }}
           >
             {leftPanelOpen ? <ChevronLeft size={22} color={COLORS.cream} /> : <ChevronRight size={22} color={COLORS.cream} />}
+            <span style={{
+              writingMode: 'vertical-rl',
+              textOrientation: 'mixed',
+              transform: 'rotate(180deg)',
+              fontFamily: FONTS.body,
+              fontSize: '11px',
+              fontWeight: 600,
+              color: COLORS.cream,
+              letterSpacing: '0.5px',
+            }}>
+              OBRAS
+            </span>
           </button>
+        </div>
 
+        {/* CANVAS - Siempre visible al 100% */}
+        <div style={{
+          flex: 1,
+          position: 'relative',
+          minHeight: '70vh',
+          background: COLORS.cream,
+          borderRadius: '16px',
+          overflow: 'hidden',
+        }}>
+          {confirmedPaquete ? (
+            <LayoutCanvas
+              paquete={confirmedPaquete}
+              portfolioImages={todasLasObras}
+              initialLayout={formData.layout_canvas_data}
+              onSave={(data, url) => updateFormData({ layout_canvas_data: data, layout_canvas_url: url })}
+              onSaveAndContinue={handleSaveAndContinue}
+              errors={errors}
+              hideGallery={true}
+              hideActions={true}
+              onCanvasReady={handleCanvasReady}
+            />
+          ) : (
+            <CanvasPlaceholder />
+          )}
+
+          {/* PANEL IZQUIERDO - MIS OBRAS (flota SOBRE el canvas cuando está abierto) */}
           {leftPanelOpen && (
             <div style={{
+              position: 'absolute',
+              top: '16px',
+              left: '16px',
+              bottom: '16px',
               width: '300px',
               background: COLORS.cream,
-              borderRadius: '12px 0 0 12px',
+              borderRadius: '12px',
               boxShadow: '4px 0 24px rgba(0,0,0,0.2)',
               display: 'flex',
               flexDirection: 'column',
               overflow: 'hidden',
+              zIndex: 100,
             }}>
               <div style={{ padding: '16px', borderBottom: `1px solid ${COLORS.creamDark}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h3 style={{ margin: 0, fontFamily: FONTS.display, fontWeight: 600, fontStyle: 'italic', fontSize: '18px', color: COLORS.black }}>
@@ -241,18 +273,23 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
                 )}
 
                 {todasLasObras.map((obra) => {
-                  const isInCanvas = (formData.obras_lienzo || []).some(o => o.id === obra.id)
+                  const isInCanvas = canvasState.obrasEnCanvas?.some(o => o.id === obra.id) || (formData.obras_lienzo || []).some(o => o.id === obra.id)
                   const hasMetadata = hasCompleteMetadata(obra)
                   const canDrag = confirmedPaquete && hasMetadata && !isInCanvas
 
                   return (
-                    <div key={obra.id} draggable={canDrag} style={{
-                      display: 'flex', alignItems: 'center', gap: '10px', padding: '10px',
-                      background: isInCanvas ? 'rgba(184,48,48,0.08)' : 'white',
-                      border: `1px solid ${isInCanvas ? COLORS.red : COLORS.creamDark}`,
-                      borderRadius: '10px', marginBottom: '8px',
-                      cursor: canDrag ? 'grab' : 'default', opacity: isInCanvas ? 0.6 : 1,
-                    }}>
+                    <div
+                      key={obra.id}
+                      draggable={canDrag}
+                      onDragStart={(e) => canDrag && handleObraDragStart(e, obra)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '10px', padding: '10px',
+                        background: isInCanvas ? 'rgba(184,48,48,0.08)' : 'white',
+                        border: `1px solid ${isInCanvas ? COLORS.red : COLORS.creamDark}`,
+                        borderRadius: '10px', marginBottom: '8px',
+                        cursor: canDrag ? 'grab' : 'default', opacity: isInCanvas ? 0.6 : 1,
+                      }}
+                    >
                       {canDrag && <GripVertical size={16} color={COLORS.gray} />}
                       <div style={{ width: '44px', height: '44px', borderRadius: '6px', overflow: 'hidden', background: COLORS.creamDark, flexShrink: 0 }}>
                         {obra.preview && <img src={obra.preview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
@@ -289,45 +326,22 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
               </div>
             </div>
           )}
-        </div>
 
-        {/* SIDEBAR DERECHO - PAQUETES (flota SOBRE el canvas) */}
-        <div style={{
-          position: 'absolute',
-          top: '16px',
-          right: '16px',
-          bottom: '16px',
-          display: 'flex',
-          flexDirection: 'row-reverse',
-          zIndex: 100,
-          pointerEvents: 'auto',
-        }}>
-          <button
-            onClick={() => setRightPanelOpen(!rightPanelOpen)}
-            style={{
-              width: '44px',
-              background: COLORS.black,
-              border: 'none',
-              borderRadius: rightPanelOpen ? '12px 0 0 12px' : '12px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '-2px 0 12px rgba(0,0,0,0.2)',
-            }}
-          >
-            {rightPanelOpen ? <ChevronRight size={22} color={COLORS.cream} /> : <ChevronLeft size={22} color={COLORS.cream} />}
-          </button>
-
+          {/* PANEL DERECHO - PAQUETES (flota SOBRE el canvas cuando está abierto) */}
           {rightPanelOpen && (
             <div style={{
+              position: 'absolute',
+              top: '16px',
+              right: '16px',
+              bottom: '16px',
               width: '320px',
               background: COLORS.cream,
-              borderRadius: '0 12px 12px 0',
+              borderRadius: '12px',
               boxShadow: '-4px 0 24px rgba(0,0,0,0.2)',
               display: 'flex',
               flexDirection: 'column',
               overflow: 'hidden',
+              zIndex: 100,
             }}>
               <div style={{ padding: '16px', borderBottom: `1px solid ${COLORS.creamDark}` }}>
                 <h3 style={{ margin: 0, fontFamily: FONTS.display, fontWeight: 600, fontStyle: 'italic', fontSize: '18px', color: COLORS.black }}>
@@ -416,38 +430,78 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
               </div>
             </div>
           )}
+
+          {/* Indicador de paquete (centro superior) */}
+          {confirmedPaquete && (
+            <div style={{
+              position: 'absolute',
+              top: '16px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              background: COLORS.red,
+              color: COLORS.cream,
+              padding: '10px 20px',
+              borderRadius: '30px',
+              fontFamily: FONTS.body,
+              fontSize: '14px',
+              fontWeight: 600,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+              zIndex: 50,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}>
+              <Check size={16} />
+              {confirmedPaquete.nombre}
+              <button
+                onClick={() => { setConfirmedPaquete(null); updateFormData({ paquete_id: null }); setRightPanelOpen(true) }}
+                style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', width: '22px', height: '22px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: '4px', color: COLORS.cream }}
+              >
+                ×
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Indicador de paquete (centro superior) */}
-        {confirmedPaquete && (
-          <div style={{
-            position: 'absolute',
-            top: '16px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            background: COLORS.red,
-            color: COLORS.cream,
-            padding: '10px 20px',
-            borderRadius: '30px',
-            fontFamily: FONTS.body,
-            fontSize: '14px',
-            fontWeight: 600,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-            zIndex: 50,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-          }}>
-            <Check size={16} />
-            {confirmedPaquete.nombre}
-            <button
-              onClick={() => { setConfirmedPaquete(null); updateFormData({ paquete_id: null }); setRightPanelOpen(true) }}
-              style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', width: '22px', height: '22px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: '4px', color: COLORS.cream }}
-            >
-              ×
-            </button>
-          </div>
-        )}
+        {/* BOTÓN DERECHO - Fuera del canvas */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
+          paddingTop: '16px',
+          paddingLeft: '8px',
+        }}>
+          <button
+            onClick={() => setRightPanelOpen(!rightPanelOpen)}
+            style={{
+              width: '44px',
+              height: '120px',
+              background: COLORS.black,
+              border: 'none',
+              borderRadius: '0 12px 12px 0',
+              cursor: 'pointer',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              boxShadow: '-2px 0 12px rgba(0,0,0,0.2)',
+            }}
+          >
+            {rightPanelOpen ? <ChevronRight size={22} color={COLORS.cream} /> : <ChevronLeft size={22} color={COLORS.cream} />}
+            <span style={{
+              writingMode: 'vertical-rl',
+              textOrientation: 'mixed',
+              fontFamily: FONTS.body,
+              fontSize: '11px',
+              fontWeight: 600,
+              color: COLORS.cream,
+              letterSpacing: '0.5px',
+            }}>
+              PAQUETES
+            </span>
+          </button>
+        </div>
       </div>
 
       {/* Modal edición obra */}

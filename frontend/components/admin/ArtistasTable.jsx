@@ -740,16 +740,28 @@ export default function ArtistasTable() {
                       className="bg-white p-3 rounded-lg border border-gray-200 hover:border-green-400 hover:shadow-md transition-all cursor-pointer group"
                     >
                       {obra.preview && (
-                        <div className="aspect-square rounded-lg overflow-hidden mb-2 bg-gray-100">
+                        <div className="aspect-square rounded-lg overflow-hidden mb-2 bg-gray-100 relative">
                           <img
                             src={obra.preview}
                             alt={obra.titulo}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                           />
+                          {obra.tipo_obra && (
+                            <span className={`absolute top-1 right-1 px-1.5 py-0.5 text-[10px] font-semibold rounded ${
+                              obra.tipo_obra === '3D' ? 'bg-purple-600 text-white' : 'bg-blue-600 text-white'
+                            }`}>
+                              {obra.tipo_obra}
+                            </span>
+                          )}
                         </div>
                       )}
                       <p className="font-medium text-gray-900 text-sm truncate">{obra.titulo || `Obra ${index + 1}`}</p>
-                      <p className="text-xs text-gray-500">{obra.ancho_cm} × {obra.alto_cm} cm</p>
+                      <p className="text-xs text-gray-500">
+                        {obra.ancho_cm} × {obra.alto_cm}{obra.largo_cm ? ` × ${obra.largo_cm}` : ''} cm
+                      </p>
+                      {obra.tecnica && (
+                        <p className="text-xs text-gray-400 truncate">{obra.tecnica}</p>
+                      )}
                       <p className="text-xs text-green-600 font-medium mt-1">${obra.precio_mxn?.toLocaleString('es-MX')} MXN</p>
                     </div>
                   ))}
@@ -971,15 +983,29 @@ export default function ArtistasTable() {
 
               {/* Ficha técnica */}
               <div className="md:w-1/3 p-6 bg-white">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">
-                  {obraModal.obra.titulo || 'Sin título'}
-                </h3>
+                <div className="flex items-start justify-between mb-4">
+                  <h3 className="text-xl font-bold text-gray-900">
+                    {obraModal.obra.titulo || 'Sin título'}
+                  </h3>
+                  {obraModal.obra.tipo_obra && (
+                    <span className={`px-2 py-1 text-xs font-semibold rounded ${
+                      obraModal.obra.tipo_obra === '3D'
+                        ? 'bg-purple-100 text-purple-700'
+                        : 'bg-blue-100 text-blue-700'
+                    }`}>
+                      {obraModal.obra.tipo_obra}
+                    </span>
+                  )}
+                </div>
 
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <span className="text-xs text-gray-500 uppercase tracking-wide">Dimensiones</span>
-                      <p className="font-medium text-gray-900">{obraModal.obra.ancho_cm} × {obraModal.obra.alto_cm} cm</p>
+                      <p className="font-medium text-gray-900">
+                        {obraModal.obra.ancho_cm} × {obraModal.obra.alto_cm}
+                        {obraModal.obra.largo_cm ? ` × ${obraModal.obra.largo_cm}` : ''} cm
+                      </p>
                     </div>
                     <div>
                       <span className="text-xs text-gray-500 uppercase tracking-wide">Año</span>

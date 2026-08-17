@@ -308,6 +308,9 @@ export default function LayoutCanvasWithMural({
         saveAndContinue: handleSaveAndContinueLayout,
         getObrasEnCanvas: () => obrasEnCanvas,
         isSaving,
+        // Exponer funciones de drag para uso externo
+        handleRowDragStart,
+        getObraDimensions,
       })
     }
   }, [onCanvasReady, stageRef.current, obrasEnCanvas.length, isSaving])
