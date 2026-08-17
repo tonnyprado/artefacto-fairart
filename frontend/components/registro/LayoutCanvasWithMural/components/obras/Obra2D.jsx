@@ -61,12 +61,14 @@ export function Obra2D({
   }
 
   const handleDragEnd = (e) => {
+    const finalX = e.target.x()
+    const finalY = e.target.y()
     const finalCollision = isColliding
     resetCollision()
     onDragMove && onDragMove(null, null, null, null, null, false)
-    // IMPORTANTE: Usar lastValidPos siempre para respetar los límites del dragBoundFunc
-    // e.target.x() y e.target.y() pueden estar fuera de los límites
-    onDragEnd(obra.id, lastValidPos.x, lastValidPos.y, finalCollision, lastValidPos)
+    // Usar la posición actual del elemento (ya validada por dragBoundFunc)
+    // Esta es la misma posición que muestra el cuadro guía
+    onDragEnd(obra.id, finalX, finalY, finalCollision, { x: finalX, y: finalY })
   }
 
   const handleSelect = () => {
