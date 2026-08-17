@@ -28,6 +28,21 @@ const FONTS = {
   body: 'acumin-pro, sans-serif',
 }
 
+// Categorías artísticas
+const CATEGORIAS = [
+  { value: 'pintura', label: 'Pintura', tipo: '2D' },
+  { value: 'escultura', label: 'Escultura', tipo: '3D' },
+  { value: 'fotografia', label: 'Fotografía', tipo: '2D' },
+  { value: 'ilustracion', label: 'Ilustración', tipo: '2D' },
+  { value: 'arte_digital', label: 'Arte Digital', tipo: '2D' },
+  { value: 'grabado', label: 'Grabado', tipo: '2D' },
+  { value: 'instalacion', label: 'Instalación', tipo: '3D' },
+  { value: 'ceramica', label: 'Cerámica', tipo: '3D' },
+  { value: 'arte_textil', label: 'Arte Textil', tipo: '2D' },
+  { value: 'arte_mixto', label: 'Arte Mixto', tipo: '2D' },
+  { value: 'otro', label: 'Otro', tipo: '2D' },
+]
+
 export default function Step5Paquetes({ formData, updateFormData, errors, onContinue }) {
   const [confirmedPaquete, setConfirmedPaquete] = useState(
     formData.paquete_id ? { id: formData.paquete_id } : null
@@ -55,6 +70,11 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
   // Modal de instrucciones
   const [showInstructions, setShowInstructions] = useState(true)
   const instructionsRef = useRef(null)
+
+  // Disciplina artística seleccionada
+  const [selectedCategoria, setSelectedCategoria] = useState(formData.categoria || '')
+  const categoriaSeleccionada = CATEGORIAS.find(c => c.value === selectedCategoria)
+  const esArtista3D = categoriaSeleccionada?.tipo === '3D'
 
   useEffect(() => { fetchPaquetes() }, [])
 
@@ -108,8 +128,17 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
     }
   }, [confirmedPaquete?.id])
 
-  const esArtista3D = formData.categoria === 'escultura'
   const paquetesFiltrados = paquetes.filter(p => esArtista3D ? p.tipo === '3D' : p.tipo === '2D')
+
+  const handleCategoriaChange = (value) => {
+    setSelectedCategoria(value)
+    updateFormData({ categoria: value })
+    // Reset paquete si cambia la categoría
+    if (confirmedPaquete) {
+      setConfirmedPaquete(null)
+      updateFormData({ paquete_id: null })
+    }
+  }
 
   const handleConfirmPaquete = (paquete) => {
     // Animación de salida del panel
@@ -187,7 +216,13 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
     if (newObras.length > 0) setEditingObra(newObras[0])
   }
 
-  const hasCompleteMetadata = (obra) => obra.titulo && obra.ancho_cm && obra.alto_cm && obra.tecnica && obra.precio_mxn
+  const hasCompleteMetadata = (obra) => {
+    const baseFields = obra.titulo && obra.ancho_cm && obra.alto_cm && obra.tecnica && obra.precio_mxn
+    if (esArtista3D) {
+      return baseFields && obra.largo_cm
+    }
+    return baseFields
+  }
 
   const handleObraDragStart = (e, obra) => {
     if (canvasFunctionsRef.current?.handleRowDragStart) {
@@ -198,7 +233,102 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
   return (
     <div style={{ position: 'relative', minHeight: '75vh' }}>
 
-      {/* BARRA SUPERIOR */}
+      {/* SELECTOR DE DISCIPLINA ARTÍSTICA */}
+      <div style={{
+        background: COLORS.cream,
+        borderRadius: '16px',
+        padding: '20px 24px',
+        marginBottom: '20px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '20px',
+        flexWrap: 'wrap',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Palette size={24} color={COLORS.red} />
+          <span style={{
+            fontFamily: FONTS.display,
+            fontWeight: 600,
+            fontStyle: 'italic',
+            fontSize: '16px',
+            color: COLORS.black,
+          }}>
+            Disciplina Artística:
+          </span>
+        </div>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', flex: 1 }}>
+          {CATEGORIAS.map((cat) => (
+            <button
+              key={cat.value}
+              onClick={() => handleCategoriaChange(cat.value)}
+              style={{
+                padding: '8px 16px',
+                background: selectedCategoria === cat.value ? COLORS.red : 'white',
+                color: selectedCategoria === cat.value ? COLORS.cream : COLORS.black,
+                border: `2px solid ${selectedCategoria === cat.value ? COLORS.red : COLORS.creamDark}`,
+                borderRadius: '20px',
+                fontFamily: FONTS.body,
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              {cat.label}
+              {cat.tipo === '3D' && (
+                <span style={{
+                  fontSize: '10px',
+                  background: selectedCategoria === cat.value ? 'rgba(255,255,255,0.2)' : 'rgba(184,48,48,0.1)',
+                  padding: '2px 6px',
+                  borderRadius: '10px',
+                  color: selectedCategoria === cat.value ? COLORS.cream : COLORS.red,
+                }}>
+                  3D
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Mensaje si no hay categoría seleccionada */}
+      {!selectedCategoria && (
+        <div style={{
+          background: 'rgba(184,48,48,0.05)',
+          border: `2px dashed ${COLORS.red}`,
+          borderRadius: '16px',
+          padding: '48px',
+          textAlign: 'center',
+          marginBottom: '20px',
+        }}>
+          <AlertCircle size={48} color={COLORS.red} style={{ marginBottom: '16px' }} />
+          <h3 style={{
+            fontFamily: FONTS.display,
+            fontWeight: 600,
+            fontStyle: 'italic',
+            fontSize: '22px',
+            color: COLORS.black,
+            margin: '0 0 8px',
+          }}>
+            Selecciona tu Disciplina Artística
+          </h3>
+          <p style={{
+            fontFamily: FONTS.body,
+            fontSize: '15px',
+            color: COLORS.gray,
+            margin: 0,
+          }}>
+            Para mostrarte los paquetes y el lienzo correcto para tu tipo de obra
+          </p>
+        </div>
+      )}
+
+      {/* BARRA SUPERIOR - Solo visible si hay categoría */}
+      {selectedCategoria && (
+      <>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -578,11 +708,14 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
           <CanvasPlaceholder />
         )}
       </div>
+      </>
+      )}
 
       {/* Modal edición obra */}
       {editingObra && (
         <ObraModal
           obra={editingObra}
+          es3D={esArtista3D}
           onSave={(updated) => { setTodasLasObras(prev => prev.map(o => o.id === updated.id ? updated : o)); setEditingObra(null) }}
           onClose={() => setEditingObra(null)}
         />
@@ -646,7 +779,7 @@ function CanvasPlaceholder() {
   )
 }
 
-function ObraModal({ obra, onSave, onClose }) {
+function ObraModal({ obra, es3D, onSave, onClose }) {
   const modalRef = useRef(null)
   const contentRef = useRef(null)
 
@@ -654,9 +787,11 @@ function ObraModal({ obra, onSave, onClose }) {
     titulo: obra.titulo || '',
     ancho_cm: obra.ancho_cm || '',
     alto_cm: obra.alto_cm || '',
+    largo_cm: obra.largo_cm || '',
     tecnica: obra.tecnica || '',
     anio: obra.anio || new Date().getFullYear(),
     precio_mxn: obra.precio_mxn || '',
+    notas_montaje: obra.notas_montaje || '',
   })
 
   useLayoutEffect(() => {
@@ -677,27 +812,89 @@ function ObraModal({ obra, onSave, onClose }) {
 
   return (
     <div ref={modalRef} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
-      <div ref={contentRef} style={{ background: COLORS.cream, borderRadius: '20px', maxWidth: '480px', width: '100%', maxHeight: '90vh', overflow: 'auto' }}>
+      <div ref={contentRef} style={{ background: COLORS.cream, borderRadius: '20px', maxWidth: '520px', width: '100%', maxHeight: '90vh', overflow: 'auto' }}>
         <div style={{ padding: '20px 24px', borderBottom: `1px solid ${COLORS.creamDark}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ fontFamily: FONTS.display, fontWeight: 600, fontStyle: 'italic', fontSize: '20px', color: COLORS.black, margin: 0 }}>Datos de la Obra</h3>
+          <div>
+            <h3 style={{ fontFamily: FONTS.display, fontWeight: 600, fontStyle: 'italic', fontSize: '20px', color: COLORS.black, margin: 0 }}>Datos de la Obra</h3>
+            {es3D && (
+              <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.red, fontWeight: 600 }}>Obra 3D</span>
+            )}
+          </div>
           <button onClick={handleClose} style={{ background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer', color: COLORS.gray }}>×</button>
         </div>
         <form onSubmit={(e) => { e.preventDefault(); onSave({ ...obra, ...form }) }} style={{ padding: '24px' }}>
           {obra.preview && (
-            <div style={{ width: '100%', height: '140px', borderRadius: '12px', overflow: 'hidden', marginBottom: '20px' }}>
+            <div style={{ width: '100%', height: '160px', borderRadius: '12px', overflow: 'hidden', marginBottom: '20px' }}>
               <img src={obra.preview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
           )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <Field label="Título *" value={form.titulo} onChange={(e) => setForm(p => ({ ...p, titulo: e.target.value }))} required />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+
+            {/* Dimensiones */}
+            <div style={{ display: 'grid', gridTemplateColumns: es3D ? '1fr 1fr 1fr' : '1fr 1fr', gap: '12px' }}>
               <Field label="Ancho (cm) *" type="number" value={form.ancho_cm} onChange={(e) => setForm(p => ({ ...p, ancho_cm: e.target.value }))} required />
               <Field label="Alto (cm) *" type="number" value={form.alto_cm} onChange={(e) => setForm(p => ({ ...p, alto_cm: e.target.value }))} required />
+              {es3D && (
+                <Field label="Largo (cm) *" type="number" value={form.largo_cm} onChange={(e) => setForm(p => ({ ...p, largo_cm: e.target.value }))} required />
+              )}
             </div>
+
             <Field label="Técnica *" value={form.tecnica} onChange={(e) => setForm(p => ({ ...p, tecnica: e.target.value }))} required />
+
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <Field label="Año" type="number" value={form.anio} onChange={(e) => setForm(p => ({ ...p, anio: e.target.value }))} />
-              <Field label="Precio MXN *" type="number" value={form.precio_mxn} onChange={(e) => setForm(p => ({ ...p, precio_mxn: e.target.value }))} required />
+              <div>
+                <label style={{ display: 'block', fontFamily: FONTS.body, fontSize: '13px', fontWeight: 600, color: COLORS.black, marginBottom: '6px' }}>Precio MXN *</label>
+                <div style={{ position: 'relative' }}>
+                  <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', fontFamily: FONTS.body, fontSize: '14px', color: COLORS.gray }}>$</span>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={form.precio_mxn}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/[^0-9.]/g, '')
+                      setForm(p => ({ ...p, precio_mxn: value }))
+                    }}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '12px 14px 12px 28px',
+                      border: `1px solid ${COLORS.creamDark}`,
+                      borderRadius: '10px',
+                      fontFamily: FONTS.body,
+                      fontSize: '14px',
+                      background: 'white',
+                      color: COLORS.black,
+                      outline: 'none',
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Notas complementarias */}
+            <div>
+              <label style={{ display: 'block', fontFamily: FONTS.body, fontSize: '13px', fontWeight: 600, color: COLORS.black, marginBottom: '6px' }}>Notas complementarias</label>
+              <textarea
+                value={form.notas_montaje}
+                onChange={(e) => setForm(p => ({ ...p, notas_montaje: e.target.value }))}
+                placeholder="Instrucciones de montaje, cuidados especiales, etc."
+                rows={3}
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: `1px solid ${COLORS.creamDark}`,
+                  borderRadius: '10px',
+                  fontFamily: FONTS.body,
+                  fontSize: '14px',
+                  background: 'white',
+                  color: COLORS.black,
+                  outline: 'none',
+                  resize: 'vertical',
+                  minHeight: '80px',
+                }}
+              />
             </div>
           </div>
           <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>

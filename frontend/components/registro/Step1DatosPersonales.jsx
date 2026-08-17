@@ -17,7 +17,8 @@ import { Info, Palette } from 'lucide-react'
  *   - pais VARCHAR(100)
  *   - ciudad VARCHAR(100)
  *   - direccion TEXT
- *   - categoria VARCHAR(100) NOT NULL -- Disciplina artística (movido de Step2)
+ *
+ * Nota: La categoría/disciplina artística se selecciona en Step5 (Tu Lienzo)
  */
 
 export default function Step1DatosPersonales({ formData, updateFormData, errors }) {
@@ -38,23 +39,6 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
     { value: 'PE', label: 'Perú' },
     { value: 'BR', label: 'Brasil' },
     { value: 'OTHER', label: 'Otro' },
-  ]
-
-  // Categorías artísticas (movido desde Step2InfoArtistica)
-  const categorias = [
-    { value: 'pintura', label: 'Pintura' },
-    { value: 'escultura', label: 'Escultura' },
-    { value: 'fotografia', label: 'Fotografía' },
-    { value: 'ilustracion', label: 'Ilustración' },
-    { value: 'arte_digital', label: 'Arte Digital' },
-    { value: 'grabado', label: 'Grabado' },
-    { value: 'instalacion', label: 'Instalación' },
-    { value: 'performance', label: 'Performance' },
-    { value: 'video_arte', label: 'Video Arte' },
-    { value: 'arte_textil', label: 'Arte Textil' },
-    { value: 'ceramica', label: 'Cerámica' },
-    { value: 'arte_mixto', label: 'Arte Mixto' },
-    { value: 'otro', label: 'Otro' },
   ]
 
   return (
@@ -212,18 +196,6 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
         error={errors?.ciudad}
         required
         placeholder="Ciudad de México"
-      />
-
-      {/* Disciplina Artística Principal - Movido desde Step2 */}
-      <Select
-        label="Disciplina Artística Principal"
-        name="categoria"
-        value={formData.categoria || ''}
-        onChange={handleChange}
-        error={errors?.categoria}
-        required
-        options={categorias}
-        placeholder="Selecciona tu disciplina"
       />
 
       <div style={{
