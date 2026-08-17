@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect, useRef, useLayoutEffect } from 'react'
+import { useState, useEffect, useRef, useLayoutEffect, forwardRef } from 'react'
 import dynamic from 'next/dynamic'
 import { usePaquetesStore } from '@/stores/paquetesStore'
-import { ChevronDown, ChevronUp, Check, Plus, Edit2, Trash2, GripVertical, AlertCircle, Palette, Box, Download, ArrowRight, X } from 'lucide-react'
+import { ChevronDown, ChevronUp, Check, Plus, Edit2, Trash2, GripVertical, AlertCircle, Palette, Box, Download, ArrowRight, X, Sparkles, MousePointer2, Move, Save } from 'lucide-react'
 import gsap from 'gsap'
 
 const LayoutCanvas = dynamic(() => import('./LayoutCanvasWithMural'), {
@@ -51,6 +51,10 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
   // Obras
   const [todasLasObras, setTodasLasObras] = useState([])
   const [editingObra, setEditingObra] = useState(null)
+
+  // Modal de instrucciones
+  const [showInstructions, setShowInstructions] = useState(true)
+  const instructionsRef = useRef(null)
 
   useEffect(() => { fetchPaquetes() }, [])
 
@@ -589,6 +593,23 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
           {errors.paquete_id}
         </p>
       )}
+
+      {/* Modal de instrucciones */}
+      {showInstructions && (
+        <InstructionsModal
+          ref={instructionsRef}
+          onClose={() => {
+            if (instructionsRef.current) {
+              gsap.to(instructionsRef.current, {
+                opacity: 0, scale: 0.9, duration: 0.3,
+                onComplete: () => setShowInstructions(false)
+              })
+            } else {
+              setShowInstructions(false)
+            }
+          }}
+        />
+      )}
     </div>
   )
 }
@@ -700,3 +721,205 @@ function Field({ label, value, onChange, type = 'text', required }) {
     </div>
   )
 }
+
+const InstructionsModal = forwardRef(function InstructionsModal({ onClose }, ref) {
+  const contentRef = useRef(null)
+
+  useLayoutEffect(() => {
+    if (contentRef.current) {
+      gsap.fromTo(contentRef.current,
+        { opacity: 0, scale: 0.85, y: 30 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: 'back.out(1.4)' }
+      )
+    }
+  }, [])
+
+  const steps = [
+    {
+      icon: Box,
+      title: '1. Elige tu Paquete',
+      description: 'Haz clic en "Paquetes" y selecciona el espacio que mejor se adapte a tus obras.'
+    },
+    {
+      icon: Plus,
+      title: '2. Sube tus Obras',
+      description: 'Abre "Mis Obras" y agrega las imágenes de las piezas que quieres exhibir.'
+    },
+    {
+      icon: Edit2,
+      title: '3. Completa la Info',
+      description: 'Cada obra necesita título, medidas, técnica y precio para poder colocarla.'
+    },
+    {
+      icon: Move,
+      title: '4. Arrastra al Lienzo',
+      description: 'Arrastra tus obras desde el panel hacia el lienzo y acomódalas como prefieras.'
+    },
+    {
+      icon: Save,
+      title: '5. Guarda tu Layout',
+      description: 'Cuando estés satisfecho, haz clic en "Guardar y Continuar" para seguir con tu registro.'
+    }
+  ]
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(0,0,0,0.85)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 2000,
+        padding: '20px',
+        backdropFilter: 'blur(4px)',
+      }}
+    >
+      <div
+        ref={(el) => {
+          contentRef.current = el
+          if (ref) ref.current = el
+        }}
+        style={{
+          background: `linear-gradient(145deg, ${COLORS.cream} 0%, #fff 100%)`,
+          borderRadius: '24px',
+          maxWidth: '580px',
+          width: '100%',
+          maxHeight: '90vh',
+          overflow: 'auto',
+          boxShadow: '0 25px 80px rgba(0,0,0,0.4)',
+        }}
+      >
+        {/* Header */}
+        <div style={{
+          padding: '28px 32px 20px',
+          textAlign: 'center',
+          borderBottom: `1px solid ${COLORS.creamDark}`,
+        }}>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '56px',
+            height: '56px',
+            background: COLORS.red,
+            borderRadius: '16px',
+            marginBottom: '16px',
+          }}>
+            <Sparkles size={28} color={COLORS.cream} />
+          </div>
+          <h2 style={{
+            fontFamily: FONTS.display,
+            fontWeight: 600,
+            fontStyle: 'italic',
+            fontSize: '28px',
+            color: COLORS.black,
+            margin: '0 0 8px',
+          }}>
+            ¡Bienvenido a Tu Lienzo!
+          </h2>
+          <p style={{
+            fontFamily: FONTS.body,
+            fontSize: '15px',
+            color: COLORS.gray,
+            margin: 0,
+            lineHeight: 1.5,
+          }}>
+            Aquí diseñarás cómo se verán tus obras en la exposición
+          </p>
+        </div>
+
+        {/* Steps */}
+        <div style={{ padding: '24px 32px' }}>
+          {steps.map((step, index) => {
+            const Icon = step.icon
+            return (
+              <div
+                key={index}
+                style={{
+                  display: 'flex',
+                  gap: '16px',
+                  alignItems: 'flex-start',
+                  padding: '16px 0',
+                  borderBottom: index < steps.length - 1 ? `1px solid ${COLORS.creamDark}` : 'none',
+                }}
+              >
+                <div style={{
+                  width: '40px',
+                  height: '40px',
+                  background: index === 0 ? COLORS.red : 'rgba(184,48,48,0.1)',
+                  borderRadius: '10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}>
+                  <Icon size={20} color={index === 0 ? COLORS.cream : COLORS.red} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <h4 style={{
+                    fontFamily: FONTS.body,
+                    fontWeight: 700,
+                    fontSize: '14px',
+                    color: COLORS.black,
+                    margin: '0 0 4px',
+                  }}>
+                    {step.title}
+                  </h4>
+                  <p style={{
+                    fontFamily: FONTS.body,
+                    fontSize: '13px',
+                    color: COLORS.gray,
+                    margin: 0,
+                    lineHeight: 1.5,
+                  }}>
+                    {step.description}
+                  </p>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Footer */}
+        <div style={{
+          padding: '20px 32px 28px',
+          borderTop: `1px solid ${COLORS.creamDark}`,
+        }}>
+          <button
+            onClick={onClose}
+            style={{
+              width: '100%',
+              padding: '16px 24px',
+              background: COLORS.black,
+              border: 'none',
+              borderRadius: '14px',
+              color: COLORS.cream,
+              fontFamily: FONTS.body,
+              fontWeight: 700,
+              fontSize: '15px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.25)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'none'
+            }}
+          >
+            <MousePointer2 size={18} />
+            ¡Entendido, empezar!
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+})
