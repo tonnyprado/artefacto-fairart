@@ -25,55 +25,6 @@ export function PaqueteDelimiter({ paquete, areaDelimitada, canvasWidth, canvasH
       {/* Línea derecha - posicionada en el borde derecho del área */}
       <LineaDelimitante x={delimiterX + delimiterWidth} height={canvasHeight} />
 
-      {/* Rectángulo del área válida - MUY VISIBLE con borde grueso amarillo */}
-      <Rect
-        x={delimiterX}
-        y={delimiterY}
-        width={delimiterWidth}
-        height={delimiterHeight}
-        stroke="#FFD700"
-        strokeWidth={6}
-        listening={false}
-      />
-
-      {/* Texto en las esquinas para indicar el límite */}
-      <Text
-        x={delimiterX + 5}
-        y={delimiterY + 5}
-        text="LÍMITE"
-        fontSize={14}
-        fontStyle="bold"
-        fill="#FFD700"
-        listening={false}
-      />
-      <Text
-        x={delimiterX + delimiterWidth - 55}
-        y={delimiterY + 5}
-        text="LÍMITE"
-        fontSize={14}
-        fontStyle="bold"
-        fill="#FFD700"
-        listening={false}
-      />
-      <Text
-        x={delimiterX + 5}
-        y={delimiterY + delimiterHeight - 20}
-        text="LÍMITE"
-        fontSize={14}
-        fontStyle="bold"
-        fill="#FFD700"
-        listening={false}
-      />
-      <Text
-        x={delimiterX + delimiterWidth - 55}
-        y={delimiterY + delimiterHeight - 20}
-        text="LÍMITE"
-        fontSize={14}
-        fontStyle="bold"
-        fill="#FFD700"
-        listening={false}
-      />
-
       {/* Etiqueta con las medidas */}
       <Group>
         <Rect
@@ -101,40 +52,6 @@ export function PaqueteDelimiter({ paquete, areaDelimitada, canvasWidth, canvasH
           listening={false}
         />
       </Group>
-
-      {/* Esquinas para referencia visual */}
-      <Text
-        x={delimiterX - 15}
-        y={delimiterY - 15}
-        text="┌"
-        fontSize={20}
-        fill="rgba(255, 255, 255, 0.5)"
-        listening={false}
-      />
-      <Text
-        x={delimiterX + delimiterWidth - 5}
-        y={delimiterY - 15}
-        text="┐"
-        fontSize={20}
-        fill="rgba(255, 255, 255, 0.5)"
-        listening={false}
-      />
-      <Text
-        x={delimiterX - 15}
-        y={delimiterY + delimiterHeight - 5}
-        text="└"
-        fontSize={20}
-        fill="rgba(255, 255, 255, 0.5)"
-        listening={false}
-      />
-      <Text
-        x={delimiterX + delimiterWidth - 5}
-        y={delimiterY + delimiterHeight - 5}
-        text="┘"
-        fontSize={20}
-        fill="rgba(255, 255, 255, 0.5)"
-        listening={false}
-      />
     </Group>
   )
 }
