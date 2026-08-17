@@ -81,29 +81,39 @@ export default function SectionWaveTransition({
       // Kill any existing animations
       gsap.killTweensOf([container, wave, contentWrapper]);
 
-      // Expandir a fullscreen
+      // Expandir a fullscreen y centrar el título
       const tl = gsap.timeline({
         onComplete: () => {
           onFullscreenComplete?.();
         }
       });
 
-      // Ocultar hint, expandir wave, escalar título
+      // Ocultar hint y expandir wave mientras movemos el contenido al centro
       tl.to(contentWrapper.querySelector('.hint'), {
         opacity: 0,
-        duration: 0.15,
+        duration: 0.12,
         ease: 'power2.in',
       })
       .to(wave, {
         height: '100vh',
-        duration: 0.55,
+        duration: 0.5,
         ease: 'power2.inOut',
-      }, '-=0.1')
-      .to(contentWrapper.querySelector('.title'), {
-        scale: 1.3,
+      }, '-=0.08')
+      // Mover el contenido al centro de la pantalla
+      .to(contentWrapper, {
+        top: '50%',
+        bottom: 'auto',
+        y: '-50%',
+        height: 'auto',
         duration: 0.4,
         ease: 'power2.out',
-      }, '-=0.35');
+      }, '-=0.4')
+      // Escalar el título
+      .to(contentWrapper.querySelector('.title'), {
+        scale: 1.2,
+        duration: 0.3,
+        ease: 'power2.out',
+      }, '-=0.25');
 
     } else if (phase === null && container.style.display !== 'none') {
       // Ocultar
@@ -113,20 +123,27 @@ export default function SectionWaveTransition({
 
       tl.to(contentWrapper, {
         opacity: 0,
-        duration: 0.12,
+        duration: 0.1,
         ease: 'power2.in',
       })
       .to(wave, {
         height: '0px',
-        duration: 0.2,
+        duration: 0.15,
         ease: 'power3.in',
         onComplete: () => {
           gsap.set(container, { display: 'none' });
-          // Reset
+          // Reset posición y escala
           const title = contentWrapper.querySelector('.title');
           if (title) gsap.set(title, { scale: 1 });
+          gsap.set(contentWrapper, {
+            top: 'auto',
+            bottom: 0,
+            y: 0,
+            height: '200px',
+            opacity: 1
+          });
         },
-      }, '-=0.08');
+      }, '-=0.05');
     }
   }, [phase, direction, targetSection, targetColor, onFullscreenComplete]);
 

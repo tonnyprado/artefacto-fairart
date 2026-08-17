@@ -100,7 +100,7 @@ export default function LandingArtefacto() {
 
   // Callback cuando el fullscreen termina de animarse
   const handleFullscreenComplete = () => {
-    // Esperar 1.5 segundos mostrando el fullscreen
+    // Esperar 0.6 segundos mostrando el fullscreen centrado
     setTimeout(() => {
       // Navegar a la siguiente sección SIN transición
       const targetId = ORDER[waveState.targetIndex];
@@ -142,7 +142,7 @@ export default function LandingArtefacto() {
       });
       waveBlocking.current = false;
       lastScrollTime.current = Date.now();
-    }, 1500);
+    }, 600);
   };
 
   // Ocultar preview de wave
