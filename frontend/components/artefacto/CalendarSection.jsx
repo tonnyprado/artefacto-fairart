@@ -292,31 +292,38 @@ export default function CalendarSection({ isActive = true }) {
 
   const currentEvent = calendarEvents[currentEventIndex]
 
+  // Verificar si el día está seleccionado (es el evento actual)
+  const isSelected = (day) => {
+    return currentEvent.day === day &&
+           currentEvent.month === currentMonth.name &&
+           currentEvent.year === currentMonth.year
+  }
+
   return (
-    <section id="calendario" className="pt-20 pb-8 bg-[#E8DED0] min-h-screen flex items-center">
+    <section id="calendario" className="pt-16 pb-8 bg-[#E8DED0] min-h-screen flex items-center">
       <div className="container mx-auto px-4">
         {/* Main Content: Calendar + Event Display */}
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
 
-          {/* LEFT: Calendar */}
-          <div className="bg-white p-8 shadow-lg" style={{ borderRadius: '24px' }}>
+          {/* LEFT: Calendar - Sin card, flotante */}
+          <div className="p-4">
             {/* Month Header */}
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between mb-6">
               <button
                 onClick={() => setSelectedMonth(Math.max(0, selectedMonth - 1))}
                 disabled={selectedMonth === 0}
-                className="p-2 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors rounded-full"
+                className="p-2 hover:bg-black/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors rounded-full"
               >
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
 
               <div className="text-center">
-                <h3 className="text-4xl font-bold text-[#2B5F9E] uppercase tracking-wider">
+                <h3 className="text-3xl font-bold text-[#141210] uppercase tracking-wider">
                   {currentMonth.name}
                 </h3>
-                <p className="text-6xl font-bold text-[#2B5F9E] mt-2">
+                <p className="text-5xl font-bold text-[#141210] mt-1">
                   {currentMonth.year}
                 </p>
               </div>
@@ -324,44 +331,44 @@ export default function CalendarSection({ isActive = true }) {
               <button
                 onClick={() => setSelectedMonth(Math.min(months.length - 1, selectedMonth + 1))}
                 disabled={selectedMonth === months.length - 1}
-                className="p-2 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors rounded-full"
+                className="p-2 hover:bg-black/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors rounded-full"
               >
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
             </div>
 
-            {/* Days of Week Header */}
-            <div className="grid grid-cols-7 gap-3 mb-4">
-              {['D', 'L', 'M', 'M', 'J', 'V', 'S'].map((day, i) => (
-                <div
-                  key={i}
-                  className="aspect-square bg-[#2B5F9E] rounded-full flex items-center justify-center"
-                >
-                  <span className="text-white font-bold text-lg">{day}</span>
-                </div>
-              ))}
+            {/* Days of Week Header - Card lineal */}
+            <div className="bg-[#141210] rounded-full px-4 py-2 mb-4">
+              <div className="grid grid-cols-7 gap-2">
+                {['D', 'L', 'M', 'M', 'J', 'V', 'S'].map((day, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-center"
+                  >
+                    <span className="text-[#f4ede4] font-bold text-sm">{day}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* Calendar Grid - Full Month */}
-            <div className="grid grid-cols-7 gap-3">
+            {/* Calendar Grid - Números flotantes, solo círculo en seleccionado */}
+            <div className="grid grid-cols-7 gap-2">
               {days.map((day, index) => (
                 <button
                   key={index}
                   onClick={() => handleDayClick(day)}
                   disabled={!day}
                   className={`
-                    aspect-square rounded-full flex items-center justify-center text-xl font-bold
+                    aspect-square flex items-center justify-center text-base font-bold
                     transition-all duration-300
                     ${!day ? 'invisible' : ''}
-                    ${hasEvent(day)
-                      ? 'bg-[#2B5F9E] text-white hover:bg-[#1e4570] cursor-pointer scale-105'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer'
-                    }
-                    ${currentEvent.day === day && currentEvent.month === currentMonth.name && currentEvent.year === currentMonth.year
-                      ? 'ring-4 ring-red-500 ring-offset-2 ring-offset-white'
-                      : ''
+                    ${isSelected(day)
+                      ? 'bg-[#b83030] text-white rounded-full'
+                      : hasEvent(day)
+                        ? 'text-[#b83030] hover:bg-black/10 rounded-full cursor-pointer font-extrabold'
+                        : 'text-[#141210] hover:bg-black/5 rounded-full cursor-pointer'
                     }
                   `}
                 >
@@ -372,32 +379,32 @@ export default function CalendarSection({ isActive = true }) {
           </div>
 
           {/* RIGHT: Event Display */}
-          <div className="bg-white p-8 shadow-lg relative flex flex-col" style={{ borderRadius: '24px' }}>
+          <div className="bg-white/80 backdrop-blur-sm p-6 shadow-lg relative flex flex-col" style={{ borderRadius: '20px' }}>
             {/* Event Card */}
             <div className="flex-1 flex flex-col justify-center">
-              <div className="border-t-4 border-black pt-4 mb-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="text-7xl font-bold text-red-600 leading-none">
+              <div className="border-t-4 border-[#141210] pt-4 mb-4">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="text-6xl font-bold text-[#b83030] leading-none">
                     {String(currentEvent.day).padStart(2, '0')}
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold">{currentEvent.time}</div>
+                    <div className="text-xl font-bold">{currentEvent.time}</div>
                     <div className="text-xs text-gray-500 uppercase tracking-wider mt-1">
                       {currentEvent.month} {currentEvent.year}
                     </div>
                   </div>
                 </div>
 
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">
                   {currentEvent.title}
                 </h3>
 
-                <p className="text-gray-600 text-base leading-relaxed mb-4">
+                <p className="text-gray-600 text-sm leading-relaxed mb-3">
                   {currentEvent.description}
                 </p>
 
                 {/* Type Badge */}
-                <div className="inline-block px-4 py-1.5 bg-gray-900 text-white text-xs font-semibold uppercase tracking-wider">
+                <div className="inline-block px-3 py-1 bg-[#141210] text-white text-xs font-semibold uppercase tracking-wider rounded-full">
                   {currentEvent.type === 'milestone' && 'Hito Importante'}
                   {currentEvent.type === 'phase' && 'Fase de Inscripción'}
                   {currentEvent.type === 'voting' && 'Votación'}
@@ -408,12 +415,12 @@ export default function CalendarSection({ isActive = true }) {
               </div>
 
               {/* Progress Indicator */}
-              <div className="flex items-center gap-1 mb-6">
+              <div className="flex items-center gap-1 mb-4">
                 {calendarEvents.map((_, index) => (
                   <div
                     key={index}
-                    className={`h-1 flex-1 transition-all ${
-                      index === currentEventIndex ? 'bg-[#2B5F9E]' : 'bg-gray-300'
+                    className={`h-1 flex-1 rounded-full transition-all ${
+                      index === currentEventIndex ? 'bg-[#b83030]' : 'bg-gray-300'
                     }`}
                   />
                 ))}
@@ -421,28 +428,28 @@ export default function CalendarSection({ isActive = true }) {
             </div>
 
             {/* Controls */}
-            <div className="flex items-center justify-center gap-4 pt-4 border-t-2 border-gray-900">
+            <div className="flex items-center justify-center gap-3 pt-3 border-t border-gray-200">
               <button
                 onClick={handlePrevEvent}
-                className="p-2 hover:bg-white/50 transition-colors rounded-full"
+                className="p-2 hover:bg-gray-100 transition-colors rounded-full"
                 aria-label="Evento anterior"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
 
               <button
                 onClick={() => setIsPlaying(!isPlaying)}
-                className="p-3 bg-[#2B5F9E] hover:bg-[#1e4570] text-white transition-colors rounded-full"
+                className="p-2 bg-[#b83030] hover:bg-[#9a2828] text-white transition-colors rounded-full"
                 aria-label={isPlaying ? 'Pausar' : 'Reproducir'}
               >
                 {isPlaying ? (
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
                   </svg>
                 ) : (
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z" />
                   </svg>
                 )}
@@ -450,16 +457,16 @@ export default function CalendarSection({ isActive = true }) {
 
               <button
                 onClick={handleNextEvent}
-                className="p-2 hover:bg-white/50 transition-colors rounded-full"
+                className="p-2 hover:bg-gray-100 transition-colors rounded-full"
                 aria-label="Evento siguiente"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
             </div>
 
-            <div className="text-center mt-4 text-xs text-gray-600 font-semibold">
+            <div className="text-center mt-3 text-xs text-gray-500 font-medium">
               Evento {currentEventIndex + 1} de {calendarEvents.length}
             </div>
           </div>
