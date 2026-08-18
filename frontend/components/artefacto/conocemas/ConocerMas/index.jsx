@@ -225,7 +225,9 @@ export default function ConocerMas() {
         setTrackY(-Math.min(s * PHOTO_SPEED, maxTy));
       }
 
-      // 2) Empuje entre subtemas - SOLO cuando están en posición sticky
+      // 2) Empuje entre subtemas
+      // Los labels usan position:sticky, así que naturalmente se "pegan" debajo del logo.
+      // Solo necesitamos manejar el empuje cuando el siguiente label llega.
       let maskBottom;
       try {
         maskBottom = mask ? mask.getBoundingClientRect().bottom : NAVBAR_HEIGHT + 150;
@@ -239,68 +241,47 @@ export default function ConocerMas() {
         const lab = labels[i];
         if (!lab) continue;
 
-        let labTop;
+        const labH = lab.offsetHeight || 50;
+
+        // Obtener posición del siguiente label (si existe)
+        const nextLab = labels[i + 1];
+        if (!nextLab) {
+          // Último label - siempre visible, sin transformaciones
+          lab.style.transform = '';
+          lab.style.opacity = '1';
+          continue;
+        }
+
+        let nextTop;
         try {
-          labTop = lab.getBoundingClientRect().top;
+          nextTop = nextLab.getBoundingClientRect().top;
         } catch (e) {
           continue;
         }
 
-        const labH = lab.offsetHeight || 50;
+        // Calcular qué tan cerca está el siguiente label de la posición sticky
+        const distanceToSticky = nextTop - stickyTop;
 
-        // Verificar si este label está en posición sticky (pegado arriba)
-        // Un label está sticky si su top está cerca del stickyTop
-        const isSticky = Math.abs(labTop - stickyTop) < 5;
+        // Si el siguiente label aún no ha llegado a la zona de empuje, no hacer nada
+        if (distanceToSticky > labH) {
+          lab.style.transform = '';
+          lab.style.opacity = '1';
+          continue;
+        }
 
-        if (i < labels.length - 1) {
-          const nextLab = labels[i + 1];
-          if (!nextLab) continue;
-
-          let nextTop;
-          try {
-            nextTop = nextLab.getBoundingClientRect().top;
-          } catch (e) {
-            continue;
-          }
-
-          // Solo aplicar empuje si el label actual está en posición sticky
-          // y el siguiente label se está acercando
-          if (isSticky) {
-            const distanceToNext = nextTop - stickyTop;
-
-            if (distanceToNext < labH * 1.5 && distanceToNext > 0) {
-              // El siguiente label se está acercando - empujar hacia arriba
-              const pushProgress = Math.max(0, Math.min(1, 1 - (distanceToNext / (labH * 1.5))));
-              const maxPush = labH + 10;
-              const push = pushProgress * maxPush;
-              lab.style.transform = `translateY(${-push}px)`;
-              lab.style.opacity = String(1 - pushProgress);
-            } else if (distanceToNext <= 0) {
-              // El siguiente label ya llegó - ocultar completamente
-              lab.style.transform = `translateY(${-(labH + 10)}px)`;
-              lab.style.opacity = '0';
-            } else {
-              // No hay empuje necesario
-              lab.style.transform = '';
-              lab.style.opacity = '1';
-            }
-          } else if (labTop < stickyTop - labH) {
-            // El label ya pasó por arriba - ocultar
-            lab.style.transform = '';
-            lab.style.opacity = '0';
-          } else {
-            // El label está en el flujo normal - no tocar
-            lab.style.transform = '';
-            lab.style.opacity = '1';
-          }
+        // El siguiente label está entrando en la zona de empuje
+        // Empujar el label actual hacia arriba proporcionalmente
+        if (distanceToSticky > 0) {
+          // El siguiente label se está acercando
+          const pushProgress = 1 - (distanceToSticky / labH);
+          const push = pushProgress * labH;
+          lab.style.transform = `translateY(${-push}px)`;
+          lab.style.opacity = String(Math.max(0, 1 - pushProgress));
         } else {
-          // Último label - solo manejar visibilidad
-          if (labTop < stickyTop - labH) {
-            lab.style.opacity = '0';
-          } else {
-            lab.style.transform = '';
-            lab.style.opacity = '1';
-          }
+          // El siguiente label ya llegó a la posición sticky
+          // El label actual debe estar completamente arriba y oculto
+          lab.style.transform = `translateY(${-labH}px)`;
+          lab.style.opacity = '0';
         }
       }
 
