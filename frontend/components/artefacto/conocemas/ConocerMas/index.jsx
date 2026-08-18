@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import gsap from 'gsap';
 import { SUBTEMAS, HERO, CIERRE, INTRO, LOGO, PHOTOS } from './content';
 import { cls } from './classes';
@@ -13,8 +13,16 @@ import SubtemaSection from './SubtemaSection';
 const PHOTO_SPEED = 1.6;
 const NAVBAR_HEIGHT = 80;
 const DESKTOP_BREAKPOINT = 1024;
-const MOBILE_LOGO_FINAL_TOP = 16; // Posición final del logo (alineado con navbar)
-const MOBILE_STICKY_TOP = 10; // Los sticky titles quedan justo debajo del navbar
+const MOBILE_LOGO_FINAL_TOP = 16;
+const MOBILE_STICKY_TOP = 10;
+
+// Helper para obtener scroll position de forma compatible
+const getScrollY = () => {
+  return window.scrollY ?? window.pageYOffset ?? document.documentElement.scrollTop ?? 0;
+};
+
+// Helper para verificar si estamos en el cliente
+const isClient = typeof window !== 'undefined';
 
 /**
  * ConocerMas - Sección principal "CONOCE MÁS"
@@ -23,7 +31,9 @@ const MOBILE_STICKY_TOP = 10; // Los sticky titles quedan justo debajo del navba
  * MÓVIL (<1024px): Layout de 1 columna con animaciones de empuje adaptadas
  */
 export default function ConocerMas() {
-  const [isDesktop, setIsDesktop] = useState(true);
+  // Inicializar como null para evitar flash de contenido incorrecto
+  const [isDesktop, setIsDesktop] = useState(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   // Refs Desktop
   const trackRef = useRef(null);
@@ -40,33 +50,46 @@ export default function ConocerMas() {
   const mobileLabelRefs = useRef([]);
   const mobileContentRef = useRef(null);
 
-  // Detectar si es desktop o móvil
+  // Detectar si es desktop o móvil - con manejo robusto de SSR
   useEffect(() => {
+    if (!isClient) return;
+
     const checkDesktop = () => {
-      setIsDesktop(window.innerWidth >= DESKTOP_BREAKPOINT);
+      const width = window.innerWidth || document.documentElement.clientWidth || 0;
+      setIsDesktop(width >= DESKTOP_BREAKPOINT);
     };
+
+    // Marcar como montado y detectar tamaño inicial
+    setIsMounted(true);
     checkDesktop();
+
     window.addEventListener('resize', checkDesktop);
-    return () => window.removeEventListener('resize', checkDesktop);
+    // Algunos navegadores necesitan un pequeño delay para reportar el tamaño correcto
+    const initialCheck = setTimeout(checkDesktop, 100);
+
+    return () => {
+      window.removeEventListener('resize', checkDesktop);
+      clearTimeout(initialCheck);
+    };
   }, []);
 
   // ========== ANIMACIONES MÓVIL ==========
   useEffect(() => {
-    if (isDesktop) return;
+    if (!isMounted || isDesktop === null || isDesktop) return;
 
     const headerBg = mobileHeaderBgRef.current;
     const logoBlock = mobileLogoRef.current;
     const labels = mobileLabelRefs.current.filter(Boolean);
-    const contentArea = mobileContentRef.current;
 
     if (!headerBg || !logoBlock || labels.length === 0) return;
 
     // Posición inicial del logo (centro del hero)
-    const heroHeight = window.innerHeight * 0.75;
-    const logoInitialTop = (heroHeight / 2) - 40; // Centrado verticalmente en el hero
+    const vh = window.innerHeight || document.documentElement.clientHeight || 800;
+    const heroHeight = vh * 0.75;
+    const logoInitialTop = (heroHeight / 2) - 40;
 
     const frame = () => {
-      const scrollY = window.scrollY;
+      const scrollY = getScrollY();
       const stickyTop = NAVBAR_HEIGHT + MOBILE_STICKY_TOP;
 
       // Calcular progreso del logo basado en scroll
@@ -124,13 +147,32 @@ export default function ConocerMas() {
       }
     };
 
-    gsap.ticker.add(frame);
-    return () => gsap.ticker.remove(frame);
-  }, [isDesktop]);
+    // Usar GSAP ticker si está disponible, sino requestAnimationFrame
+    let rafId = null;
+    const useRaf = !gsap?.ticker;
+
+    if (useRaf) {
+      const loop = () => {
+        frame();
+        rafId = requestAnimationFrame(loop);
+      };
+      rafId = requestAnimationFrame(loop);
+    } else {
+      gsap.ticker.add(frame);
+    }
+
+    return () => {
+      if (useRaf && rafId) {
+        cancelAnimationFrame(rafId);
+      } else if (gsap?.ticker) {
+        gsap.ticker.remove(frame);
+      }
+    };
+  }, [isMounted, isDesktop]);
 
   // ========== ANIMACIONES DESKTOP ==========
   useEffect(() => {
-    if (!isDesktop) return;
+    if (!isMounted || isDesktop === null || !isDesktop) return;
 
     const track = trackRef.current;
     const rail = track?.parentElement;
@@ -141,27 +183,41 @@ export default function ConocerMas() {
     let introTop = null;
     let pinned = false;
 
-    const setTrackY = gsap.quickSetter(track, 'y', 'px');
+    // Usar quickSetter si está disponible, sino función directa
+    const setTrackY = track && gsap?.quickSetter
+      ? gsap.quickSetter(track, 'y', 'px')
+      : (val) => { if (track) track.style.transform = `translateY(${val}px)`; };
 
     const measure = () => {
       if (!flow) return;
-      introTop = flow.getBoundingClientRect().top + window.scrollY;
-      if (pinned) placePin();
+      try {
+        introTop = flow.getBoundingClientRect().top + getScrollY();
+        if (pinned) placePin();
+      } catch (e) {
+        console.warn('ConocerMas: Error measuring intro position');
+      }
     };
 
     const placePin = () => {
       if (!flow || !pin) return;
-      const r = flow.getBoundingClientRect();
-      if (r.width > 100) {
-        pin.style.left = r.left + 'px';
-        pin.style.width = r.width + 'px';
+      try {
+        const r = flow.getBoundingClientRect();
+        if (r.width > 100) {
+          pin.style.left = r.left + 'px';
+          pin.style.width = r.width + 'px';
+        }
+      } catch (e) {
+        console.warn('ConocerMas: Error placing pin');
       }
     };
 
     const frame = () => {
-      const s = window.scrollY;
-      const vh = window.innerHeight;
+      const s = getScrollY();
+      const vh = window.innerHeight || document.documentElement.clientHeight || 800;
       const labels = labelRefs.current.filter(Boolean);
+
+      // Verificar que tenemos elementos válidos
+      if (!labels.length) return;
 
       // 1) Carril de fotos
       if (track && rail) {
@@ -170,16 +226,31 @@ export default function ConocerMas() {
       }
 
       // 2) Empuje entre subtemas
-      const maskBottom = mask ? mask.getBoundingClientRect().bottom : NAVBAR_HEIGHT + 150;
+      let maskBottom;
+      try {
+        maskBottom = mask ? mask.getBoundingClientRect().bottom : NAVBAR_HEIGHT + 150;
+      } catch (e) {
+        maskBottom = NAVBAR_HEIGHT + 150;
+      }
 
       for (let i = 0; i < labels.length; i++) {
         const lab = labels[i];
-        const labH = lab.offsetHeight;
+        if (!lab) continue;
+
+        const labH = lab.offsetHeight || 50;
         const stickyTop = maskBottom + 6;
 
         if (i < labels.length - 1) {
           const nextLab = labels[i + 1];
-          const nextTop = nextLab.getBoundingClientRect().top;
+          if (!nextLab) continue;
+
+          let nextTop;
+          try {
+            nextTop = nextLab.getBoundingClientRect().top;
+          } catch (e) {
+            continue;
+          }
+
           const distanceToNext = nextTop - stickyTop;
 
           if (distanceToNext < labH * 2 && distanceToNext > -labH) {
@@ -187,7 +258,7 @@ export default function ConocerMas() {
             const maxPush = labH + 20;
             const push = pushProgress * maxPush;
             lab.style.transform = `translateY(${-push}px)`;
-            lab.style.opacity = 1 - pushProgress;
+            lab.style.opacity = String(1 - pushProgress);
           } else if (distanceToNext <= -labH) {
             lab.style.transform = `translateY(${-(labH + 20)}px)`;
             lab.style.opacity = '0';
@@ -203,14 +274,23 @@ export default function ConocerMas() {
 
       // 3) "CONOCE MÁS" visibility
       if (ghost && labels.length) {
-        const anyPinned = labels.some(
-          (l) => l.getBoundingClientRect().top <= maskBottom + 16
-        );
-        ghost.style.opacity = anyPinned ? 0 : 1;
+        try {
+          const anyPinned = labels.some(
+            (l) => l && l.getBoundingClientRect().top <= maskBottom + 16
+          );
+          ghost.style.opacity = anyPinned ? '0' : '1';
+        } catch (e) {
+          // Ignorar errores de getBoundingClientRect
+        }
       }
 
       // 4) Manifiesto fijado
-      const flowRect = flow?.getBoundingClientRect();
+      let flowRect;
+      try {
+        flowRect = flow?.getBoundingClientRect();
+      } catch (e) {
+        flowRect = null;
+      }
       const hasValidFlow = flowRect && flowRect.width > 100;
 
       if (introTop != null && introTop > vh && pin && flow && hasValidFlow && s > vh * 0.5) {
@@ -235,22 +315,50 @@ export default function ConocerMas() {
       rowsRef.current.forEach((row, i) => {
         const lab = labels[i];
         if (!row || !lab) return;
-        row.style.opacity = lab.getBoundingClientRect().top > vh - 10 ? 1 : 0;
+        try {
+          row.style.opacity = lab.getBoundingClientRect().top > vh - 10 ? '1' : '0';
+        } catch (e) {
+          // Ignorar errores
+        }
       });
     };
 
-    gsap.ticker.add(frame);
+    // Usar GSAP ticker si está disponible, sino requestAnimationFrame
+    let rafId = null;
+    const useRaf = !gsap?.ticker;
+
+    if (useRaf) {
+      const loop = () => {
+        frame();
+        rafId = requestAnimationFrame(loop);
+      };
+      rafId = requestAnimationFrame(loop);
+    } else {
+      gsap.ticker.add(frame);
+    }
+
     window.addEventListener('resize', measure);
-    document.fonts?.ready?.then(measure);
+
+    // Esperar a que las fuentes estén listas si es posible
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(measure).catch(() => {});
+    }
+
     measure();
-    const t = setTimeout(measure, 800);
+    const t1 = setTimeout(measure, 500);
+    const t2 = setTimeout(measure, 1500);
 
     return () => {
-      gsap.ticker.remove(frame);
+      if (useRaf && rafId) {
+        cancelAnimationFrame(rafId);
+      } else if (gsap?.ticker) {
+        gsap.ticker.remove(frame);
+      }
       window.removeEventListener('resize', measure);
-      clearTimeout(t);
+      clearTimeout(t1);
+      clearTimeout(t2);
     };
-  }, [isDesktop]);
+  }, [isMounted, isDesktop]);
 
   // Fotos para móvil (intercaladas)
   const mobilePhotos = PHOTOS.slice(0, 8);
@@ -260,6 +368,15 @@ export default function ConocerMas() {
     { id: 'conoce-mas', words: ['CONOCE', 'MÁS'], isIntro: true },
     ...SUBTEMAS,
   ];
+
+  // Mostrar un placeholder mínimo mientras se determina el layout
+  if (!isMounted || isDesktop === null) {
+    return (
+      <div className="bg-crema min-h-screen">
+        <div className="h-screen" />
+      </div>
+    );
+  }
 
   // ========== VERSIÓN MÓVIL ==========
   if (!isDesktop) {
