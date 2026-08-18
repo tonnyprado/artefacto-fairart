@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useLayoutEffect, forwardRef } from 'react'
+import { createPortal } from 'react-dom'
 import dynamic from 'next/dynamic'
 import { usePaquetesStore } from '@/stores/paquetesStore'
 import { ChevronDown, ChevronUp, Check, Plus, Edit2, Trash2, GripVertical, AlertCircle, Palette, Box, Download, ArrowRight, X, MousePointer2, Move, Save } from 'lucide-react'
@@ -781,6 +782,7 @@ function CanvasPlaceholder() {
 function ObraModal({ obra, es3D, onSave, onClose }) {
   const modalRef = useRef(null)
   const contentRef = useRef(null)
+  const [mounted, setMounted] = useState(false)
 
   const [form, setForm] = useState({
     titulo: obra.titulo || '',
@@ -793,6 +795,15 @@ function ObraModal({ obra, es3D, onSave, onClose }) {
     notas_montaje: obra.notas_montaje || '',
   })
 
+  useEffect(() => {
+    setMounted(true)
+    // Bloquear scroll del body
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [])
+
   useLayoutEffect(() => {
     if (contentRef.current) {
       gsap.fromTo(contentRef.current,
@@ -800,31 +811,59 @@ function ObraModal({ obra, es3D, onSave, onClose }) {
         { opacity: 1, scale: 1, y: 0, duration: 0.3, ease: 'back.out(1.7)' }
       )
     }
-  }, [])
+  }, [mounted])
 
   const handleClose = () => {
     gsap.to(contentRef.current, {
       opacity: 0, scale: 0.9, y: 20, duration: 0.2,
-      onComplete: onClose
+      onComplete: () => {
+        document.body.style.overflow = ''
+        onClose()
+      }
     })
   }
 
-  return (
-    <div ref={modalRef} style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100vw',
-      height: '100vh',
-      background: 'rgba(20, 18, 16, 0.85)',
-      backdropFilter: 'blur(12px)',
-      WebkitBackdropFilter: 'blur(12px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 99999,
-      padding: '24px',
-    }}>
+  if (!mounted) return null
+
+  const modalContent = (
+    <>
+      {/* Overlay fijo que cubre toda la pantalla */}
+      <div
+        onClick={handleClose}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(20, 18, 16, 0.85)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          zIndex: 99998,
+        }}
+      />
+      {/* Contenedor del modal que puede scrollear */}
+      <div
+        ref={modalRef}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 99999,
+          padding: '24px',
+          overflowY: 'auto',
+        }}
+        onClick={handleClose}
+      >
       <div ref={contentRef} style={{
         background: COLORS.cream,
         borderRadius: '24px',
@@ -978,8 +1017,11 @@ function ObraModal({ obra, es3D, onSave, onClose }) {
           </div>
         </form>
       </div>
-    </div>
+      </div>
+    </>
   )
+
+  return createPortal(modalContent, document.body)
 }
 
 function Field({ label, value, onChange, type = 'text', required }) {
@@ -996,15 +1038,24 @@ function Field({ label, value, onChange, type = 'text', required }) {
 
 const InstructionsModal = forwardRef(function InstructionsModal({ onClose }, ref) {
   const contentRef = useRef(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [])
 
   useLayoutEffect(() => {
-    if (contentRef.current) {
+    if (contentRef.current && mounted) {
       gsap.fromTo(contentRef.current,
         { opacity: 0, scale: 0.85, y: 30 },
         { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: 'back.out(1.4)' }
       )
     }
-  }, [])
+  }, [mounted])
 
   const steps = [
     {
@@ -1034,39 +1085,70 @@ const InstructionsModal = forwardRef(function InstructionsModal({ onClose }, ref
     }
   ]
 
-  return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        background: 'rgba(20, 18, 16, 0.85)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 99999,
-        padding: '24px',
-      }}
-    >
+  if (!mounted) return null
+
+  const handleClose = () => {
+    gsap.to(contentRef.current, {
+      opacity: 0, scale: 0.9, duration: 0.2,
+      onComplete: () => {
+        document.body.style.overflow = ''
+        onClose()
+      }
+    })
+  }
+
+  const modalContent = (
+    <>
+      {/* Overlay fijo que cubre toda la pantalla */}
       <div
-        ref={(el) => {
-          contentRef.current = el
-          if (ref) ref.current = el
-        }}
+        onClick={handleClose}
         style={{
-          background: COLORS.cream,
-          borderRadius: '24px',
-          maxWidth: '520px',
-          width: '100%',
-          maxHeight: 'calc(100vh - 48px)',
-          overflow: 'auto',
-          boxShadow: '0 32px 80px rgba(0,0,0,0.5)',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(20, 18, 16, 0.85)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          zIndex: 99998,
+        }}
+      />
+      {/* Contenedor del modal */}
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 99999,
+          padding: '24px',
+          overflowY: 'auto',
         }}
       >
+        <div
+          ref={(el) => {
+            contentRef.current = el
+            if (ref) ref.current = el
+          }}
+          style={{
+            background: COLORS.cream,
+            borderRadius: '24px',
+            maxWidth: '520px',
+            width: '100%',
+            maxHeight: 'calc(100vh - 48px)',
+            overflow: 'auto',
+            boxShadow: '0 32px 80px rgba(0,0,0,0.5)',
+          }}
+        >
         {/* Header */}
         <div style={{
           padding: '32px 32px 24px',
@@ -1104,24 +1186,13 @@ const InstructionsModal = forwardRef(function InstructionsModal({ onClose }, ref
                 key={index}
                 style={{
                   display: 'flex',
-                  gap: '16px',
+                  gap: '14px',
                   alignItems: 'flex-start',
-                  padding: '16px 0',
+                  padding: '14px 0',
                   borderBottom: index < steps.length - 1 ? `1px solid ${COLORS.creamDark}` : 'none',
                 }}
               >
-                <div style={{
-                  width: '40px',
-                  height: '40px',
-                  background: index === 0 ? COLORS.red : 'rgba(184,48,48,0.1)',
-                  borderRadius: '10px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                }}>
-                  <Icon size={20} color={index === 0 ? COLORS.cream : COLORS.red} />
-                </div>
+                <Icon size={20} color={COLORS.red} style={{ flexShrink: 0, marginTop: 2 }} />
                 <div style={{ flex: 1 }}>
                   <h4 style={{
                     fontFamily: FONTS.body,
@@ -1153,7 +1224,7 @@ const InstructionsModal = forwardRef(function InstructionsModal({ onClose }, ref
           borderTop: `1px solid ${COLORS.creamDark}`,
         }}>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             style={{
               width: '100%',
               padding: '16px 24px',
@@ -1181,10 +1252,13 @@ const InstructionsModal = forwardRef(function InstructionsModal({ onClose }, ref
             }}
           >
             <MousePointer2 size={18} />
-            ¡Entendido, empezar!
+            Entendido
           </button>
         </div>
+        </div>
       </div>
-    </div>
+    </>
   )
+
+  return createPortal(modalContent, document.body)
 })
