@@ -34,9 +34,9 @@ const CONTENIDO = {
     'Tu paquete incluye montaje, asesores de venta, catálogo digital, difusión y más.',
   ],
   fechas: [
-    'Fase I: 17 ago – 7 sept (−20%) · Fase II: 18 sept – 9 oct (−10%) · Fase III: 20 oct – 10 nov.',
-    'Resultados: 17 sept · 19 oct · 20 nov 2026.',
-    'La feria: 4 al 7 de febrero de 2027, Estación Indianilla, CDMX.',
+    { titulo: 'Fases', texto: 'I: 17 ago – 7 sept (−20%) · II: 18 sept – 9 oct (−10%) · III: 20 oct – 10 nov.' },
+    { titulo: 'Resultados', texto: '17 sept · 19 oct · 20 nov 2026.' },
+    { titulo: 'La feria', texto: '4 al 7 de febrero de 2027, Estación Indianilla, CDMX.' },
   ],
 };
 
@@ -338,12 +338,15 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
           </div>
 
           {/* INFORMACIÓN DE REGISTRO - Grid organizado */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-            gap: 28,
-            marginBottom: 56,
-          }}>
+          <div
+            className="convocatoria-grid"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: 24,
+              marginBottom: 48,
+            }}
+          >
 
             {/* ¿Cómo postular? */}
             <HoverCard>
@@ -384,19 +387,42 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
               </ul>
             </HoverCard>
 
-            {/* Fechas clave */}
-            <HoverCard>
-              <h3 style={sectionHeader}>▸ Fechas clave</h3>
-              <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                {CONTENIDO.fechas.map((item, i) => (
-                  <li key={i} style={listItem}>
-                    <span style={bullet}>·</span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </HoverCard>
+          </div>
 
+          {/* Fechas clave - Sección separada */}
+          <div style={{
+            marginBottom: 56,
+            textAlign: 'center',
+          }}>
+            <h3 style={{
+              margin: '0 0 24px',
+              fontFamily: FONTS.subtitle,
+              fontWeight: FONTS.subtitleWeight,
+              fontStyle: FONTS.subtitleStyle,
+              fontSize: 14,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              color: COLORS.cream,
+            }}>
+              Fechas clave
+            </h3>
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 12,
+            }}>
+              {CONTENIDO.fechas.map((item, i) => (
+                <p key={i} style={{
+                  margin: 0,
+                  fontSize: 14,
+                  lineHeight: 1.6,
+                  color: 'rgba(244,237,228,0.85)',
+                }}>
+                  <strong style={{ color: COLORS.cream }}>{item.titulo}:</strong> {item.texto}
+                </p>
+              ))}
+            </div>
           </div>
 
           {/* CTA Final - Botones */}
@@ -465,7 +491,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
         </div>
       </section>
 
-      {/* CSS para animación de bounce */}
+      {/* CSS para animación de bounce y responsive */}
       <style jsx>{`
         @keyframes bounce {
           0%, 20%, 50%, 80%, 100% {
@@ -476,6 +502,13 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
           }
           60% {
             transform: translateX(-50%) translateY(-4px);
+          }
+        }
+      `}</style>
+      <style jsx global>{`
+        @media (max-width: 900px) {
+          .convocatoria-grid {
+            grid-template-columns: 1fr !important;
           }
         }
       `}</style>
