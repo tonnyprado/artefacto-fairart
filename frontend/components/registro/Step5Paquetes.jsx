@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useLayoutEffect, forwardRef } from 'react'
 import dynamic from 'next/dynamic'
 import { usePaquetesStore } from '@/stores/paquetesStore'
-import { ChevronDown, ChevronUp, Check, Plus, Edit2, Trash2, GripVertical, AlertCircle, Palette, Box, Download, ArrowRight, X, Sparkles, MousePointer2, Move, Save } from 'lucide-react'
+import { ChevronDown, ChevronUp, Check, Plus, Edit2, Trash2, GripVertical, AlertCircle, Palette, Box, Download, ArrowRight, X, MousePointer2, Move, Save } from 'lucide-react'
 import gsap from 'gsap'
 
 const LayoutCanvas = dynamic(() => import('./LayoutCanvasWithMural'), {
@@ -810,16 +810,92 @@ function ObraModal({ obra, es3D, onSave, onClose }) {
   }
 
   return (
-    <div ref={modalRef} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
-      <div ref={contentRef} style={{ background: COLORS.cream, borderRadius: '20px', maxWidth: '520px', width: '100%', maxHeight: '90vh', overflow: 'auto' }}>
-        <div style={{ padding: '20px 24px', borderBottom: `1px solid ${COLORS.creamDark}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div ref={modalRef} style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100vw',
+      height: '100vh',
+      background: 'rgba(20, 18, 16, 0.85)',
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 99999,
+      padding: '24px',
+    }}>
+      <div ref={contentRef} style={{
+        background: COLORS.cream,
+        borderRadius: '24px',
+        maxWidth: '520px',
+        width: '100%',
+        maxHeight: 'calc(100vh - 48px)',
+        overflow: 'auto',
+        boxShadow: '0 32px 80px rgba(0,0,0,0.5)',
+      }}>
+        <div style={{
+          padding: '24px 28px',
+          borderBottom: `1px solid ${COLORS.creamDark}`,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+        }}>
           <div>
-            <h3 style={{ fontFamily: FONTS.display, fontWeight: 600, fontStyle: 'italic', fontSize: '20px', color: COLORS.black, margin: 0 }}>Datos de la Obra</h3>
+            <h3 style={{
+              fontFamily: FONTS.display,
+              fontWeight: 600,
+              fontStyle: 'italic',
+              fontSize: '20px',
+              color: COLORS.black,
+              margin: 0,
+              letterSpacing: '0.02em',
+            }}>
+              Ficha técnica
+            </h3>
             {es3D && (
-              <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.red, fontWeight: 600 }}>Obra 3D</span>
+              <span style={{
+                fontFamily: FONTS.body,
+                fontSize: '11px',
+                color: COLORS.red,
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                marginTop: '4px',
+                display: 'inline-block',
+              }}>
+                Obra 3D
+              </span>
             )}
           </div>
-          <button onClick={handleClose} style={{ background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer', color: COLORS.gray }}>×</button>
+          <button
+            onClick={handleClose}
+            style={{
+              background: 'transparent',
+              border: `2px solid ${COLORS.black}`,
+              borderRadius: '50%',
+              width: '36px',
+              height: '36px',
+              fontSize: '20px',
+              cursor: 'pointer',
+              color: COLORS.black,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
+              flexShrink: 0,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = COLORS.black
+              e.currentTarget.style.color = COLORS.cream
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent'
+              e.currentTarget.style.color = COLORS.black
+            }}
+          >
+            ×
+          </button>
         </div>
         <form onSubmit={(e) => { e.preventDefault(); onSave({ ...obra, ...form }) }} style={{ padding: '24px' }}>
           {obra.preview && (
@@ -962,14 +1038,18 @@ const InstructionsModal = forwardRef(function InstructionsModal({ onClose }, ref
     <div
       style={{
         position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.85)',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        background: 'rgba(20, 18, 16, 0.85)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 2000,
-        padding: '20px',
-        backdropFilter: 'blur(4px)',
+        zIndex: 99999,
+        padding: '24px',
       }}
     >
       <div
@@ -978,51 +1058,40 @@ const InstructionsModal = forwardRef(function InstructionsModal({ onClose }, ref
           if (ref) ref.current = el
         }}
         style={{
-          background: `linear-gradient(145deg, ${COLORS.cream} 0%, #fff 100%)`,
+          background: COLORS.cream,
           borderRadius: '24px',
-          maxWidth: '580px',
+          maxWidth: '520px',
           width: '100%',
-          maxHeight: '90vh',
+          maxHeight: 'calc(100vh - 48px)',
           overflow: 'auto',
-          boxShadow: '0 25px 80px rgba(0,0,0,0.4)',
+          boxShadow: '0 32px 80px rgba(0,0,0,0.5)',
         }}
       >
         {/* Header */}
         <div style={{
-          padding: '28px 32px 20px',
+          padding: '32px 32px 24px',
           textAlign: 'center',
           borderBottom: `1px solid ${COLORS.creamDark}`,
         }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '56px',
-            height: '56px',
-            background: COLORS.red,
-            borderRadius: '16px',
-            marginBottom: '16px',
-          }}>
-            <Sparkles size={28} color={COLORS.cream} />
-          </div>
           <h2 style={{
             fontFamily: FONTS.display,
             fontWeight: 600,
             fontStyle: 'italic',
-            fontSize: '28px',
+            fontSize: '26px',
             color: COLORS.black,
             margin: '0 0 8px',
+            letterSpacing: '0.02em',
           }}>
-            ¡Bienvenido a Tu Lienzo!
+            Tu Lienzo
           </h2>
           <p style={{
             fontFamily: FONTS.body,
-            fontSize: '15px',
+            fontSize: '14px',
             color: COLORS.gray,
             margin: 0,
             lineHeight: 1.5,
           }}>
-            Aquí diseñarás cómo se verán tus obras en la exposición
+            Diseña cómo se verán tus obras en la exposición
           </p>
         </div>
 

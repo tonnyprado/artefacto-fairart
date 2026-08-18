@@ -73,11 +73,12 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className={styles.modalHeader}>
-          <h3 className={styles.modalTitle}>Metadata de la obra</h3>
+          <h3 className={styles.modalTitle}>Ficha técnica</h3>
           <button
             type="button"
             onClick={handleClose}
             className={styles.btnCerrarModal}
+            aria-label="Cerrar"
           >
             ×
           </button>
