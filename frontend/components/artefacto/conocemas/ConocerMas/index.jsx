@@ -225,7 +225,7 @@ export default function ConocerMas() {
         setTrackY(-Math.min(s * PHOTO_SPEED, maxTy));
       }
 
-      // 2) Empuje entre subtemas
+      // 2) Empuje entre subtemas - SOLO cuando están en posición sticky
       let maskBottom;
       try {
         maskBottom = mask ? mask.getBoundingClientRect().bottom : NAVBAR_HEIGHT + 150;
@@ -233,12 +233,24 @@ export default function ConocerMas() {
         maskBottom = NAVBAR_HEIGHT + 150;
       }
 
+      const stickyTop = maskBottom + 6;
+
       for (let i = 0; i < labels.length; i++) {
         const lab = labels[i];
         if (!lab) continue;
 
+        let labTop;
+        try {
+          labTop = lab.getBoundingClientRect().top;
+        } catch (e) {
+          continue;
+        }
+
         const labH = lab.offsetHeight || 50;
-        const stickyTop = maskBottom + 6;
+
+        // Verificar si este label está en posición sticky (pegado arriba)
+        // Un label está sticky si su top está cerca del stickyTop
+        const isSticky = Math.abs(labTop - stickyTop) < 5;
 
         if (i < labels.length - 1) {
           const nextLab = labels[i + 1];
@@ -251,24 +263,44 @@ export default function ConocerMas() {
             continue;
           }
 
-          const distanceToNext = nextTop - stickyTop;
+          // Solo aplicar empuje si el label actual está en posición sticky
+          // y el siguiente label se está acercando
+          if (isSticky) {
+            const distanceToNext = nextTop - stickyTop;
 
-          if (distanceToNext < labH * 2 && distanceToNext > -labH) {
-            const pushProgress = Math.max(0, Math.min(1, 1 - (distanceToNext / (labH * 2))));
-            const maxPush = labH + 20;
-            const push = pushProgress * maxPush;
-            lab.style.transform = `translateY(${-push}px)`;
-            lab.style.opacity = String(1 - pushProgress);
-          } else if (distanceToNext <= -labH) {
-            lab.style.transform = `translateY(${-(labH + 20)}px)`;
+            if (distanceToNext < labH * 1.5 && distanceToNext > 0) {
+              // El siguiente label se está acercando - empujar hacia arriba
+              const pushProgress = Math.max(0, Math.min(1, 1 - (distanceToNext / (labH * 1.5))));
+              const maxPush = labH + 10;
+              const push = pushProgress * maxPush;
+              lab.style.transform = `translateY(${-push}px)`;
+              lab.style.opacity = String(1 - pushProgress);
+            } else if (distanceToNext <= 0) {
+              // El siguiente label ya llegó - ocultar completamente
+              lab.style.transform = `translateY(${-(labH + 10)}px)`;
+              lab.style.opacity = '0';
+            } else {
+              // No hay empuje necesario
+              lab.style.transform = '';
+              lab.style.opacity = '1';
+            }
+          } else if (labTop < stickyTop - labH) {
+            // El label ya pasó por arriba - ocultar
+            lab.style.transform = '';
+            lab.style.opacity = '0';
+          } else {
+            // El label está en el flujo normal - no tocar
+            lab.style.transform = '';
+            lab.style.opacity = '1';
+          }
+        } else {
+          // Último label - solo manejar visibilidad
+          if (labTop < stickyTop - labH) {
             lab.style.opacity = '0';
           } else {
             lab.style.transform = '';
             lab.style.opacity = '1';
           }
-        } else {
-          lab.style.transform = '';
-          lab.style.opacity = '1';
         }
       }
 

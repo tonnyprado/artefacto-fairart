@@ -297,6 +297,14 @@ export default function CalendarSection({ isActive = true }) {
     if (todayMonthIndex >= 0) {
       setSelectedMonth(todayMonthIndex)
       setIsPlaying(false)
+
+      // Buscar un evento en el mes actual, si existe
+      const eventInCurrentMonth = calendarEvents.findIndex(
+        event => event.month === todayMonthName && event.year === todayYear
+      )
+      if (eventInCurrentMonth !== -1) {
+        setCurrentEventIndex(eventInCurrentMonth)
+      }
     }
   }
 
