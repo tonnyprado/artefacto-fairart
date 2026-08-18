@@ -864,15 +864,19 @@ function ObraModal({ obra, es3D, onSave, onClose }) {
         }}
         onClick={handleClose}
       >
-      <div ref={contentRef} style={{
-        background: COLORS.cream,
-        borderRadius: '24px',
-        maxWidth: '520px',
-        width: '100%',
-        maxHeight: 'calc(100vh - 48px)',
-        overflow: 'auto',
-        boxShadow: '0 32px 80px rgba(0,0,0,0.5)',
-      }}>
+      <div
+        ref={contentRef}
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: COLORS.cream,
+          borderRadius: '24px',
+          maxWidth: '520px',
+          width: '100%',
+          maxHeight: 'calc(100vh - 48px)',
+          overflow: 'auto',
+          boxShadow: '0 32px 80px rgba(0,0,0,0.5)',
+        }}
+      >
         <div style={{
           padding: '24px 28px',
           borderBottom: `1px solid ${COLORS.creamDark}`,
@@ -1139,6 +1143,7 @@ const InstructionsModal = forwardRef(function InstructionsModal({ onClose }, ref
             contentRef.current = el
             if (ref) ref.current = el
           }}
+          onClick={(e) => e.stopPropagation()}
           style={{
             background: COLORS.cream,
             borderRadius: '24px',
