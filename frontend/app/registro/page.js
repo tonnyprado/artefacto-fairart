@@ -1078,22 +1078,20 @@ export default function RegistroPage() {
             fontFamily: FONTS.body,
           }}>
             ¿Tienes dudas?{' '}
-            <button
-              onClick={() => transition.navigateTo('/#contacto', { color: COLORS.black })}
+            <a
+              href="/#contacto"
+              target="_blank"
+              rel="noopener noreferrer"
               style={{
                 color: COLORS.red,
                 textDecoration: 'underline',
                 fontWeight: 600,
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
                 fontFamily: FONTS.body,
                 fontSize: 14,
-                padding: 0,
               }}
             >
               Contáctanos
-            </button>
+            </a>
           </p>
         </div>
       </div>

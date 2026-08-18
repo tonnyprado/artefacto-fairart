@@ -180,15 +180,35 @@ export default function CalendarSection({ isActive = true }) {
     { name: 'Febrero', year: 2027 }
   ]
 
+  // Mapeo inverso de índice a nombre de mes
+  const monthIndexToName = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ]
+
+  // Fecha actual
+  const today = new Date()
+  const todayDay = today.getDate()
+  const todayMonthName = monthIndexToName[today.getMonth()]
+  const todayYear = today.getFullYear()
+
+  // Encontrar el índice del mes actual en la lista
+  const todayMonthIndex = months.findIndex(
+    m => m.name === todayMonthName && m.year === todayYear
+  )
+
   // Encontrar el índice del mes del primer evento
   const firstEvent = calendarEvents[0]
   const initialMonthIndex = months.findIndex(
     m => m.name === firstEvent.month && m.year === firstEvent.year
   )
 
+  // Si la fecha actual está dentro del rango de meses, usar esa; sino, usar el primer evento
+  const startMonthIndex = todayMonthIndex >= 0 ? todayMonthIndex : (initialMonthIndex >= 0 ? initialMonthIndex : 0)
+
   const [currentEventIndex, setCurrentEventIndex] = useState(0)
   const [isPlaying, setIsPlaying] = useState(true)
-  const [selectedMonth, setSelectedMonth] = useState(initialMonthIndex >= 0 ? initialMonthIndex : 0)
+  const [selectedMonth, setSelectedMonth] = useState(startMonthIndex)
 
   // Auto-play cada 5 segundos
   useEffect(() => {
@@ -265,6 +285,21 @@ export default function CalendarSection({ isActive = true }) {
     )
   }
 
+  // Verificar si un día es "hoy"
+  const isToday = (day) => {
+    return day === todayDay &&
+           currentMonth.name === todayMonthName &&
+           currentMonth.year === todayYear
+  }
+
+  // Ir a "Hoy"
+  const goToToday = () => {
+    if (todayMonthIndex >= 0) {
+      setSelectedMonth(todayMonthIndex)
+      setIsPlaying(false)
+    }
+  }
+
   // Manejar click en día
   const handleDayClick = (day) => {
     if (!day) return
@@ -339,6 +374,22 @@ export default function CalendarSection({ isActive = true }) {
               </button>
             </div>
 
+            {/* Botón Hoy */}
+            {todayMonthIndex >= 0 && (
+              <div className="flex justify-center mb-4">
+                <button
+                  onClick={goToToday}
+                  className={`px-4 py-1.5 text-sm font-semibold rounded-full transition-all ${
+                    selectedMonth === todayMonthIndex
+                      ? 'bg-[#141210] text-white'
+                      : 'bg-transparent border-2 border-[#141210] text-[#141210] hover:bg-[#141210] hover:text-white'
+                  }`}
+                >
+                  Hoy
+                </button>
+              </div>
+            )}
+
             {/* Days of Week Header - Card lineal */}
             <div className="bg-[#141210] rounded-full px-4 py-2 mb-4">
               <div className="grid grid-cols-7 gap-2">
@@ -366,9 +417,11 @@ export default function CalendarSection({ isActive = true }) {
                     ${!day ? 'invisible' : ''}
                     ${isSelected(day)
                       ? 'bg-[#b83030] text-white rounded-full'
-                      : hasEvent(day)
-                        ? 'text-[#b83030] hover:bg-black/10 rounded-full cursor-pointer font-extrabold'
-                        : 'text-[#141210] hover:bg-black/5 rounded-full cursor-pointer'
+                      : isToday(day)
+                        ? 'bg-[#141210] text-white rounded-full ring-2 ring-[#b83030] ring-offset-2'
+                        : hasEvent(day)
+                          ? 'text-[#b83030] hover:bg-black/10 rounded-full cursor-pointer font-extrabold'
+                          : 'text-[#141210] hover:bg-black/5 rounded-full cursor-pointer'
                     }
                   `}
                 >

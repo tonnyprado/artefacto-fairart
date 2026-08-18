@@ -288,14 +288,14 @@ export default function LandingArtefacto() {
 
         lenis.current = new Lenis({
           autoRaf: true,
-          duration: mobile ? 1.8 : 2.0,           // Ligeramente más rápido en móvil
+          duration: mobile ? 1.2 : 2.5,           // Desktop más pesado (2.5), móvil más ligero (1.2)
           easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Easing suave
-          lerp: mobile ? 0.1 : 0.08,              // Más rápido en móvil para menos lag
-          wheelMultiplier: 0.7,                   // Velocidad reducida del scroll
-          touchMultiplier: mobile ? 0.6 : 1.0,    // REDUCIDO para móvil - menos sensibilidad
+          lerp: mobile ? 0.15 : 0.06,             // Móvil más responsivo, desktop más suave
+          wheelMultiplier: mobile ? 1.0 : 0.6,    // Desktop más pesado
+          touchMultiplier: mobile ? 1.2 : 1.0,    // Móvil más rápido al tacto
           smoothWheel: true,                      // Suavizar scroll de rueda
           syncTouch: mobile,                      // ACTIVAR suavizado táctil en móvil
-          syncTouchLerp: mobile ? 0.06 : 0.08,    // Más lento para sensación pesada en móvil
+          syncTouchLerp: mobile ? 0.12 : 0.06,    // Móvil más rápido
         });
       } catch { /* lenis no instalado — scroll nativo */ }
     })();
@@ -344,8 +344,12 @@ export default function LandingArtefacto() {
       if (e.deltaY > scrollThreshold) {
         if (i === ORDER.length - 1) return; // Ya está en la última sección
 
+        // Detectar bottom con tolerancia mayor para Lenis smooth scroll
+        const scrollY = window.scrollY || window.pageYOffset || 0;
+        const windowHeight = window.innerHeight || document.documentElement.clientHeight || 800;
+        const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight || 0;
         const atBottom = screenRef.current === 'hero' ||
-          window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 10;
+          (windowHeight + scrollY >= scrollHeight - 50);
 
         if (atBottom) {
           // Hero tiene su propia animación - usar transición normal
@@ -463,8 +467,12 @@ export default function LandingArtefacto() {
       if (deltaY > swipeThreshold) {
         if (i === ORDER.length - 1) return;
 
+        // Detectar bottom con tolerancia mayor para Lenis smooth scroll
+        const scrollY = window.scrollY || window.pageYOffset || 0;
+        const windowHeight = window.innerHeight || document.documentElement.clientHeight || 800;
+        const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight || 0;
         const atBottom = screenRef.current === 'hero' ||
-          window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 10;
+          (windowHeight + scrollY >= scrollHeight - 50);
 
         if (atBottom) {
           // Hero usa transición normal

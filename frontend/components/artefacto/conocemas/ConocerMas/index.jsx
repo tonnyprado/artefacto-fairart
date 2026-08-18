@@ -284,17 +284,26 @@ export default function ConocerMas() {
         }
       }
 
-      // 4) Manifiesto fijado
+      // 4) Manifiesto fijado - texto INTRO sticky
       let flowRect;
       try {
         flowRect = flow?.getBoundingClientRect();
       } catch (e) {
         flowRect = null;
       }
-      const hasValidFlow = flowRect && flowRect.width > 100;
+      const hasValidFlow = flowRect && flowRect.width > 50;
 
-      if (introTop != null && introTop > vh && pin && flow && hasValidFlow && s > vh * 0.5) {
-        const shouldPin = s >= introTop - NAVBAR_HEIGHT - 52;
+      // Re-calcular introTop si no se ha calculado aún
+      if (introTop === null && flow && hasValidFlow) {
+        introTop = flowRect.top + s;
+      }
+
+      if (introTop != null && pin && flow && hasValidFlow) {
+        // El texto se fija cuando llega al área del navbar
+        const pinTrigger = NAVBAR_HEIGHT + 52;
+        const flowTop = flowRect.top;
+        const shouldPin = flowTop <= pinTrigger;
+
         if (shouldPin && !pinned) {
           pinned = true;
           placePin();
