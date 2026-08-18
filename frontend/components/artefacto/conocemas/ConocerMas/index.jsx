@@ -225,9 +225,8 @@ export default function ConocerMas() {
         setTrackY(-Math.min(s * PHOTO_SPEED, maxTy));
       }
 
-      // 2) Empuje entre subtemas
-      // Los labels usan position:sticky, así que naturalmente se "pegan" debajo del logo.
-      // Solo necesitamos manejar el empuje cuando el siguiente label llega.
+      // 2) Stack de subtemas con efecto de empuje
+      // Comportamiento: cada título sube desde su posición inicial y empuja al anterior
       let maskBottom;
       try {
         maskBottom = mask ? mask.getBoundingClientRect().bottom : NAVBAR_HEIGHT + 150;
@@ -237,16 +236,54 @@ export default function ConocerMas() {
 
       const stickyTop = maskBottom + 6;
 
+      // Encontrar cuál es el label "activo" (el que debería estar visible en la posición sticky)
+      // Es el label cuyo siguiente aún no ha llegado a la posición sticky
+      let activeIndex = -1;
+      for (let i = labels.length - 1; i >= 0; i--) {
+        const lab = labels[i];
+        if (!lab) continue;
+
+        let labTop;
+        try {
+          labTop = lab.getBoundingClientRect().top;
+        } catch (e) {
+          continue;
+        }
+
+        // Un label está "activo" si ya llegó a la posición sticky o está por encima
+        if (labTop <= stickyTop + 10) {
+          activeIndex = i;
+          break;
+        }
+      }
+
+      // Aplicar estilos a cada label
       for (let i = 0; i < labels.length; i++) {
         const lab = labels[i];
         if (!lab) continue;
 
         const labH = lab.offsetHeight || 50;
 
-        // Obtener posición del siguiente label (si existe)
+        let labTop;
+        try {
+          labTop = lab.getBoundingClientRect().top;
+        } catch (e) {
+          continue;
+        }
+
+        // Si este label aún no ha llegado a la posición sticky, dejarlo en su posición natural
+        if (labTop > stickyTop + 10) {
+          lab.style.transform = '';
+          lab.style.opacity = '1';
+          continue;
+        }
+
+        // Este label ya llegó a la posición sticky o está siendo empujado
+        // Verificar si hay un siguiente label que lo esté empujando
         const nextLab = labels[i + 1];
+
         if (!nextLab) {
-          // Último label - siempre visible, sin transformaciones
+          // Es el último label - sin empuje, visible en posición sticky
           lab.style.transform = '';
           lab.style.opacity = '1';
           continue;
@@ -256,30 +293,29 @@ export default function ConocerMas() {
         try {
           nextTop = nextLab.getBoundingClientRect().top;
         } catch (e) {
-          continue;
-        }
-
-        // Calcular qué tan cerca está el siguiente label de la posición sticky
-        const distanceToSticky = nextTop - stickyTop;
-
-        // Si el siguiente label aún no ha llegado a la zona de empuje, no hacer nada
-        if (distanceToSticky > labH) {
           lab.style.transform = '';
           lab.style.opacity = '1';
           continue;
         }
 
-        // El siguiente label está entrando en la zona de empuje
-        // Empujar el label actual hacia arriba proporcionalmente
-        if (distanceToSticky > 0) {
-          // El siguiente label se está acercando
-          const pushProgress = 1 - (distanceToSticky / labH);
-          const push = pushProgress * labH;
-          lab.style.transform = `translateY(${-push}px)`;
-          lab.style.opacity = String(Math.max(0, 1 - pushProgress));
+        // El siguiente label lo empuja cuando está cerca de la posición sticky
+        // El empuje empieza cuando el siguiente está a 1.5x la altura del label
+        const pushZone = labH * 1.5;
+        const distanceNextToSticky = nextTop - stickyTop;
+
+        if (distanceNextToSticky > pushZone) {
+          // El siguiente label está lejos - este label está en posición sticky normal
+          lab.style.transform = '';
+          lab.style.opacity = '1';
+        } else if (distanceNextToSticky > 0) {
+          // El siguiente label está subiendo y empujando a este
+          // El empuje es proporcional a qué tan cerca está el siguiente
+          const pushProgress = 1 - (distanceNextToSticky / pushZone);
+          const pushAmount = pushProgress * labH;
+          lab.style.transform = `translateY(${-pushAmount}px)`;
+          lab.style.opacity = String(Math.max(0.1, 1 - pushProgress * 0.9));
         } else {
-          // El siguiente label ya llegó a la posición sticky
-          // El label actual debe estar completamente arriba y oculto
+          // El siguiente label ya llegó - este label fue empujado completamente
           lab.style.transform = `translateY(${-labH}px)`;
           lab.style.opacity = '0';
         }
