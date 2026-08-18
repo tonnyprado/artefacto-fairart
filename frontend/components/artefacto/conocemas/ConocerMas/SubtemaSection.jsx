@@ -18,7 +18,7 @@ function Block({ b, introRef }) {
   if (b.type === 'etimExtra') {
     return (
       <div className="mb-[9vh]">
-        <div className={cls.displayInk}>{b.word}</div>
+        <div className={cls.displayRed}>{b.word}</div>
         <p className={`mt-2 max-w-[280px] ${cls.caption}`}>
           <em>(lat.)</em>
           {b.def.replace('(lat.)', '')}
@@ -32,16 +32,26 @@ function Block({ b, introRef }) {
   }
 
   if (b.type === 'h3') {
-    return <h3 className={`mb-3 ${cls.displayInk}`}>{b.text}</h3>;
+    return <h3 className={`mb-3 ${cls.displayRed}`}>{b.text}</h3>;
   }
 
   if (b.type === 'kicker') {
-    return <div className={`mb-1.5 ${cls.displayInk}`}>{b.text}</div>;
+    return <div className={`mb-1.5 ${cls.displayRed}`}>{b.text}</div>;
+  }
+
+  if (b.type === 'image') {
+    return (
+      <img
+        src={b.src}
+        alt={b.alt || ''}
+        className="w-full rounded-2xl mt-6 mb-8"
+      />
+    );
   }
 
   return (
     <p className={`mb-[6vh] last:mb-0 ${cls.body}`}>
-      {b.strongLead ? <strong>{b.strongLead}</strong> : null}
+      {b.strongLead ? <strong className="font-bold">{b.strongLead}</strong> : null}
       {b.text}
     </p>
   );
@@ -83,7 +93,7 @@ export default function SubtemaSection({
         <div className="mb-[9vh] flex justify-between gap-10">
           {data.etim.map((e) => (
             <div key={e.word} className="flex-1">
-              <div className={cls.displayInk}>{e.word}</div>
+              <div className={cls.displayRed}>{e.word}</div>
               <p className={`mt-2 max-w-[250px] ${cls.caption}`}>{e.def}</p>
             </div>
           ))}

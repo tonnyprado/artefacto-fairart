@@ -510,7 +510,7 @@ export default function ConocerMas() {
                     <div className="grid grid-cols-2 gap-4 mb-8">
                       {s.etim.map((e) => (
                         <div key={e.word}>
-                          <div className="text-tinta text-base font-black italic">{e.word}</div>
+                          <div className="text-rojo text-base font-black italic">{e.word}</div>
                           <p className="text-sm text-tinta/70 mt-1 leading-snug">{e.def}</p>
                         </div>
                       ))}
@@ -538,7 +538,7 @@ export default function ConocerMas() {
                         if (b.type === 'etimExtra') {
                           return (
                             <div key={i} className="mb-10">
-                              <div className="text-tinta text-xl font-black italic">{b.word}</div>
+                              <div className="text-rojo text-xl font-black italic">{b.word}</div>
                               <p className="text-sm text-tinta/70 mt-2 max-w-[280px]">
                                 <em>(lat.)</em>{b.def.replace('(lat.)', '')}
                               </p>
@@ -547,23 +547,33 @@ export default function ConocerMas() {
                         }
                         if (b.type === 'h2') {
                           return (
-                            <h2 key={i} className="text-2xl font-semibold italic text-tinta leading-tight pt-4">
+                            <h2 key={i} className="text-2xl font-bold text-tinta leading-tight pt-4">
                               {b.text}
                             </h2>
                           );
                         }
                         if (b.type === 'h3') {
                           return (
-                            <h3 key={i} className="text-lg font-black italic text-tinta pt-2">
+                            <h3 key={i} className="text-lg font-black italic text-rojo pt-2">
                               {b.text}
                             </h3>
                           );
                         }
                         if (b.type === 'kicker') {
                           return (
-                            <div key={i} className="text-base font-black italic text-tinta pt-6">
+                            <div key={i} className="text-base font-black italic text-rojo pt-6">
                               {b.text}
                             </div>
+                          );
+                        }
+                        if (b.type === 'image') {
+                          return (
+                            <img
+                              key={i}
+                              src={b.src}
+                              alt={b.alt || ''}
+                              className="w-full rounded-2xl mt-4 mb-6"
+                            />
                           );
                         }
                         return (

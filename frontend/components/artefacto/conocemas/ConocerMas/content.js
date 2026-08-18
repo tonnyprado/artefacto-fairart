@@ -58,6 +58,7 @@ export const SUBTEMAS = [
       { type: 'kicker', text: 'ARTE FACTO en el Centro Cultural' },
       { type: 'h2', text: 'ESTACIÓN INDIANILLA' },
       { type: 'p', text: 'Estación Indianilla no esconde lo que fue. Sus vigas, su maquinaria y su siglo están a la vista: la sede es, ella misma, un objeto que muestra cómo está hecho: la materialización del concepto y la técnica.' },
+      { type: 'image', src: '/assets/conocer-mas/photo-2.png', alt: 'Interior de Estación Indianilla' },
     ],
   },
   {

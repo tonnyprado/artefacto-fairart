@@ -8,10 +8,11 @@ export const cls = {
   // Subtemas / palabras etimológicas / numerales — Inter Tight Black Italic
   display: 'italic font-black tracking-[-0.02em] text-[clamp(16px,1.35vw,26px)]',
   displayInk: 'italic font-black tracking-[-0.02em] text-[clamp(16px,1.35vw,26px)] text-tinta',
+  displayRed: 'italic font-black tracking-[-0.02em] text-[clamp(16px,1.35vw,26px)] text-rojo',
   labelRow: 'flex justify-between italic font-black tracking-[-0.02em] text-[clamp(16px,1.35vw,26px)] text-rojo',
 
   // Encabezados grandes (FORJAR CULTURA / ESTACIÓN INDIANILLA)
-  h2: 'italic font-semibold tracking-[-0.05em] leading-[1.02] text-[clamp(26px,2.4vw,46px)] text-tinta',
+  h2: 'font-bold tracking-[-0.05em] leading-[1.02] text-[clamp(26px,2.4vw,46px)] text-tinta',
 
   // Cuerpo
   body: 'text-[clamp(13.5px,0.92vw,17.5px)] leading-[1.55] text-tinta [text-wrap:pretty]',
