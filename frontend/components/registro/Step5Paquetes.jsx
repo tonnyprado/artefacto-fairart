@@ -960,36 +960,13 @@ function ObraModal({ obra, es3D, onSave, onClose }) {
 
             <Field label="Técnica *" value={form.tecnica} onChange={(e) => setForm(p => ({ ...p, tecnica: e.target.value }))} required />
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              <Field label="Año" type="number" value={form.anio} onChange={(e) => setForm(p => ({ ...p, anio: e.target.value }))} />
-              <div>
-                <label style={{ display: 'block', fontFamily: FONTS.body, fontSize: '13px', fontWeight: 600, color: COLORS.black, marginBottom: '6px' }}>Precio MXN *</label>
-                <div style={{ position: 'relative' }}>
-                  <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', fontFamily: FONTS.body, fontSize: '14px', color: COLORS.gray }}>$</span>
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={form.precio_mxn}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/[^0-9.]/g, '')
-                      setForm(p => ({ ...p, precio_mxn: value }))
-                    }}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '12px 14px 12px 28px',
-                      border: `1px solid ${COLORS.creamDark}`,
-                      borderRadius: '10px',
-                      fontFamily: FONTS.body,
-                      fontSize: '14px',
-                      background: 'white',
-                      color: COLORS.black,
-                      outline: 'none',
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
+            <Field label="Año" type="number" value={form.anio} onChange={(e) => setForm(p => ({ ...p, anio: e.target.value }))} />
+
+            {/* Campo de precio con calculadora */}
+            <PrecioCalculadora
+              value={form.precio_mxn}
+              onChange={(value) => setForm(p => ({ ...p, precio_mxn: value }))}
+            />
 
             {/* Notas complementarias */}
             <div>
@@ -1026,6 +1003,158 @@ function ObraModal({ obra, es3D, onSave, onClose }) {
   )
 
   return createPortal(modalContent, document.body)
+}
+
+// Componente de precio con calculadora de comisiones
+function PrecioCalculadora({ value, onChange }) {
+  // Formatear número con comas
+  const formatNumber = (num) => {
+    if (!num) return ''
+    return Number(num).toLocaleString('es-MX', { maximumFractionDigits: 2 })
+  }
+
+  // Parsear número quitando comas
+  const parseNumber = (str) => {
+    if (!str) return ''
+    return str.replace(/[^0-9]/g, '')
+  }
+
+  // Calcular desglose
+  const gananciaArtista = Number(value) || 0
+  const subtotal = gananciaArtista > 0 ? gananciaArtista / 0.70 : 0
+  const comisionArtefacto = subtotal - gananciaArtista
+  const iva = subtotal * 0.16
+  const precioPublico = subtotal * 1.16
+
+  return (
+    <div>
+      <label style={{
+        display: 'block',
+        fontFamily: FONTS.body,
+        fontSize: '13px',
+        fontWeight: 600,
+        color: COLORS.black,
+        marginBottom: '6px'
+      }}>
+        Tu ganancia por esta obra (MXN) *
+      </label>
+      <div style={{ position: 'relative' }}>
+        <span style={{
+          position: 'absolute',
+          left: '14px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          fontFamily: FONTS.body,
+          fontSize: '14px',
+          color: COLORS.gray
+        }}>$</span>
+        <input
+          type="text"
+          inputMode="numeric"
+          value={value ? formatNumber(value) : ''}
+          onChange={(e) => {
+            const rawValue = parseNumber(e.target.value)
+            onChange(rawValue)
+          }}
+          placeholder="10,000"
+          required
+          style={{
+            width: '100%',
+            padding: '12px 14px 12px 28px',
+            border: `1px solid ${COLORS.creamDark}`,
+            borderRadius: '10px',
+            fontFamily: FONTS.body,
+            fontSize: '14px',
+            background: 'white',
+            color: COLORS.black,
+            outline: 'none',
+          }}
+        />
+      </div>
+
+      {/* Mini calculadora - solo visible si hay precio */}
+      {gananciaArtista > 0 && (
+        <div style={{
+          marginTop: '12px',
+          padding: '14px 16px',
+          background: 'rgba(184, 48, 48, 0.06)',
+          borderRadius: '10px',
+          borderLeft: `3px solid ${COLORS.red}`,
+        }}>
+          <p style={{
+            margin: '0 0 10px',
+            fontFamily: FONTS.body,
+            fontSize: '11px',
+            fontWeight: 600,
+            color: COLORS.gray,
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+          }}>
+            Desglose de precio
+          </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontFamily: FONTS.body, fontSize: '13px', color: COLORS.black }}>
+                Tu ganancia (70%)
+              </span>
+              <span style={{ fontFamily: FONTS.body, fontSize: '13px', fontWeight: 700, color: COLORS.black }}>
+                ${formatNumber(gananciaArtista.toFixed(2))}
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontFamily: FONTS.body, fontSize: '13px', color: COLORS.gray }}>
+                Comisión Arte Facto (30%)
+              </span>
+              <span style={{ fontFamily: FONTS.body, fontSize: '13px', color: COLORS.gray }}>
+                ${formatNumber(comisionArtefacto.toFixed(2))}
+              </span>
+            </div>
+
+            <div style={{
+              height: '1px',
+              background: COLORS.creamDark,
+              margin: '4px 0',
+            }} />
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontFamily: FONTS.body, fontSize: '13px', color: COLORS.gray }}>
+                Subtotal
+              </span>
+              <span style={{ fontFamily: FONTS.body, fontSize: '13px', color: COLORS.gray }}>
+                ${formatNumber(subtotal.toFixed(2))}
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontFamily: FONTS.body, fontSize: '13px', color: COLORS.gray }}>
+                IVA (16%)
+              </span>
+              <span style={{ fontFamily: FONTS.body, fontSize: '13px', color: COLORS.gray }}>
+                ${formatNumber(iva.toFixed(2))}
+              </span>
+            </div>
+
+            <div style={{
+              height: '1px',
+              background: COLORS.creamDark,
+              margin: '4px 0',
+            }} />
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontFamily: FONTS.body, fontSize: '14px', fontWeight: 700, color: COLORS.black }}>
+                Precio al público
+              </span>
+              <span style={{ fontFamily: FONTS.body, fontSize: '14px', fontWeight: 700, color: COLORS.red }}>
+                ${formatNumber(precioPublico.toFixed(2))}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
 }
 
 function Field({ label, value, onChange, type = 'text', required }) {
