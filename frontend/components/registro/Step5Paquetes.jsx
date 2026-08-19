@@ -1134,79 +1134,49 @@ function PrecioCalculadora({ value, onChange }) {
 
       {/* Mini calculadora - solo visible si hay precio */}
       {gananciaArtista > 0 && (
-        <div style={{
-          marginTop: '12px',
-          padding: '14px 16px',
-          background: 'rgba(184, 48, 48, 0.06)',
-          borderRadius: '10px',
-          borderLeft: `3px solid ${COLORS.red}`,
-        }}>
-          <p style={{
-            margin: '0 0 10px',
-            fontFamily: FONTS.body,
-            fontSize: '11px',
-            fontWeight: 600,
-            color: COLORS.gray,
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-          }}>
-            Desglose de precio
-          </p>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ marginTop: '14px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontFamily: FONTS.body, fontSize: '13px', color: COLORS.black }}>
+              <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.gray }}>
                 Tu ganancia (70%)
               </span>
-              <span style={{ fontFamily: FONTS.body, fontSize: '13px', fontWeight: 700, color: COLORS.black }}>
+              <span style={{ fontFamily: FONTS.body, fontSize: '12px', fontWeight: 600, color: COLORS.black }}>
                 ${formatNumber(gananciaArtista.toFixed(2))}
               </span>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontFamily: FONTS.body, fontSize: '13px', color: COLORS.gray }}>
+              <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.gray }}>
                 Comisión Arte Facto (30%)
               </span>
-              <span style={{ fontFamily: FONTS.body, fontSize: '13px', color: COLORS.gray }}>
+              <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.gray }}>
                 ${formatNumber(comisionArtefacto.toFixed(2))}
               </span>
             </div>
 
-            <div style={{
-              height: '1px',
-              background: COLORS.creamDark,
-              margin: '4px 0',
-            }} />
-
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontFamily: FONTS.body, fontSize: '13px', color: COLORS.gray }}>
+              <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.gray }}>
                 Subtotal
               </span>
-              <span style={{ fontFamily: FONTS.body, fontSize: '13px', color: COLORS.gray }}>
+              <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.gray }}>
                 ${formatNumber(subtotal.toFixed(2))}
               </span>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontFamily: FONTS.body, fontSize: '13px', color: COLORS.gray }}>
+              <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.gray }}>
                 IVA (16%)
               </span>
-              <span style={{ fontFamily: FONTS.body, fontSize: '13px', color: COLORS.gray }}>
+              <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.gray }}>
                 ${formatNumber(iva.toFixed(2))}
               </span>
             </div>
 
-            <div style={{
-              height: '1px',
-              background: COLORS.creamDark,
-              margin: '4px 0',
-            }} />
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontFamily: FONTS.body, fontSize: '14px', fontWeight: 700, color: COLORS.black }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
+              <span style={{ fontFamily: FONTS.body, fontSize: '13px', fontWeight: 600, color: COLORS.black }}>
                 Precio al público
               </span>
-              <span style={{ fontFamily: FONTS.body, fontSize: '14px', fontWeight: 700, color: COLORS.red }}>
+              <span style={{ fontFamily: FONTS.body, fontSize: '13px', fontWeight: 600, color: COLORS.red }}>
                 ${formatNumber(precioPublico.toFixed(2))}
               </span>
             </div>
