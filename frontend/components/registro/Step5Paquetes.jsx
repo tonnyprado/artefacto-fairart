@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useLayoutEffect, forwardRef } from 'react'
 import { createPortal } from 'react-dom'
 import dynamic from 'next/dynamic'
 import { usePaquetesStore } from '@/stores/paquetesStore'
-import { ChevronDown, ChevronUp, Check, Plus, Edit2, Trash2, GripVertical, AlertCircle, Palette, Box, Download, ArrowRight, X, MousePointer2, Move, Save } from 'lucide-react'
+import { ChevronDown, ChevronUp, Check, Plus, Edit2, Trash2, GripVertical, AlertCircle, Palette, Box, Download, ArrowRight, X, MousePointer2, Move, Save, FileText, ExternalLink } from 'lucide-react'
 import gsap from 'gsap'
 
 const LayoutCanvas = dynamic(() => import('./LayoutCanvasWithMural'), {
@@ -237,6 +237,58 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
   return (
     <div style={{ position: 'relative', minHeight: '75vh' }}>
 
+      {/* Botones de Instrucciones y Referencias */}
+      <div style={{
+        display: 'flex',
+        gap: '12px',
+        marginBottom: '16px',
+      }}>
+        <button
+          type="button"
+          onClick={() => setShowInstructions(true)}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '10px 16px',
+            background: COLORS.cream,
+            border: 'none',
+            borderRadius: '10px',
+            fontFamily: FONTS.body,
+            fontWeight: 600,
+            fontSize: '13px',
+            color: COLORS.black,
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          <FileText size={16} />
+          Instrucciones
+        </button>
+        <button
+          type="button"
+          onClick={() => window.open('/docs/referencias-tu-lienzo.pdf', '_blank')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '10px 16px',
+            background: COLORS.cream,
+            border: 'none',
+            borderRadius: '10px',
+            fontFamily: FONTS.body,
+            fontWeight: 600,
+            fontSize: '13px',
+            color: COLORS.black,
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          <ExternalLink size={16} />
+          Referencias
+        </button>
+      </div>
+
       {/* SELECTOR DE DISCIPLINA ARTÍSTICA */}
       <div style={{
         background: COLORS.cream,
@@ -249,7 +301,6 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
         flexWrap: 'wrap',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <Palette size={24} color={COLORS.red} />
           <span style={{
             fontFamily: FONTS.display,
             fontWeight: 600,
@@ -257,7 +308,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
             fontSize: '16px',
             color: COLORS.black,
           }}>
-            Disciplina Artística:
+            Elige tu disciplina:
           </span>
         </div>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', flex: 1 }}>

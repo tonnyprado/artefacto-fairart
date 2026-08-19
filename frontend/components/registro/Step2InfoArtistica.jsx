@@ -108,7 +108,7 @@ export default function Step2InfoArtistica({ formData, updateFormData, errors })
           margin: 0,
           flex: 1
         }}>
-          Una semblanza completa y un perfil de Instagram activo aumentan significativamente tus posibilidades de selección, ya que los curadores evaluarán tu trayectoria y consistencia artística.
+          Una semblanza completa y un perfil de Instagram activo nos ayudará a conocerte mejor, tus motivaciones, tus exploraciones temáticas y técnicas, y tener un perfil más completo de ti.
         </p>
       </div>
     </div>

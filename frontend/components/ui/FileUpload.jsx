@@ -82,11 +82,13 @@ export default function FileUpload({
       )}
 
       <div
-        style={{ borderRadius: '16px' }}
+        style={{
+          borderRadius: '16px',
+          borderColor: dragActive ? '#B83030' : error ? '#B83030' : 'rgba(255,255,255,0.4)',
+          background: dragActive ? 'rgba(184,48,48,0.1)' : 'transparent'
+        }}
         className={cn(
-          'relative border-2 border-dashed p-6 transition-all',
-          dragActive ? 'border-red-500 bg-red-50' : 'border-gray-300',
-          error ? 'border-red-500' : ''
+          'relative border-2 border-dashed p-6 transition-all'
         )}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -113,9 +115,10 @@ export default function FileUpload({
             </div>
           ) : fileName ? (
             <div className="mb-4">
-              <div style={{ borderRadius: '16px' }} className="inline-flex items-center px-4 py-2 bg-gray-100">
+              <div style={{ borderRadius: '16px', background: 'rgba(255,255,255,0.15)' }} className="inline-flex items-center px-4 py-2">
                 <svg
-                  className="w-5 h-5 text-gray-600 mr-2"
+                  className="w-5 h-5 mr-2"
+                  style={{ color: 'white' }}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -127,13 +130,14 @@ export default function FileUpload({
                     d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
                   />
                 </svg>
-                <span className="text-sm text-gray-700">{fileName}</span>
+                <span className="text-sm" style={{ color: 'white' }}>{fileName}</span>
               </div>
             </div>
           ) : (
             <div className="mb-4">
               <svg
-                className="mx-auto h-12 w-12 text-gray-400"
+                className="mx-auto h-12 w-12"
+                style={{ color: 'rgba(255,255,255,0.7)' }}
                 stroke="currentColor"
                 fill="none"
                 viewBox="0 0 48 48"
@@ -148,15 +152,15 @@ export default function FileUpload({
             </div>
           )}
 
-          <p className="text-sm mb-1" style={{ color: '#141210' }}>
+          <p className="text-sm mb-1" style={{ color: 'white' }}>
             <span className="font-semibold" style={{ color: '#B83030' }}>Haz clic</span> o arrastra
             el archivo aquí
           </p>
-          <p className="text-xs" style={{ color: 'rgba(20, 18, 16, 0.6)' }}>
+          <p className="text-xs" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
             Tamaño máximo: {maxSize}MB
           </p>
           {helperText && (
-            <p className="text-xs mt-2" style={{ color: 'rgba(20, 18, 16, 0.6)' }}>{helperText}</p>
+            <p className="text-xs mt-2" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>{helperText}</p>
           )}
         </div>
       </div>
