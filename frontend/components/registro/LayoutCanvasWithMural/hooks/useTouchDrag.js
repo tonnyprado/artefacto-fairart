@@ -12,63 +12,52 @@ export function useTouchDrag(onDrop, canvasRef) {
   const [draggedObra, setDraggedObra] = useState(null)
   const [touchPosition, setTouchPosition] = useState({ x: 0, y: 0 })
   const [previewSize, setPreviewSize] = useState({ width: 100, height: 75 })
-  const longPressTimer = useRef(null)
   const startPos = useRef({ x: 0, y: 0 })
 
-  // Limpiar timer al desmontar
+  // Prevenir scroll del body cuando estamos arrastrando
   useEffect(() => {
-    return () => {
-      if (longPressTimer.current) {
-        clearTimeout(longPressTimer.current)
-      }
+    if (isDragging) {
+      document.body.style.overflow = 'hidden'
+      document.body.style.touchAction = 'none'
+    } else {
+      document.body.style.overflow = ''
+      document.body.style.touchAction = ''
     }
-  }, [])
+
+    return () => {
+      document.body.style.overflow = ''
+      document.body.style.touchAction = ''
+    }
+  }, [isDragging])
 
   const handleTouchStart = useCallback((e, obra, dimensions) => {
     const touch = e.touches[0]
     startPos.current = { x: touch.clientX, y: touch.clientY }
 
-    // Long press para iniciar drag (300ms)
-    longPressTimer.current = setTimeout(() => {
-      setDraggedObra(obra)
-      setPreviewSize(dimensions || { width: 100, height: 75 })
-      setTouchPosition({ x: touch.clientX, y: touch.clientY })
-      setIsDragging(true)
+    // Iniciar drag inmediatamente (sin long press para mejor respuesta)
+    setDraggedObra(obra)
+    setPreviewSize(dimensions || { width: 100, height: 75 })
+    setTouchPosition({ x: touch.clientX, y: touch.clientY })
+    setIsDragging(true)
 
-      // Vibración háptica si está disponible
-      if (navigator.vibrate) {
-        navigator.vibrate(50)
-      }
-    }, 300)
+    // Vibración háptica si está disponible
+    if (navigator.vibrate) {
+      navigator.vibrate(30)
+    }
   }, [])
 
   const handleTouchMove = useCallback((e) => {
+    if (!isDragging) return
+
+    // Prevenir scroll y comportamientos por defecto
+    e.preventDefault()
+    e.stopPropagation()
+
     const touch = e.touches[0]
-
-    // Si no estamos arrastrando, verificar si se movió demasiado para cancelar el long press
-    if (!isDragging && longPressTimer.current) {
-      const dx = Math.abs(touch.clientX - startPos.current.x)
-      const dy = Math.abs(touch.clientY - startPos.current.y)
-      if (dx > 10 || dy > 10) {
-        clearTimeout(longPressTimer.current)
-        longPressTimer.current = null
-      }
-      return
-    }
-
-    if (isDragging) {
-      e.preventDefault()
-      setTouchPosition({ x: touch.clientX, y: touch.clientY })
-    }
+    setTouchPosition({ x: touch.clientX, y: touch.clientY })
   }, [isDragging])
 
   const handleTouchEnd = useCallback((e) => {
-    // Cancelar long press timer
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current)
-      longPressTimer.current = null
-    }
-
     if (!isDragging || !draggedObra) {
       setIsDragging(false)
       setDraggedObra(null)
@@ -99,10 +88,6 @@ export function useTouchDrag(onDrop, canvasRef) {
   }, [isDragging, draggedObra, touchPosition, canvasRef, onDrop])
 
   const cancelDrag = useCallback(() => {
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current)
-      longPressTimer.current = null
-    }
     setIsDragging(false)
     setDraggedObra(null)
   }, [])

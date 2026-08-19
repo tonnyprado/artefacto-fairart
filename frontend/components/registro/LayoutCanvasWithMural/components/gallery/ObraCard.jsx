@@ -1,5 +1,6 @@
 'use client'
 
+import { useRef } from 'react'
 import styles from '../../styles/LayoutCanvas.module.css'
 
 /**
@@ -22,15 +23,31 @@ export function ObraCard({
   onTouchDragStart
 }) {
   const canDrag = !isInCanvas && hasMetadata
+  const touchStartPos = useRef({ x: 0, y: 0 })
 
   const handleTouchStart = (e) => {
-    if (canDrag && onTouchDragStart) {
-      onTouchDragStart(e, obra, { width: 150, height: 112 })
-    }
+    if (!canDrag || !onTouchDragStart) return
+
+    // Guardar posición inicial
+    const touch = e.touches[0]
+    touchStartPos.current = { x: touch.clientX, y: touch.clientY }
+
+    // Prevenir scroll y selección
+    e.preventDefault()
+    e.stopPropagation()
+
+    onTouchDragStart(e, obra, { width: 150, height: 112 })
   }
 
   return (
-    <div className={styles.obraCard}>
+    <div
+      className={styles.obraCard}
+      style={{
+        WebkitUserSelect: 'none',
+        userSelect: 'none',
+        WebkitTouchCallout: 'none',
+      }}
+    >
       <img
         src={obra.preview}
         alt={obra.titulo || 'Sin título'}
@@ -40,7 +57,10 @@ export function ObraCard({
         className={styles.obraCardImage}
         style={{
           cursor: canDrag ? 'grab' : 'default',
-          touchAction: canDrag ? 'none' : 'auto'
+          touchAction: 'none',
+          WebkitUserSelect: 'none',
+          userSelect: 'none',
+          WebkitTouchCallout: 'none',
         }}
       />
 

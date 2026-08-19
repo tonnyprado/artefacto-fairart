@@ -393,7 +393,14 @@ export default function LayoutCanvasWithMural({
   }
 
   return (
-    <div className={styles.container}>
+    <div
+      className={styles.container}
+      onTouchMove={isTouchDragging ? handleTouchMove : undefined}
+      onTouchEnd={isTouchDragging ? handleTouchEnd : undefined}
+      style={{
+        touchAction: isTouchDragging ? 'none' : 'auto',
+      }}
+    >
       {/* Galería de obras - opcional */}
       {!hideGallery && (
         <ObrasGallery
