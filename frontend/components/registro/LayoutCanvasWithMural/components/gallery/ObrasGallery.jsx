@@ -12,7 +12,8 @@ import styles from '../../styles/LayoutCanvas.module.css'
  * @param {Function} onAddNewObra - Callback para agregar nueva obra
  * @param {Function} onEditObra - Callback para editar obra
  * @param {Function} onDeleteObra - Callback para eliminar obra
- * @param {Function} onDragStart - Callback al iniciar drag
+ * @param {Function} onDragStart - Callback al iniciar drag (mouse)
+ * @param {Function} onTouchDragStart - Callback al iniciar drag táctil
  * @param {Function} hasCompleteMetadata - Función que verifica metadata completa
  */
 export function ObrasGallery({
@@ -23,6 +24,7 @@ export function ObrasGallery({
   onEditObra,
   onDeleteObra,
   onDragStart,
+  onTouchDragStart,
   hasCompleteMetadata
 }) {
   const fileInputRef = useRef()
@@ -72,6 +74,7 @@ export function ObrasGallery({
               onEdit={onEditObra}
               onDelete={onDeleteObra}
               onDragStart={onDragStart}
+              onTouchDragStart={onTouchDragStart}
             />
           )
         })}

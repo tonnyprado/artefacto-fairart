@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { Stage, Layer, Group, Rect } from 'react-konva'
 import { layoutsApi } from '@/lib/api'
 
@@ -9,6 +9,7 @@ import { useCanvasDimensions } from './hooks/useCanvasDimensions'
 import { useCanvasExport } from './hooks/useCanvasExport'
 import { useObraMetadata } from './hooks/useObraMetadata'
 import { useLayoutValidation } from './hooks/useLayoutValidation'
+import { useTouchDrag } from './hooks/useTouchDrag'
 
 // Componentes
 import { HorizontalRuler } from './components/rulers/HorizontalRuler'
@@ -52,6 +53,7 @@ export default function LayoutCanvasWithMural({
 }) {
   // Referencias
   const stageRef = useRef()
+  const canvasWrapperRef = useRef()
 
   // Estado local - DEBE IR PRIMERO antes de los hooks que lo usan
   const [obrasEnCanvas, setObrasEnCanvas] = useState(initialLayout?.obras || [])
@@ -90,6 +92,71 @@ export default function LayoutCanvasWithMural({
     areaDelimitada,
     paquete?.obras_maximas
   )
+
+  // Handler para touch drop
+  const handleTouchDrop = useCallback((obra, relativeX, relativeY) => {
+    if (!obra || !areaDelimitada) return
+
+    const dimensions = getObraDimensions(obra)
+
+    // Ajustar posición considerando el ruler (RULER_SIZE)
+    const adjustedX = relativeX - RULER_SIZE
+    const adjustedY = relativeY - RULER_SIZE
+
+    // Limitar a los bounds del área delimitada
+    const boundedX = Math.max(
+      areaDelimitada.x,
+      Math.min(adjustedX - dimensions.width / 2, areaDelimitada.x + areaDelimitada.width - dimensions.width)
+    )
+    const boundedY = Math.max(
+      areaDelimitada.y,
+      Math.min(adjustedY - dimensions.height / 2, areaDelimitada.y + areaDelimitada.height - dimensions.height)
+    )
+
+    // Verificar colisión
+    const hasCollision = checkPositionCollision(
+      { id: 'preview', x: boundedX, y: boundedY, ...dimensions },
+      obrasEnCanvas
+    )
+
+    if (hasCollision) {
+      alert('⚠️ No puedes soltar la obra aquí porque colisiona con otra.')
+      return
+    }
+
+    // Agregar obra al canvas
+    const newObra = {
+      id: obra.id,
+      x: boundedX,
+      y: boundedY,
+      width: dimensions.width,
+      height: dimensions.height,
+      preview: obra.preview,
+      titulo: obra.titulo,
+      ancho_cm: parseFloat(obra.ancho_cm),
+      alto_cm: parseFloat(obra.alto_cm),
+      largo_cm: es3D ? parseFloat(obra.largo_cm) : null,
+      tecnica: obra.tecnica,
+      anio: parseInt(obra.anio),
+      precio_mxn: parseFloat(obra.precio_mxn),
+      notas_montaje: obra.notas_montaje || '',
+      tipo_obra: es3D ? '3D' : '2D'
+    }
+
+    setObrasEnCanvas([...obrasEnCanvas, newObra])
+  }, [areaDelimitada, obrasEnCanvas, es3D, getObraDimensions])
+
+  // Hook para touch drag
+  const {
+    isDragging: isTouchDragging,
+    draggedObra: touchDraggedObra,
+    touchPosition,
+    previewSize,
+    handleTouchStart: onTouchDragStart,
+    handleTouchMove,
+    handleTouchEnd,
+    cancelDrag
+  } = useTouchDrag(handleTouchDrop, canvasWrapperRef)
 
   // Actualizar obras cuando cambian las imágenes del portfolio
   useEffect(() => {
@@ -337,6 +404,7 @@ export default function LayoutCanvasWithMural({
           onEditObra={openMetadataForm}
           onDeleteObra={deleteObra}
           onDragStart={handleRowDragStart}
+          onTouchDragStart={onTouchDragStart}
           hasCompleteMetadata={hasCompleteMetadata}
         />
       )}
@@ -380,6 +448,7 @@ export default function LayoutCanvasWithMural({
 
         {/* Canvas wrapper */}
         <div
+          ref={canvasWrapperRef}
           className={styles.canvasWrapper}
           style={{
             width: '100%',
@@ -392,6 +461,8 @@ export default function LayoutCanvasWithMural({
           onDragOver={handleCanvasDragOver}
           onDrop={handleCanvasDrop}
           onDragLeave={handleCanvasDragLeave}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           <Stage ref={stageRef} width={canvasWidth + RULER_SIZE} height={canvasHeight + RULER_SIZE}>
             {/* Layer de reglas */}
@@ -485,6 +556,37 @@ export default function LayoutCanvasWithMural({
           onUpdateMetadata={updateObraMetadata}
           onClose={closeMetadataForm}
         />
+      )}
+
+      {/* Preview flotante para touch drag */}
+      {isTouchDragging && touchDraggedObra && (
+        <div
+          style={{
+            position: 'fixed',
+            left: touchPosition.x - previewSize.width / 2,
+            top: touchPosition.y - previewSize.height / 2,
+            width: previewSize.width,
+            height: previewSize.height,
+            pointerEvents: 'none',
+            zIndex: 99999,
+            opacity: 0.85,
+            transform: 'scale(1.05)',
+            transition: 'transform 0.1s ease',
+          }}
+        >
+          <img
+            src={touchDraggedObra.preview}
+            alt="Arrastrando"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              borderRadius: '8px',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+              border: '2px solid #B83030',
+            }}
+          />
+        </div>
       )}
     </div>
   )

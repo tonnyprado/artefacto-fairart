@@ -9,7 +9,8 @@ import styles from '../../styles/LayoutCanvas.module.css'
  * @param {boolean} hasMetadata - Si la obra tiene metadata completa
  * @param {Function} onEdit - Callback al editar
  * @param {Function} onDelete - Callback al eliminar
- * @param {Function} onDragStart - Callback al iniciar drag
+ * @param {Function} onDragStart - Callback al iniciar drag (mouse)
+ * @param {Function} onTouchDragStart - Callback al iniciar drag táctil
  */
 export function ObraCard({
   obra,
@@ -17,18 +18,29 @@ export function ObraCard({
   hasMetadata,
   onEdit,
   onDelete,
-  onDragStart
+  onDragStart,
+  onTouchDragStart
 }) {
+  const canDrag = !isInCanvas && hasMetadata
+
+  const handleTouchStart = (e) => {
+    if (canDrag && onTouchDragStart) {
+      onTouchDragStart(e, obra, { width: 150, height: 112 })
+    }
+  }
+
   return (
     <div className={styles.obraCard}>
       <img
         src={obra.preview}
         alt={obra.titulo || 'Sin título'}
-        draggable={!isInCanvas && hasMetadata}
-        onDragStart={(e) => !isInCanvas && hasMetadata && onDragStart(e, obra)}
+        draggable={canDrag}
+        onDragStart={(e) => canDrag && onDragStart(e, obra)}
+        onTouchStart={handleTouchStart}
         className={styles.obraCardImage}
         style={{
-          cursor: !isInCanvas && hasMetadata ? 'grab' : 'default'
+          cursor: canDrag ? 'grab' : 'default',
+          touchAction: canDrag ? 'none' : 'auto'
         }}
       />
 
