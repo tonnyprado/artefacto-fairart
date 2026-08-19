@@ -877,12 +877,12 @@ export default function RegistroPage() {
           {/* Logo y subtítulo centrados */}
           <div style={{ textAlign: 'center' }}>
             <img
-              src="/assets/artefacto-logo.svg"
+              src="/assets/wordmark-red.svg"
               alt="Arte Facto"
               style={{
-                width: 'auto',
-                height: 'clamp(60px, 10vw, 100px)',
-                marginBottom: 16,
+                width: 'clamp(280px, 50vw, 500px)',
+                height: 'auto',
+                marginBottom: 20,
               }}
             />
             <p style={{
