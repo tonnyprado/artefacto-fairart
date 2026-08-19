@@ -1,7 +1,6 @@
 'use client'
 
 import { Group, Line, Rect, Text } from 'react-konva'
-import { LineaDelimitante } from './LineaDelimitante'
 
 /**
  * Componente de líneas delimitadoras basadas en las medidas del paquete
@@ -18,12 +17,24 @@ export function PaqueteDelimiter({ paquete, areaDelimitada, canvasWidth, canvasH
 
   return (
     <Group>
-      {/* Líneas delimitantes verticales usando el SVG personalizado */}
+      {/* Líneas delimitantes verticales */}
       {/* Línea izquierda - posicionada en el borde izquierdo del área */}
-      <LineaDelimitante x={delimiterX} height={canvasHeight} />
+      <Line
+        points={[delimiterX, 0, delimiterX, canvasHeight]}
+        stroke="white"
+        strokeWidth={2}
+        dash={[10, 5]}
+        listening={false}
+      />
 
       {/* Línea derecha - posicionada en el borde derecho del área */}
-      <LineaDelimitante x={delimiterX + delimiterWidth} height={canvasHeight} />
+      <Line
+        points={[delimiterX + delimiterWidth, 0, delimiterX + delimiterWidth, canvasHeight]}
+        stroke="white"
+        strokeWidth={2}
+        dash={[10, 5]}
+        listening={false}
+      />
 
       {/* Líneas delimitantes horizontales */}
       {/* Línea superior - posicionada en el borde superior del área */}

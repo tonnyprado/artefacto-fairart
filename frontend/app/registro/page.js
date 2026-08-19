@@ -832,66 +832,71 @@ export default function RegistroPage() {
       }}>
         <div style={{ maxWidth: currentStep === 2 ? 1950 : 900, margin: '0 auto', transition: 'max-width 0.3s ease' }}>
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: 48 }}>
-          <button
-            onClick={handleVolver}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              color: COLORS.red,
-              marginBottom: 24,
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              fontFamily: FONTS.body,
-              fontSize: 14,
-              fontWeight: 600,
-              letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-              transition: 'all 0.2s ease',
-            }}
-            onMouseEnter={(e) => e.target.style.transform = 'translateX(-4px)'}
-            onMouseLeave={(e) => e.target.style.transform = 'translateX(0)'}
-          >
-            <svg
-              style={{ width: 20, height: 20, marginRight: 8 }}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+        <div style={{ marginBottom: 48 }}>
+          {/* Botón convocatoria - alineado a la izquierda */}
+          <div style={{ marginBottom: 32 }}>
+            <a
+              href="/#convocatoria"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                color: COLORS.red,
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: FONTS.body,
+                fontSize: 14,
+                fontWeight: 600,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                textDecoration: 'none',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'translateX(-4px)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'translateX(0)'}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10 19l-7-7m0 0l7-7m-7 7h18"
-              />
-            </svg>
-            Volver a Convocatoria
-          </button>
+              <svg
+                style={{ width: 20, height: 20, marginRight: 8 }}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
+              </svg>
+              Convocatoria aquí
+            </a>
+          </div>
 
-          <h1 style={{
-            margin: '0 0 12px',
-            fontFamily: FONTS.display,
-            fontWeight: FONTS.displayWeight,
-            fontStyle: FONTS.displayStyle,
-            fontSize: 'clamp(32px, 5vw, 48px)',
-            letterSpacing: '0.04em',
-            textTransform: 'uppercase',
-            color: COLORS.black,
-          }}>
-            Registro de Artistas
-          </h1>
-          <p style={{
-            margin: 0,
-            fontSize: 18,
-            color: COLORS.gray,
-            fontFamily: FONTS.body,
-            fontWeight: 600,
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-          }}>
-            ARTE FACTO 2027
-          </p>
+          {/* Logo y subtítulo centrados */}
+          <div style={{ textAlign: 'center' }}>
+            <img
+              src="/assets/artefacto-logo.svg"
+              alt="Arte Facto"
+              style={{
+                width: 'auto',
+                height: 'clamp(60px, 10vw, 100px)',
+                marginBottom: 16,
+              }}
+            />
+            <p style={{
+              margin: 0,
+              fontSize: 'clamp(18px, 3vw, 24px)',
+              color: COLORS.black,
+              fontFamily: FONTS.display,
+              fontWeight: FONTS.displayWeight,
+              fontStyle: FONTS.displayStyle,
+              letterSpacing: '0.04em',
+            }}>
+              Lienzo de postulación
+            </p>
+          </div>
         </div>
 
         {/* Progress Bar */}
