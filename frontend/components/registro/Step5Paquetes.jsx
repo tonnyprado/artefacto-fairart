@@ -32,15 +32,15 @@ const FONTS = {
 // Categorías artísticas
 const CATEGORIAS = [
   { value: 'pintura', label: 'Pintura', tipo: '2D' },
+  { value: 'acuarela', label: 'Acuarela', tipo: '2D' },
+  { value: 'dibujo', label: 'Dibujo', tipo: '2D' },
   { value: 'escultura', label: 'Escultura', tipo: '3D' },
+  { value: 'grafica', label: 'Gráfica', tipo: '2D' },
   { value: 'fotografia', label: 'Fotografía', tipo: '2D' },
-  { value: 'ilustracion', label: 'Ilustración', tipo: '2D' },
-  { value: 'arte_digital', label: 'Arte Digital', tipo: '2D' },
-  { value: 'grabado', label: 'Grabado', tipo: '2D' },
-  { value: 'instalacion', label: 'Instalación', tipo: '3D' },
   { value: 'ceramica', label: 'Cerámica', tipo: '3D' },
-  { value: 'arte_textil', label: 'Arte Textil', tipo: '2D' },
-  { value: 'arte_mixto', label: 'Arte Mixto', tipo: '2D' },
+  { value: 'collage_mixta', label: 'Collage & Mixta', tipo: '2D' },
+  { value: 'textil', label: 'Textil', tipo: '2D' },
+  { value: 'otro', label: 'Otro', tipo: 'TODOS' },
 ]
 
 export default function Step5Paquetes({ formData, updateFormData, errors, onContinue }) {
@@ -75,6 +75,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
   const [selectedCategoria, setSelectedCategoria] = useState(formData.categoria || '')
   const categoriaSeleccionada = CATEGORIAS.find(c => c.value === selectedCategoria)
   const esArtista3D = categoriaSeleccionada?.tipo === '3D'
+  const mostrarTodosPaquetes = categoriaSeleccionada?.tipo === 'TODOS'
 
   useEffect(() => { fetchPaquetes() }, [])
 
@@ -128,7 +129,9 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
     }
   }, [confirmedPaquete?.id])
 
-  const paquetesFiltrados = paquetes.filter(p => esArtista3D ? p.tipo === '3D' : p.tipo === '2D')
+  const paquetesFiltrados = mostrarTodosPaquetes
+    ? paquetes
+    : paquetes.filter(p => esArtista3D ? p.tipo === '3D' : p.tipo === '2D')
 
   const handleCategoriaChange = (value) => {
     setSelectedCategoria(value)
@@ -218,7 +221,8 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
 
   const hasCompleteMetadata = (obra) => {
     const baseFields = obra.titulo && obra.ancho_cm && obra.alto_cm && obra.tecnica && obra.precio_mxn
-    if (esArtista3D) {
+    const es3DActual = mostrarTodosPaquetes ? confirmedPaquete?.tipo === '3D' : esArtista3D
+    if (es3DActual) {
       return baseFields && obra.largo_cm
     }
     return baseFields
@@ -515,9 +519,9 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
                 }}
               >
                 <div style={{ padding: '10px 16px', background: 'rgba(184,48,48,0.05)', borderBottom: `1px solid ${COLORS.creamDark}`, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  {esArtista3D ? <Box size={14} color={COLORS.red} /> : <Palette size={14} color={COLORS.red} />}
+                  {mostrarTodosPaquetes ? <Box size={14} color={COLORS.red} /> : (esArtista3D ? <Box size={14} color={COLORS.red} /> : <Palette size={14} color={COLORS.red} />)}
                   <span style={{ fontFamily: FONTS.body, fontSize: '11px', color: COLORS.black, fontWeight: 600 }}>
-                    {esArtista3D ? 'Paquetes 3D' : 'Paquetes 2D'}
+                    {mostrarTodosPaquetes ? 'Todos los paquetes' : (esArtista3D ? 'Paquetes 3D' : 'Paquetes 2D')}
                   </span>
                 </div>
 
@@ -560,8 +564,13 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
                               </p>
                               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '12px' }}>
                                 <span style={{ background: 'rgba(184,48,48,0.1)', padding: '4px 8px', borderRadius: '6px', fontFamily: FONTS.body, fontSize: '11px', color: COLORS.black }}>
-                                  {esArtista3D ? `${paquete.metros_cuadrados}m²` : `${paquete.metros_lineales}m`}
+                                  {paquete.tipo === '3D' ? `${paquete.metros_cuadrados}m²` : `${paquete.metros_lineales}m`}
                                 </span>
+                                {mostrarTodosPaquetes && (
+                                  <span style={{ background: paquete.tipo === '3D' ? 'rgba(184,48,48,0.15)' : 'rgba(107,107,107,0.1)', padding: '4px 8px', borderRadius: '6px', fontFamily: FONTS.body, fontSize: '10px', color: paquete.tipo === '3D' ? COLORS.red : COLORS.gray, fontWeight: 600 }}>
+                                    {paquete.tipo}
+                                  </span>
+                                )}
                                 <span style={{ background: 'rgba(184,48,48,0.1)', padding: '4px 8px', borderRadius: '6px', fontFamily: FONTS.body, fontSize: '11px', color: COLORS.black }}>
                                   ${paquete.precio} MXN
                                 </span>
@@ -715,7 +724,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
       {editingObra && (
         <ObraModal
           obra={editingObra}
-          es3D={esArtista3D}
+          es3D={mostrarTodosPaquetes ? confirmedPaquete?.tipo === '3D' : esArtista3D}
           onSave={(updated) => { setTodasLasObras(prev => prev.map(o => o.id === updated.id ? updated : o)); setEditingObra(null) }}
           onClose={() => setEditingObra(null)}
         />
