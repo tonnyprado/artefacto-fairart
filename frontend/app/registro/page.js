@@ -875,14 +875,19 @@ export default function RegistroPage() {
           </div>
 
           {/* Logo y subtítulo centrados */}
-          <div style={{ textAlign: 'center' }}>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
             <img
               src="/assets/wordmark-red.svg"
               alt="Arte Facto"
               style={{
-                width: 'clamp(280px, 50vw, 500px)',
+                width: 'clamp(200px, 35vw, 320px)',
                 height: 'auto',
-                marginBottom: 20,
+                marginBottom: 16,
               }}
             />
             <p style={{
