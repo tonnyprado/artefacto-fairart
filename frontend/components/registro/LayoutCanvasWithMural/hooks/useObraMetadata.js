@@ -20,6 +20,18 @@ export function useObraMetadata(initialPortfolioImages = [], es3D = false) {
   const [showMetadataForm, setShowMetadataForm] = useState(false)
 
   /**
+   * Convierte un archivo a base64 data URL (más compatible con Safari/iOS)
+   */
+  const fileToDataURL = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result)
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+  }
+
+  /**
    * Agrega nuevas obras desde archivos
    */
   const handleAddNewObra = useCallback(async (files) => {
@@ -41,10 +53,13 @@ export function useObraMetadata(initialPortfolioImages = [], es3D = false) {
         console.log(`Comprimiendo obra: ${file.name}...`)
         const compressedFile = await compressImage(file, IMAGE_COMPRESSION_CONFIG)
 
+        // Usar base64 data URL en lugar de blob URL para compatibilidad con Safari/iOS
+        const previewDataURL = await fileToDataURL(compressedFile)
+
         compressedObras.push({
           id: `img-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           file: compressedFile,
-          preview: URL.createObjectURL(compressedFile),
+          preview: previewDataURL,
           titulo: '',
           alto_cm: '',
           ancho_cm: '',
@@ -95,13 +110,7 @@ export function useObraMetadata(initialPortfolioImages = [], es3D = false) {
    * Elimina una obra
    */
   const deleteObra = useCallback((obraId) => {
-    setTodasLasObras(prev => {
-      const obra = prev.find(o => o.id === obraId)
-      if (obra?.preview?.startsWith('blob:')) {
-        URL.revokeObjectURL(obra.preview)
-      }
-      return prev.filter(o => o.id !== obraId)
-    })
+    setTodasLasObras(prev => prev.filter(o => o.id !== obraId))
 
     setEditingObra(prev => {
       if (prev?.id === obraId) {
