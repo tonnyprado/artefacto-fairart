@@ -288,14 +288,14 @@ export default function LandingArtefacto() {
 
         lenis.current = new Lenis({
           autoRaf: true,
-          duration: mobile ? 1.2 : 2.5,           // Desktop más pesado (2.5), móvil más ligero (1.2)
+          duration: mobile ? 1.4 : 3.5,           // Desktop más pesado (3.5), móvil más ligero (1.4)
           easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Easing suave
-          lerp: mobile ? 0.15 : 0.06,             // Móvil más responsivo, desktop más suave
-          wheelMultiplier: mobile ? 1.0 : 0.6,    // Desktop más pesado
+          lerp: mobile ? 0.12 : 0.04,             // Móvil más responsivo, desktop más suave y pesado
+          wheelMultiplier: mobile ? 1.0 : 0.45,   // Desktop más pesado
           touchMultiplier: mobile ? 1.2 : 1.0,    // Móvil más rápido al tacto
           smoothWheel: true,                      // Suavizar scroll de rueda
           syncTouch: mobile,                      // ACTIVAR suavizado táctil en móvil
-          syncTouchLerp: mobile ? 0.12 : 0.06,    // Móvil más rápido
+          syncTouchLerp: mobile ? 0.10 : 0.04,    // Más suave
         });
       } catch { /* lenis no instalado — scroll nativo */ }
     })();

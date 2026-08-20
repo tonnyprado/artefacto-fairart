@@ -41,8 +41,8 @@ export default function ConocerMas() {
   const ghostRef = useRef(null);
   const pinRef = useRef(null);
   const introRef = useRef(null);
-  const labelRefs = useRef([]);
-  const rowsRef = useRef([]);
+  const labelsRef = useRef([]);
+  const sectionRefs = useRef([]);
 
   // Refs Móvil
   const mobileLogoRef = useRef(null);
@@ -214,7 +214,8 @@ export default function ConocerMas() {
     const frame = () => {
       const s = getScrollY();
       const vh = window.innerHeight || document.documentElement.clientHeight || 800;
-      const labels = labelRefs.current.filter(Boolean);
+      const labels = labelsRef.current.filter(Boolean);
+      const sections = sectionRefs.current.filter(Boolean);
 
       // Verificar que tenemos elementos válidos
       if (!labels.length) return;
@@ -225,8 +226,7 @@ export default function ConocerMas() {
         setTrackY(-Math.min(s * PHOTO_SPEED, maxTy));
       }
 
-      // 2) Stack de subtemas con efecto de empuje
-      // Comportamiento: cada título sube desde su posición inicial y empuja al anterior
+      // 2) Títulos que se mueven desde la pila hacia posición sticky
       let maskBottom;
       try {
         maskBottom = mask ? mask.getBoundingClientRect().bottom : NAVBAR_HEIGHT + 150;
@@ -235,99 +235,91 @@ export default function ConocerMas() {
       }
 
       const stickyTop = maskBottom + 6;
+      const stackBaseBottom = 32; // Posición base de la pila
+      const labelSpacing = 45; // Espacio entre labels apilados
+      const totalLabels = labels.length;
 
-      // Encontrar cuál es el label "activo" (el que debería estar visible en la posición sticky)
-      // Es el label cuyo siguiente aún no ha llegado a la posición sticky
-      let activeIndex = -1;
-      for (let i = labels.length - 1; i >= 0; i--) {
-        const lab = labels[i];
-        if (!lab) continue;
-
-        let labTop;
-        try {
-          labTop = lab.getBoundingClientRect().top;
-        } catch (e) {
-          continue;
-        }
-
-        // Un label está "activo" si ya llegó a la posición sticky o está por encima
-        if (labTop <= stickyTop + 10) {
-          activeIndex = i;
-          break;
-        }
-      }
-
-      // Aplicar estilos a cada label
       for (let i = 0; i < labels.length; i++) {
         const lab = labels[i];
+        const section = sections[i];
         if (!lab) continue;
 
-        const labH = lab.offsetHeight || 50;
+        const labH = lab.offsetHeight || 45;
 
-        let labTop;
-        try {
-          labTop = lab.getBoundingClientRect().top;
-        } catch (e) {
-          continue;
+        // Calcular posición inicial (apilado abajo)
+        // ARTIS FACTUM (i=0) arriba, ÉTICAS CREATIVAS (i=3) abajo
+        const visualIndex = totalLabels - 1 - i;
+        const initialBottom = stackBaseBottom + visualIndex * labelSpacing;
+
+        // Obtener posición de la sección correspondiente
+        let sectionTop = vh + 100; // Valor por defecto si no hay sección
+        if (section) {
+          try {
+            sectionTop = section.getBoundingClientRect().top;
+          } catch (e) {}
         }
 
-        // Si este label aún no ha llegado a la posición sticky, dejarlo en su posición natural
-        if (labTop > stickyTop + 10) {
+        // Calcular cuándo debe empezar a moverse el label
+        // El label empieza a moverse cuando su sección está a 80% del viewport
+        const triggerPoint = vh * 0.8;
+        const moveDistance = vh - initialBottom - stickyTop; // Distancia total a recorrer
+
+        if (sectionTop > triggerPoint) {
+          // Sección aún no ha llegado - label en posición apilada
+          lab.style.top = 'auto';
+          lab.style.bottom = `${initialBottom}px`;
           lab.style.transform = '';
           lab.style.opacity = '1';
-          continue;
-        }
-
-        // Este label ya llegó a la posición sticky o está siendo empujado
-        // Verificar si hay un siguiente label que lo esté empujando
-        const nextLab = labels[i + 1];
-
-        if (!nextLab) {
-          // Es el último label - sin empuje, visible en posición sticky
+        } else if (sectionTop > stickyTop) {
+          // Sección está entre el trigger y la posición sticky - animando
+          const progress = 1 - ((sectionTop - stickyTop) / (triggerPoint - stickyTop));
+          lab.style.bottom = 'auto';
+          lab.style.top = `${vh - initialBottom - labH - (progress * moveDistance)}px`;
           lab.style.transform = '';
           lab.style.opacity = '1';
-          continue;
-        }
-
-        let nextTop;
-        try {
-          nextTop = nextLab.getBoundingClientRect().top;
-        } catch (e) {
-          lab.style.transform = '';
-          lab.style.opacity = '1';
-          continue;
-        }
-
-        // El siguiente label lo empuja cuando está cerca de la posición sticky
-        // El empuje empieza cuando el siguiente está a 1.5x la altura del label
-        const pushZone = labH * 1.5;
-        const distanceNextToSticky = nextTop - stickyTop;
-
-        if (distanceNextToSticky > pushZone) {
-          // El siguiente label está lejos - este label está en posición sticky normal
-          lab.style.transform = '';
-          lab.style.opacity = '1';
-        } else if (distanceNextToSticky > 0) {
-          // El siguiente label está subiendo y empujando a este
-          // El empuje es proporcional a qué tan cerca está el siguiente
-          const pushProgress = 1 - (distanceNextToSticky / pushZone);
-          const pushAmount = pushProgress * labH;
-          lab.style.transform = `translateY(${-pushAmount}px)`;
-          lab.style.opacity = String(Math.max(0.1, 1 - pushProgress * 0.9));
         } else {
-          // El siguiente label ya llegó - este label fue empujado completamente
-          lab.style.transform = `translateY(${-labH}px)`;
-          lab.style.opacity = '0';
+          // Sección llegó a sticky - label en posición sticky
+          lab.style.bottom = 'auto';
+          lab.style.top = `${stickyTop}px`;
+
+          // Verificar si el siguiente label lo está empujando
+          const nextSection = sections[i + 1];
+          if (nextSection) {
+            let nextSectionTop;
+            try {
+              nextSectionTop = nextSection.getBoundingClientRect().top;
+            } catch (e) {
+              nextSectionTop = vh + 100;
+            }
+
+            const pushZone = labH * 1.5;
+            if (nextSectionTop < stickyTop + pushZone && nextSectionTop > stickyTop - labH) {
+              // Siendo empujado
+              const pushProgress = 1 - ((nextSectionTop - stickyTop) / pushZone);
+              const pushAmount = Math.max(0, pushProgress * labH);
+              lab.style.transform = `translateY(${-pushAmount}px)`;
+              lab.style.opacity = String(Math.max(0.1, 1 - pushProgress * 0.9));
+            } else if (nextSectionTop <= stickyTop - labH) {
+              // Completamente empujado (oculto)
+              lab.style.transform = `translateY(${-labH}px)`;
+              lab.style.opacity = '0';
+            } else {
+              lab.style.transform = '';
+              lab.style.opacity = '1';
+            }
+          } else {
+            lab.style.transform = '';
+            lab.style.opacity = '1';
+          }
         }
       }
 
       // 3) "CONOCE MÁS" visibility
-      if (ghost && labels.length) {
+      const firstSection = sections[0];
+      if (ghost && firstSection) {
         try {
-          const anyPinned = labels.some(
-            (l) => l && l.getBoundingClientRect().top <= maskBottom + 16
-          );
-          ghost.style.opacity = anyPinned ? '0' : '1';
+          const firstSectionTop = firstSection.getBoundingClientRect().top;
+          ghost.style.opacity = firstSectionTop <= vh * 0.8 ? '0' : '1';
         } catch (e) {
           // Ignorar errores de getBoundingClientRect
         }
@@ -368,17 +360,6 @@ export default function ConocerMas() {
         pin.style.display = 'none';
         if (flow) flow.style.visibility = 'visible';
       }
-
-      // 5) Pila inferior
-      rowsRef.current.forEach((row, i) => {
-        const lab = labels[i];
-        if (!row || !lab) return;
-        try {
-          row.style.opacity = lab.getBoundingClientRect().top > vh - 10 ? '1' : '0';
-        } catch (e) {
-          // Ignorar errores
-        }
-      });
     };
 
     // Usar GSAP ticker si está disponible, sino requestAnimationFrame
@@ -629,7 +610,7 @@ export default function ConocerMas() {
     <div className="bg-crema font-sans text-tinta">
       <PhotoRail trackRef={trackRef} navbarHeight={NAVBAR_HEIGHT} />
       <PinnedIntro pinRef={pinRef} navbarHeight={NAVBAR_HEIGHT} />
-      <QueueIndex rowsRef={rowsRef} />
+      <QueueIndex labelsRef={labelsRef} navbarHeight={NAVBAR_HEIGHT} />
       <LogoMask maskRef={maskRef} ghostRef={ghostRef} navbarHeight={NAVBAR_HEIGHT} />
 
       <main className="relative z-[2]">
@@ -647,8 +628,8 @@ export default function ConocerMas() {
           <SubtemaSection
             key={s.id}
             data={s}
-            labelRef={(el) => {
-              if (el) labelRefs.current[i] = el;
+            sectionRef={(el) => {
+              if (el) sectionRefs.current[i] = el;
             }}
             introRef={i === 0 ? introRef : undefined}
             minH={i === 2 ? 'min-h-[130vh]' : i === 3 ? '' : 'min-h-[110vh]'}

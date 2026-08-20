@@ -58,36 +58,21 @@ function Block({ b, introRef }) {
 }
 
 /**
- * SubtemaSection - Una sección con subtema sticky
- * Fila de grid: celda izquierda con el subtema sticky
- * + celda central con etimología y bloques de contenido
+ * SubtemaSection - Una sección de contenido
+ * Los títulos ahora están en QueueIndex y se mueven desde ahí
  */
 export default function SubtemaSection({
   data,
-  labelRef,
+  sectionRef,
   introRef,
   minH = 'min-h-[110vh]',
 }) {
   return (
     <section
+      ref={sectionRef}
       data-screen-label={data.id}
-      className={`grid grid-cols-[25vw_1fr] box-border pt-[11vh] pb-[14vh] pr-[calc(39.5vw+48px)] ${minH}`}
+      className={`ml-[25vw] box-border pt-[11vh] pb-[14vh] pr-[calc(39.5vw+48px)] ${minH}`}
     >
-      {/* La celda se extiende más allá de la fila para que el subtema saliente
-          permanezca fijo hasta que el entrante lo alcance y lo empuje */}
-      <div style={{ height: 'calc(100% + 25vh + 250px)' }}>
-        <div
-          data-sublabel
-          ref={labelRef}
-          className={`sticky box-border ${cls.pinTop} ${cls.labelW} ${cls.labelPad} ${cls.rule}`}
-        >
-          <div className={cls.labelRow}>
-            <span>{data.words[0]}</span>
-            <span>{data.words[1]}</span>
-          </div>
-        </div>
-      </div>
-
       <div className="max-w-[641px]">
         {/* Etimología */}
         <div className="mb-[9vh] flex justify-between gap-10">
@@ -111,3 +96,8 @@ export default function SubtemaSection({
     </section>
   );
 }
+
+// Exportar labelRef como deprecated para no romper imports
+SubtemaSection.defaultProps = {
+  sectionRef: undefined,
+};
