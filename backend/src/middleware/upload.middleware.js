@@ -10,14 +10,27 @@ const storage = multer.memoryStorage()
 
 // Filtro de archivos permitidos
 const fileFilter = (req, file, cb) => {
-  const allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
-  const allowedDocTypes = ['application/pdf']
+  const allowedImageTypes = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/webp',
+    'image/gif'
+  ]
+  const allowedDocTypes = [
+    'application/pdf',
+    'application/msword', // .doc
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document' // .docx
+  ]
   const allowedTypes = [...allowedImageTypes, ...allowedDocTypes]
+
+  console.log(`📁 Archivo recibido: ${file.fieldname} - ${file.originalname} (${file.mimetype})`)
 
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true)
   } else {
-    cb(new Error(`Tipo de archivo no permitido: ${file.mimetype}. Solo se permiten imágenes (JPG, PNG, WebP) y PDFs.`), false)
+    console.error(`❌ Tipo de archivo no permitido: ${file.mimetype}`)
+    cb(new Error(`Tipo de archivo no permitido: ${file.mimetype}. Solo se permiten imágenes (JPG, PNG, WebP, GIF) y documentos (PDF, DOC, DOCX).`), false)
   }
 }
 
@@ -26,7 +39,9 @@ const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB máximo por archivo
+    fileSize: 15 * 1024 * 1024, // 15MB máximo por archivo
+    files: 20, // Máximo 20 archivos
+    fieldSize: 10 * 1024 * 1024 // 10MB para campos de texto (layout_canvas_data puede ser grande)
   }
 })
 
@@ -51,19 +66,34 @@ export const uploadArray = upload.array.bind(upload)
 /**
  * Middleware personalizado para registro de artistas
  * Maneja todos los archivos que puede subir un artista
+ *
+ * CAMPOS ESPERADOS:
+ * - foto: Foto de perfil (JPG, PNG, WebP) - REQUERIDO
+ * - cv: CV Artístico (PDF, DOC, DOCX) - REQUERIDO
+ * - portfolio: Portafolio (PDF) - REQUERIDO
+ * - identificacion: INE o Pasaporte (JPG, PNG, PDF) - REQUERIDO
+ * - layout_canvas_image: Preview del lienzo (JPG) - AUTO-GENERADO
+ * - layout_canvas_pdf: PDF del lienzo (PDF) - AUTO-GENERADO
+ * - obra_lienzo_0 a obra_lienzo_9: Imágenes de obras (JPG, PNG, WebP) - SEGÚN PAQUETE
  */
 export const uploadArtistaFiles = upload.fields([
-  { name: 'foto', maxCount: 1 },                    // Foto de perfil
-  { name: 'cv', maxCount: 1 },                      // CV PDF
-  { name: 'portfolio', maxCount: 1 },               // Portfolio PDF
-  { name: 'identificacion', maxCount: 1 },          // Identificación
-  { name: 'layout_canvas_image', maxCount: 1 },     // Canvas generado (imagen preview)
-  { name: 'layout_canvas_pdf', maxCount: 1 },       // Canvas generado (PDF completo)
-  { name: 'obra_lienzo_0', maxCount: 1 },           // Obras del lienzo
+  { name: 'foto', maxCount: 1 },                    // Foto de perfil (imagen)
+  { name: 'cv', maxCount: 1 },                      // CV (PDF, DOC, DOCX)
+  { name: 'portfolio', maxCount: 1 },               // Portfolio (PDF)
+  { name: 'identificacion', maxCount: 1 },          // Identificación (imagen o PDF)
+  { name: 'layout_canvas_image', maxCount: 1 },     // Canvas preview (imagen)
+  { name: 'layout_canvas_pdf', maxCount: 1 },       // Canvas completo (PDF)
+  // Obras del lienzo (hasta 10)
+  { name: 'obra_lienzo_0', maxCount: 1 },
   { name: 'obra_lienzo_1', maxCount: 1 },
   { name: 'obra_lienzo_2', maxCount: 1 },
   { name: 'obra_lienzo_3', maxCount: 1 },
-  { name: 'obra_lienzo_4', maxCount: 1 }
+  { name: 'obra_lienzo_4', maxCount: 1 },
+  { name: 'obra_lienzo_5', maxCount: 1 },
+  { name: 'obra_lienzo_6', maxCount: 1 },
+  { name: 'obra_lienzo_7', maxCount: 1 },
+  { name: 'obra_lienzo_8', maxCount: 1 },
+  { name: 'obra_lienzo_9', maxCount: 1 }
 ])
 
 /**

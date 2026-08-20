@@ -36,9 +36,9 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
 
     const fileSizeMB = file.size / (1024 * 1024)
 
-    // Rechazar archivos mayores a 10MB
-    if (fileSizeMB > 10) {
-      alert(`El archivo es muy grande (${fileSizeMB.toFixed(2)}MB). El tamaño máximo es 10MB.`)
+    // Rechazar archivos mayores a 15MB
+    if (fileSizeMB > 15) {
+      alert(`El archivo es muy grande (${fileSizeMB.toFixed(2)}MB). El tamaño máximo es 15MB.`)
       return
     }
 
@@ -77,9 +77,9 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
 
     const fileSizeMB = file.size / (1024 * 1024)
 
-    // Rechazar archivos mayores a 10MB
-    if (fileSizeMB > 10) {
-      alert(`El archivo es muy grande (${fileSizeMB.toFixed(2)}MB). El tamaño máximo es 10MB.`)
+    // Rechazar archivos mayores a 15MB
+    if (fileSizeMB > 15) {
+      alert(`El archivo es muy grande (${fileSizeMB.toFixed(2)}MB). El tamaño máximo es 15MB.`)
       return
     }
 
@@ -121,13 +121,13 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
       {/* Foto de Perfil */}
       <FileUpload
         label="Foto de perfil"
-        accept="image/*"
-        maxSize={10}
+        accept="image/jpeg,image/png,image/webp"
+        maxSize={15}
         required
         value={formData.foto}
         onChange={handleFotoChange}
         error={errors?.foto}
-        helperText="Nombrar archivo: Foto_NombreArtista/Colectivo"
+        helperText="Formatos: JPG, PNG, WebP — Nombrar: Foto_NombreArtista"
         isLoading={loadingStates.foto}
         loadingText="Comprimiendo foto..."
       />
@@ -135,13 +135,13 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
       {/* CV Artístico */}
       <FileUpload
         label="CV Artístico"
-        accept=".pdf,.doc,.docx"
-        maxSize={10}
+        accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        maxSize={15}
         required
         value={formData.documentos?.cv}
         onChange={(file) => handleFileChange('cv', file)}
         error={errors?.cv}
-        helperText="Nombrar archivo: CV_NombreArtista/Colectivo"
+        helperText="Formatos: PDF, DOC, DOCX — Nombrar: CV_NombreArtista"
         isLoading={loadingStates.cv}
         loadingText="Procesando CV..."
       />
@@ -149,13 +149,13 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
       {/* Portafolio */}
       <FileUpload
         label="Portafolio"
-        accept=".pdf"
-        maxSize={10}
+        accept=".pdf,application/pdf"
+        maxSize={15}
         required
         value={formData.documentos?.portfolio}
         onChange={(file) => handleFileChange('portfolio', file)}
         error={errors?.portfolio}
-        helperText="Nombrar archivo: Portafolio_NombreArtista/Colectivo — Con este documento queremos conocer tu trayectoria, no es necesariamente la obra con la que te postularás a ARTE FACTO."
+        helperText="Formato: PDF — Nombrar: Portafolio_NombreArtista — Con este documento queremos conocer tu trayectoria artística."
         isLoading={loadingStates.portfolio}
         loadingText="Procesando portafolio..."
       />
@@ -163,13 +163,13 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
       {/* Identificación Oficial */}
       <FileUpload
         label="Identificación Oficial (INE o pasaporte)"
-        accept="image/*,.pdf"
-        maxSize={10}
+        accept="image/jpeg,image/png,image/webp,.pdf,application/pdf"
+        maxSize={15}
         required
         value={formData.documentos?.identificacion}
         onChange={(file) => handleFileChange('identificacion', file)}
         error={errors?.identificacion}
-        helperText="Nombrar archivo: ID_NombreArtista/Colectivo"
+        helperText="Formatos: JPG, PNG, WebP, PDF — Nombrar: ID_NombreArtista"
         isLoading={loadingStates.identificacion}
         loadingText="Comprimiendo identificación..."
       />
@@ -235,7 +235,7 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
             lineHeight: '1.7',
             margin: 0
           }}>
-            Las imágenes se comprimen automáticamente para optimizar el tamaño sin perder calidad. Los archivos por encima de los 10 MB no son aceptados, archivos por encima de 5 MB y debajo de 10 MB se comprimirán. Los archivos menores a 5 MB no serán comprimidos.
+            Las imágenes se comprimen automáticamente para optimizar el tamaño sin perder calidad. Los archivos por encima de 15MB no son aceptados. Las imágenes mayores a 5MB se comprimen automáticamente.
           </p>
         </div>
       </div>

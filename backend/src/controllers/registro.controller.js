@@ -290,7 +290,7 @@ export const registrarArtista = async (req, res) => {
     const obrasCreadas = []
 
     if (s3Available) {
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 10; i++) {
         const fieldName = `obra_lienzo_${i}`
         if (req.files?.[fieldName]?.[0]) {
           console.log(`🖼️ Subiendo obra ${i + 1}...`)
