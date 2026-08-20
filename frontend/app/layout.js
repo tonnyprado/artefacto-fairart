@@ -30,22 +30,36 @@ export const metadata = {
     template: '%s | ARTEFACTO',
   },
 
-  // Descripcion optimizada para SEO (155-160 caracteres)
-  description: 'Feria de arte contemporaneo en CDMX. Conectamos artistas emergentes con coleccionistas y amantes del arte. Convocatoria abierta 2027. Inscribete ahora.',
+  // Descripcion optimizada para SEO
+  description: 'ARTEFACTO (Arte Facto) - Feria de arte contemporaneo en CDMX. Conectamos artistas emergentes con coleccionistas. Convocatoria abierta 2027.',
 
-  // Keywords relevantes
+  // Keywords relevantes - incluye variaciones del nombre para SEO
   keywords: [
+    // Variaciones del nombre de marca
+    'ARTEFACTO',
+    'artefacto',
+    'arte facto',
+    'arte-facto',
+    'artefacto feria',
+    'arte facto feria',
+    'artefacto mexico',
+    'artefacto cdmx',
+    'artefacto feria de arte',
+    // Keywords de industria
     'feria de arte',
+    'feria de arte mexico',
+    'feria de arte cdmx',
+    'feria arte contemporaneo',
     'arte contemporaneo',
+    'arte contemporaneo mexico',
     'artistas emergentes',
+    'artistas emergentes mexico',
     'exposicion de arte',
-    'CDMX',
     'convocatoria artistas',
+    'convocatoria artistas 2027',
     'galeria de arte',
     'arte mexicano',
     'coleccionismo de arte',
-    'ARTEFACTO',
-    'feria arte Mexico',
     'artistas mexicanos',
   ],
 
@@ -88,9 +102,9 @@ export const metadata = {
     type: 'website',
     locale: 'es_MX',
     url: BASE_URL,
-    siteName: 'ARTEFACTO | Feria de Arte',
-    title: 'ARTEFACTO | Feria de Arte Contemporaneo en Mexico',
-    description: 'Feria de arte contemporaneo en CDMX. Conectamos artistas emergentes con coleccionistas. Convocatoria abierta 2027.',
+    siteName: 'ARTEFACTO (Arte Facto) | Feria de Arte',
+    title: 'ARTEFACTO | Feria de Arte Contemporaneo Mexico 2027',
+    description: 'ARTEFACTO (Arte Facto) - Feria de arte contemporaneo en CDMX. Conectamos artistas emergentes con coleccionistas. Convocatoria abierta.',
     images: [
       {
         url: '/og-image.jpg',

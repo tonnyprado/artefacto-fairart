@@ -16,7 +16,17 @@ export function generateOrganizationSchema() {
     '@type': 'Organization',
     '@id': `${BASE_URL}/#organization`,
     name: 'ARTEFACTO',
-    alternateName: 'ARTEFACTO Feria de Arte Contemporaneo',
+    // Variaciones del nombre para que Google asocie todas las busquedas
+    alternateName: [
+      'ARTEFACTO Feria de Arte',
+      'Arte Facto',
+      'Arte-Facto',
+      'ARTE FACTO',
+      'Artefacto Feria de Arte Contemporaneo',
+      'Artefacto Mexico',
+      'Artefacto CDMX',
+      'Feria Artefacto',
+    ],
     url: BASE_URL,
     logo: {
       '@type': 'ImageObject',
@@ -244,8 +254,14 @@ export function generateWebSiteSchema() {
     '@id': `${BASE_URL}/#website`,
     url: BASE_URL,
     name: 'ARTEFACTO',
-    alternateName: 'ARTEFACTO Feria de Arte',
-    description: 'Feria de arte contemporaneo que impulsa artistas emergentes en Mexico',
+    alternateName: [
+      'ARTEFACTO Feria de Arte',
+      'Arte Facto',
+      'Arte-Facto',
+      'Artefacto',
+      'Feria Artefacto',
+    ],
+    description: 'ARTEFACTO (Arte Facto) - Feria de arte contemporaneo que impulsa artistas emergentes en Mexico',
     publisher: {
       '@id': `${BASE_URL}/#organization`,
     },
