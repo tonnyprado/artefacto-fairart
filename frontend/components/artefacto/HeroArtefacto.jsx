@@ -56,130 +56,102 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
       });
   }, []);
 
-  // Efecto de proximidad con el mouse - SPATIAL PARTITIONING (igual al original)
+  // Efecto de proximidad con el mouse - OPTIMIZADO con spatial partitioning
   useEffect(() => {
     if (!svgContainerRef.current || !svgData || exitAnimation) return;
 
-    const delay = startAnimation ? 3000 : 0;
+    const delay = startAnimation ? 2500 : 0;
     let cleanup = () => {};
 
     const timeoutId = setTimeout(() => {
-      const paths = gsap.utils.toArray('.artefacto-path');
+      const paths = Array.from(document.querySelectorAll('.artefacto-path'));
       if (paths.length === 0) return;
 
-      // Limpiar animaciones CSS y resetear transforms
+      // Limpiar animaciones CSS
       paths.forEach((path) => {
         path.style.animation = 'none';
-        gsap.set(path, {
-          scale: 1,
-          transformOrigin: 'center center'
-        });
       });
 
-      // Spatial partitioning: dividir la pantalla en grid
+      // Spatial partitioning: dividir pantalla en celdas para búsqueda O(1)
       const cellSize = 200;
       const spatialGrid = {};
 
-      // Cachear posiciones y asignar a celdas del spatial grid
-      paths.forEach((path) => {
-        const r = path.getBoundingClientRect();
-        const x = r.left + r.width / 2;
-        const y = r.top + r.height / 2;
+      // Cachear posiciones una sola vez
+      const pathData = paths.map((path) => {
+        const rect = path.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
 
-        const gridX = Math.floor(x / cellSize);
-        const gridY = Math.floor(y / cellSize);
-        const cellKey = `${gridX},${gridY}`;
+        // Agregar a grid espacial
+        const cellX = Math.floor(x / cellSize);
+        const cellY = Math.floor(y / cellSize);
+        const key = `${cellX},${cellY}`;
+        if (!spatialGrid[key]) spatialGrid[key] = [];
 
-        if (!spatialGrid[cellKey]) spatialGrid[cellKey] = [];
-        spatialGrid[cellKey].push({ element: path, x, y });
+        const data = { path, x, y };
+        spatialGrid[key].push(data);
+        return data;
       });
 
       const radius = 150;
       const maxScale = 2.5;
+      const radiusSq = radius * radius;
       let rafId = null;
-      const affectedPaths = new Set();
       let lastTime = 0;
-      const throttleMs = 50;
+      const throttleMs = 40; // ~25fps
+      const scaledPaths = new Set();
 
       const handleMouseMove = (e) => {
         const now = performance.now();
         if (rafId || (now - lastTime) < throttleMs) return;
-
         lastTime = now;
+
         rafId = requestAnimationFrame(() => {
           const mx = e.clientX;
           const my = e.clientY;
-          const currentAffected = new Set();
+          const currentScaled = new Set();
 
-          const mouseCellX = Math.floor(mx / cellSize);
-          const mouseCellY = Math.floor(my / cellSize);
-          const radiusSquared = radius * radius;
+          // Solo revisar celdas cercanas al mouse (3x3)
+          const cellX = Math.floor(mx / cellSize);
+          const cellY = Math.floor(my / cellSize);
 
-          // Solo checkear celdas vecinas (3x3 grid alrededor del cursor)
           for (let dy = -1; dy <= 1; dy++) {
             for (let dx = -1; dx <= 1; dx++) {
-              const cellKey = `${mouseCellX + dx},${mouseCellY + dy}`;
-              const cellPaths = spatialGrid[cellKey];
+              const key = `${cellX + dx},${cellY + dy}`;
+              const cell = spatialGrid[key];
+              if (!cell) continue;
 
-              if (!cellPaths) continue;
-
-              cellPaths.forEach(({ element, x, y }) => {
-                const deltaX = mx - x;
-                const deltaY = my - y;
-                const dSquared = deltaX * deltaX + deltaY * deltaY;
-
-                if (dSquared < radiusSquared) {
-                  const d = Math.sqrt(dSquared);
-                  const p = gsap.utils.clamp(0, 1, gsap.utils.mapRange(0, radius, 1, 0, d));
-                  gsap.to(element, {
-                    scale: 1 + (maxScale - 1) * p,
-                    transformOrigin: 'center center',
-                    overwrite: 'auto',
-                    ease: 'power2.out',
-                    duration: 0.15
-                  });
-                  currentAffected.add(element);
+              cell.forEach(({ path, x, y }) => {
+                const distSq = (mx - x) ** 2 + (my - y) ** 2;
+                if (distSq < radiusSq) {
+                  const dist = Math.sqrt(distSq);
+                  const scale = 1 + (maxScale - 1) * (1 - dist / radius);
+                  path.style.transform = `scale(${scale})`;
+                  currentScaled.add(path);
                 }
               });
             }
           }
 
-          // Resetear paths que ya no están afectados
-          affectedPaths.forEach((path) => {
-            if (!currentAffected.has(path)) {
-              gsap.to(path, {
-                scale: 1,
-                transformOrigin: 'center center',
-                duration: 0.25,
-                overwrite: 'auto',
-                ease: 'power2.out'
-              });
+          // Resetear paths que ya no están cerca
+          scaledPaths.forEach((path) => {
+            if (!currentScaled.has(path)) {
+              path.style.transform = 'scale(1)';
             }
           });
 
-          affectedPaths.clear();
-          currentAffected.forEach((path) => affectedPaths.add(path));
-
+          scaledPaths.clear();
+          currentScaled.forEach(p => scaledPaths.add(p));
           rafId = null;
         });
       };
 
       const handleMouseLeave = () => {
-        if (rafId) {
-          cancelAnimationFrame(rafId);
-          rafId = null;
-        }
-
-        affectedPaths.forEach((path) => {
-          gsap.to(path, {
-            scale: 1,
-            transformOrigin: 'center center',
-            duration: 0.7,
-            overwrite: 'auto',
-            ease: 'power2.out'
-          });
+        if (rafId) cancelAnimationFrame(rafId);
+        scaledPaths.forEach((path) => {
+          path.style.transform = 'scale(1)';
         });
-        affectedPaths.clear();
+        scaledPaths.clear();
       };
 
       const hero = heroRef.current;
