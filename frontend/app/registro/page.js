@@ -877,21 +877,21 @@ export default function RegistroPage() {
               src="/assets/wordmark-red.svg"
               alt="Arte Facto"
               style={{
-                width: 'clamp(200px, 35vw, 320px)',
+                width: 'clamp(140px, 22vw, 200px)',
                 height: 'auto',
-                marginBottom: 16,
+                marginBottom: 12,
               }}
             />
             <p style={{
               margin: 0,
-              fontSize: 'clamp(18px, 3vw, 24px)',
+              fontSize: 'clamp(20px, 3.5vw, 28px)',
               color: COLORS.black,
-              fontFamily: FONTS.display,
-              fontWeight: FONTS.displayWeight,
-              fontStyle: FONTS.displayStyle,
-              letterSpacing: '0.04em',
+              fontFamily: '"Inter Tight", Inter, sans-serif',
+              fontWeight: 700,
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
             }}>
-              Lienzo de postulación
+              LIENZO DE POSTULACIÓN
             </p>
           </div>
         </div>

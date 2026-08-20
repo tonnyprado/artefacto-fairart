@@ -115,7 +115,7 @@ function HoverButton({ href, bg, color, hoverBg, hoverColor, children, download,
 }
 
 export default function ConvocatoriaSection({ edicion = '2027', abierta = true, urlRegistro = '/registro' }) {
-  const titleScramble = useTextScramble('Convocatoria', {
+  const titleScramble = useTextScramble('Convocatoria Abierta', {
     duration: 1200,
     delay: 400,
   });
@@ -174,14 +174,14 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
               fontFamily: FONTS.display,
               fontWeight: FONTS.displayWeight,
               fontStyle: FONTS.displayStyle,
-              fontSize: 'clamp(36px, 8vw, 90px)',
+              fontSize: 'clamp(32px, 7vw, 80px)',
               letterSpacing: '0.04em',
               textTransform: 'uppercase',
               color: COLORS.cream,
               lineHeight: 1,
             }}
           >
-            Convocatoria
+            Convocatoria Abierta
           </h1>
           <span
             style={{
@@ -237,7 +237,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
           </p>
         </div>
 
-        {/* Botón de descarga */}
+        {/* Botones de acción */}
         <div style={{ marginBottom: 40 }}>
           <p style={{
             margin: '0 0 16px',
@@ -248,17 +248,31 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
           }}>
             Para conocer todos los detalles:
           </p>
-          <HoverButton
-            href="/pdfs/Convocatoria_ARTEFACTO.pdf"
-            bg={COLORS.cream}
-            color={COLORS.black}
-            hoverBg={COLORS.black}
-            hoverColor={COLORS.cream}
-            download
-            external
-          >
-            Descarga la convocatoria — PDF
-          </HoverButton>
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
+            <HoverButton
+              href="/pdfs/Convocatoria_ARTEFACTO.pdf"
+              bg={COLORS.cream}
+              color={COLORS.black}
+              hoverBg={COLORS.black}
+              hoverColor={COLORS.cream}
+              download
+              external
+            >
+              Descarga la convocatoria — PDF
+            </HoverButton>
+            {abierta && (
+              <HoverButton
+                href={urlRegistro}
+                bg={COLORS.black}
+                color={COLORS.cream}
+                hoverBg={COLORS.cream}
+                hoverColor={COLORS.black}
+                isTransitionLink
+              >
+                Regístrate aquí →
+              </HoverButton>
+            )}
+          </div>
         </div>
 
         {/* Indicador de scroll - desliza hacia abajo */}

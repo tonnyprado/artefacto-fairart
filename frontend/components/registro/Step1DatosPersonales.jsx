@@ -57,11 +57,11 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
           <h3 style={{
             color: '#141210',
             fontWeight: '700',
-            fontSize: '20px',
+            fontSize: '22px',
             margin: 0,
-            fontFamily: 'ivypresto-display, Georgia, serif',
-            fontStyle: 'italic',
-            letterSpacing: '0.02em'
+            fontFamily: '"Inter Tight", Inter, sans-serif',
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase'
           }}>
             LLENA TUS DATOS PERSONALES PARA ARMAR TU MURAL
           </h3>
@@ -71,19 +71,19 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
 
       {/* Disclaimer inicial */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1))',
-        border: '2px solid rgba(59, 130, 246, 0.3)',
+        background: 'rgba(244, 237, 228, 0.15)',
+        border: '2px solid rgba(244, 237, 228, 0.4)',
         borderRadius: '20px',
         padding: '20px 24px',
         marginBottom: '24px'
       }}>
         <div style={{ display: 'flex', alignItems: 'start', gap: '16px' }}>
           <div style={{ flexShrink: 0, paddingTop: '4px' }}>
-            <Info size={28} color="#3B82F6" />
+            <Info size={28} color="#F4EDE4" />
           </div>
           <div>
             <h3 style={{
-              color: '#141210',
+              color: '#F4EDE4',
               fontWeight: '600',
               fontSize: '16px',
               marginBottom: '8px'
@@ -91,7 +91,7 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
               Importante: Proceso de Selección
             </h3>
             <p style={{
-              color: 'rgba(20, 18, 16, 0.85)',
+              color: 'rgba(244, 237, 228, 0.85)',
               fontSize: '14px',
               lineHeight: '1.6',
               margin: 0
