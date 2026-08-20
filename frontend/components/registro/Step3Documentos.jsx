@@ -35,33 +35,46 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
     if (!file) return
 
     const fileSizeMB = file.size / (1024 * 1024)
+    const isPDF = file.type === 'application/pdf'
+    const isDoc = file.type === 'application/msword' ||
+                  file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    const isImage = file.type.startsWith('image/')
 
-    // Rechazar archivos mayores a 15MB
-    if (fileSizeMB > 15) {
-      alert(`El archivo es muy grande (${fileSizeMB.toFixed(2)}MB). El tamaño máximo es 15MB.`)
-      return
+    // Límites según tipo de archivo
+    if (isPDF || isDoc) {
+      // PDFs y documentos: máximo 10MB
+      if (fileSizeMB > 10) {
+        alert(`Tu ${isPDF ? 'PDF' : 'documento'} es muy grande (${fileSizeMB.toFixed(1)}MB).\n\nEl límite es 10MB.\n\nPuedes comprimirlo gratis en:\nhttps://www.ilovepdf.com/compress_pdf`)
+        return
+      }
+    } else if (isImage) {
+      // Imágenes: máximo 10MB entrada, se comprime a 2MB
+      if (fileSizeMB > 10) {
+        alert(`La imagen es muy grande (${fileSizeMB.toFixed(1)}MB). El máximo es 10MB.`)
+        return
+      }
     }
 
     let processedFile = file
 
-    // Si es imagen y es mayor a 5MB, comprimir
-    if (file.type.startsWith('image/') && fileSizeMB > 5) {
-      setFieldLoading(fieldName, true) // Activar loading
+    // Si es imagen y es mayor a 2MB, comprimir
+    if (isImage && fileSizeMB > 2) {
+      setFieldLoading(fieldName, true)
       try {
         processedFile = await compressImage(file, {
           maxWidth: 1920,
           maxHeight: 1920,
           quality: 0.80,
-          maxSizeKB: 2000 // Comprimir a menos de 2MB
+          maxSizeKB: 1500 // Comprimir a ~1.5MB
         })
-        console.log(`Imagen comprimida de ${fileSizeMB.toFixed(2)}MB a ${(processedFile.size / (1024 * 1024)).toFixed(2)}MB`)
+        console.log(`✅ Imagen comprimida: ${fileSizeMB.toFixed(2)}MB → ${(processedFile.size / (1024 * 1024)).toFixed(2)}MB`)
       } catch (error) {
         console.error('Error al comprimir imagen:', error)
-        setFieldLoading(fieldName, false) // Desactivar loading en error
-        alert('Error al procesar la imagen. Por favor, intenta con otra imagen.')
+        setFieldLoading(fieldName, false)
+        alert('Error al procesar la imagen. Por favor, intenta con otra.')
         return
       }
-      setFieldLoading(fieldName, false) // Desactivar loading
+      setFieldLoading(fieldName, false)
     }
 
     updateFormData({
@@ -77,32 +90,31 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
 
     const fileSizeMB = file.size / (1024 * 1024)
 
-    // Rechazar archivos mayores a 15MB
-    if (fileSizeMB > 15) {
-      alert(`El archivo es muy grande (${fileSizeMB.toFixed(2)}MB). El tamaño máximo es 15MB.`)
+    // Rechazar fotos mayores a 10MB
+    if (fileSizeMB > 10) {
+      alert(`La foto es muy grande (${fileSizeMB.toFixed(1)}MB). El máximo es 10MB.`)
       return
     }
 
-    // Si es mayor a 5MB, comprimir
-    if (fileSizeMB > 5) {
-      setFieldLoading('foto', true) // Activar loading
+    // Si es mayor a 1MB, comprimir
+    if (fileSizeMB > 1) {
+      setFieldLoading('foto', true)
       try {
         const compressedFile = await compressImage(file, {
           maxWidth: 1200,
           maxHeight: 1200,
-          quality: 0.80,
-          maxSizeKB: 2000 // Comprimir a menos de 2MB
+          quality: 0.85,
+          maxSizeKB: 800 // Comprimir a ~800KB
         })
-        console.log(`Foto comprimida de ${fileSizeMB.toFixed(2)}MB a ${(compressedFile.size / (1024 * 1024)).toFixed(2)}MB`)
-        setFieldLoading('foto', false) // Desactivar loading
+        console.log(`✅ Foto comprimida: ${fileSizeMB.toFixed(2)}MB → ${(compressedFile.size / (1024 * 1024)).toFixed(2)}MB`)
+        setFieldLoading('foto', false)
         updateFormData({ foto: compressedFile })
       } catch (error) {
         console.error('Error al comprimir foto:', error)
-        setFieldLoading('foto', false) // Desactivar loading en error
+        setFieldLoading('foto', false)
         alert('Error al procesar la foto. Por favor, intenta con otra imagen.')
       }
     } else {
-      // Menos de 5MB, no comprimir
       updateFormData({ foto: file })
     }
   }
@@ -122,12 +134,12 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
       <FileUpload
         label="Foto de perfil"
         accept="image/jpeg,image/png,image/webp"
-        maxSize={15}
+        maxSize={10}
         required
         value={formData.foto}
         onChange={handleFotoChange}
         error={errors?.foto}
-        helperText="Formatos: JPG, PNG, WebP — Nombrar: Foto_NombreArtista"
+        helperText="Formatos: JPG, PNG, WebP (máx 10MB, se comprime automáticamente)"
         isLoading={loadingStates.foto}
         loadingText="Comprimiendo foto..."
       />
@@ -136,12 +148,12 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
       <FileUpload
         label="CV Artístico"
         accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        maxSize={15}
+        maxSize={10}
         required
         value={formData.documentos?.cv}
         onChange={(file) => handleFileChange('cv', file)}
         error={errors?.cv}
-        helperText="Formatos: PDF, DOC, DOCX — Nombrar: CV_NombreArtista"
+        helperText="Formatos: PDF, DOC, DOCX (máx 10MB)"
         isLoading={loadingStates.cv}
         loadingText="Procesando CV..."
       />
@@ -150,12 +162,12 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
       <FileUpload
         label="Portafolio"
         accept=".pdf,application/pdf"
-        maxSize={15}
+        maxSize={10}
         required
         value={formData.documentos?.portfolio}
         onChange={(file) => handleFileChange('portfolio', file)}
         error={errors?.portfolio}
-        helperText="Formato: PDF — Nombrar: Portafolio_NombreArtista — Con este documento queremos conocer tu trayectoria artística."
+        helperText="Formato: PDF (máx 10MB) — Si pesa más, comprímelo en ilovepdf.com"
         isLoading={loadingStates.portfolio}
         loadingText="Procesando portafolio..."
       />
@@ -164,14 +176,14 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
       <FileUpload
         label="Identificación Oficial (INE o pasaporte)"
         accept="image/jpeg,image/png,image/webp,.pdf,application/pdf"
-        maxSize={15}
+        maxSize={10}
         required
         value={formData.documentos?.identificacion}
         onChange={(file) => handleFileChange('identificacion', file)}
         error={errors?.identificacion}
-        helperText="Formatos: JPG, PNG, WebP, PDF — Nombrar: ID_NombreArtista"
+        helperText="Formatos: JPG, PNG, PDF (máx 10MB, imágenes se comprimen)"
         isLoading={loadingStates.identificacion}
-        loadingText="Comprimiendo identificación..."
+        loadingText="Comprimiendo..."
       />
 
       <div style={{
@@ -235,7 +247,7 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
             lineHeight: '1.7',
             margin: 0
           }}>
-            Las imágenes se comprimen automáticamente para optimizar el tamaño sin perder calidad. Los archivos por encima de 15MB no son aceptados. Las imágenes mayores a 5MB se comprimen automáticamente.
+            Las imágenes se comprimen automáticamente. Límite: 10MB por archivo. PDFs grandes: comprime gratis en ilovepdf.com
           </p>
         </div>
       </div>
