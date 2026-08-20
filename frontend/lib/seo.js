@@ -78,9 +78,24 @@ export function generateOrganizationSchema() {
       'Arte Contemporaneo',
       'Artistas Emergentes',
       'Ferias de Arte',
+      'Feria de Arte Mexico',
+      'Feria de Arte CDMX',
+      'Semana del Arte Mexico',
+      'Art Week Mexico',
+      'Exposiciones de Arte',
       'Curaduria',
       'Coleccionismo de Arte',
+      'Arte Visual',
+      'Artes Visuales',
+      'Galerias de Arte',
+      'Convocatoria Artistas',
     ],
+    slogan: 'Impulsando el talento de artistas emergentes en Mexico',
+    areaServed: {
+      '@type': 'Country',
+      name: 'Mexico',
+    },
+    award: 'Feria de Arte Emergente',
   }
 }
 
@@ -92,8 +107,15 @@ export function generateMainEventSchema() {
     '@context': 'https://schema.org',
     '@type': 'ExhibitionEvent',
     '@id': `${BASE_URL}/#event-2027`,
-    name: 'ARTEFACTO 2027 - Feria de Arte Contemporaneo',
-    description: 'Feria de arte contemporaneo que reune a artistas emergentes de Mexico. Convocatoria abierta para la edicion Febrero 2027.',
+    name: 'ARTEFACTO 2027 - Feria de Arte Contemporaneo Mexico',
+    alternateName: [
+      'Feria de Arte ARTEFACTO',
+      'Feria de Arte Contemporaneo CDMX 2027',
+      'Feria Arte Facto 2027',
+      'Semana del Arte ARTEFACTO',
+      'Art Week ARTEFACTO Mexico',
+    ],
+    description: 'ARTEFACTO - La feria de arte contemporaneo mas importante para artistas emergentes en Mexico. Exposicion, convocatoria abierta y semana del arte en CDMX. Febrero 2027.',
     url: BASE_URL,
     image: `${BASE_URL}/og-image.jpg`,
     startDate: '2027-02-01',
@@ -137,6 +159,29 @@ export function generateMainEventSchema() {
     inLanguage: 'es',
     isAccessibleForFree: false,
     typicalAgeRange: '18-',
+    about: [
+      {
+        '@type': 'Thing',
+        name: 'Arte Contemporaneo',
+      },
+      {
+        '@type': 'Thing',
+        name: 'Artistas Emergentes',
+      },
+      {
+        '@type': 'Thing',
+        name: 'Feria de Arte',
+      },
+      {
+        '@type': 'Thing',
+        name: 'Exposicion de Arte',
+      },
+    ],
+    keywords: 'feria de arte, feria de arte mexico, feria de arte cdmx, semana del arte, art week mexico, exposicion arte, artistas emergentes, convocatoria artistas, arte contemporaneo mexico',
+    audience: {
+      '@type': 'Audience',
+      audienceType: 'Artistas, Coleccionistas, Amantes del Arte, Curadores, Galerias',
+    },
   }
 }
 

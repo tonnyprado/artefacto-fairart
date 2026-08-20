@@ -33,7 +33,7 @@ export const metadata = {
   // Descripcion optimizada para SEO
   description: 'ARTEFACTO (Arte Facto) - Feria de arte contemporaneo en CDMX. Conectamos artistas emergentes con coleccionistas. Convocatoria abierta 2027.',
 
-  // Keywords relevantes - incluye variaciones del nombre para SEO
+  // Keywords relevantes - incluye variaciones del nombre y busquedas de industria
   keywords: [
     // Variaciones del nombre de marca
     'ARTEFACTO',
@@ -41,26 +41,64 @@ export const metadata = {
     'arte facto',
     'arte-facto',
     'artefacto feria',
-    'arte facto feria',
     'artefacto mexico',
     'artefacto cdmx',
-    'artefacto feria de arte',
-    // Keywords de industria
+    'feria artefacto',
+    // Ferias de arte - busquedas principales
     'feria de arte',
     'feria de arte mexico',
     'feria de arte cdmx',
-    'feria arte contemporaneo',
+    'feria de arte ciudad de mexico',
+    'feria de arte contemporaneo',
+    'feria de arte contemporaneo mexico',
+    'feria arte 2027',
+    'ferias de arte en mexico',
+    'mejores ferias de arte mexico',
+    // Semana del arte
+    'semana del arte',
+    'semana del arte mexico',
+    'semana del arte cdmx',
+    'semana del arte 2027',
+    'art week mexico',
+    'art week cdmx',
+    // Exposiciones y eventos
+    'exposicion de arte',
+    'exposicion de arte cdmx',
+    'exposicion arte contemporaneo',
+    'exposiciones de arte mexico',
+    'evento de arte',
+    'eventos de arte cdmx',
+    'eventos arte mexico 2027',
+    'muestra de arte',
+    'exhibicion de arte',
+    // Arte contemporaneo
     'arte contemporaneo',
     'arte contemporaneo mexico',
+    'arte contemporaneo cdmx',
+    'arte visual mexico',
+    'artes visuales cdmx',
+    // Artistas
     'artistas emergentes',
     'artistas emergentes mexico',
-    'exposicion de arte',
+    'artistas emergentes cdmx',
+    'artistas mexicanos',
+    'nuevos artistas mexico',
+    'artistas visuales mexico',
+    // Convocatorias
     'convocatoria artistas',
     'convocatoria artistas 2027',
+    'convocatoria arte',
+    'convocatoria artistas mexico',
+    'open call artistas',
+    'open call arte mexico',
+    'convocatoria feria de arte',
+    // Galerias y coleccionismo
     'galeria de arte',
-    'arte mexicano',
+    'galerias de arte cdmx',
+    'galerias arte contemporaneo mexico',
     'coleccionismo de arte',
-    'artistas mexicanos',
+    'comprar arte mexico',
+    'arte mexicano',
   ],
 
   // Informacion del autor/creador

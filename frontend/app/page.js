@@ -2,15 +2,15 @@ import { generateHomePageSchemas } from '@/lib/seo'
 import { LandingArtefacto } from '@/components/artefacto'
 
 export const metadata = {
-  title: 'ARTEFACTO 2027 | Feria de Arte Contemporaneo Mexico',
-  description: 'ARTEFACTO (Arte Facto) - Descubre el talento emergente de artistas mexicanos. La feria de arte contemporaneo que conecta artistas con coleccionistas. Convocatoria abierta Febrero 2027.',
-  keywords: 'artefacto, arte facto, arte-facto, feria de arte, arte contemporaneo, artistas emergentes, exposicion de arte, CDMX, convocatoria artistas 2027, feria artefacto mexico',
+  title: 'ARTEFACTO 2027 | Feria de Arte Contemporaneo CDMX',
+  description: 'ARTEFACTO - La feria de arte contemporaneo en CDMX. Semana del arte, exposiciones y convocatoria abierta para artistas emergentes. Febrero 2027 en Ciudad de Mexico.',
+  keywords: 'artefacto, arte facto, arte-facto, feria de arte, feria de arte mexico, feria de arte cdmx, semana del arte, semana del arte mexico, art week mexico, exposicion de arte, arte contemporaneo, artistas emergentes, convocatoria artistas 2027, eventos arte cdmx',
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'ARTEFACTO 2027 | Feria de Arte Contemporaneo',
-    description: 'Descubre el talento emergente de artistas mexicanos. Convocatoria abierta Febrero 2027.',
+    title: 'ARTEFACTO 2027 | Feria de Arte y Semana del Arte CDMX',
+    description: 'La feria de arte contemporaneo en Mexico. Exposiciones, convocatoria para artistas emergentes y semana del arte. Febrero 2027.',
   },
 }
 
