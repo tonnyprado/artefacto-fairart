@@ -44,7 +44,10 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
     if (isPDF || isDoc) {
       // PDFs y documentos: máximo 10MB
       if (fileSizeMB > 10) {
-        alert(`Tu ${isPDF ? 'PDF' : 'documento'} es muy grande (${fileSizeMB.toFixed(1)}MB).\n\nEl límite es 10MB.\n\nPuedes comprimirlo gratis en:\nhttps://www.ilovepdf.com/compress_pdf`)
+        const compressUrl = isPDF
+          ? 'https://www.ilovepdf.com/compress_pdf'
+          : 'https://www.wecompress.com'
+        alert(`Tu ${isPDF ? 'PDF' : 'documento'} es muy grande (${fileSizeMB.toFixed(1)}MB).\n\nEl límite es 10MB.\n\nPuedes comprimirlo gratis en:\n${compressUrl}`)
         return
       }
     } else if (isImage) {
