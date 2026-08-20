@@ -18,3 +18,4 @@ Si debe de haber nuevos campos recuerda asegurar que el admin los pueda ver en l
 Hace falta añadir "Nombre artistico" en donde pedimos el nombre del artista, seria un segundo campo y debemos dejarlo como "opcional".
 ---
 El favicon debe de ser /Users/tonyprado/Documents/Proyectos/Benito-web/docs/svg_pageweb/A_Blanca.svg no se si lo puedas convertir a favicon para usarlo como favicon de la página.
+O

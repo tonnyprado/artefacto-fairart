@@ -30,6 +30,10 @@ export const registrarArtista = async (req, res) => {
     console.log('📝 Iniciando registro de artista...')
     console.log('📦 Archivos recibidos:', req.files ? Object.keys(req.files) : 'ninguno')
     console.log('📋 Datos recibidos:', Object.keys(req.body).filter(k => !k.startsWith('obra_lienzo')))
+    console.log('🎨 Formato tipo:', req.body.formato_tipo)
+    console.log('🎨 Formatos:', req.body.formatos)
+    console.log('🎨 Formato otro texto:', req.body.formato_otro_texto)
+    console.log('🎨 Categoría (legacy):', req.body.categoria)
 
     // ========================================
     // 1. EXTRAER Y VALIDAR DATOS DEL BODY
@@ -43,7 +47,11 @@ export const registrarArtista = async (req, res) => {
       fecha_nacimiento,
       ciudad,
       pais,
-      categoria,
+      // Nuevo sistema de formato de trabajo
+      formato_tipo, // '2D', '3D', 'OTRO'
+      formatos, // JSON string de array de formatos seleccionados
+      formato_otro_texto, // Texto libre si eligen "Otro"
+      categoria, // Compatibilidad - primer formato seleccionado
       bio,
       instagram,
       facebook,
@@ -52,11 +60,30 @@ export const registrarArtista = async (req, res) => {
       layout_canvas_data
     } = req.body
 
-    // Validaciones básicas
-    if (!nombre || !apellido || !email || !fecha_nacimiento || !ciudad || !pais || !categoria) {
+    // Parsear formatos si viene como string
+    let formatosArray = []
+    try {
+      formatosArray = formatos ? JSON.parse(formatos) : []
+    } catch (e) {
+      formatosArray = []
+    }
+
+    // Determinar categoría final: usar el nuevo sistema o compatibilidad
+    const categoriaFinal = categoria || formatosArray[0] || formato_tipo || ''
+
+    // Validaciones básicas - ahora acepta formato_tipo o categoria
+    if (!nombre || !apellido || !email || !fecha_nacimiento || !ciudad || !pais) {
       return res.status(400).json({
         success: false,
-        error: 'Faltan campos requeridos: nombre, apellido, email, fecha_nacimiento, ciudad, pais, categoria'
+        error: 'Faltan campos requeridos: nombre, apellido, email, fecha_nacimiento, ciudad, pais'
+      })
+    }
+
+    // Validar que al menos hay un formato/categoría seleccionado
+    if (!categoriaFinal && !formato_tipo) {
+      return res.status(400).json({
+        success: false,
+        error: 'Debes seleccionar un formato de trabajo (2D, 3D u Otro)'
       })
     }
 
@@ -162,6 +189,11 @@ export const registrarArtista = async (req, res) => {
       })
     }
 
+    // Preparar datos de formato para guardar en layout_canvas_data
+    parsedLayoutData.formato_tipo = formato_tipo || null
+    parsedLayoutData.formatos = formatosArray
+    parsedLayoutData.formato_otro_texto = formato_otro_texto || null
+
     const artistaResult = await pool.query(
       `INSERT INTO artistas (
         nombre, apellido, nombre_artistico, email, telefono, fecha_nacimiento,
@@ -175,13 +207,13 @@ export const registrarArtista = async (req, res) => {
       [
         nombre,
         apellido,
-        nombre_artistico || null, // Nuevo campo opcional
+        nombre_artistico || null,
         email,
         telefono || null,
         fecha_nacimiento,
         ciudad,
         pais,
-        categoria,
+        categoriaFinal, // Usar categoría final calculada
         bio || null,
         foto_url,
         instagram || null,
@@ -192,7 +224,7 @@ export const registrarArtista = async (req, res) => {
         identificacion_url,
         paquete_id ? parseInt(paquete_id) : null,
         layout_canvas_url,
-        parsedLayoutData,
+        parsedLayoutData, // Ahora incluye datos de formato
         false, // aprobado
         'pendiente' // estado_registro
       ]
@@ -295,6 +327,8 @@ export const registrarArtista = async (req, res) => {
     console.log('   ID:', nuevoArtista.id)
     console.log('   FOLIO:', nuevoArtista.folio)
     console.log('   Nombre:', nuevoArtista.nombre, nuevoArtista.apellido)
+    console.log('   Formato:', formato_tipo, '|', formatosArray.join(', ') || 'ninguno')
+    if (formato_otro_texto) console.log('   Formato otro:', formato_otro_texto)
 
     // ========================================
     // 6. ENVIAR EMAILS (async, no bloquea respuesta)

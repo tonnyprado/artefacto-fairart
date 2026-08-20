@@ -29,18 +29,28 @@ const FONTS = {
   body: 'acumin-pro, sans-serif',
 }
 
-// Categorías artísticas
+// Formatos de trabajo organizados por tipo
+const FORMATOS_2D = [
+  { value: 'pintura', label: 'Pintura (técnicas húmedas)' },
+  { value: 'dibujo', label: 'Dibujo (técnicas secas)' },
+  { value: 'grafica', label: 'Gráfica' },
+  { value: 'fotografia', label: 'Fotografía' },
+  { value: 'collage_mixta', label: 'Collage & Mixta' },
+  { value: 'textil', label: 'Textil' },
+  { value: 'otro_2d', label: 'Otro' },
+]
+
+const FORMATOS_3D = [
+  { value: 'escultura', label: 'Escultura' },
+  { value: 'ceramica', label: 'Cerámica' },
+  { value: 'otro_3d', label: 'Otro' },
+]
+
+// Para compatibilidad con código existente
 const CATEGORIAS = [
-  { value: 'pintura', label: 'Pintura', tipo: '2D' },
-  { value: 'acuarela', label: 'Acuarela', tipo: '2D' },
-  { value: 'dibujo', label: 'Dibujo', tipo: '2D' },
-  { value: 'escultura', label: 'Escultura', tipo: '3D' },
-  { value: 'grafica', label: 'Gráfica', tipo: '2D' },
-  { value: 'fotografia', label: 'Fotografía', tipo: '2D' },
-  { value: 'ceramica', label: 'Cerámica', tipo: '3D' },
-  { value: 'collage_mixta', label: 'Collage & Mixta', tipo: '2D' },
-  { value: 'textil', label: 'Textil', tipo: '2D' },
-  { value: 'otro', label: 'Otro', tipo: 'TODOS' },
+  ...FORMATOS_2D.map(f => ({ ...f, tipo: '2D' })),
+  ...FORMATOS_3D.map(f => ({ ...f, tipo: '3D' })),
+  { value: 'otro_general', label: 'Otro', tipo: 'TODOS' },
 ]
 
 export default function Step5Paquetes({ formData, updateFormData, errors, onContinue }) {
@@ -71,11 +81,29 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
   const [showInstructions, setShowInstructions] = useState(true)
   const instructionsRef = useRef(null)
 
-  // Disciplina artística seleccionada
-  const [selectedCategoria, setSelectedCategoria] = useState(formData.categoria || '')
+  // Formato de trabajo seleccionado
+  const [tipoFormato, setTipoFormato] = useState(() => {
+    // Inicializar desde formData si existe
+    if (formData.formato_tipo) return formData.formato_tipo
+    if (formData.categoria) {
+      const cat = CATEGORIAS.find(c => c.value === formData.categoria)
+      if (cat?.tipo === '2D' || cat?.tipo === '3D') return cat.tipo
+      if (cat?.tipo === 'TODOS') return 'OTRO'
+    }
+    return null
+  })
+  const [selectedFormatos, setSelectedFormatos] = useState(() => {
+    if (formData.formatos && Array.isArray(formData.formatos)) return formData.formatos
+    if (formData.categoria) return [formData.categoria]
+    return []
+  })
+  const [formatoOtroTexto, setFormatoOtroTexto] = useState(formData.formato_otro_texto || '')
+
+  // Compatibilidad con código existente
+  const selectedCategoria = selectedFormatos[0] || ''
   const categoriaSeleccionada = CATEGORIAS.find(c => c.value === selectedCategoria)
-  const esArtista3D = categoriaSeleccionada?.tipo === '3D'
-  const mostrarTodosPaquetes = categoriaSeleccionada?.tipo === 'TODOS'
+  const esArtista3D = tipoFormato === '3D'
+  const mostrarTodosPaquetes = tipoFormato === 'OTRO' || (selectedFormatos.some(f => f.includes('otro')))
 
   useEffect(() => { fetchPaquetes() }, [])
 
@@ -133,14 +161,54 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
     ? paquetes
     : paquetes.filter(p => esArtista3D ? p.tipo === '3D' : p.tipo === '2D')
 
-  const handleCategoriaChange = (value) => {
-    setSelectedCategoria(value)
-    updateFormData({ categoria: value })
-    // Reset paquete si cambia la categoría
+  // Manejar selección de tipo (2D, 3D, OTRO)
+  const handleTipoChange = (tipo) => {
+    if (tipoFormato === tipo) return // Ya está seleccionado
+    setTipoFormato(tipo)
+    setSelectedFormatos([]) // Limpiar formatos al cambiar tipo
+    setFormatoOtroTexto('')
+    // Reset paquete
     if (confirmedPaquete) {
       setConfirmedPaquete(null)
       updateFormData({ paquete_id: null })
     }
+    updateFormData({
+      formato_tipo: tipo,
+      formatos: [],
+      categoria: '', // Compatibilidad
+      formato_otro_texto: ''
+    })
+  }
+
+  // Manejar selección/deselección de formato (multiselect)
+  const handleFormatoToggle = (value) => {
+    const newFormatos = selectedFormatos.includes(value)
+      ? selectedFormatos.filter(f => f !== value)
+      : [...selectedFormatos, value]
+
+    setSelectedFormatos(newFormatos)
+    updateFormData({
+      formatos: newFormatos,
+      categoria: newFormatos[0] || '', // Compatibilidad: usar el primero
+      formato_tipo: tipoFormato,
+    })
+
+    // Reset paquete si cambia
+    if (confirmedPaquete && !newFormatos.includes(selectedFormatos[0])) {
+      setConfirmedPaquete(null)
+      updateFormData({ paquete_id: null })
+    }
+  }
+
+  // Manejar texto de "Otro"
+  const handleOtroTextoChange = (texto) => {
+    setFormatoOtroTexto(texto)
+    updateFormData({ formato_otro_texto: texto })
+  }
+
+  // Compatibilidad con código existente
+  const handleCategoriaChange = (value) => {
+    handleFormatoToggle(value)
   }
 
   const handleConfirmPaquete = (paquete) => {
@@ -292,18 +360,15 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
         </button>
       </div>
 
-      {/* SELECTOR DE DISCIPLINA ARTÍSTICA */}
+      {/* SELECTOR DE FORMATO DE TRABAJO */}
       <div style={{
         background: COLORS.cream,
         borderRadius: '16px',
         padding: '20px 24px',
         marginBottom: '20px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '20px',
-        flexWrap: 'wrap',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {/* Título */}
+        <div style={{ marginBottom: '16px' }}>
           <span style={{
             fontFamily: FONTS.display,
             fontWeight: 600,
@@ -311,49 +376,250 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
             fontSize: '16px',
             color: COLORS.black,
           }}>
-            Elige tu disciplina:
+            Elige tu formato de trabajo:
           </span>
         </div>
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', flex: 1 }}>
-          {CATEGORIAS.map((cat) => (
-            <button
-              key={cat.value}
-              onClick={() => handleCategoriaChange(cat.value)}
-              style={{
-                padding: '8px 16px',
-                background: selectedCategoria === cat.value ? COLORS.red : 'white',
-                color: selectedCategoria === cat.value ? COLORS.cream : COLORS.black,
-                border: `2px solid ${selectedCategoria === cat.value ? COLORS.red : COLORS.creamDark}`,
-                borderRadius: '20px',
-                fontFamily: FONTS.body,
-                fontSize: '13px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-              }}
-            >
-              {cat.label}
-              {cat.tipo === '3D' && (
-                <span style={{
-                  fontSize: '10px',
-                  background: selectedCategoria === cat.value ? 'rgba(255,255,255,0.2)' : 'rgba(184,48,48,0.1)',
-                  padding: '2px 6px',
-                  borderRadius: '10px',
-                  color: selectedCategoria === cat.value ? COLORS.cream : COLORS.red,
-                }}>
-                  3D
-                </span>
-              )}
-            </button>
-          ))}
+
+        {/* Botones principales: 2D, 3D, OTRO */}
+        <div style={{ display: 'flex', gap: '10px', marginBottom: tipoFormato ? '16px' : 0 }}>
+          <button
+            onClick={() => handleTipoChange('2D')}
+            style={{
+              padding: '12px 24px',
+              background: tipoFormato === '2D' ? COLORS.red : 'white',
+              color: tipoFormato === '2D' ? COLORS.cream : COLORS.black,
+              border: `2px solid ${tipoFormato === '2D' ? COLORS.red : COLORS.creamDark}`,
+              borderRadius: '12px',
+              fontFamily: FONTS.body,
+              fontSize: '15px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            2D — Bidimensional
+          </button>
+          <button
+            onClick={() => handleTipoChange('3D')}
+            style={{
+              padding: '12px 24px',
+              background: tipoFormato === '3D' ? COLORS.red : 'white',
+              color: tipoFormato === '3D' ? COLORS.cream : COLORS.black,
+              border: `2px solid ${tipoFormato === '3D' ? COLORS.red : COLORS.creamDark}`,
+              borderRadius: '12px',
+              fontFamily: FONTS.body,
+              fontSize: '15px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            3D — Tridimensional
+          </button>
+          <button
+            onClick={() => handleTipoChange('OTRO')}
+            style={{
+              padding: '12px 24px',
+              background: tipoFormato === 'OTRO' ? COLORS.red : 'white',
+              color: tipoFormato === 'OTRO' ? COLORS.cream : COLORS.black,
+              border: `2px solid ${tipoFormato === 'OTRO' ? COLORS.red : COLORS.creamDark}`,
+              borderRadius: '12px',
+              fontFamily: FONTS.body,
+              fontSize: '15px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            Otro
+          </button>
         </div>
+
+        {/* Tags de formatos según el tipo seleccionado */}
+        {tipoFormato === '2D' && (
+          <div style={{
+            background: 'rgba(184,48,48,0.05)',
+            borderRadius: '12px',
+            padding: '16px',
+          }}>
+            <p style={{
+              fontFamily: FONTS.body,
+              fontSize: '12px',
+              color: COLORS.gray,
+              margin: '0 0 10px',
+            }}>
+              Selecciona uno o más formatos:
+            </p>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {FORMATOS_2D.map((formato) => (
+                <button
+                  key={formato.value}
+                  onClick={() => handleFormatoToggle(formato.value)}
+                  style={{
+                    padding: '8px 14px',
+                    background: selectedFormatos.includes(formato.value) ? COLORS.red : 'white',
+                    color: selectedFormatos.includes(formato.value) ? COLORS.cream : COLORS.black,
+                    border: `2px solid ${selectedFormatos.includes(formato.value) ? COLORS.red : COLORS.creamDark}`,
+                    borderRadius: '20px',
+                    fontFamily: FONTS.body,
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  {selectedFormatos.includes(formato.value) && <Check size={14} />}
+                  {formato.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {tipoFormato === '3D' && (
+          <div style={{
+            background: 'rgba(184,48,48,0.05)',
+            borderRadius: '12px',
+            padding: '16px',
+          }}>
+            <p style={{
+              fontFamily: FONTS.body,
+              fontSize: '12px',
+              color: COLORS.gray,
+              margin: '0 0 10px',
+            }}>
+              Selecciona uno o más formatos:
+            </p>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {FORMATOS_3D.map((formato) => (
+                <button
+                  key={formato.value}
+                  onClick={() => handleFormatoToggle(formato.value)}
+                  style={{
+                    padding: '8px 14px',
+                    background: selectedFormatos.includes(formato.value) ? COLORS.red : 'white',
+                    color: selectedFormatos.includes(formato.value) ? COLORS.cream : COLORS.black,
+                    border: `2px solid ${selectedFormatos.includes(formato.value) ? COLORS.red : COLORS.creamDark}`,
+                    borderRadius: '20px',
+                    fontFamily: FONTS.body,
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  {selectedFormatos.includes(formato.value) && <Check size={14} />}
+                  {formato.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Input para "Otro" - aparece si seleccionan OTRO principal o cualquier otro_* */}
+        {(tipoFormato === 'OTRO' || selectedFormatos.some(f => f.includes('otro'))) && (
+          <div style={{
+            background: 'rgba(184,48,48,0.05)',
+            borderRadius: '12px',
+            padding: '16px',
+            marginTop: tipoFormato === 'OTRO' ? 0 : '12px',
+          }}>
+            <label style={{
+              fontFamily: FONTS.body,
+              fontSize: '12px',
+              color: errors?.formato_otro ? COLORS.red : COLORS.gray,
+              display: 'block',
+              marginBottom: '8px',
+            }}>
+              Describe tu formato de trabajo: *
+            </label>
+            <input
+              type="text"
+              value={formatoOtroTexto}
+              onChange={(e) => handleOtroTextoChange(e.target.value)}
+              placeholder="Ej: Instalación, Arte digital, Performance..."
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                border: `2px solid ${errors?.formato_otro ? COLORS.red : COLORS.creamDark}`,
+                borderRadius: '10px',
+                fontFamily: FONTS.body,
+                fontSize: '14px',
+                color: COLORS.black,
+                background: 'white',
+                outline: 'none',
+              }}
+            />
+            {errors?.formato_otro && (
+              <p style={{
+                fontFamily: FONTS.body,
+                fontSize: '12px',
+                color: COLORS.red,
+                marginTop: '6px',
+                marginBottom: 0,
+              }}>
+                {errors.formato_otro}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Resumen de selección */}
+        {selectedFormatos.length > 0 && (
+          <div style={{
+            marginTop: '12px',
+            padding: '10px 14px',
+            background: 'rgba(184,48,48,0.1)',
+            borderRadius: '10px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}>
+            <Check size={16} color={COLORS.red} />
+            <span style={{
+              fontFamily: FONTS.body,
+              fontSize: '13px',
+              color: COLORS.black,
+            }}>
+              <strong>{selectedFormatos.length}</strong> formato{selectedFormatos.length > 1 ? 's' : ''} seleccionado{selectedFormatos.length > 1 ? 's' : ''}
+              {tipoFormato && ` (${tipoFormato})`}
+            </span>
+          </div>
+        )}
+
+        {/* Mensaje de error de formato */}
+        {errors?.formato && (
+          <div style={{
+            marginTop: '12px',
+            padding: '10px 14px',
+            background: 'rgba(184,48,48,0.15)',
+            border: `1px solid ${COLORS.red}`,
+            borderRadius: '10px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}>
+            <AlertCircle size={16} color={COLORS.red} />
+            <span style={{
+              fontFamily: FONTS.body,
+              fontSize: '13px',
+              color: COLORS.red,
+              fontWeight: 500,
+            }}>
+              {errors.formato}
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* Mensaje si no hay categoría seleccionada */}
-      {!selectedCategoria && (
+      {/* Mensaje si no hay formato seleccionado */}
+      {(selectedFormatos.length === 0 && tipoFormato !== 'OTRO') && (
         <div style={{
           background: 'rgba(184,48,48,0.05)',
           border: `2px dashed ${COLORS.red}`,
@@ -371,7 +637,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
             color: COLORS.black,
             margin: '0 0 8px',
           }}>
-            Selecciona tu Disciplina Artística
+            Selecciona tu Formato de Trabajo
           </h3>
           <p style={{
             fontFamily: FONTS.body,
@@ -379,13 +645,13 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
             color: COLORS.gray,
             margin: 0,
           }}>
-            Para mostrarte los paquetes y el lienzo correcto para tu tipo de obra
+            Elige 2D, 3D u Otro para ver los paquetes y el lienzo correcto para tu tipo de obra
           </p>
         </div>
       )}
 
-      {/* BARRA SUPERIOR - Solo visible si hay categoría */}
-      {selectedCategoria && (
+      {/* BARRA SUPERIOR - Solo visible si hay formato seleccionado */}
+      {(selectedFormatos.length > 0 || tipoFormato === 'OTRO') && (
       <>
       <div style={{
         display: 'flex',

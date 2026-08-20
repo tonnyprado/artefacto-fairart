@@ -1,15 +1,26 @@
-EL LIENZO DE LA SECCIÓN DE REGISTRO DEBE ARREGLARSE:
-- Las obras (o sea las imagenes que se estan cargando al lienzo) deben de poder moverse sobre las demás obras porque entiendo que no deben de empalmarse y que debe de haber un frame invisible en las imagenes como de 2cm para bloquear empalme pero si por ejemplo muevo una obra encima de otra entonces debo ser capaz de moverla pero que me indique con rojo de que no puedo dejar esa obra ahi encima de esa otra obra.
-- El limitante que creamos dependiendo del paquete que elegimos, si se forma PERO no se aplican los limites correctamente, las imagenes se pueden poner un poco después de los limites o no pueden avanzar tanto.
-- Este es el nuevo lienzo que quiero que usemos: /Users/tonyprado/Documents/Proyectos/Benito-web/docs/basicfiles/Plantillas de registro/plantilla-base2.svg noto que el svg que metemos para el lienzo esta adentro de un card, ya no quiero ese card, sacalo y o sea que se vea bien el lienzo ahi en la pantalla.
-- La regla y las medidas deben de ser si o si escala, checa como hacer para que si sean a escala y la medidas deben de ser a metros y correctas
-- LAS LINEAS DELIMITANTES QUE VAS A PONER EN EL LIENZO PARA LIMITAR AL USUARIO EN SOLO PONER SUS IMAGENES EN ESA ZONA QUE SE LE INDIQUE, DEBE DE SER USANDO ESTE SVG: /Users/tonyprado/Documents/Proyectos/Benito-web/docs/basicfiles/Plantillas de registro/LINEAS_DELIMITANTE.svg obviamente debes de usarla dos veces para crear las dos lineas delimitantes que aparezcan en el lienzo en vez de usar las lineas delimitantes por default de la libreria. Porque basicamente el lienzo con las lineas delimitante debe de verse como: /Users/tonyprado/Documents/Proyectos/Benito-web/ejemplo2.png
+  'http://localhost:3000',
+⏱️  Timeouts configurados: 5 minutos para requests
+  'https://arte-facto.mx'
+  'http://localhost:3001',
+  'https://arte-facto.mx',
+  'https://www.arte-facto.mx',
+Starting Container
+✅ Conectado a PostgreSQL
+✅ PostgreSQL conectado exitosamente - 2026-08-20T01:23:53.358Z
+✅ CORS: Origin permitido - https://arte-facto.mx
+📨 POST /api/registro - Origin: https://arte-facto.mx
+POST /api/registro 400 1703.928 ms - 72
 
----------------
-En CONTACTO el navbar sale con los iconos/botones svg blancos, todos deben de ser negros.
-Hace falta añadir una bandeja de entrada en el panel de admin, debe de estar linkeado al formulario de CONTACTO. Y el admin debe poder contestar a esos correos del buzon, claramente esto tiene que funcionar con SendGrid para poder mandar correos desde esta plataforma.
-No se si ya quedó pero cuando un artista quede registrado la plataforma debe de poder mandarle correo automatico con su folio y su ficha tecnica y esas cosas como de confirmación de que se registro!
-Debemos poder mandar correo en automatico sobre cuando el artista quede seleccionado para la fase y ese correo debe contener cosas que nosotros le vamos a meter pero ya debe de existir como el mensaje base.
-Correo de avisos sobre la fecha incoming de la feria. O sea maybe igual y tener un apartado en admin panel donde tengamos como la lista de correos automatico que se deben mandar y el por que se deben mandar, editarlos y asi, o no se me quiero matar pues se que en SendGrid se pueden editar tambien con drop y esas cosas.
-
-Los iconos de REGISTRO o sea los que indican cada etapa, deben de poder ser clickeables para poder regresar a la etapa que queramos y editar lo que queramos.
+----
+Failed to load resource: net::ERR_HTTP2_PROTOCOL_ERROR
+117-081370c7fcd9fcd0.js:1 Error al enviar registro: TypeError: Failed to fetch
+    at C (page-c095ca735144d61c.js:1:93879)
+    at onClick (page-c095ca735144d61c.js:1:42393)
+    at Object.a_ (fd9d1056-63d81451da0191b0.js:1:72146)
+    at aR (fd9d1056-63d81451da0191b0.js:1:72300)
+    at fd9d1056-63d81451da0191b0.js:1:139239
+    at sF (fd9d1056-63d81451da0191b0.js:1:139338)
+    at sM (fd9d1056-63d81451da0191b0.js:1:139752)
+    at fd9d1056-63d81451da0191b0.js:1:145895
+    at o4 (fd9d1056-63d81451da0191b0.js:1:93335)
+    at iV (fd9d1056-63d81451da0191b0.js:1:122700)

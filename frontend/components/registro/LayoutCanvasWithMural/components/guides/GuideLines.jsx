@@ -73,23 +73,6 @@ export function GuideLines({
         opacity={0.8}
       />
 
-      {/* Línea horizontal en Y */}
-      <Line
-        points={[0, boundedY, canvasWidth, boundedY]}
-        stroke={guideColor}
-        strokeWidth={1}
-        dash={[5, 5]}
-        opacity={0.8}
-      />
-
-      {/* Línea horizontal en Y + height (borde inferior) */}
-      <Line
-        points={[0, boundedY + height, canvasWidth, boundedY + height]}
-        stroke={guideColor}
-        strokeWidth={1}
-        dash={[5, 5]}
-        opacity={0.8}
-      />
 
       {/* Etiqueta de posición X (en metros) */}
       <Group>
@@ -113,27 +96,6 @@ export function GuideLines({
         />
       </Group>
 
-      {/* Etiqueta de posición Y (en metros) */}
-      <Group>
-        <Rect
-          x={5}
-          y={boundedY + 5}
-          width={70}
-          height={20}
-          fill={guideColor}
-          cornerRadius={4}
-        />
-        <Text
-          x={5}
-          y={boundedY + 9}
-          text={`${(boundedY / METROS_A_PIXELES).toFixed(2)}m`}
-          fontSize={12}
-          fill={isColliding ? COLORS.white : COLORS.black}
-          width={70}
-          align="center"
-          fontStyle="bold"
-        />
-      </Group>
     </Group>
   )
 }

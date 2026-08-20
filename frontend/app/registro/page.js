@@ -83,8 +83,13 @@ export default function RegistroPage() {
     pais: '',
     ciudad: '',
 
-    // Paso 2: Información Artística
-    categoria: '',
+    // Paso 2: Tu Lienzo - Formato de trabajo
+    formato_tipo: null, // '2D', '3D', 'OTRO'
+    formatos: [], // Array de formatos seleccionados
+    formato_otro_texto: '', // Texto libre si eligen "Otro"
+    categoria: '', // Compatibilidad - primer formato seleccionado
+
+    // Paso 3: Información Artística
     bio: '',
     redes_sociales: {
       instagram: '',
@@ -146,7 +151,7 @@ export default function RegistroPage() {
 
     switch (step) {
       case 1:
-        // Datos Personales + Disciplina Artística
+        // Datos Personales
         if (!formData.nombre) newErrors.nombre = 'Nombre es requerido'
         if (!formData.apellido) newErrors.apellido = 'Apellido es requerido'
         if (!formData.email) newErrors.email = 'Email es requerido'
@@ -155,11 +160,24 @@ export default function RegistroPage() {
           newErrors.fecha_nacimiento = 'Fecha de nacimiento es requerida'
         if (!formData.pais) newErrors.pais = 'País es requerido'
         if (!formData.ciudad) newErrors.ciudad = 'Ciudad es requerida'
-        if (!formData.categoria) newErrors.categoria = 'Disciplina artística es requerida'
         break
 
       case 2:
-        // Tu Lienzo (antes era paso 4)
+        // Tu Lienzo - incluye formato de trabajo
+        if (!formData.formato_tipo && !formData.categoria) {
+          newErrors.formato = 'Debes seleccionar un formato de trabajo (2D, 3D u Otro)'
+        }
+        if (formData.formato_tipo && formData.formato_tipo !== 'OTRO') {
+          if (!formData.formatos || formData.formatos.length === 0) {
+            newErrors.formato = 'Debes seleccionar al menos un formato'
+          }
+        }
+        // Si seleccionaron "OTRO" o cualquier tag "Otro", requerir descripción
+        const necesitaDescripcion = formData.formato_tipo === 'OTRO' ||
+          (formData.formatos && formData.formatos.some(f => f.includes('otro')))
+        if (necesitaDescripcion && !formData.formato_otro_texto?.trim()) {
+          newErrors.formato_otro = 'Por favor describe tu formato de trabajo'
+        }
         if (!formData.paquete_id) newErrors.paquete_id = 'Debes seleccionar un paquete'
         if (!formData.layout_canvas_url)
           newErrors.layout = 'Debes guardar el layout del canvas'
@@ -239,8 +257,11 @@ export default function RegistroPage() {
       formDataToSend.append('pais', formData.pais)
       formDataToSend.append('ciudad', formData.ciudad)
 
-      // Información artística
-      formDataToSend.append('categoria', formData.categoria)
+      // Información artística - Formato de trabajo
+      formDataToSend.append('formato_tipo', formData.formato_tipo || '')
+      formDataToSend.append('formatos', JSON.stringify(formData.formatos || []))
+      formDataToSend.append('formato_otro_texto', formData.formato_otro_texto || '')
+      formDataToSend.append('categoria', formData.categoria) // Compatibilidad
       formDataToSend.append('bio', formData.bio)
 
       // Redes sociales

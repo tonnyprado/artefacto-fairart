@@ -1,0 +1,26 @@
+El mensaje de info que se encuentra abajo de los campos de redes sociales debe de decir: "→ Una semblanza completa y un perfil de Instagram activo nos ayudará a conocerte mejor, tus motivaciones, tus exploraciones temáticas
+y técnicas, y tener un perfil más completo de ti".
+
+En Documentos Requeridos tenemos cambiar los textos y formatos a esto cada campo:
+→ Foto de perifl (Nombrar archivo: Foto_NombreArtista/Colectivo)*
+Textos dentro de cuadro de importación blancos para mayor contraste.
+→ CV Artístico (Nombrar archivo: CV_NombreArtista/Colectivo)*
+Textos dentro de cuadro de importación blancos para mayor contraste.
+→ Portafolio (Nombrar archivo: Portafolio_NombreArtista/Colectivo)*
+→ Con este documento queremos conocer tu trayectoria, no es necesariamente la obra con la que te postularás a ARTE FACTO.
+Textos dentro de cuadro de importación blancos para mayor contraste.
+→ Identificación Oficial (INE o pasaporte)
+→ (Nombrar archivo: ID_NombreArtista/Colectivo)*
+Textos dentro de cuadro de importación blancos para mayor contraste.
+
+Y los mensajes de información que tenemos ahi deben de decir: "→ Todos los documentos son obligatorios. Los archivos deben ser legibles y de buena calidad. Tu portafolio debe mostrar obra reciente (preferiblemente
+de los últimos 2-4 años). Los documentos serán revisados por el Comité Curatorial.
+→ Las imágenes se comprimen automáticamente para optimizar el tamaño sin perder calidad. Los archivos por encima de los 10 MB no son aceptados,
+archivos por encima de 5 MB y debajo de 10 MB se comprimirán. Los archivos menores a 5 MB no serán comprimidos.
+→ Sobre tu portafolio: Incluye variedad de obras que muestren tu estilo. Fotografías de alta calidad con buena iluminación. Incluye ficha técnica de cada
+pieza: título, técnica o materiales, dimensiones y año. Las piezas de tu portafolio no son necesariamente con las que te postularás a ARTE FACTO"
+
+En Tu Lienzo, debe de haber dos botones arriba del panel de categorías de disciplinas que digan "Instrucciones" y otro de "Referencias", el botón de "Instrucciones" puede abrir el modal nuevamente y el de "Referencias" debe abrir en una nueva pestaña un pdf que ahorita te lo paso.
+Quitale el icono de pintura al titulo de Elige tu disciplina.
+
+También necesito que cheques que la herramienta de compresión de archivos si esté activa en los campos requeridos de la sección de REGISTRO, recuerda que para los documentos de DOCUMENTOS ahi se aceptan docx, pdf y lo necesario, se acepta yyy se comprime sobretodo si revasan como más de 2MB para que los documentos sigan siendo legibles y puedan procesarse bien, sobretodo para ahorrar creditos y espacio en AWS S3 y RDS.
