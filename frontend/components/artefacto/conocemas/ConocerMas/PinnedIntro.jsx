@@ -14,10 +14,10 @@ export default function PinnedIntro({ pinRef, navbarHeight = 80 }) {
   return (
     <div
       ref={pinRef}
-      className="fixed z-[9] hidden bg-crema pb-[22px] border-b border-rojo/35"
+      className="fixed z-[9] hidden bg-crema pt-4 pb-[22px] border-b border-rojo/35"
       style={{
         top: `${navbarHeight}px`,
-        paddingTop: '52px',
+        paddingLeft: '17.59px',
       }}
     >
       <p className={`m-0 ${cls.body}`}>{INTRO}</p>
