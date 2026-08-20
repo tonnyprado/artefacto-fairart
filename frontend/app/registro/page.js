@@ -181,26 +181,7 @@ export default function RegistroPage() {
         if (!formData.documentos?.portfolio) newErrors.portfolio = 'Portafolio es requerido'
         if (!formData.documentos?.identificacion)
           newErrors.identificacion = 'Identificación es requerida'
-
-        // Validar tamaño total de archivos
-        const MAX_TOTAL_SIZE = 4.5 * 1024 * 1024 // 4.5MB
-        let totalSize = 0
-        if (formData.layout_canvas_blob) totalSize += formData.layout_canvas_blob.size
-        if (formData.layout_canvas_pdf_blob) totalSize += formData.layout_canvas_pdf_blob.size
-        if (formData.obras_lienzo) {
-          formData.obras_lienzo.forEach(obra => {
-            if (obra.file) totalSize += obra.file.size
-          })
-        }
-        if (formData.foto) totalSize += formData.foto.size
-        if (formData.documentos?.cv) totalSize += formData.documentos.cv.size
-        if (formData.documentos?.portfolio) totalSize += formData.documentos.portfolio.size
-        if (formData.documentos?.identificacion) totalSize += formData.documentos.identificacion.size
-
-        if (totalSize > MAX_TOTAL_SIZE) {
-          const totalMB = (totalSize / (1024 * 1024)).toFixed(2)
-          newErrors.totalSize = `El tamaño total de archivos (${totalMB}MB) excede el límite de 4.5MB. Comprime tus PDFs antes de continuar.`
-        }
+        // Sin límite de tamaño total - usando AWS
         break
 
       case 5:
@@ -368,19 +349,10 @@ export default function RegistroPage() {
       })
       const totalMB = (totalSize / (1024 * 1024)).toFixed(2)
       console.log('TOTAL:', Math.round(totalSize / 1024), 'KB (', totalMB, 'MB )')
-      console.log('LÍMITE: 4.5 MB')
 
-      // Validar tamaño total antes de enviar
-      if (totalSize > 4.5 * 1024 * 1024) {
-        console.error('❌ ERROR: El tamaño total excede el límite del servidor')
-        setErrors({
-          submit: `El tamaño total de archivos (${totalMB}MB) excede el límite de 4.5MB. Por favor, comprime tus PDFs (CV, Portafolio, Identificación) antes de subirlos. Puedes usar herramientas gratuitas en línea como smallpdf.com o ilovepdf.com`
-        })
-        setIsSubmitting(false)
-        return
-      }
+      // Sin límite de tamaño - usando AWS
 
-      // Enviar directamente al backend (evita límite de 4.5MB de Vercel)
+      // Enviar directamente al backend
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
       console.log('Enviando a:', `${backendUrl}/registro`)
       console.log('Tamaño total FormData:', totalMB, 'MB')
