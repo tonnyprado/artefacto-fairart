@@ -64,9 +64,8 @@ export default function Footer() {
                 Cuauhtémoc, 06720 CDMX
               </span>
               <div style={{ display: 'flex', gap: 12, marginTop: 12, fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', justifyContent: isMobile ? 'center' : 'flex-start' }}>
-                {[['IG', 'https://instagram.com/artefacto'], ['FB', 'https://facebook.com/artefacto']].map(([t, h]) => (
-                  <a key={t} href={h} target="_blank" rel="noopener noreferrer" style={{ color: COLORS.cream, textDecoration: 'none' }}>{t}</a>
-                ))}
+                <a href="https://www.instagram.com/artefacto.feria?igsh=MTNrcWwwajIycjh6dg%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" style={{ color: COLORS.cream, textDecoration: 'none' }}>IG</a>
+                <a href="https://wa.me/525578363207?text=Hola%2C%20me%20gustar%C3%ADa%20obtener%20m%C3%A1s%20informaci%C3%B3n%20sobre%20ARTEFACTO" target="_blank" rel="noopener noreferrer" style={{ color: COLORS.cream, textDecoration: 'none' }}>WA</a>
               </div>
             </div>
           </div>

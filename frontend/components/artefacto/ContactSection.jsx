@@ -8,8 +8,8 @@ const DATOS = [
 ];
 
 const REDES = [
-  { label: 'Instagram ↗', href: 'https://instagram.com/artefacto' },
-  { label: 'Facebook ↗', href: 'https://facebook.com/artefacto' },
+  { label: 'Instagram ↗', href: 'https://www.instagram.com/artefacto.feria?igsh=MTNrcWwwajIycjh6dg%3D%3D&utm_source=qr' },
+  { label: 'WhatsApp ↗', href: 'https://wa.me/525578363207?text=Hola%2C%20me%20gustar%C3%ADa%20obtener%20m%C3%A1s%20informaci%C3%B3n%20sobre%20ARTEFACTO' },
 ];
 
 const inputStyle = { border: 'none', background: COLORS.creamDark, padding: 14, fontFamily: FONTS.body, fontSize: 15, borderRadius: 16 };
