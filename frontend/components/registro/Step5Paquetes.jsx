@@ -186,6 +186,9 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
   }
 
   const handleSaveAndContinue = (layoutData, layoutUrl, obrasCompletas) => {
+    // Guardar datos del canvas y continuar
+    // La validación de tamaño total se hace en Step3Documentos (paso 4)
+    // porque los documentos se suben después del lienzo
     updateFormData({
       layout_canvas_data: layoutData,
       layout_canvas_url: layoutUrl,

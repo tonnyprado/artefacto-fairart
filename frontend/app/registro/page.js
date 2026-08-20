@@ -181,6 +181,26 @@ export default function RegistroPage() {
         if (!formData.documentos?.portfolio) newErrors.portfolio = 'Portafolio es requerido'
         if (!formData.documentos?.identificacion)
           newErrors.identificacion = 'Identificación es requerida'
+
+        // Validar tamaño total de archivos
+        const MAX_TOTAL_SIZE = 4.5 * 1024 * 1024 // 4.5MB
+        let totalSize = 0
+        if (formData.layout_canvas_blob) totalSize += formData.layout_canvas_blob.size
+        if (formData.layout_canvas_pdf_blob) totalSize += formData.layout_canvas_pdf_blob.size
+        if (formData.obras_lienzo) {
+          formData.obras_lienzo.forEach(obra => {
+            if (obra.file) totalSize += obra.file.size
+          })
+        }
+        if (formData.foto) totalSize += formData.foto.size
+        if (formData.documentos?.cv) totalSize += formData.documentos.cv.size
+        if (formData.documentos?.portfolio) totalSize += formData.documentos.portfolio.size
+        if (formData.documentos?.identificacion) totalSize += formData.documentos.identificacion.size
+
+        if (totalSize > MAX_TOTAL_SIZE) {
+          const totalMB = (totalSize / (1024 * 1024)).toFixed(2)
+          newErrors.totalSize = `El tamaño total de archivos (${totalMB}MB) excede el límite de 4.5MB. Comprime tus PDFs antes de continuar.`
+        }
         break
 
       case 5:

@@ -16,6 +16,8 @@ export default function FileUpload({
   onChange,
   value,
   helperText,
+  isLoading = false,
+  loadingText = 'Comprimiendo...',
   ...props
 }) {
   const [dragActive, setDragActive] = useState(false)
@@ -84,8 +86,10 @@ export default function FileUpload({
       <div
         style={{
           borderRadius: '16px',
-          borderColor: dragActive ? '#B83030' : error ? '#B83030' : 'rgba(255,255,255,0.4)',
-          background: dragActive ? 'rgba(184,48,48,0.1)' : 'transparent'
+          borderColor: isLoading ? '#F59E0B' : dragActive ? '#B83030' : error ? '#B83030' : 'rgba(255,255,255,0.4)',
+          background: isLoading ? 'rgba(245,158,11,0.1)' : dragActive ? 'rgba(184,48,48,0.1)' : 'transparent',
+          position: 'relative',
+          overflow: 'hidden',
         }}
         className={cn(
           'relative border-2 border-dashed p-6 transition-all'
@@ -93,13 +97,59 @@ export default function FileUpload({
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
-        onDrop={handleDrop}
+        onDrop={isLoading ? undefined : handleDrop}
       >
+        {/* Overlay de carga */}
+        {isLoading && (
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'rgba(20, 18, 16, 0.85)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10,
+            borderRadius: '14px',
+          }}>
+            {/* Spinner animado usando Tailwind */}
+            <div
+              className="animate-spin"
+              style={{
+                width: '48px',
+                height: '48px',
+                border: '3px solid rgba(245, 158, 11, 0.2)',
+                borderTopColor: '#F59E0B',
+                borderRadius: '50%',
+                marginBottom: '12px',
+              }}
+            />
+            <p style={{
+              color: '#F59E0B',
+              fontSize: '14px',
+              fontWeight: 600,
+              margin: 0,
+            }}>
+              {loadingText}
+            </p>
+            <p style={{
+              color: 'rgba(244, 237, 228, 0.6)',
+              fontSize: '12px',
+              marginTop: '4px',
+            }}>
+              Esto puede tomar unos segundos...
+            </p>
+          </div>
+        )}
+
         <input
           type="file"
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           accept={accept}
           onChange={handleChange}
+          disabled={isLoading}
+          style={{ pointerEvents: isLoading ? 'none' : 'auto' }}
           {...props}
         />
 
