@@ -49,9 +49,7 @@ export default function Footer() {
         { name: 'Contacto', href: '#contacto' },
       ],
       legal: [
-        { name: 'Términos y Condiciones', href: '#' },
-        { name: 'Política de Privacidad', href: '#' },
-        { name: 'Aviso de Privacidad', href: '#' },
+        { name: 'Aviso de Privacidad', href: '/privacy-policy' },
       ]
     }
   }

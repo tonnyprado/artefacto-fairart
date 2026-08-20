@@ -1,41 +1,139 @@
 /**
  * Utilidades para SEO y Schema.org markup
+ *
+ * Genera structured data (JSON-LD) para mejorar el SEO y
+ * la representacion del sitio en resultados de busqueda.
  */
+
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://arte-facto.mx'
 
 /**
- * Genera Schema.org markup para la organización
+ * Genera Schema.org markup para la organizacion ARTEFACTO
  */
 export function generateOrganizationSchema() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'ARTEFACT - Feria de Arte',
-    url: baseUrl,
-    logo: `${baseUrl}/logo.png`,
-    description: 'Feria de arte que conecta artistas emergentes con coleccionistas y amantes del arte',
-    contactPoint: {
-      '@type': 'ContactPoint',
-      email: process.env.NEXT_PUBLIC_ADMIN_EMAIL,
-      contactType: 'customer service',
-      availableLanguage: ['Spanish', 'English']
+    '@id': `${BASE_URL}/#organization`,
+    name: 'ARTEFACTO',
+    alternateName: 'ARTEFACTO Feria de Arte Contemporaneo',
+    url: BASE_URL,
+    logo: {
+      '@type': 'ImageObject',
+      url: `${BASE_URL}/assets/logo-artefacto.png`,
+      width: 512,
+      height: 512,
     },
+    image: `${BASE_URL}/og-image.jpg`,
+    description: 'Feria de arte contemporaneo que impulsa y conecta artistas emergentes con coleccionistas, curadores y amantes del arte en Mexico.',
+    foundingDate: '2024',
+    foundingLocation: {
+      '@type': 'Place',
+      name: 'Ciudad de Mexico',
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: 'Ciudad de Mexico',
+        addressCountry: 'MX',
+      }
+    },
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Centro Cultural Estacion Indianilla, Claudio Bernard 111',
+      addressLocality: 'Ciudad de Mexico',
+      addressRegion: 'CDMX',
+      postalCode: '06720',
+      addressCountry: 'MX',
+    },
+    contactPoint: [
+      {
+        '@type': 'ContactPoint',
+        telephone: '+52-55-7836-3207',
+        contactType: 'customer service',
+        email: 'convocatoria@artefacto.mx',
+        availableLanguage: ['Spanish', 'English'],
+        areaServed: 'MX',
+      },
+      {
+        '@type': 'ContactPoint',
+        email: 'artefacto.curatorial@gmail.com',
+        contactType: 'curatorial',
+        availableLanguage: ['Spanish', 'English'],
+      }
+    ],
     sameAs: [
-      // Agregar redes sociales cuando estén disponibles
-      // 'https://www.facebook.com/artefact',
-      // 'https://www.instagram.com/artefact',
-      // 'https://twitter.com/artefact',
-    ]
+      'https://www.instagram.com/artefacto.feria',
+      'https://wa.me/525578363207',
+    ],
+    knowsAbout: [
+      'Arte Contemporaneo',
+      'Artistas Emergentes',
+      'Ferias de Arte',
+      'Curaduria',
+      'Coleccionismo de Arte',
+    ],
   }
 }
 
 /**
- * Genera Schema.org markup para un evento
+ * Genera Schema.org markup para el evento principal de la feria
+ */
+export function generateMainEventSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ExhibitionEvent',
+    '@id': `${BASE_URL}/#event-2027`,
+    name: 'ARTEFACTO 2027 - Feria de Arte Contemporaneo',
+    description: 'Feria de arte contemporaneo que reune a artistas emergentes de Mexico. Convocatoria abierta para la edicion Febrero 2027.',
+    url: BASE_URL,
+    image: `${BASE_URL}/og-image.jpg`,
+    startDate: '2027-02-01',
+    endDate: '2027-02-28',
+    eventStatus: 'https://schema.org/EventScheduled',
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    location: {
+      '@type': 'Place',
+      name: 'Centro Cultural Estacion Indianilla',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Claudio Bernard 111, Col. Doctores',
+        addressLocality: 'Ciudad de Mexico',
+        addressRegion: 'Cuauhtemoc',
+        postalCode: '06720',
+        addressCountry: 'MX',
+      },
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: 19.4167,
+        longitude: -99.1463,
+      },
+    },
+    organizer: {
+      '@type': 'Organization',
+      name: 'ARTEFACTO',
+      url: BASE_URL,
+    },
+    performer: {
+      '@type': 'PerformingGroup',
+      name: 'Artistas Emergentes Mexicanos',
+    },
+    offers: {
+      '@type': 'Offer',
+      name: 'Inscripcion para Artistas',
+      url: `${BASE_URL}/registro`,
+      availability: 'https://schema.org/InStock',
+      priceCurrency: 'MXN',
+      validFrom: '2026-01-01',
+    },
+    inLanguage: 'es',
+    isAccessibleForFree: false,
+    typicalAgeRange: '18-',
+  }
+}
+
+/**
+ * Genera Schema.org markup para un evento especifico
  */
 export function generateEventSchema(event) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-
   return {
     '@context': 'https://schema.org',
     '@type': 'Event',
@@ -52,14 +150,14 @@ export function generateEventSchema(event) {
         '@type': 'PostalAddress',
         streetAddress: event.location?.address,
         addressLocality: event.location?.city,
-        addressCountry: event.location?.country
+        addressCountry: event.location?.country || 'MX',
       }
     },
-    image: event.image ? `${baseUrl}${event.image}` : undefined,
+    image: event.image ? `${BASE_URL}${event.image}` : `${BASE_URL}/og-image.jpg`,
     organizer: {
       '@type': 'Organization',
-      name: 'ARTEFACT',
-      url: baseUrl
+      name: 'ARTEFACTO',
+      url: BASE_URL,
     }
   }
 }
@@ -68,18 +166,21 @@ export function generateEventSchema(event) {
  * Genera Schema.org markup para un artista (Person/Artist)
  */
 export function generateArtistSchema(artist) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-
   return {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: artist.name,
     description: artist.bio,
-    url: `${baseUrl}/artistas/${artist.slug}`,
-    image: artist.photo ? `${baseUrl}${artist.photo}` : undefined,
-    jobTitle: 'Artist',
-    workLocation: artist.location,
-    sameAs: artist.socialLinks || []
+    url: `${BASE_URL}/artistas/${artist.slug}`,
+    image: artist.photo ? `${BASE_URL}${artist.photo}` : undefined,
+    jobTitle: 'Artista Visual',
+    workLocation: {
+      '@type': 'Place',
+      name: artist.location || 'Mexico',
+    },
+    nationality: artist.nationality || 'Mexicana',
+    sameAs: artist.socialLinks || [],
+    knowsAbout: artist.techniques || ['Arte Contemporaneo'],
   }
 }
 
@@ -87,29 +188,33 @@ export function generateArtistSchema(artist) {
  * Genera Schema.org markup para una obra de arte
  */
 export function generateArtworkSchema(artwork) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-
   return {
     '@context': 'https://schema.org',
     '@type': 'VisualArtwork',
     name: artwork.title,
     description: artwork.description,
-    image: artwork.image ? `${baseUrl}${artwork.image}` : undefined,
+    image: artwork.image ? `${BASE_URL}${artwork.image}` : undefined,
     creator: {
       '@type': 'Person',
-      name: artwork.artist?.name
+      name: artwork.artist?.name,
     },
     artMedium: artwork.medium,
     artform: artwork.category,
     dateCreated: artwork.year,
-    width: artwork.dimensions?.width,
-    height: artwork.dimensions?.height,
+    width: artwork.dimensions?.width ? {
+      '@type': 'Distance',
+      name: `${artwork.dimensions.width} cm`,
+    } : undefined,
+    height: artwork.dimensions?.height ? {
+      '@type': 'Distance',
+      name: `${artwork.dimensions.height} cm`,
+    } : undefined,
     offers: artwork.price ? {
       '@type': 'Offer',
       price: artwork.price,
       priceCurrency: 'MXN',
-      availability: artwork.available ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'
-    } : undefined
+      availability: artwork.available ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+    } : undefined,
   }
 }
 
@@ -117,8 +222,6 @@ export function generateArtworkSchema(artwork) {
  * Genera breadcrumbs Schema.org markup
  */
 export function generateBreadcrumbSchema(items) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -126,7 +229,45 @@ export function generateBreadcrumbSchema(items) {
       '@type': 'ListItem',
       position: index + 1,
       name: item.name,
-      item: `${baseUrl}${item.path}`
+      item: `${BASE_URL}${item.path}`,
     }))
   }
+}
+
+/**
+ * Genera Schema.org markup para el sitio web
+ */
+export function generateWebSiteSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${BASE_URL}/#website`,
+    url: BASE_URL,
+    name: 'ARTEFACTO',
+    alternateName: 'ARTEFACTO Feria de Arte',
+    description: 'Feria de arte contemporaneo que impulsa artistas emergentes en Mexico',
+    publisher: {
+      '@id': `${BASE_URL}/#organization`,
+    },
+    inLanguage: 'es-MX',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${BASE_URL}/artistas?search={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  }
+}
+
+/**
+ * Genera todos los schemas principales para la pagina de inicio
+ */
+export function generateHomePageSchemas() {
+  return [
+    generateWebSiteSchema(),
+    generateOrganizationSchema(),
+    generateMainEventSchema(),
+  ]
 }

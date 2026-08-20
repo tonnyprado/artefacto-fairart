@@ -1,19 +1,26 @@
-import { generateOrganizationSchema } from '@/lib/seo'
+import { generateHomePageSchemas } from '@/lib/seo'
 import { LandingArtefacto } from '@/components/artefacto'
 
 export const metadata = {
-  title: 'ARTEFACT 2027 - Feria de Arte Contemporáneo',
-  description: 'Descubre el talento emergente de artistas locales. ARTEFACT es una feria de arte que conecta artistas emergentes con coleccionistas y amantes del arte. Convocatoria abierta para Febrero 2027.',
-  keywords: 'feria de arte, arte contemporáneo, artistas emergentes, exposición de arte, CDMX, convocatoria artistas',
+  title: 'ARTEFACTO 2027 | Feria de Arte Contemporaneo en Mexico',
+  description: 'Descubre el talento emergente de artistas mexicanos. ARTEFACTO es la feria de arte contemporaneo que conecta artistas con coleccionistas y amantes del arte. Convocatoria abierta Febrero 2027.',
+  keywords: 'feria de arte, arte contemporaneo, artistas emergentes, exposicion de arte, CDMX, convocatoria artistas 2027, galeria mexico',
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'ARTEFACTO 2027 | Feria de Arte Contemporaneo',
+    description: 'Descubre el talento emergente de artistas mexicanos. Convocatoria abierta Febrero 2027.',
+  },
 }
 
 /**
  * Landing Page Principal
  *
- * Ahora usando el componente LandingArtefacto que orquesta:
+ * Componentes:
  * - Hero con fondo de letras animadas
  * - Navbar transparente con iconos-letra
- * - AboutSection: Información + Ubicación
+ * - AboutSection: Informacion + Ubicacion
  * - ConvocatoriaSection: Info de fases + descarga PDF + registro
  * - CalendarSection: Timeline de eventos
  * - ContactSection: Formulario de contacto
@@ -23,15 +30,18 @@ export const metadata = {
  */
 
 export default function Home() {
-  const organizationSchema = generateOrganizationSchema()
+  const schemas = generateHomePageSchemas()
 
   return (
     <>
-      {/* JSON-LD Schema para SEO */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-      />
+      {/* JSON-LD Structured Data para SEO */}
+      {schemas.map((schema, index) => (
+        <script
+          key={index}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      ))}
 
       {/* Landing completa con transiciones SPA */}
       <LandingArtefacto />

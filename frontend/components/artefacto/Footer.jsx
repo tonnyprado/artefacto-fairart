@@ -71,8 +71,9 @@ export default function Footer() {
           </div>
         </div>
         <div style={footerBarStyle}>
-          <span>© 2027 ARTE FACTO. Todos los derechos reservados.</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>Hecho en México <img src="/assets/star-red.svg" alt="" style={{ width: 10, height: 10 }} /></span>
+          <span>© {new Date().getFullYear()} ARTEFACTO. Todos los derechos reservados.</span>
+          <a href="/privacy-policy" style={{ color: 'rgba(244,237,228,0.6)', textDecoration: 'none', fontSize: 11 }}>Aviso de Privacidad</a>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>Hecho en Mexico <img src="/assets/star-red.svg" alt="" style={{ width: 10, height: 10 }} /></span>
         </div>
       </div>
     </footer>
