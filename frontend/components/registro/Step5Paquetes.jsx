@@ -4,8 +4,9 @@ import { useState, useEffect, useRef, useLayoutEffect, forwardRef } from 'react'
 import { createPortal } from 'react-dom'
 import dynamic from 'next/dynamic'
 import { usePaquetesStore } from '@/stores/paquetesStore'
-import { ChevronDown, ChevronUp, Check, Plus, Edit2, Trash2, GripVertical, AlertCircle, Palette, Box, Download, ArrowRight, X, MousePointer2, Move, Save, FileText, ExternalLink, Info } from 'lucide-react'
+import { ChevronDown, ChevronUp, Check, Plus, Edit2, Trash2, GripVertical, AlertCircle, Palette, Box, Download, ArrowRight, X, MousePointer2, Move, Save, FileText, ExternalLink, Info, Loader2 } from 'lucide-react'
 import gsap from 'gsap'
+import { compressImage } from '@/lib/imageCompression'
 
 const LayoutCanvas = dynamic(() => import('./LayoutCanvasWithMural'), {
   ssr: false,
@@ -76,6 +77,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
   // Obras
   const [todasLasObras, setTodasLasObras] = useState([])
   const [editingObra, setEditingObra] = useState(null)
+  const [isProcessingImages, setIsProcessingImages] = useState(false)
 
   // Modal de instrucciones
   const [showInstructions, setShowInstructions] = useState(true)
@@ -278,16 +280,52 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
     })
   }
 
-  const handleAddNewObra = (files) => {
-    const newObras = Array.from(files).map((file, index) => ({
-      id: `obra-${Date.now()}-${index}`,
-      file,
-      preview: URL.createObjectURL(file),
-      titulo: '', ancho_cm: '', alto_cm: '', tecnica: '',
-      anio: new Date().getFullYear(), precio_mxn: '', notas_montaje: ''
-    }))
-    setTodasLasObras(prev => [...prev, ...newObras])
-    if (newObras.length > 0) setEditingObra(newObras[0])
+  const handleAddNewObra = async (files) => {
+    const filesArray = Array.from(files)
+    setIsProcessingImages(true)
+
+    try {
+      const processedObras = await Promise.all(
+        filesArray.map(async (file, index) => {
+          const fileSizeMB = file.size / (1024 * 1024)
+          let processedFile = file
+
+          // Si es mayor a 5MB, comprimir
+          if (fileSizeMB > 5) {
+            console.log(`🖼️ Comprimiendo obra ${index + 1}: ${fileSizeMB.toFixed(2)}MB...`)
+            try {
+              processedFile = await compressImage(file, {
+                maxWidth: 2400,
+                maxHeight: 2400,
+                quality: 0.85,
+                maxSizeKB: 4500 // Comprimir a menos de 4.5MB
+              })
+              const newSizeMB = processedFile.size / (1024 * 1024)
+              console.log(`✅ Obra ${index + 1} comprimida: ${fileSizeMB.toFixed(2)}MB → ${newSizeMB.toFixed(2)}MB`)
+            } catch (error) {
+              console.error('Error comprimiendo imagen:', error)
+              // Si falla la compresión, usar archivo original
+            }
+          }
+
+          return {
+            id: `obra-${Date.now()}-${index}`,
+            file: processedFile,
+            preview: URL.createObjectURL(processedFile),
+            titulo: '', ancho_cm: '', alto_cm: '', tecnica: '',
+            anio: new Date().getFullYear(), precio_mxn: '', notas_montaje: ''
+          }
+        })
+      )
+
+      setTodasLasObras(prev => [...prev, ...processedObras])
+      if (processedObras.length > 0) setEditingObra(processedObras[0])
+    } catch (error) {
+      console.error('Error procesando imágenes:', error)
+      alert('Error al procesar las imágenes. Por favor intenta de nuevo.')
+    } finally {
+      setIsProcessingImages(false)
+    }
   }
 
   const hasCompleteMetadata = (obra) => {
@@ -713,15 +751,33 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
               >
                 <div style={{ padding: '12px 16px', borderBottom: `1px solid ${COLORS.creamDark}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.gray }}>
-                    {todasLasObras.length} obra{todasLasObras.length !== 1 ? 's' : ''}
+                    {isProcessingImages ? 'Procesando...' : `${todasLasObras.length} obra${todasLasObras.length !== 1 ? 's' : ''}`}
                   </span>
                   <label style={{
                     display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 10px',
-                    background: COLORS.black, color: COLORS.cream, borderRadius: '6px',
-                    fontFamily: FONTS.body, fontSize: '11px', fontWeight: 600, cursor: 'pointer',
+                    background: isProcessingImages ? COLORS.gray : COLORS.black,
+                    color: COLORS.cream, borderRadius: '6px',
+                    fontFamily: FONTS.body, fontSize: '11px', fontWeight: 600,
+                    cursor: isProcessingImages ? 'wait' : 'pointer',
+                    opacity: isProcessingImages ? 0.7 : 1,
                   }}>
-                    <Plus size={12} /> Agregar
-                    <input type="file" multiple accept="image/*" onChange={(e) => handleAddNewObra(e.target.files)} style={{ display: 'none' }} />
+                    {isProcessingImages ? (
+                      <>
+                        <Loader2 size={12} className="animate-spin" /> Comprimiendo...
+                      </>
+                    ) : (
+                      <>
+                        <Plus size={12} /> Agregar
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={(e) => handleAddNewObra(e.target.files)}
+                      style={{ display: 'none' }}
+                      disabled={isProcessingImages}
+                    />
                   </label>
                 </div>
 
