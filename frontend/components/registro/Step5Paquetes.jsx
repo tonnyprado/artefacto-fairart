@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useLayoutEffect, forwardRef } from 'react'
 import { createPortal } from 'react-dom'
 import dynamic from 'next/dynamic'
 import { usePaquetesStore } from '@/stores/paquetesStore'
-import { ChevronDown, ChevronUp, Check, Plus, Edit2, Trash2, GripVertical, AlertCircle, Palette, Box, Download, ArrowRight, X, MousePointer2, Move, Save, FileText, ExternalLink } from 'lucide-react'
+import { ChevronDown, ChevronUp, Check, Plus, Edit2, Trash2, GripVertical, AlertCircle, Palette, Box, Download, ArrowRight, X, MousePointer2, Move, Save, FileText, ExternalLink, Info } from 'lucide-react'
 import gsap from 'gsap'
 
 const LayoutCanvas = dynamic(() => import('./LayoutCanvasWithMural'), {
@@ -695,6 +695,30 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
               </button>
             </div>
           )}
+
+          {/* Indicador de límite de tamaño */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 12px',
+              background: 'rgba(244, 237, 228, 0.1)',
+              borderRadius: '8px',
+              marginLeft: '8px',
+            }}
+            title="Las imágenes mayores a 5MB serán comprimidas automáticamente"
+          >
+            <Info size={14} color={COLORS.cream} style={{ opacity: 0.7 }} />
+            <span style={{
+              fontFamily: FONTS.body,
+              fontSize: '11px',
+              color: COLORS.cream,
+              opacity: 0.7,
+            }}>
+              Máx. 5MB por imagen
+            </span>
+          </div>
         </div>
 
         {/* Botones de acción - DERECHA */}
