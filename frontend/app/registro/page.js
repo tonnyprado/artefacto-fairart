@@ -823,77 +823,82 @@ export default function RegistroPage() {
         padding: '80px 24px 60px',
       }}>
         <div style={{ maxWidth: currentStep === 2 ? 1950 : 900, margin: '0 auto', transition: 'max-width 0.3s ease' }}>
-        {/* Header */}
-        <div style={{ marginBottom: 48 }}>
-          {/* Botón convocatoria - alineado a la izquierda */}
-          <div style={{ marginBottom: 32 }}>
-            <a
-              href="/#convocatoria"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                color: COLORS.red,
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                fontFamily: FONTS.body,
-                fontSize: 14,
-                fontWeight: 600,
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                textDecoration: 'none',
-                transition: 'all 0.2s ease',
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'translateX(-4px)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'translateX(0)'}
+        {/* Header - Navbar style */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 32,
+        }}>
+          {/* Botón convocatoria - izquierda */}
+          <a
+            href="/#convocatoria"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              color: COLORS.red,
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: FONTS.body,
+              fontSize: 13,
+              fontWeight: 600,
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              textDecoration: 'none',
+              transition: 'all 0.2s ease',
+              flexShrink: 0,
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateX(-4px)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateX(0)'}
+          >
+            <svg
+              style={{ width: 18, height: 18, marginRight: 6 }}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              <svg
-                style={{ width: 20, height: 20, marginRight: 8 }}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
-              Convocatoria aquí
-            </a>
-          </div>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+            Convocatoria
+          </a>
 
-          {/* Logo y subtítulo centrados */}
+          {/* Logo + título - centro */}
           <div style={{
             display: 'flex',
-            flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
+            gap: 12,
           }}>
             <img
               src="/assets/wordmark-red.svg"
               alt="Arte Facto"
               style={{
-                width: 'clamp(140px, 22vw, 200px)',
+                width: 'clamp(80px, 12vw, 120px)',
                 height: 'auto',
-                marginBottom: 12,
               }}
             />
-            <p style={{
-              margin: 0,
-              fontSize: 'clamp(20px, 3.5vw, 28px)',
+            <span style={{
+              fontSize: 'clamp(14px, 2vw, 18px)',
               color: COLORS.black,
               fontFamily: '"Inter Tight", Inter, sans-serif',
               fontWeight: 700,
-              letterSpacing: '0.06em',
+              letterSpacing: '0.05em',
               textTransform: 'uppercase',
+              opacity: 0.7,
             }}>
               LIENZO DE POSTULACIÓN
-            </p>
+            </span>
           </div>
+
+          {/* Espacio vacío - derecha (para balance) */}
+          <div style={{ width: 120, flexShrink: 0 }} />
         </div>
 
         {/* Progress Bar */}
