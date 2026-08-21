@@ -87,6 +87,12 @@ export function Obra3D({
     // Verificar colisión y actualizar guías
     const currentCollision = checkPositionHasCollision({ x: currentX, y: currentY })
     setIsColliding(currentCollision)
+
+    // Si NO hay colisión, guardar como última posición válida
+    if (!currentCollision) {
+      updateLastValidPos({ x: currentX, y: currentY })
+    }
+
     onDragMove && onDragMove(obra.id, currentX, currentY, obra.width, obra.height, currentCollision)
   }
 
@@ -96,9 +102,9 @@ export function Obra3D({
     const finalCollision = isColliding
     resetCollision()
     onDragMove && onDragMove(null, null, null, null, null, false)
-    // Usar la posición actual del elemento (ya validada por dragBoundFunc)
-    // Esta es la misma posición que muestra el cuadro guía
-    onDragEnd(obra.id, finalX, finalY, finalCollision, { x: finalX, y: finalY })
+    // Si hay colisión, usar la última posición válida guardada
+    // Si no hay colisión, usar la posición final
+    onDragEnd(obra.id, finalX, finalY, finalCollision, lastValidPos)
   }
 
   const handleSelect = () => {

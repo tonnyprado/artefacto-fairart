@@ -63,7 +63,7 @@ function Block({ b, introRef }) {
  */
 export default function SubtemaSection({
   data,
-  sectionRef,
+  sectionRef = undefined,
   introRef,
   minH = 'min-h-[110vh]',
 }) {
@@ -97,8 +97,3 @@ export default function SubtemaSection({
     </section>
   );
 }
-
-// Exportar labelRef como deprecated para no romper imports
-SubtemaSection.defaultProps = {
-  sectionRef: undefined,
-};

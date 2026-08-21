@@ -71,48 +71,48 @@ export function PaqueteDelimiter({ paquete, areaDelimitada, canvasWidth, canvasH
             listening={false}
           />
           <DiagonalLines x={0} y={0} width={leftAreaWidth} height={canvasHeight} spacing={25} />
-          {/* Label área de consideración izquierda */}
+          {/* Label área de consideración izquierda - tamaño fijo */}
           <Group>
             <Rect
-              x={5}
-              y={canvasHeight / 2 - 30}
-              width={leftAreaWidth - 10}
-              height={60}
-              fill="rgba(184, 48, 48, 0.9)"
-              cornerRadius={8}
-              listening={false}
-            />
-            <Text
-              x={5}
+              x={leftAreaWidth / 2 - 40}
               y={canvasHeight / 2 - 25}
-              width={leftAreaWidth - 10}
-              height={20}
+              width={80}
+              height={50}
+              fill="rgba(184, 48, 48, 0.9)"
+              cornerRadius={6}
+              listening={false}
+            />
+            <Text
+              x={leftAreaWidth / 2 - 40}
+              y={canvasHeight / 2 - 20}
+              width={80}
+              height={14}
               text="ÁREA DE"
-              fontSize={9}
-              fontStyle="italic"
-              fill="white"
-              align="center"
-              listening={false}
-            />
-            <Text
-              x={5}
-              y={canvasHeight / 2 - 8}
-              width={leftAreaWidth - 10}
-              height={20}
-              text="CONSIDERACIÓN"
-              fontSize={9}
-              fontStyle="italic"
-              fill="white"
-              align="center"
-              listening={false}
-            />
-            <Text
-              x={5}
-              y={canvasHeight / 2 + 10}
-              width={leftAreaWidth - 10}
-              height={16}
-              text="Comité Curatorial"
               fontSize={8}
+              fontStyle="italic"
+              fill="white"
+              align="center"
+              listening={false}
+            />
+            <Text
+              x={leftAreaWidth / 2 - 40}
+              y={canvasHeight / 2 - 6}
+              width={80}
+              height={14}
+              text="CONSIDERACIÓN"
+              fontSize={8}
+              fontStyle="italic"
+              fill="white"
+              align="center"
+              listening={false}
+            />
+            <Text
+              x={leftAreaWidth / 2 - 40}
+              y={canvasHeight / 2 + 8}
+              width={80}
+              height={12}
+              text="Comité Curatorial"
+              fontSize={7}
               fontStyle="bold italic"
               fill="white"
               align="center"
@@ -134,48 +134,48 @@ export function PaqueteDelimiter({ paquete, areaDelimitada, canvasWidth, canvasH
             listening={false}
           />
           <DiagonalLines x={rightAreaX} y={0} width={rightAreaWidth} height={canvasHeight} spacing={25} />
-          {/* Label área de consideración derecha */}
+          {/* Label área de consideración derecha - tamaño fijo */}
           <Group>
             <Rect
-              x={rightAreaX + 5}
-              y={canvasHeight / 2 - 30}
-              width={rightAreaWidth - 10}
-              height={60}
-              fill="rgba(184, 48, 48, 0.9)"
-              cornerRadius={8}
-              listening={false}
-            />
-            <Text
-              x={rightAreaX + 5}
+              x={rightAreaX + rightAreaWidth / 2 - 40}
               y={canvasHeight / 2 - 25}
-              width={rightAreaWidth - 10}
-              height={20}
+              width={80}
+              height={50}
+              fill="rgba(184, 48, 48, 0.9)"
+              cornerRadius={6}
+              listening={false}
+            />
+            <Text
+              x={rightAreaX + rightAreaWidth / 2 - 40}
+              y={canvasHeight / 2 - 20}
+              width={80}
+              height={14}
               text="ÁREA DE"
-              fontSize={9}
-              fontStyle="italic"
-              fill="white"
-              align="center"
-              listening={false}
-            />
-            <Text
-              x={rightAreaX + 5}
-              y={canvasHeight / 2 - 8}
-              width={rightAreaWidth - 10}
-              height={20}
-              text="CONSIDERACIÓN"
-              fontSize={9}
-              fontStyle="italic"
-              fill="white"
-              align="center"
-              listening={false}
-            />
-            <Text
-              x={rightAreaX + 5}
-              y={canvasHeight / 2 + 10}
-              width={rightAreaWidth - 10}
-              height={16}
-              text="Comité Curatorial"
               fontSize={8}
+              fontStyle="italic"
+              fill="white"
+              align="center"
+              listening={false}
+            />
+            <Text
+              x={rightAreaX + rightAreaWidth / 2 - 40}
+              y={canvasHeight / 2 - 6}
+              width={80}
+              height={14}
+              text="CONSIDERACIÓN"
+              fontSize={8}
+              fontStyle="italic"
+              fill="white"
+              align="center"
+              listening={false}
+            />
+            <Text
+              x={rightAreaX + rightAreaWidth / 2 - 40}
+              y={canvasHeight / 2 + 8}
+              width={80}
+              height={12}
+              text="Comité Curatorial"
+              fontSize={7}
               fontStyle="bold italic"
               fill="white"
               align="center"

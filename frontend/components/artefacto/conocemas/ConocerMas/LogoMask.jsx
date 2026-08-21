@@ -12,7 +12,7 @@ export default function LogoMask({ maskRef, ghostRef, navbarHeight = 80 }) {
   return (
     <div
       ref={maskRef}
-      className="fixed left-0 z-10 w-[25vw] bg-crema"
+      className="fixed left-0 z-10 w-[25vw] bg-crema pointer-events-none"
       style={{
         top: `${navbarHeight}px`,
         height: `calc(min(24px, 1.2vw) + min(130px, 9.8vw) + 17.5902px + 30px)`,

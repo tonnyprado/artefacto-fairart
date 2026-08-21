@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 146 60" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(1,0,0,1,-1415,-85)">
+        <path d="M1560.41,90.23L1560.41,139.05C1560.41,141.672 1558.282,143.8 1555.66,143.8L1419.37,143.8C1416.748,143.8 1414.62,141.672 1414.62,139.05L1414.62,90.23C1414.62,87.608 1416.748,85.48 1419.37,85.48L1555.66,85.48C1558.282,85.48 1560.41,87.608 1560.41,90.23Z" style="fill:rgb(185,52,51);"/>
+        <g transform="matrix(1,0,0,1,1424.3394,101.1721)">
+            <text x="0px" y="0px" style="font-family:'Helvetica-LightOblique', 'Helvetica', sans-serif;font-weight:300;font-style:italic;font-size:10px;fill:white;">Áreas de consideración para</text>
+            <g transform="matrix(1,0,0,1,0.85,10.99)">
+                <text x="0px" y="0px" style="font-family:'Helvetica-LightOblique', 'Helvetica', sans-serif;font-weight:300;font-style:italic;font-size:10px;fill:white;">colocación de obra según el</text>
+            </g>
+            <g transform="matrix(1,0,0,1,24.2,21.97)">
+                <text x="0px" y="0px" style="font-family:'Helvetica-LightOblique', 'Helvetica', sans-serif;font-weight:300;font-style:italic;font-size:10px;fill:white;">Comité Curatorial</text>
+            </g>
+            <g transform="matrix(1,0,0,1,27.45,32.96)">
+                <text x="0px" y="0px" style="font-family:'Helvetica-BoldOblique', 'Helvetica';font-weight:700;font-style:italic;font-size:10.99px;fill:white;">ARTE F<tspan x="39.082px 47.019px 54.955px 61.475px " y="0px 0px 0px 0px ">ACTO</tspan></text>
+            </g>
+        </g>
+    </g>
+</svg>

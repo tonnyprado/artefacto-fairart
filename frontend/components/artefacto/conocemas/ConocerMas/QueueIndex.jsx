@@ -38,7 +38,7 @@ export default function QueueIndex({ labelsRef, navbarHeight = 80 }) {
               if (el) labelsRef.current[i] = el;
             }}
             onClick={() => handleLabelClick(s.id)}
-            className={`pointer-events-auto cursor-pointer fixed z-[10] box-border bg-crema ${cls.labelW} ${cls.labelPad} ${cls.rule} hover:bg-rojo/10 transition-colors`}
+            className={`pointer-events-auto cursor-pointer fixed z-[11] box-border bg-crema ${cls.labelW} ${cls.labelPad} ${cls.rule} hover:bg-rojo/10 transition-colors`}
             style={{
               // Posición inicial: apilados en la parte inferior
               // ARTIS FACTUM (i=0) arriba, ÉTICAS CREATIVAS (i=3) abajo
