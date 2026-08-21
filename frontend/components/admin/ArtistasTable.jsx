@@ -67,22 +67,36 @@ const CATEGORIAS = [
 
 // Helper para mostrar el formato/categoría del artista
 const getFormatoDisplay = (artista) => {
-  // Si tiene formato_otro_texto, mostrarlo (cuando eligió "Otro")
-  if (artista.formato_otro_texto) {
+  // Si eligió tipo OTRO o tiene formato_otro_texto
+  if (artista.formato_tipo === 'OTRO' && artista.formato_otro_texto) {
     return artista.formato_otro_texto
   }
 
   // Si tiene array de formatos, mostrar los labels
   if (artista.formatos && Array.isArray(artista.formatos) && artista.formatos.length > 0) {
     const labels = artista.formatos.map(f => {
+      // Si es "otro_2d" o "otro_3d" y hay texto personalizado, usar ese
+      if ((f === 'otro_2d' || f === 'otro_3d' || f === 'otro_general') && artista.formato_otro_texto) {
+        return artista.formato_otro_texto
+      }
       const found = CATEGORIAS.find(c => c.value === f)
       return found ? found.label : f.replace(/_/g, ' ')
     })
-    return labels.join(', ')
+    // Eliminar duplicados
+    return [...new Set(labels)].join(', ')
+  }
+
+  // Si tiene formato_otro_texto sin formatos array (caso legacy o directo)
+  if (artista.formato_otro_texto) {
+    return artista.formato_otro_texto
   }
 
   // Fallback a categoria legacy
   if (artista.categoria) {
+    // Si categoria es "otro" y hay texto personalizado
+    if ((artista.categoria === 'otro' || artista.categoria === 'otro_general') && artista.formato_otro_texto) {
+      return artista.formato_otro_texto
+    }
     const found = CATEGORIAS.find(c => c.value === artista.categoria)
     return found ? found.label : artista.categoria.replace(/_/g, ' ')
   }
@@ -584,85 +598,83 @@ export default function ArtistasTable() {
                 <p className="text-[10px] text-gray-400 text-center mt-1">Click para ampliar</p>
               </div>
 
-              {/* Columna derecha: Datos + Bio + Redes */}
-              <div className="flex-1 min-w-0">
-                {/* Datos básicos en grid */}
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-4">
-                  {selectedArtista.nombre_artistico && (
-                    <div className="col-span-2">
-                      <span className="text-sm text-gray-500">Nombre Artístico:</span>
-                      <p className="font-medium">{selectedArtista.nombre_artistico}</p>
-                    </div>
-                  )}
+              {/* Columna derecha: Datos básicos */}
+              <div className="flex-1 space-y-2">
+                {selectedArtista.nombre_artistico && (
                   <div>
-                    <span className="text-sm text-gray-500">Email:</span>
-                    <p className="font-medium text-sm truncate">{selectedArtista.email}</p>
-                  </div>
-                  <div>
-                    <span className="text-sm text-gray-500">Teléfono:</span>
-                    <p className="font-medium">{selectedArtista.telefono}</p>
-                  </div>
-                  {selectedArtista.fecha_nacimiento && (
-                    <div>
-                      <span className="text-sm text-gray-500">Fecha de Nacimiento:</span>
-                      <p className="font-medium text-sm">
-                        {new Date(selectedArtista.fecha_nacimiento).toLocaleDateString('es-MX', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric'
-                        })}
-                      </p>
-                    </div>
-                  )}
-                  <div>
-                    <span className="text-sm text-gray-500">Ubicación:</span>
-                    <p className="font-medium text-sm">{selectedArtista.ciudad}, {selectedArtista.pais}</p>
-                  </div>
-                  <div className="col-span-2">
-                    <span className="text-sm text-gray-500">Formato de trabajo:</span>
-                    <div className="flex items-center gap-2 mt-1">
-                      {selectedArtista.formato_tipo && (
-                        <span className={`text-xs font-bold px-2 py-0.5 rounded ${
-                          selectedArtista.formato_tipo === '3D' ? 'bg-purple-100 text-purple-700' :
-                          selectedArtista.formato_tipo === '2D' ? 'bg-blue-100 text-blue-700' :
-                          'bg-gray-100 text-gray-700'
-                        }`}>
-                          {selectedArtista.formato_tipo}
-                        </span>
-                      )}
-                      <p className="font-medium">{getFormatoDisplay(selectedArtista)}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Biografía */}
-                <div className="mb-3 pt-3 border-t border-gray-100">
-                  <h4 className="text-sm font-semibold text-gray-900 mb-1">Semblanza</h4>
-                  <p className="text-gray-700 text-sm line-clamp-4">{selectedArtista.bio}</p>
-                </div>
-
-                {/* Redes sociales */}
-                {selectedArtista.redes_sociales && Object.keys(selectedArtista.redes_sociales).length > 0 && (
-                  <div className="pt-2 border-t border-gray-100">
-                    <div className="flex flex-wrap gap-2">
-                      {getFilteredSocialNetworks(selectedArtista.redes_sociales).map(([key, url]) => (
-                        <a
-                          key={key}
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-xs text-gray-700 hover:text-gray-900 transition-colors"
-                        >
-                          {key === 'instagram' && <span className="text-pink-500">@</span>}
-                          {key === 'website' && <span className="text-blue-500">~</span>}
-                          {key.charAt(0).toUpperCase() + key.slice(1)}
-                        </a>
-                      ))}
-                    </div>
+                    <span className="text-sm text-gray-500">Nombre Artístico:</span>
+                    <p className="font-medium">{selectedArtista.nombre_artistico}</p>
                   </div>
                 )}
+                <div>
+                  <span className="text-sm text-gray-500">Email:</span>
+                  <p className="font-medium">{selectedArtista.email}</p>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-500">Teléfono:</span>
+                  <p className="font-medium">{selectedArtista.telefono}</p>
+                </div>
+                {selectedArtista.fecha_nacimiento && (
+                  <div>
+                    <span className="text-sm text-gray-500">Fecha de Nacimiento:</span>
+                    <p className="font-medium">
+                      {new Date(selectedArtista.fecha_nacimiento).toLocaleDateString('es-MX', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  </div>
+                )}
+                <div>
+                  <span className="text-sm text-gray-500">Ubicación:</span>
+                  <p className="font-medium">{selectedArtista.ciudad}, {selectedArtista.pais}</p>
+                </div>
+                <div>
+                  <span className="text-sm text-gray-500">Formato de trabajo:</span>
+                  <div className="flex items-center gap-2 mt-1">
+                    {selectedArtista.formato_tipo && (
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded ${
+                        selectedArtista.formato_tipo === '3D' ? 'bg-purple-100 text-purple-700' :
+                        selectedArtista.formato_tipo === '2D' ? 'bg-blue-100 text-blue-700' :
+                        'bg-gray-100 text-gray-700'
+                      }`}>
+                        {selectedArtista.formato_tipo}
+                      </span>
+                    )}
+                    <p className="font-medium">{getFormatoDisplay(selectedArtista)}</p>
+                  </div>
+                </div>
               </div>
             </div>
+
+            {/* Semblanza */}
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900 mb-2">Semblanza</h4>
+              <p className="text-gray-700 text-sm">{selectedArtista.bio}</p>
+            </div>
+
+            {/* Redes sociales */}
+            {selectedArtista.redes_sociales && Object.keys(selectedArtista.redes_sociales).length > 0 && (
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-2">Redes Sociales</h4>
+                <div className="flex flex-wrap gap-3">
+                  {getFilteredSocialNetworks(selectedArtista.redes_sociales).map(([key, url]) => (
+                    <a
+                      key={key}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700 hover:text-gray-900 transition-colors"
+                    >
+                      {key === 'instagram' && <span className="text-pink-500">@</span>}
+                      {key === 'website' && <span className="text-blue-500">~</span>}
+                      {key.charAt(0).toUpperCase() + key.slice(1)}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Botones de contacto */}
             <div className="flex gap-3 pt-2">
