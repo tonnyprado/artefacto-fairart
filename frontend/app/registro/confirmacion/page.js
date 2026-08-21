@@ -115,8 +115,8 @@ function ConfirmacionContent() {
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
-              padding: '24px 32px',
-              gap: '16px',
+              padding: '16px 28px',
+              gap: '12px',
             }}
           >
             <WelcomeMessage nombre={nombre} />
@@ -125,7 +125,14 @@ function ConfirmacionContent() {
 
             <EmailReminder email={email} />
 
+            <LienzoPreview
+              canvasData={canvasData}
+              onImageClick={setModalImage}
+            />
+
             <ActionButtons />
+
+            <ContactFooter />
           </div>
         </div>
       </main>

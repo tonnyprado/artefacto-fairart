@@ -8,22 +8,21 @@ import { COLORS, FONTS } from './constants'
 export default function ContactFooter() {
   return (
     <p style={{
-      textAlign: 'center',
       color: COLORS.gray,
-      fontSize: '14px',
+      fontSize: '12px',
       fontFamily: FONTS.body,
       margin: 0,
     }}>
-      ¿Tienes dudas? Contáctanos en{' '}
+      ¿Dudas? Contáctanos:{' '}
       <a
-        href="mailto:contacto@artefact.mx"
+        href="mailto:curatorial@arte-facto.mx"
         style={{
           color: COLORS.red,
           textDecoration: 'none',
           fontWeight: 500,
         }}
       >
-        contacto@artefact.mx
+        curatorial@arte-facto.mx
       </a>
     </p>
   )

@@ -15,7 +15,7 @@ export default function LienzoPreview({ canvasData, onImageClick }) {
   const hasImage = !!canvasData.layout_canvas_url
 
   return (
-    <div style={{ marginTop: '32px' }}>
+    <div>
       <LienzoHeader
         paqueteName={canvasData.paquete_nombre}
         obrasCount={canvasData.obras_count}
@@ -42,16 +42,15 @@ function LienzoHeader({ paqueteName, obrasCount }) {
   return (
     <div style={{
       display: 'flex',
-      flexDirection: 'column',
       alignItems: 'center',
-      gap: '8px',
-      marginBottom: '20px',
+      justifyContent: 'space-between',
+      marginBottom: '8px',
     }}>
       <h3 style={{
         fontWeight: 600,
         color: COLORS.black,
         fontFamily: FONTS.body,
-        fontSize: '14px',
+        fontSize: '12px',
         letterSpacing: '0.08em',
         textTransform: 'uppercase',
         margin: 0,
@@ -59,10 +58,10 @@ function LienzoHeader({ paqueteName, obrasCount }) {
         Tu Lienzo
       </h3>
 
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
         {paqueteName && (
           <span style={{
-            fontSize: '12px',
+            fontSize: '11px',
             color: COLORS.gray,
             fontFamily: FONTS.body,
           }}>
@@ -71,11 +70,11 @@ function LienzoHeader({ paqueteName, obrasCount }) {
         )}
         {obrasCount > 0 && (
           <span style={{
-            fontSize: '11px',
+            fontSize: '10px',
             background: COLORS.black,
             color: COLORS.cream,
-            padding: '4px 10px',
-            borderRadius: '12px',
+            padding: '3px 8px',
+            borderRadius: '10px',
             fontFamily: FONTS.body,
             fontWeight: 500,
           }}>
@@ -91,7 +90,7 @@ function LienzoContent({ hasPdf, pdfUrl, imageUrl, onImageClick }) {
   if (hasPdf) {
     return (
       <div style={{
-        borderRadius: '12px',
+        borderRadius: '8px',
         overflow: 'hidden',
         border: `1px solid ${COLORS.creamDark}`,
         background: COLORS.cream,
@@ -100,7 +99,7 @@ function LienzoContent({ hasPdf, pdfUrl, imageUrl, onImageClick }) {
           src={pdfUrl}
           style={{
             width: '100%',
-            height: '350px',
+            height: '120px',
             border: 'none',
           }}
           title="Tu lienzo PDF"
@@ -115,7 +114,7 @@ function LienzoContent({ hasPdf, pdfUrl, imageUrl, onImageClick }) {
         onClick={() => onImageClick?.(imageUrl)}
         style={{
           cursor: 'pointer',
-          borderRadius: '12px',
+          borderRadius: '8px',
           overflow: 'hidden',
           border: `1px solid ${COLORS.creamDark}`,
           transition: 'border-color 0.2s',
@@ -126,7 +125,7 @@ function LienzoContent({ hasPdf, pdfUrl, imageUrl, onImageClick }) {
           alt="Tu lienzo"
           style={{
             width: '100%',
-            maxHeight: '250px',
+            maxHeight: '100px',
             objectFit: 'contain',
             background: COLORS.cream,
           }}
@@ -141,10 +140,9 @@ function LienzoContent({ hasPdf, pdfUrl, imageUrl, onImageClick }) {
 function DownloadButtons({ hasPdf, hasImage, pdfUrl, imageUrl }) {
   return (
     <div style={{
-      marginTop: '16px',
+      marginTop: '8px',
       display: 'flex',
-      gap: '12px',
-      justifyContent: 'center',
+      gap: '8px',
       flexWrap: 'wrap',
     }}>
       {hasPdf && (
@@ -184,14 +182,14 @@ function DownloadButton({ href, filename, variant, icon, children }) {
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: '8px',
-        padding: '10px 20px',
+        gap: '6px',
+        padding: '6px 12px',
         background: isPrimary ? COLORS.black : COLORS.cream,
         color: isPrimary ? COLORS.cream : COLORS.black,
-        borderRadius: '8px',
+        borderRadius: '6px',
         textDecoration: 'none',
         fontWeight: 500,
-        fontSize: '13px',
+        fontSize: '11px',
         fontFamily: FONTS.body,
         transition: 'all 0.2s',
         border: isPrimary ? 'none' : `1px solid ${COLORS.creamDark}`,
@@ -205,7 +203,7 @@ function DownloadButton({ href, filename, variant, icon, children }) {
 
 function DownloadIcon() {
   return (
-    <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg style={{ width: '12px', height: '12px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
     </svg>
   )
@@ -213,7 +211,7 @@ function DownloadIcon() {
 
 function ImageIcon() {
   return (
-    <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg style={{ width: '12px', height: '12px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
     </svg>
   )
