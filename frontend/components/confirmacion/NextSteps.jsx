@@ -17,9 +17,9 @@ export default function NextSteps() {
       <h3 style={{
         fontWeight: 600,
         color: COLORS.black,
-        marginBottom: '20px',
+        marginBottom: '12px',
         fontFamily: FONTS.body,
-        fontSize: '14px',
+        fontSize: '13px',
         letterSpacing: '0.08em',
         textTransform: 'uppercase',
       }}>
@@ -29,7 +29,7 @@ export default function NextSteps() {
       <ol style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: '16px',
+        gap: '10px',
         margin: 0,
         padding: 0,
         listStyle: 'none',
@@ -44,29 +44,29 @@ export default function NextSteps() {
 
 function StepItem({ number, text }) {
   return (
-    <li style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+    <li style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
       <span style={{
         flexShrink: 0,
-        width: '28px',
-        height: '28px',
+        width: '24px',
+        height: '24px',
         background: COLORS.red,
         color: COLORS.white,
         borderRadius: '50%',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize: '13px',
+        fontSize: '12px',
         fontWeight: 700,
         fontFamily: FONTS.body,
       }}>
         {number}
       </span>
       <span style={{
-        fontSize: '14px',
+        fontSize: '13px',
         color: COLORS.black,
         fontFamily: FONTS.body,
-        lineHeight: 1.5,
-        paddingTop: '4px',
+        lineHeight: 1.4,
+        paddingTop: '3px',
       }}>
         {text}
       </span>

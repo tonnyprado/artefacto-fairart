@@ -12,20 +12,19 @@ export default function ActionButtons() {
       display: 'flex',
       flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: '16px',
-      marginBottom: '24px',
+      gap: '12px',
     }}>
       <Link
         href="/"
         style={{
-          padding: '16px 32px',
+          padding: '12px 24px',
           background: COLORS.black,
           color: COLORS.cream,
-          borderRadius: '16px',
+          borderRadius: '12px',
           textDecoration: 'none',
           textAlign: 'center',
           fontWeight: 600,
-          fontSize: '14px',
+          fontSize: '13px',
           fontFamily: FONTS.body,
           letterSpacing: '0.06em',
           textTransform: 'uppercase',
@@ -38,14 +37,14 @@ export default function ActionButtons() {
       <button
         onClick={() => window.print()}
         style={{
-          padding: '16px 32px',
+          padding: '12px 24px',
           background: COLORS.cream,
           color: COLORS.black,
           border: 'none',
-          borderRadius: '16px',
+          borderRadius: '12px',
           textAlign: 'center',
           fontWeight: 600,
-          fontSize: '14px',
+          fontSize: '13px',
           fontFamily: FONTS.body,
           letterSpacing: '0.06em',
           textTransform: 'uppercase',

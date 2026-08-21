@@ -1,7 +1,8 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState, useRef, Suspense } from 'react'
+import { gsap } from 'gsap'
 import CustomCursor from '@/components/artefacto/CustomCursor'
 import {
   SuccessHeader,
@@ -34,10 +35,32 @@ function ConfirmacionContent() {
   const [canvasData, setCanvasData] = useState(null)
   const [modalImage, setModalImage] = useState(null)
 
+  const leftColRef = useRef(null)
+  const rightColRef = useRef(null)
+
   useEffect(() => {
     setMounted(true)
     loadCanvasData()
   }, [])
+
+  // Animaciones GSAP
+  useEffect(() => {
+    if (mounted && leftColRef.current && rightColRef.current) {
+      // Animación columna izquierda (folio)
+      gsap.fromTo(
+        leftColRef.current.children,
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.8, stagger: 0.2, ease: 'power3.out' }
+      )
+
+      // Animación columna derecha (contenido)
+      gsap.fromTo(
+        rightColRef.current.children,
+        { opacity: 0, x: 30 },
+        { opacity: 1, x: 0, duration: 0.6, stagger: 0.15, ease: 'power2.out', delay: 0.3 }
+      )
+    }
+  }, [mounted])
 
   const loadCanvasData = () => {
     try {
@@ -59,51 +82,50 @@ function ConfirmacionContent() {
       <CustomCursor />
 
       <main style={{
-        minHeight: '100vh',
+        height: '100vh',
+        overflow: 'hidden',
         background: STYLES.pageBackground,
       }}>
         {/* Layout de dos columnas - folio izquierda, contenido derecha */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
-          minHeight: '100vh',
+          height: '100vh',
         }}>
           {/* Columna izquierda: Folio centrado */}
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '48px 32px',
-            background: COLORS.cream,
-          }}>
+          <div
+            ref={leftColRef}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '24px',
+              background: COLORS.cream,
+            }}
+          >
             <SuccessHeader />
             <FolioDisplay folio={folio} />
           </div>
 
           {/* Columna derecha: Todo el contenido */}
-          <div style={{
-            padding: '48px 40px',
-            overflowY: 'auto',
-          }}>
+          <div
+            ref={rightColRef}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              padding: '24px 32px',
+              gap: '16px',
+            }}
+          >
             <WelcomeMessage nombre={nombre} />
 
-            <div style={{ marginTop: '28px' }}>
-              <NextSteps />
-            </div>
+            <NextSteps />
 
             <EmailReminder email={email} />
 
-            <LienzoPreview
-              canvasData={canvasData}
-              onImageClick={setModalImage}
-            />
-
-            <div style={{ marginTop: '32px' }}>
-              <ActionButtons />
-            </div>
-
-            <ContactFooter />
+            <ActionButtons />
           </div>
         </div>
       </main>
