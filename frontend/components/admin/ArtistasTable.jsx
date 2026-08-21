@@ -30,10 +30,29 @@ const ESTADO_COLORS = {
   rechazado: 'error'
 }
 
-const CATEGORIAS = [
+// Formatos actualizados (sincronizados con Step5Paquetes)
+const FORMATOS_2D = [
   { value: 'pintura', label: 'Pintura' },
-  { value: 'escultura', label: 'Escultura' },
+  { value: 'dibujo', label: 'Dibujo' },
+  { value: 'grafica', label: 'Gráfica' },
   { value: 'fotografia', label: 'Fotografía' },
+  { value: 'collage_mixta', label: 'Collage & Mixta' },
+  { value: 'textil', label: 'Textil' },
+  { value: 'otro_2d', label: 'Otro 2D' },
+]
+
+const FORMATOS_3D = [
+  { value: 'escultura', label: 'Escultura' },
+  { value: 'ceramica', label: 'Cerámica' },
+  { value: 'textil_3d', label: 'Textil 3D' },
+  { value: 'otro_3d', label: 'Otro 3D' },
+]
+
+// Categorías legacy + nuevos formatos para compatibilidad
+const CATEGORIAS = [
+  ...FORMATOS_2D,
+  ...FORMATOS_3D,
+  // Legacy
   { value: 'ilustracion', label: 'Ilustración' },
   { value: 'arte_digital', label: 'Arte Digital' },
   { value: 'instalacion', label: 'Instalación' },
@@ -41,10 +60,35 @@ const CATEGORIAS = [
   { value: 'performance', label: 'Performance' },
   { value: 'arte_textil', label: 'Arte Textil' },
   { value: 'grabado', label: 'Grabado' },
-  { value: 'ceramica', label: 'Cerámica' },
   { value: 'arte_objeto', label: 'Arte Objeto' },
-  { value: 'otro', label: 'Otro' }
+  { value: 'otro', label: 'Otro' },
+  { value: 'otro_general', label: 'Otro' },
 ]
+
+// Helper para mostrar el formato/categoría del artista
+const getFormatoDisplay = (artista) => {
+  // Si tiene formato_otro_texto, mostrarlo (cuando eligió "Otro")
+  if (artista.formato_otro_texto) {
+    return artista.formato_otro_texto
+  }
+
+  // Si tiene array de formatos, mostrar los labels
+  if (artista.formatos && Array.isArray(artista.formatos) && artista.formatos.length > 0) {
+    const labels = artista.formatos.map(f => {
+      const found = CATEGORIAS.find(c => c.value === f)
+      return found ? found.label : f.replace(/_/g, ' ')
+    })
+    return labels.join(', ')
+  }
+
+  // Fallback a categoria legacy
+  if (artista.categoria) {
+    const found = CATEGORIAS.find(c => c.value === artista.categoria)
+    return found ? found.label : artista.categoria.replace(/_/g, ' ')
+  }
+
+  return 'Sin categoría'
+}
 
 export default function ArtistasTable() {
   const { artistas, fetchArtistas, deleteArtista, cambiarEstadoArtista } = useArtistasStore()
@@ -64,6 +108,8 @@ export default function ArtistasTable() {
   // Estado para modal de mensaje
   const [mensajeModal, setMensajeModal] = useState({ open: false, artista: null })
   const [mensajeForm, setMensajeForm] = useState({ asunto: '', mensaje: '' })
+  // Estado para modal de foto de perfil ampliada
+  const [fotoPerfilModal, setFotoPerfilModal] = useState({ open: false, url: '', nombre: '' })
 
   // Cargar artistas al montar
   useEffect(() => {
@@ -389,11 +435,22 @@ export default function ArtistasTable() {
                     {artista.email}
                   </TableCell>
 
-                  {/* Categoría */}
+                  {/* Categoría/Formato */}
                   <TableCell>
-                    <Badge variant="info">
-                      {CATEGORIAS.find(c => c.value === artista.categoria)?.label || artista.categoria}
-                    </Badge>
+                    <div className="flex items-center gap-1">
+                      {artista.formato_tipo && (
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                          artista.formato_tipo === '3D' ? 'bg-purple-100 text-purple-700' :
+                          artista.formato_tipo === '2D' ? 'bg-blue-100 text-blue-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          {artista.formato_tipo}
+                        </span>
+                      )}
+                      <Badge variant="info">
+                        {getFormatoDisplay(artista)}
+                      </Badge>
+                    </div>
                   </TableCell>
 
                   {/* Paquete */}
@@ -503,80 +560,109 @@ export default function ArtistasTable() {
       >
         {selectedArtista && (
           <div className="space-y-6">
-            {/* Foto y datos básicos */}
+            {/* Foto, datos básicos, biografía y redes sociales */}
             <div className="flex items-start gap-6">
-              <img
-                src={selectedArtista.foto}
-                alt={selectedArtista.nombre}
-                className="w-32 h-32 rounded-lg object-cover"
-              />
-              <div className="flex-1 space-y-2">
-                {selectedArtista.nombre_artistico && (
+              {/* Columna izquierda: Foto */}
+              <div
+                className="relative group cursor-pointer flex-shrink-0"
+                onClick={() => setFotoPerfilModal({
+                  open: true,
+                  url: selectedArtista.foto,
+                  nombre: `${selectedArtista.nombre} ${selectedArtista.apellido}`
+                })}
+              >
+                <img
+                  src={selectedArtista.foto}
+                  alt={selectedArtista.nombre}
+                  className="w-32 h-32 rounded-lg object-cover transition-transform group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                  </svg>
+                </div>
+                <p className="text-[10px] text-gray-400 text-center mt-1">Click para ampliar</p>
+              </div>
+
+              {/* Columna derecha: Datos + Bio + Redes */}
+              <div className="flex-1 min-w-0">
+                {/* Datos básicos en grid */}
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-4">
+                  {selectedArtista.nombre_artistico && (
+                    <div className="col-span-2">
+                      <span className="text-sm text-gray-500">Nombre Artístico:</span>
+                      <p className="font-medium">{selectedArtista.nombre_artistico}</p>
+                    </div>
+                  )}
                   <div>
-                    <span className="text-sm text-gray-500">Nombre Artístico:</span>
-                    <p className="font-medium">{selectedArtista.nombre_artistico}</p>
+                    <span className="text-sm text-gray-500">Email:</span>
+                    <p className="font-medium text-sm truncate">{selectedArtista.email}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm text-gray-500">Teléfono:</span>
+                    <p className="font-medium">{selectedArtista.telefono}</p>
+                  </div>
+                  {selectedArtista.fecha_nacimiento && (
+                    <div>
+                      <span className="text-sm text-gray-500">Fecha de Nacimiento:</span>
+                      <p className="font-medium text-sm">
+                        {new Date(selectedArtista.fecha_nacimiento).toLocaleDateString('es-MX', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </p>
+                    </div>
+                  )}
+                  <div>
+                    <span className="text-sm text-gray-500">Ubicación:</span>
+                    <p className="font-medium text-sm">{selectedArtista.ciudad}, {selectedArtista.pais}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-sm text-gray-500">Formato de trabajo:</span>
+                    <div className="flex items-center gap-2 mt-1">
+                      {selectedArtista.formato_tipo && (
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded ${
+                          selectedArtista.formato_tipo === '3D' ? 'bg-purple-100 text-purple-700' :
+                          selectedArtista.formato_tipo === '2D' ? 'bg-blue-100 text-blue-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          {selectedArtista.formato_tipo}
+                        </span>
+                      )}
+                      <p className="font-medium">{getFormatoDisplay(selectedArtista)}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Biografía */}
+                <div className="mb-3 pt-3 border-t border-gray-100">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-1">Semblanza</h4>
+                  <p className="text-gray-700 text-sm line-clamp-4">{selectedArtista.bio}</p>
+                </div>
+
+                {/* Redes sociales */}
+                {selectedArtista.redes_sociales && Object.keys(selectedArtista.redes_sociales).length > 0 && (
+                  <div className="pt-2 border-t border-gray-100">
+                    <div className="flex flex-wrap gap-2">
+                      {getFilteredSocialNetworks(selectedArtista.redes_sociales).map(([key, url]) => (
+                        <a
+                          key={key}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-xs text-gray-700 hover:text-gray-900 transition-colors"
+                        >
+                          {key === 'instagram' && <span className="text-pink-500">@</span>}
+                          {key === 'website' && <span className="text-blue-500">~</span>}
+                          {key.charAt(0).toUpperCase() + key.slice(1)}
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 )}
-                <div>
-                  <span className="text-sm text-gray-500">Email:</span>
-                  <p className="font-medium">{selectedArtista.email}</p>
-                </div>
-                <div>
-                  <span className="text-sm text-gray-500">Teléfono:</span>
-                  <p className="font-medium">{selectedArtista.telefono}</p>
-                </div>
-                {selectedArtista.fecha_nacimiento && (
-                  <div>
-                    <span className="text-sm text-gray-500">Fecha de Nacimiento:</span>
-                    <p className="font-medium">
-                      {new Date(selectedArtista.fecha_nacimiento).toLocaleDateString('es-MX', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </p>
-                  </div>
-                )}
-                <div>
-                  <span className="text-sm text-gray-500">Ubicación:</span>
-                  <p className="font-medium">{selectedArtista.ciudad}, {selectedArtista.pais}</p>
-                </div>
-                <div>
-                  <span className="text-sm text-gray-500">Categoría:</span>
-                  <p className="font-medium">
-                    {CATEGORIAS.find(c => c.value === selectedArtista.categoria)?.label}
-                  </p>
-                </div>
               </div>
             </div>
-
-            {/* Biografía */}
-            <div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-2">Biografía</h4>
-              <p className="text-gray-700 text-sm">{selectedArtista.bio}</p>
-            </div>
-
-            {/* Redes sociales - filtradas y con URLs auto-armadas */}
-            {selectedArtista.redes_sociales && Object.keys(selectedArtista.redes_sociales).length > 0 && (
-              <div>
-                <h4 className="text-sm font-semibold text-gray-900 mb-2">Redes Sociales</h4>
-                <div className="flex flex-wrap gap-3">
-                  {getFilteredSocialNetworks(selectedArtista.redes_sociales).map(([key, url]) => (
-                    <a
-                      key={key}
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700 hover:text-gray-900 transition-colors"
-                    >
-                      {key === 'instagram' && <span className="text-pink-500">@</span>}
-                      {key === 'website' && <span className="text-blue-500">🌐</span>}
-                      {key.charAt(0).toUpperCase() + key.slice(1)}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Botones de contacto */}
             <div className="flex gap-3 pt-2">
@@ -753,6 +839,16 @@ export default function ArtistasTable() {
                               {obra.tipo_obra}
                             </span>
                           )}
+                          {/* Botón de descarga rápida */}
+                          <a
+                            href={obra.preview}
+                            download={`obra-${(obra.titulo || `obra-${index + 1}`).replace(/\s+/g, '-').toLowerCase()}.jpg`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="absolute bottom-1 right-1 p-1.5 bg-black/60 hover:bg-black/80 rounded-lg text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                            title="Descargar imagen"
+                          >
+                            <Download size={14} />
+                          </a>
                         </div>
                       )}
                       <p className="font-medium text-gray-900 text-sm truncate">{obra.titulo || `Obra ${index + 1}`}</p>
@@ -971,13 +1067,25 @@ export default function ArtistasTable() {
 
             <div className="flex flex-col md:flex-row">
               {/* Imagen grande */}
-              <div className="md:w-2/3 bg-gray-900 flex items-center justify-center p-4">
+              <div className="md:w-2/3 bg-gray-900 flex items-center justify-center p-4 relative">
                 {obraModal.obra.preview && (
-                  <img
-                    src={obraModal.obra.preview}
-                    alt={obraModal.obra.titulo}
-                    className="max-w-full max-h-[70vh] object-contain"
-                  />
+                  <>
+                    <img
+                      src={obraModal.obra.preview}
+                      alt={obraModal.obra.titulo}
+                      className="max-w-full max-h-[70vh] object-contain"
+                    />
+                    {/* Botón de descarga sobre la imagen */}
+                    <a
+                      href={obraModal.obra.preview}
+                      download={`obra-${(obraModal.obra.titulo || 'sin-titulo').replace(/\s+/g, '-').toLowerCase()}.jpg`}
+                      className="absolute bottom-6 left-1/2 -translate-x-1/2 inline-flex items-center gap-2 px-4 py-2 bg-white/90 hover:bg-white text-gray-900 rounded-lg shadow-lg transition-all text-sm font-medium"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Download size={16} />
+                      Descargar imagen
+                    </a>
+                  </>
                 )}
               </div>
 
@@ -1102,6 +1210,52 @@ export default function ArtistasTable() {
                 <Mail size={18} />
                 Enviar Email
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Foto de Perfil Ampliada */}
+      {fotoPerfilModal.open && fotoPerfilModal.url && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4"
+          onClick={() => setFotoPerfilModal({ open: false, url: '', nombre: '' })}
+        >
+          <div
+            className="relative max-w-3xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b bg-gray-50">
+              <h3 className="font-semibold text-gray-900">
+                Foto de perfil - {fotoPerfilModal.nombre}
+              </h3>
+              <div className="flex items-center gap-2">
+                <a
+                  href={fotoPerfilModal.url}
+                  download={`foto-${fotoPerfilModal.nombre.replace(/\s+/g, '-').toLowerCase()}.jpg`}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Download size={16} />
+                  Descargar
+                </a>
+                <button
+                  onClick={() => setFotoPerfilModal({ open: false, url: '', nombre: '' })}
+                  className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            {/* Imagen */}
+            <div className="flex items-center justify-center p-6 bg-gray-100">
+              <img
+                src={fotoPerfilModal.url}
+                alt={fotoPerfilModal.nombre}
+                className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-lg"
+              />
             </div>
           </div>
         </div>
