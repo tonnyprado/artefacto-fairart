@@ -7,9 +7,9 @@ import { COLORS, FONTS } from './constants'
  */
 export default function WelcomeMessage({ nombre }) {
   return (
-    <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+    <div style={{ marginBottom: '24px' }}>
       <p style={{
-        fontSize: '18px',
+        fontSize: '20px',
         color: COLORS.black,
         fontFamily: FONTS.body,
         marginBottom: '8px',
@@ -17,12 +17,10 @@ export default function WelcomeMessage({ nombre }) {
         Hola <strong>{nombre || 'artista'}</strong>,
       </p>
       <p style={{
-        fontSize: '15px',
+        fontSize: '16px',
         color: COLORS.gray,
         fontFamily: FONTS.body,
         lineHeight: 1.6,
-        maxWidth: '500px',
-        margin: '0 auto',
       }}>
         Tu solicitud ha sido recibida y está siendo revisada por nuestro equipo de curadores.
       </p>

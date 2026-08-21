@@ -62,25 +62,37 @@ function ConfirmacionContent() {
         minHeight: '100vh',
         background: STYLES.pageBackground,
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'center',
-        padding: '24px 16px',
+        padding: '48px 24px',
       }}>
-        <div style={{ maxWidth: '600px', width: '100%' }}>
-          <SuccessHeader />
+        <div style={{ maxWidth: '1100px', width: '100%' }}>
+          {/* Layout de dos columnas para folio y mensaje */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: '48px',
+            alignItems: 'start',
+          }}>
+            {/* Columna izquierda: Folio */}
+            <div>
+              <SuccessHeader />
+              <FolioDisplay folio={folio} />
+            </div>
 
-          <FolioDisplay folio={folio} />
+            {/* Columna derecha: Mensaje y pasos */}
+            <div>
+              <WelcomeMessage nombre={nombre} />
 
-          <div style={{ marginTop: '32px' }}>
-            <WelcomeMessage nombre={nombre} />
+              <div style={{ marginTop: '28px' }}>
+                <NextSteps />
+              </div>
+
+              <EmailReminder email={email} />
+            </div>
           </div>
 
-          <div style={{ marginTop: '28px' }}>
-            <NextSteps />
-          </div>
-
-          <EmailReminder email={email} />
-
+          {/* Resto del contenido - ancho completo */}
           <LienzoPreview
             canvasData={canvasData}
             onImageClick={setModalImage}

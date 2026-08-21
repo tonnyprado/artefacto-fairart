@@ -22,7 +22,6 @@ export default function NextSteps() {
         fontSize: '14px',
         letterSpacing: '0.08em',
         textTransform: 'uppercase',
-        textAlign: 'center',
       }}>
         Siguientes pasos
       </h3>

@@ -10,9 +10,11 @@ export default function ActionButtons() {
   return (
     <div style={{
       display: 'flex',
-      flexDirection: 'column',
-      gap: '12px',
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: '16px',
       marginBottom: '24px',
+      justifyContent: 'center',
     }}>
       <Link
         href="/"

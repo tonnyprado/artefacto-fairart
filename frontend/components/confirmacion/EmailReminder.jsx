@@ -9,24 +9,27 @@ export default function EmailReminder({ email }) {
   return (
     <div style={{
       marginTop: '32px',
-      textAlign: 'center',
+      padding: '20px',
+      background: 'rgba(184, 48, 48, 0.08)',
+      borderRadius: '12px',
+      borderLeft: `4px solid ${COLORS.red}`,
     }}>
       <p style={{
-        fontSize: '18px',
+        fontSize: '16px',
         color: COLORS.black,
         margin: 0,
         fontFamily: FONTS.body,
         fontWeight: 700,
-        lineHeight: 1.7,
+        lineHeight: 1.6,
       }}>
         Importante: Revisa tu correo electrónico (incluyendo spam) en los próximos días.
       </p>
       <p style={{
-        fontSize: '16px',
+        fontSize: '15px',
         color: COLORS.black,
-        margin: '12px 0 0',
+        margin: '8px 0 0',
         fontFamily: FONTS.body,
-        lineHeight: 1.6,
+        lineHeight: 1.5,
       }}>
         Te contactaremos al email: <strong style={{ color: COLORS.red }}>{email || 'tu email'}</strong>
       </p>
