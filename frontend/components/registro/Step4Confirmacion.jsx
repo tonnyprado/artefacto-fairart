@@ -97,25 +97,26 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
       type="button"
       onClick={onClick}
       style={{
-        padding: '8px 16px',
-        background: 'rgba(184, 48, 48, 0.15)',
+        padding: '10px 20px',
+        background: COLORS.cream,
         color: COLORS.red,
         border: `2px solid ${COLORS.red}`,
         borderRadius: '12px',
         cursor: 'pointer',
-        fontSize: '12px',
-        fontWeight: '600',
+        fontSize: '13px',
+        fontWeight: '700',
         fontFamily: FONTS.body,
         letterSpacing: '0.08em',
         textTransform: 'uppercase',
-        transition: 'all 0.3s ease'
+        transition: 'all 0.3s ease',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
       }}
       onMouseEnter={(e) => {
         e.target.style.background = COLORS.red
         e.target.style.color = COLORS.cream
       }}
       onMouseLeave={(e) => {
-        e.target.style.background = 'rgba(184, 48, 48, 0.15)'
+        e.target.style.background = COLORS.cream
         e.target.style.color = COLORS.red
       }}
     >
