@@ -14,7 +14,6 @@ export default function ActionButtons() {
       flexWrap: 'wrap',
       gap: '16px',
       marginBottom: '24px',
-      justifyContent: 'center',
     }}>
       <Link
         href="/"

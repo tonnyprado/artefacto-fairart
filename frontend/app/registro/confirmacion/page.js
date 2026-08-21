@@ -61,48 +61,50 @@ function ConfirmacionContent() {
       <main style={{
         minHeight: '100vh',
         background: STYLES.pageBackground,
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'center',
-        padding: '48px 24px',
       }}>
-        <div style={{ maxWidth: '1100px', width: '100%' }}>
-          {/* Layout de dos columnas para folio y mensaje */}
+        {/* Layout de dos columnas - folio izquierda, contenido derecha */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          minHeight: '100vh',
+        }}>
+          {/* Columna izquierda: Folio centrado */}
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: '48px',
-            alignItems: 'start',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '48px 32px',
+            background: COLORS.cream,
           }}>
-            {/* Columna izquierda: Folio */}
-            <div>
-              <SuccessHeader />
-              <FolioDisplay folio={folio} />
-            </div>
-
-            {/* Columna derecha: Mensaje y pasos */}
-            <div>
-              <WelcomeMessage nombre={nombre} />
-
-              <div style={{ marginTop: '28px' }}>
-                <NextSteps />
-              </div>
-
-              <EmailReminder email={email} />
-            </div>
+            <SuccessHeader />
+            <FolioDisplay folio={folio} />
           </div>
 
-          {/* Resto del contenido - ancho completo */}
-          <LienzoPreview
-            canvasData={canvasData}
-            onImageClick={setModalImage}
-          />
+          {/* Columna derecha: Todo el contenido */}
+          <div style={{
+            padding: '48px 40px',
+            overflowY: 'auto',
+          }}>
+            <WelcomeMessage nombre={nombre} />
 
-          <div style={{ marginTop: '32px' }}>
-            <ActionButtons />
+            <div style={{ marginTop: '28px' }}>
+              <NextSteps />
+            </div>
+
+            <EmailReminder email={email} />
+
+            <LienzoPreview
+              canvasData={canvasData}
+              onImageClick={setModalImage}
+            />
+
+            <div style={{ marginTop: '32px' }}>
+              <ActionButtons />
+            </div>
+
+            <ContactFooter />
           </div>
-
-          <ContactFooter />
         </div>
       </main>
 
@@ -110,6 +112,14 @@ function ConfirmacionContent() {
         imageUrl={modalImage}
         onClose={() => setModalImage(null)}
       />
+
+      <style jsx>{`
+        @media (max-width: 768px) {
+          main > div {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </>
   )
 }

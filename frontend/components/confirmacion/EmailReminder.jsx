@@ -7,13 +7,7 @@ import { COLORS, FONTS } from './constants'
  */
 export default function EmailReminder({ email }) {
   return (
-    <div style={{
-      marginTop: '32px',
-      padding: '20px',
-      background: 'rgba(184, 48, 48, 0.08)',
-      borderRadius: '12px',
-      borderLeft: `4px solid ${COLORS.red}`,
-    }}>
+    <div style={{ marginTop: '32px' }}>
       <p style={{
         fontSize: '16px',
         color: COLORS.black,
