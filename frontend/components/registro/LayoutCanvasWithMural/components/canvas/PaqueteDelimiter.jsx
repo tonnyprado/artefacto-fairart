@@ -4,33 +4,57 @@ import { Group, Line, Rect, Text } from 'react-konva'
 
 /**
  * Genera líneas diagonales para el patrón de área de consideración
+ * Dirección: de abajo-izquierda hacia arriba-derecha (/)
  */
-function DiagonalLines({ x, y, width, height, spacing = 20 }) {
+function DiagonalLines({ x, y, width, height, spacing = 7 }) {
   const lines = []
   const totalDiagonals = Math.ceil((width + height) / spacing)
 
   for (let i = 0; i < totalDiagonals; i++) {
-    const startX = x + i * spacing
-    const startY = y
-    const endX = x
-    const endY = y + i * spacing
+    const offset = i * spacing
 
-    // Recortar a los límites del rectángulo
-    const clippedStartX = Math.max(x, Math.min(x + width, startX))
-    const clippedStartY = Math.max(y, startY + (startX - clippedStartX))
-    const clippedEndX = Math.max(x, endX + Math.max(0, y - endY))
-    const clippedEndY = Math.max(y, Math.min(y + height, endY))
+    // Línea va de (x, y + offset) hacia (x + offset, y)
+    // Recortada a los límites del rectángulo
+    let x1 = x
+    let y1 = y + height - offset
+    let x2 = x + offset
+    let y2 = y
 
-    if (clippedStartX <= x + width && clippedEndY <= y + height) {
+    // Ajustar si la línea empieza fuera del área (abajo)
+    if (y1 > y + height) {
+      const excess = y1 - (y + height)
+      x1 += excess
+      y1 = y + height
+    }
+
+    // Ajustar si la línea termina fuera del área (arriba)
+    if (y2 < y) {
+      y2 = y
+    }
+
+    // Ajustar si la línea empieza fuera del área (izquierda)
+    if (x1 < x) {
+      const excess = x - x1
+      y1 -= excess
+      x1 = x
+    }
+
+    // Ajustar si la línea termina fuera del área (derecha)
+    if (x2 > x + width) {
+      const excess = x2 - (x + width)
+      y2 += excess
+      x2 = x + width
+    }
+
+    // Solo dibujar si la línea está dentro del área
+    if (x1 <= x + width && x2 >= x && y1 >= y && y2 <= y + height) {
       lines.push(
         <Line
           key={`diag-${i}`}
-          points={[
-            Math.min(x + width, startX), Math.max(y, startY),
-            Math.max(x, startX - height), Math.min(y + height, startY + height)
-          ]}
-          stroke="rgba(255, 255, 255, 0.3)"
-          strokeWidth={1}
+          points={[x1, y1, x2, y2]}
+          stroke="rgba(255, 255, 255, 0.4)"
+          strokeWidth={0.5}
+          lineCap="round"
           listening={false}
         />
       )
@@ -70,7 +94,7 @@ export function PaqueteDelimiter({ paquete, areaDelimitada, canvasWidth, canvasH
             fill="rgba(0, 0, 0, 0.15)"
             listening={false}
           />
-          <DiagonalLines x={0} y={0} width={leftAreaWidth} height={canvasHeight} spacing={25} />
+          <DiagonalLines x={0} y={0} width={leftAreaWidth} height={canvasHeight} spacing={7} />
           {/* Label área de consideración izquierda - tamaño fijo */}
           <Group>
             <Rect
@@ -133,7 +157,7 @@ export function PaqueteDelimiter({ paquete, areaDelimitada, canvasWidth, canvasH
             fill="rgba(0, 0, 0, 0.15)"
             listening={false}
           />
-          <DiagonalLines x={rightAreaX} y={0} width={rightAreaWidth} height={canvasHeight} spacing={25} />
+          <DiagonalLines x={rightAreaX} y={0} width={rightAreaWidth} height={canvasHeight} spacing={7} />
           {/* Label área de consideración derecha - tamaño fijo */}
           <Group>
             <Rect
