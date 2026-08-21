@@ -416,12 +416,11 @@ export default function CalendarSection({ isActive = true }) {
             <div className="grid grid-cols-7 gap-2">
               {days.map((day, index) => (
                 <button
-                  key={index}
+                  key={`${currentMonth.name}-${currentMonth.year}-${index}`}
                   onClick={() => handleDayClick(day)}
                   disabled={!day}
                   className={`
                     aspect-square flex items-center justify-center text-base font-bold
-                    transition-all duration-300
                     ${!day ? 'invisible' : ''}
                     ${isSelected(day)
                       ? 'bg-[#b83030] text-white rounded-full'

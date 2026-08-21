@@ -1,3 +1,2 @@
-En REGISTRO, en el Tu Lienzo, en el canvas, cuando se hagan las limitaciones yo creo que esta super bien pero la neta quita las lineas que te pase de un svg pues las limitaciones ya las estás dibujando y están super bien entonces ya no necesitamos las dos lineas que estabas agregando.
-La letra y color de las infografías deben de ser blancas/beige.
-En donde dice REGISTRO DE ARTISTAS ARTE FACTO 2027 aqui en la página de REGISTRO, mejor reemplazalo por el logo Y abajo del logo pon un texto que diga: "Lienzo de postulación". Y el botón de "Volver a convocatoria" mejor cambialo del lado izquierdo de la pantalla y pon "CONVOCATORIA AQUI" y que abra una nueva pestaña.
+En CALENDARIO hay circulos azules en el calendario, el circulo azul SOLO debe de salir para HOY y nada más porque veo que esta como glicheado y se pone en otras fechas.
+Borra las diagonales que metimos y las cotas, ya que mejor se vea como antes sin las diagonales y cotas.
