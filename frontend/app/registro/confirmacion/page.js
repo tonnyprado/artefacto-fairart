@@ -69,32 +69,26 @@ function ConfirmacionContent() {
         <div style={{ maxWidth: '600px', width: '100%' }}>
           <SuccessHeader />
 
-          <section style={{
-            background: COLORS.white,
-            borderRadius: STYLES.cardRadius,
-            boxShadow: STYLES.cardShadow,
-            padding: '32px',
-            marginBottom: '24px',
-          }}>
-            <FolioDisplay folio={folio} />
+          <FolioDisplay folio={folio} />
 
-            <div style={{ marginTop: '28px' }}>
-              <WelcomeMessage nombre={nombre} />
-            </div>
+          <div style={{ marginTop: '32px' }}>
+            <WelcomeMessage nombre={nombre} />
+          </div>
 
-            <div style={{ marginTop: '24px' }}>
-              <NextSteps />
-            </div>
+          <div style={{ marginTop: '28px' }}>
+            <NextSteps />
+          </div>
 
-            <EmailReminder email={email} />
+          <EmailReminder email={email} />
 
-            <LienzoPreview
-              canvasData={canvasData}
-              onImageClick={setModalImage}
-            />
-          </section>
+          <LienzoPreview
+            canvasData={canvasData}
+            onImageClick={setModalImage}
+          />
 
-          <ActionButtons />
+          <div style={{ marginTop: '32px' }}>
+            <ActionButtons />
+          </div>
 
           <ContactFooter />
         </div>

@@ -13,11 +13,7 @@ const STEPS = [
  */
 export default function NextSteps() {
   return (
-    <div style={{
-      background: COLORS.cream,
-      borderRadius: '16px',
-      padding: '24px',
-    }}>
+    <div>
       <h3 style={{
         fontWeight: 600,
         color: COLORS.black,
@@ -26,6 +22,7 @@ export default function NextSteps() {
         fontSize: '14px',
         letterSpacing: '0.08em',
         textTransform: 'uppercase',
+        textAlign: 'center',
       }}>
         Siguientes pasos
       </h3>

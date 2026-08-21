@@ -8,21 +8,27 @@ import { COLORS, FONTS } from './constants'
 export default function EmailReminder({ email }) {
   return (
     <div style={{
-      marginTop: '24px',
-      padding: '16px 20px',
-      background: COLORS.creamDark,
-      borderRadius: '12px',
-      borderLeft: `4px solid ${COLORS.red}`,
+      marginTop: '32px',
+      textAlign: 'center',
     }}>
       <p style={{
-        fontSize: '13px',
+        fontSize: '18px',
         color: COLORS.black,
         margin: 0,
         fontFamily: FONTS.body,
+        fontWeight: 700,
+        lineHeight: 1.7,
+      }}>
+        Importante: Revisa tu correo electrónico (incluyendo spam) en los próximos días.
+      </p>
+      <p style={{
+        fontSize: '16px',
+        color: COLORS.black,
+        margin: '12px 0 0',
+        fontFamily: FONTS.body,
         lineHeight: 1.6,
       }}>
-        <strong>Importante:</strong> Revisa tu correo electrónico (incluyendo spam) en los próximos días.
-        Te contactaremos al email: <strong>{email || 'tu email'}</strong>
+        Te contactaremos al email: <strong style={{ color: COLORS.red }}>{email || 'tu email'}</strong>
       </p>
     </div>
   )

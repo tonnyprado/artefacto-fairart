@@ -15,13 +15,7 @@ export default function LienzoPreview({ canvasData, onImageClick }) {
   const hasImage = !!canvasData.layout_canvas_url
 
   return (
-    <div style={{
-      marginTop: '24px',
-      background: COLORS.white,
-      borderRadius: '16px',
-      padding: '24px',
-      border: `1px solid ${COLORS.creamDark}`,
-    }}>
+    <div style={{ marginTop: '32px' }}>
       <LienzoHeader
         paqueteName={canvasData.paquete_nombre}
         obrasCount={canvasData.obras_count}
@@ -48,9 +42,10 @@ function LienzoHeader({ paqueteName, obrasCount }) {
   return (
     <div style={{
       display: 'flex',
+      flexDirection: 'column',
       alignItems: 'center',
-      justifyContent: 'space-between',
-      marginBottom: '16px',
+      gap: '8px',
+      marginBottom: '20px',
     }}>
       <h3 style={{
         fontWeight: 600,
