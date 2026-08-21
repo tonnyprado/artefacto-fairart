@@ -342,8 +342,8 @@ export default function ConocerMas() {
       }
 
       if (introTop != null && pin && flow && hasValidFlow) {
-        // El texto se fija cuando llega al navbar
-        const pinTrigger = NAVBAR_HEIGHT + 16;
+        // El texto se fija cuando llega al navbar (con pequeño offset para smooth transition)
+        const pinTrigger = NAVBAR_HEIGHT + 4;
         const flowTop = flowRect.top;
         const shouldPin = flowTop <= pinTrigger;
 

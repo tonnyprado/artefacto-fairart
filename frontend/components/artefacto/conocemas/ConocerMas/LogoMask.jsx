@@ -14,20 +14,21 @@ export default function LogoMask({ maskRef, ghostRef, navbarHeight = 80 }) {
       ref={maskRef}
       className="fixed left-0 z-10 w-[25vw] bg-crema pointer-events-none"
       style={{
-        top: `${navbarHeight}px`,
-        height: `calc(min(24px, 1.2vw) + min(130px, 9.8vw) + 17.5902px + 30px)`,
+        top: 0,
+        paddingTop: `${navbarHeight}px`,
+        height: `calc(${navbarHeight}px + min(24px, 1.2vw) + min(130px, 9.8vw) + 17.5902px + 30px)`,
       }}
     >
       <img
         src={LOGO}
         alt="ARTE FACTO"
         className="absolute left-[max(24px,3.75vw)] w-[min(232px,17.5vw)]"
-        style={{ top: 'min(24px, 1.2vw)' }}
+        style={{ top: `calc(${navbarHeight}px + min(24px, 1.2vw))` }}
       />
       <div
         ref={ghostRef}
         className={`absolute left-[max(24px,3.75vw)] w-[min(232px,17.5vw)] transition-opacity duration-300 ${cls.labelRow}`}
-        style={{ top: 'calc(min(24px, 1.2vw) + min(130px, 9.8vw) + 17.5902px)' }}
+        style={{ top: `calc(${navbarHeight}px + min(24px, 1.2vw) + min(130px, 9.8vw) + 17.5902px)` }}
       >
         <span>CONOCE</span>
         <span>MÁS</span>

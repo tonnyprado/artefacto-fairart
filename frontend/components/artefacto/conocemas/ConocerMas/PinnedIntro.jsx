@@ -9,18 +9,20 @@ import { cls } from './classes';
  * El contenido posterior desaparece por detrás
  *
  * NOTA: El left y width se asignan dinámicamente via JavaScript en index.jsx
+ * El bloque se extiende desde top:0 para cubrir completamente el área del navbar
  */
 export default function PinnedIntro({ pinRef, navbarHeight = 80 }) {
   return (
     <div
       ref={pinRef}
-      className="fixed z-[9] hidden bg-crema pt-4 pb-[22px] border-b border-rojo/35"
+      className="fixed z-[10] hidden bg-crema pb-[22px] border-b border-rojo/35"
       style={{
-        top: `${navbarHeight}px`,
+        top: 0,
+        paddingTop: `${navbarHeight}px`,
         paddingLeft: '17.59px',
       }}
     >
-      <p className={`m-0 ${cls.body}`}>{INTRO}</p>
+      <p className={`m-0 pt-4 ${cls.body}`}>{INTRO}</p>
     </div>
   );
 }
