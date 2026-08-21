@@ -11,7 +11,7 @@ import { useTextScrambleMultiple } from './useTextScramble';
   La navegación real la maneja el click delegado de LandingArtefacto (anchors #...).
 */
 // Secciones con fondo rojo (donde los iconos deben ser blancos/cream)
-const SECCIONES_FONDO_ROJO = ['convocatoria'];
+const SECCIONES_FONDO_ROJO = ['convocatoria', 'contacto'];
 
 export default function Navbar({ screen, onOpenMenu }) {
   const fondoRojo = SECCIONES_FONDO_ROJO.includes(screen);
@@ -49,7 +49,9 @@ export default function Navbar({ screen, onOpenMenu }) {
   const item = (n, index) => (
     <a key={n.href} className="arte-navitem" href={n.href}
       style={{ pointerEvents: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, textDecoration: 'none' }}>
-      <img src={n.src} alt="" style={{ height: 26, display: 'block' }} />
+      <div style={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <img src={n.src} alt="" style={{ height: 28, width: 'auto', display: 'block' }} />
+      </div>
       <span
         ref={scrambleRefs[index]?.ref}
         style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: labelCol }}
@@ -60,16 +62,16 @@ export default function Navbar({ screen, onOpenMenu }) {
   );
   return (
     <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 60, pointerEvents: 'none' }}>
-      {/* Capa difuminada detrás de los botones */}
+      {/* Capa de fondo sólido para ocultar contenido */}
       <div style={{
         position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
         height: '100%',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        backgroundColor: fondoRojo ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        backgroundColor: fondoRojo ? 'rgba(184, 48, 48, 0.92)' : 'rgba(244, 237, 228, 0.92)',
         zIndex: 1,
         pointerEvents: 'none'
       }} />

@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { Group, Rect, Text } from 'react-konva'
 import { useObraCollision } from '../../hooks/useObraCollision'
-import { ObraDeleteButton } from './ObraDeleteButton'
+import { ObraDeleteButton, ObraDragIndicator } from './ObraDeleteButton'
 import { COLORS, COMPONENT_SIZES, SHADOWS } from '../../constants/style.constants'
 
 /**
@@ -176,13 +176,22 @@ export function Obra3D({
         listening={false}
       />
 
-      {/* Botón de eliminar cuando está seleccionada */}
+      {/* Indicadores cuando está seleccionada */}
       {isSelected && (
-        <ObraDeleteButton
-          x={obra.x + obra.width - 30}
-          y={obra.y - 10}
-          onClick={() => onDelete(obra.id)}
-        />
+        <>
+          {/* Indicador de arrastrar arriba */}
+          <ObraDragIndicator
+            x={obra.x}
+            y={obra.y - 32}
+            width={obra.width}
+          />
+          {/* Botón de quitar */}
+          <ObraDeleteButton
+            x={obra.x + obra.width - 65}
+            y={obra.y + obra.height + 8}
+            onClick={() => onDelete(obra.id)}
+          />
+        </>
       )}
     </Group>
   )

@@ -348,8 +348,8 @@ export default function CalendarSection({ isActive = true }) {
         {/* Main Content: Calendar + Event Display */}
         <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
 
-          {/* LEFT: Calendar - Sin card, flotante */}
-          <div className="p-4">
+          {/* LEFT: Calendar - Sin card, flotante - altura fija para evitar saltos */}
+          <div className="p-4" style={{ minHeight: '420px' }}>
             {/* Month Header */}
             <div className="flex items-center justify-between mb-6">
               <button
@@ -426,7 +426,7 @@ export default function CalendarSection({ isActive = true }) {
                     ${isSelected(day)
                       ? 'bg-[#b83030] text-white rounded-full'
                       : isToday(day)
-                        ? 'bg-[#141210] text-white rounded-full ring-2 ring-[#b83030] ring-offset-2'
+                        ? 'bg-[#2563EB] text-white rounded-full'
                         : hasEvent(day)
                           ? 'text-[#b83030] hover:bg-black/10 rounded-full cursor-pointer font-extrabold'
                           : 'text-[#141210] hover:bg-black/5 rounded-full cursor-pointer'

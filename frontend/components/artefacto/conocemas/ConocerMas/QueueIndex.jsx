@@ -6,9 +6,23 @@ import { cls } from './classes';
 /**
  * QueueIndex - Títulos de subtemas que se mueven desde la pila hacia sticky
  * Empiezan apilados abajo y suben cuando su sección entra al viewport
+ * CLICKEABLES: Al hacer clic, navegan a la sección correspondiente
  */
 export default function QueueIndex({ labelsRef, navbarHeight = 80 }) {
   const totalLabels = SUBTEMAS.length;
+
+  const handleLabelClick = (sectionId) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      const offset = navbarHeight + 100;
+      const elementPosition = section.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   return (
     <>
@@ -23,7 +37,8 @@ export default function QueueIndex({ labelsRef, navbarHeight = 80 }) {
             ref={(el) => {
               if (el) labelsRef.current[i] = el;
             }}
-            className={`pointer-events-none fixed z-[10] box-border bg-crema ${cls.labelW} ${cls.labelPad} ${cls.rule}`}
+            onClick={() => handleLabelClick(s.id)}
+            className={`pointer-events-auto cursor-pointer fixed z-[10] box-border bg-crema ${cls.labelW} ${cls.labelPad} ${cls.rule} hover:bg-rojo/10 transition-colors`}
             style={{
               // Posición inicial: apilados en la parte inferior
               // ARTIS FACTUM (i=0) arriba, ÉTICAS CREATIVAS (i=3) abajo

@@ -142,7 +142,7 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
         value={formData.foto}
         onChange={handleFotoChange}
         error={errors?.foto}
-        helperText="Formatos: JPG, PNG, WebP (máx 10MB, se comprime automáticamente)"
+        helperText="Nombre: nombre_apellido_foto.jpg | Formatos: JPG, PNG, WebP | Peso: máx 10MB (se comprime automáticamente)"
         isLoading={loadingStates.foto}
         loadingText="Comprimiendo foto..."
       />
@@ -156,7 +156,7 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
         value={formData.documentos?.cv}
         onChange={(file) => handleFileChange('cv', file)}
         error={errors?.cv}
-        helperText="Formatos: PDF, DOC, DOCX (máx 10MB)"
+        helperText="Nombre: nombre_apellido_cv.pdf | Formatos: PDF, DOC, DOCX | Peso: máx 10MB"
         isLoading={loadingStates.cv}
         loadingText="Procesando CV..."
       />
@@ -170,7 +170,7 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
         value={formData.documentos?.portfolio}
         onChange={(file) => handleFileChange('portfolio', file)}
         error={errors?.portfolio}
-        helperText="Formato: PDF (máx 10MB) — Si pesa más, comprímelo en ilovepdf.com"
+        helperText="Nombre: nombre_apellido_portafolio.pdf | Formato: PDF | Peso: máx 10MB (si pesa más, comprímelo en ilovepdf.com)"
         isLoading={loadingStates.portfolio}
         loadingText="Procesando portafolio..."
       />
@@ -184,7 +184,7 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
         value={formData.documentos?.identificacion}
         onChange={(file) => handleFileChange('identificacion', file)}
         error={errors?.identificacion}
-        helperText="Formatos: JPG, PNG, PDF (máx 10MB, imágenes se comprimen)"
+        helperText="Nombre: nombre_apellido_id.jpg | Formatos: JPG, PNG, PDF | Peso: máx 10MB (imágenes se comprimen)"
         isLoading={loadingStates.identificacion}
         loadingText="Comprimiendo..."
       />

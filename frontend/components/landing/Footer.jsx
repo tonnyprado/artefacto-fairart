@@ -32,9 +32,9 @@ export default function Footer() {
     siteName: 'ARTEFACT',
     description: 'Feria de Arte Contemporáneo. Impulsando el talento de artistas emergentes.',
     contact: {
-      email: 'info@artefact.com.mx',
-      phone: '+52 55 1234 5678',
-      address: 'Av. Reforma 123, Cuauhtémoc, CDMX'
+      email: 'curatorial@arte-facto.mx',
+      phone: '+52 55 7836 3207',
+      address: 'Ciudad de México'
     },
     social: {
       instagram: 'https://www.instagram.com/artefacto.feria?igsh=MTNrcWwwajIycjh6dg%3D%3D&utm_source=qr',

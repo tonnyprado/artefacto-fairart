@@ -44,6 +44,7 @@ const FORMATOS_2D = [
 const FORMATOS_3D = [
   { value: 'escultura', label: 'Escultura' },
   { value: 'ceramica', label: 'Cerámica' },
+  { value: 'textil_3d', label: 'Textil' },
   { value: 'otro_3d', label: 'Otro' },
 ]
 
@@ -581,7 +582,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
               type="text"
               value={formatoOtroTexto}
               onChange={(e) => handleOtroTextoChange(e.target.value)}
-              placeholder="Ej: Instalación, Arte digital, Performance..."
+              placeholder="Ej: Instalación, Arte digital, Pintura expandida..."
               style={{
                 width: '100%',
                 padding: '12px 16px',
@@ -900,6 +901,12 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
                     {mostrarTodosPaquetes ? 'Todos los paquetes' : (esArtista3D ? 'Paquetes 3D' : 'Paquetes 2D')}
                   </span>
                 </div>
+                <div style={{ padding: '8px 16px', background: 'rgba(34, 197, 94, 0.15)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Info size={12} color="rgba(34, 197, 94, 0.9)" />
+                  <span style={{ fontFamily: FONTS.body, fontSize: '10px', color: 'rgba(34, 197, 94, 0.95)', fontWeight: 600 }}>
+                    REGISTRO GRATUITO. SE PAGA SOLO AL SER SELECCIONADO
+                  </span>
+                </div>
 
                 <div style={{ maxHeight: '420px', overflow: 'auto', padding: '12px' }}>
                   {isLoading ? (
@@ -949,6 +956,9 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
                                 )}
                                 <span style={{ background: 'rgba(184,48,48,0.1)', padding: '4px 8px', borderRadius: '6px', fontFamily: FONTS.body, fontSize: '11px', color: COLORS.black }}>
                                   ${paquete.precio} MXN
+                                </span>
+                                <span style={{ background: 'rgba(34, 197, 94, 0.2)', padding: '4px 8px', borderRadius: '6px', fontFamily: FONTS.body, fontSize: '9px', color: 'rgba(34, 197, 94, 0.95)', fontWeight: 700, textTransform: 'uppercase' }}>
+                                  Incluye IVA
                                 </span>
                               </div>
                               {!isConfirmed ? (
@@ -1366,6 +1376,15 @@ function ObraModal({ obra, es3D, onSave, onClose }) {
                 <Field label="Largo (cm) *" type="number" value={form.largo_cm} onChange={(e) => setForm(p => ({ ...p, largo_cm: e.target.value }))} required />
               )}
             </div>
+            <p style={{
+              fontFamily: FONTS.body,
+              fontSize: '11px',
+              color: COLORS.gray,
+              margin: '-6px 0 0 0',
+              fontStyle: 'italic',
+            }}>
+              Si tu obra tiene marco, inclúyelo en las medidas.
+            </p>
 
             <Field label="Técnica *" value={form.tecnica} onChange={(e) => setForm(p => ({ ...p, tecnica: e.target.value }))} required />
 

@@ -23,7 +23,7 @@ export const FONTS = {
   bodyWeight: 300,
 
   // Frases destacadas, highlights conceptuales, notas curatoriales
-  highlight: "'EB Garamond', serif",
+  highlight: "'Inter Tight', sans-serif",
   highlightStyle: 'italic',
 };
 

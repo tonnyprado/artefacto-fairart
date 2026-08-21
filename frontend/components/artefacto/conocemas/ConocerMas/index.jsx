@@ -292,13 +292,15 @@ export default function ConocerMas() {
               nextSectionTop = vh + 100;
             }
 
-            const pushZone = labH * 1.5;
+            // pushZone más pequeño = el título se queda más tiempo en sticky
+            // El empuje empieza cuando el siguiente título está muy cerca
+            const pushZone = labH * 0.8;
             if (nextSectionTop < stickyTop + pushZone && nextSectionTop > stickyTop - labH) {
-              // Siendo empujado
+              // Siendo empujado - solo cuando el siguiente está casi alineado
               const pushProgress = 1 - ((nextSectionTop - stickyTop) / pushZone);
               const pushAmount = Math.max(0, pushProgress * labH);
               lab.style.transform = `translateY(${-pushAmount}px)`;
-              lab.style.opacity = String(Math.max(0.1, 1 - pushProgress * 0.9));
+              lab.style.opacity = String(Math.max(0.2, 1 - pushProgress * 0.8));
             } else if (nextSectionTop <= stickyTop - labH) {
               // Completamente empujado (oculto)
               lab.style.transform = `translateY(${-labH}px)`;

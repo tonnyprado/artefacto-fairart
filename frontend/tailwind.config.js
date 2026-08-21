@@ -32,7 +32,7 @@ module.exports = {
       },
       fontFamily: {
         sans: ['var(--font-inter-tight)', 'Inter Tight', 'system-ui', 'sans-serif'],
-        serif: ['var(--font-eb-garamond)', 'EB Garamond', 'serif'],
+        serif: ['var(--font-inter-tight)', 'Inter Tight', 'system-ui', 'sans-serif'],
       },
     },
   },

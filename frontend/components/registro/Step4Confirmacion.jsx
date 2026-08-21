@@ -98,7 +98,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
       onClick={onClick}
       style={{
         padding: '8px 16px',
-        background: 'transparent',
+        background: 'rgba(184, 48, 48, 0.15)',
         color: COLORS.red,
         border: `2px solid ${COLORS.red}`,
         borderRadius: '12px',
@@ -115,7 +115,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
         e.target.style.color = COLORS.cream
       }}
       onMouseLeave={(e) => {
-        e.target.style.background = 'transparent'
+        e.target.style.background = 'rgba(184, 48, 48, 0.15)'
         e.target.style.color = COLORS.red
       }}
     >

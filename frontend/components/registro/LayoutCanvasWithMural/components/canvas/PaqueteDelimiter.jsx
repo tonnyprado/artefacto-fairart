@@ -3,6 +3,43 @@
 import { Group, Line, Rect, Text } from 'react-konva'
 
 /**
+ * Genera líneas diagonales para el patrón de área de consideración
+ */
+function DiagonalLines({ x, y, width, height, spacing = 20 }) {
+  const lines = []
+  const totalDiagonals = Math.ceil((width + height) / spacing)
+
+  for (let i = 0; i < totalDiagonals; i++) {
+    const startX = x + i * spacing
+    const startY = y
+    const endX = x
+    const endY = y + i * spacing
+
+    // Recortar a los límites del rectángulo
+    const clippedStartX = Math.max(x, Math.min(x + width, startX))
+    const clippedStartY = Math.max(y, startY + (startX - clippedStartX))
+    const clippedEndX = Math.max(x, endX + Math.max(0, y - endY))
+    const clippedEndY = Math.max(y, Math.min(y + height, endY))
+
+    if (clippedStartX <= x + width && clippedEndY <= y + height) {
+      lines.push(
+        <Line
+          key={`diag-${i}`}
+          points={[
+            Math.min(x + width, startX), Math.max(y, startY),
+            Math.max(x, startX - height), Math.min(y + height, startY + height)
+          ]}
+          stroke="rgba(255, 255, 255, 0.3)"
+          strokeWidth={1}
+          listening={false}
+        />
+      )
+    }
+  }
+  return <>{lines}</>
+}
+
+/**
  * Componente de líneas delimitadoras basadas en las medidas del paquete
  * Las líneas se posicionan EXACTAMENTE en los bordes del área delimitada
  * @param {Object} paquete - Paquete seleccionado
@@ -15,8 +52,139 @@ export function PaqueteDelimiter({ paquete, areaDelimitada, canvasWidth, canvasH
 
   const { x: delimiterX, y: delimiterY, width: delimiterWidth, height: delimiterHeight } = areaDelimitada
 
+  // Áreas de consideración (fuera del área delimitada)
+  const leftAreaWidth = delimiterX
+  const rightAreaX = delimiterX + delimiterWidth
+  const rightAreaWidth = canvasWidth - rightAreaX
+
   return (
     <Group>
+      {/* Área de consideración IZQUIERDA con líneas diagonales */}
+      {leftAreaWidth > 30 && (
+        <Group>
+          <Rect
+            x={0}
+            y={0}
+            width={leftAreaWidth}
+            height={canvasHeight}
+            fill="rgba(0, 0, 0, 0.15)"
+            listening={false}
+          />
+          <DiagonalLines x={0} y={0} width={leftAreaWidth} height={canvasHeight} spacing={25} />
+          {/* Label área de consideración izquierda */}
+          <Group>
+            <Rect
+              x={5}
+              y={canvasHeight / 2 - 30}
+              width={leftAreaWidth - 10}
+              height={60}
+              fill="rgba(184, 48, 48, 0.9)"
+              cornerRadius={8}
+              listening={false}
+            />
+            <Text
+              x={5}
+              y={canvasHeight / 2 - 25}
+              width={leftAreaWidth - 10}
+              height={20}
+              text="ÁREA DE"
+              fontSize={9}
+              fontStyle="italic"
+              fill="white"
+              align="center"
+              listening={false}
+            />
+            <Text
+              x={5}
+              y={canvasHeight / 2 - 8}
+              width={leftAreaWidth - 10}
+              height={20}
+              text="CONSIDERACIÓN"
+              fontSize={9}
+              fontStyle="italic"
+              fill="white"
+              align="center"
+              listening={false}
+            />
+            <Text
+              x={5}
+              y={canvasHeight / 2 + 10}
+              width={leftAreaWidth - 10}
+              height={16}
+              text="Comité Curatorial"
+              fontSize={8}
+              fontStyle="bold italic"
+              fill="white"
+              align="center"
+              listening={false}
+            />
+          </Group>
+        </Group>
+      )}
+
+      {/* Área de consideración DERECHA con líneas diagonales */}
+      {rightAreaWidth > 30 && (
+        <Group>
+          <Rect
+            x={rightAreaX}
+            y={0}
+            width={rightAreaWidth}
+            height={canvasHeight}
+            fill="rgba(0, 0, 0, 0.15)"
+            listening={false}
+          />
+          <DiagonalLines x={rightAreaX} y={0} width={rightAreaWidth} height={canvasHeight} spacing={25} />
+          {/* Label área de consideración derecha */}
+          <Group>
+            <Rect
+              x={rightAreaX + 5}
+              y={canvasHeight / 2 - 30}
+              width={rightAreaWidth - 10}
+              height={60}
+              fill="rgba(184, 48, 48, 0.9)"
+              cornerRadius={8}
+              listening={false}
+            />
+            <Text
+              x={rightAreaX + 5}
+              y={canvasHeight / 2 - 25}
+              width={rightAreaWidth - 10}
+              height={20}
+              text="ÁREA DE"
+              fontSize={9}
+              fontStyle="italic"
+              fill="white"
+              align="center"
+              listening={false}
+            />
+            <Text
+              x={rightAreaX + 5}
+              y={canvasHeight / 2 - 8}
+              width={rightAreaWidth - 10}
+              height={20}
+              text="CONSIDERACIÓN"
+              fontSize={9}
+              fontStyle="italic"
+              fill="white"
+              align="center"
+              listening={false}
+            />
+            <Text
+              x={rightAreaX + 5}
+              y={canvasHeight / 2 + 10}
+              width={rightAreaWidth - 10}
+              height={16}
+              text="Comité Curatorial"
+              fontSize={8}
+              fontStyle="bold italic"
+              fill="white"
+              align="center"
+              listening={false}
+            />
+          </Group>
+        </Group>
+      )}
+
       {/* Líneas delimitantes verticales */}
       {/* Línea izquierda - posicionada en el borde izquierdo del área */}
       <Line
@@ -30,25 +198,6 @@ export function PaqueteDelimiter({ paquete, areaDelimitada, canvasWidth, canvasH
       {/* Línea derecha - posicionada en el borde derecho del área */}
       <Line
         points={[delimiterX + delimiterWidth, 0, delimiterX + delimiterWidth, canvasHeight]}
-        stroke="white"
-        strokeWidth={2}
-        dash={[10, 5]}
-        listening={false}
-      />
-
-      {/* Líneas delimitantes horizontales */}
-      {/* Línea superior - posicionada en el borde superior del área */}
-      <Line
-        points={[delimiterX, delimiterY, delimiterX + delimiterWidth, delimiterY]}
-        stroke="white"
-        strokeWidth={2}
-        dash={[10, 5]}
-        listening={false}
-      />
-
-      {/* Línea inferior - posicionada en el borde inferior del área */}
-      <Line
-        points={[delimiterX, delimiterY + delimiterHeight, delimiterX + delimiterWidth, delimiterY + delimiterHeight]}
         stroke="white"
         strokeWidth={2}
         dash={[10, 5]}
@@ -75,6 +224,103 @@ export function PaqueteDelimiter({ paquete, areaDelimitada, canvasWidth, canvasH
             ? `${paquete.metros_cuadrados}m²`
             : `${paquete.metros_lineales}m`}
           fontSize={14}
+          fontStyle="bold"
+          fill="white"
+          align="center"
+          verticalAlign="middle"
+          listening={false}
+        />
+      </Group>
+
+      {/* COTAS - Líneas de medidas en los lados */}
+      {/* Cota horizontal superior (ancho del área) */}
+      <Group>
+        {/* Línea de cota horizontal */}
+        <Line
+          points={[delimiterX, -15, delimiterX + delimiterWidth, -15]}
+          stroke="rgba(255, 255, 255, 0.8)"
+          strokeWidth={1}
+          listening={false}
+        />
+        {/* Flechas/marcas en los extremos */}
+        <Line
+          points={[delimiterX, -20, delimiterX, -10]}
+          stroke="rgba(255, 255, 255, 0.8)"
+          strokeWidth={1}
+          listening={false}
+        />
+        <Line
+          points={[delimiterX + delimiterWidth, -20, delimiterX + delimiterWidth, -10]}
+          stroke="rgba(255, 255, 255, 0.8)"
+          strokeWidth={1}
+          listening={false}
+        />
+        {/* Texto de la medida horizontal */}
+        <Rect
+          x={delimiterX + delimiterWidth / 2 - 30}
+          y={-28}
+          width={60}
+          height={18}
+          fill="rgba(20, 18, 16, 0.85)"
+          cornerRadius={4}
+          listening={false}
+        />
+        <Text
+          x={delimiterX + delimiterWidth / 2 - 30}
+          y={-28}
+          width={60}
+          height={18}
+          text={paquete.tipo === '3D'
+            ? `${(paquete.metros_cuadrados || 1).toFixed(1)}m`
+            : `${(paquete.metros_lineales || 1).toFixed(1)}m`}
+          fontSize={11}
+          fontStyle="bold"
+          fill="white"
+          align="center"
+          verticalAlign="middle"
+          listening={false}
+        />
+      </Group>
+
+      {/* Cota vertical izquierda (alto del área) */}
+      <Group>
+        {/* Línea de cota vertical */}
+        <Line
+          points={[delimiterX - 15, delimiterY, delimiterX - 15, delimiterY + delimiterHeight]}
+          stroke="rgba(255, 255, 255, 0.8)"
+          strokeWidth={1}
+          listening={false}
+        />
+        {/* Marcas en los extremos */}
+        <Line
+          points={[delimiterX - 20, delimiterY, delimiterX - 10, delimiterY]}
+          stroke="rgba(255, 255, 255, 0.8)"
+          strokeWidth={1}
+          listening={false}
+        />
+        <Line
+          points={[delimiterX - 20, delimiterY + delimiterHeight, delimiterX - 10, delimiterY + delimiterHeight]}
+          stroke="rgba(255, 255, 255, 0.8)"
+          strokeWidth={1}
+          listening={false}
+        />
+        {/* Texto de la medida vertical */}
+        <Rect
+          x={delimiterX - 45}
+          y={delimiterY + delimiterHeight / 2 - 9}
+          width={50}
+          height={18}
+          fill="rgba(20, 18, 16, 0.85)"
+          cornerRadius={4}
+          listening={false}
+        />
+        <Text
+          x={delimiterX - 45}
+          y={delimiterY + delimiterHeight / 2 - 9}
+          width={50}
+          height={18}
+          text={`${(delimiterHeight / 100).toFixed(1)}m`}
+          fontSize={11}
           fontStyle="bold"
           fill="white"
           align="center"

@@ -69,6 +69,7 @@ export default function SubtemaSection({
 }) {
   return (
     <section
+      id={data.id}
       ref={sectionRef}
       data-screen-label={data.id}
       className={`ml-[25vw] box-border pt-[11vh] pb-[14vh] pr-[calc(39.5vw+48px)] ${minH}`}

@@ -3,8 +3,7 @@ import { useState } from 'react';
 import { COLORS, FONTS, container } from './theme';
 
 const DATOS = [
-  { label: 'Email General', value: 'convocatoria@artefacto.mx', href: 'mailto:convocatoria@artefacto.mx' },
-  { label: 'Email Curatorial', value: 'artefacto.curatorial@gmail.com', href: 'mailto:artefacto.curatorial@gmail.com' },
+  { label: 'Email', value: 'curatorial@arte-facto.mx', href: 'mailto:curatorial@arte-facto.mx' },
 ];
 
 const REDES = [
@@ -12,7 +11,7 @@ const REDES = [
   { label: 'WhatsApp ↗', href: 'https://wa.me/525578363207?text=Hola%2C%20me%20gustar%C3%ADa%20obtener%20m%C3%A1s%20informaci%C3%B3n%20sobre%20ARTEFACTO' },
 ];
 
-const inputStyle = { border: 'none', background: COLORS.creamDark, padding: 14, fontFamily: FONTS.body, fontSize: 15, borderRadius: 16 };
+const inputStyle = { border: 'none', background: COLORS.creamDark, padding: 14, fontFamily: FONTS.body, fontSize: 15, fontWeight: 400, borderRadius: 16 };
 const labelStyle = { display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' };
 
 export default function ContactSection({ onSubmit }) {

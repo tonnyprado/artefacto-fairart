@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { Group, Image as KonvaImage, Rect, Text } from 'react-konva'
 import useImage from 'use-image'
 import { useObraCollision } from '../../hooks/useObraCollision'
-import { ObraDeleteButton } from './ObraDeleteButton'
+import { ObraDeleteButton, ObraDragIndicator } from './ObraDeleteButton'
 import { COLORS, SHADOWS } from '../../constants/style.constants'
 
 /**
@@ -166,13 +166,22 @@ export function Obra2D({
         strokeWidth={isColliding || isSelected ? 4 : 0}
       />
 
-      {/* Botón de eliminar cuando está seleccionada */}
+      {/* Indicadores cuando está seleccionada */}
       {isSelected && (
-        <ObraDeleteButton
-          x={obra.x + obra.width - 30}
-          y={obra.y - 10}
-          onClick={() => onDelete(obra.id)}
-        />
+        <>
+          {/* Indicador de arrastrar arriba */}
+          <ObraDragIndicator
+            x={obra.x}
+            y={obra.y - 32}
+            width={obra.width}
+          />
+          {/* Botón de quitar */}
+          <ObraDeleteButton
+            x={obra.x + obra.width - 65}
+            y={obra.y + obra.height + 8}
+            onClick={() => onDelete(obra.id)}
+          />
+        </>
       )}
     </Group>
   )
