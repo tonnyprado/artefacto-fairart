@@ -65,6 +65,28 @@ export function PaqueteDelimiter({ paquete, areaDelimitada, canvasWidth, canvasH
         listening={false}
       />
 
+      {/* Líneas delimitantes horizontales - solo para paquetes 3D (cuadrado) */}
+      {paquete.tipo === '3D' && (
+        <>
+          {/* Línea superior */}
+          <Line
+            points={[delimiterX, delimiterY, delimiterX + delimiterWidth, delimiterY]}
+            stroke="white"
+            strokeWidth={2}
+            dash={[10, 5]}
+            listening={false}
+          />
+          {/* Línea inferior */}
+          <Line
+            points={[delimiterX, delimiterY + delimiterHeight, delimiterX + delimiterWidth, delimiterY + delimiterHeight]}
+            stroke="white"
+            strokeWidth={2}
+            dash={[10, 5]}
+            listening={false}
+          />
+        </>
+      )}
+
       {/* COTA HORIZONTAL - muestra los metros */}
       <Group>
         {/* Línea de cota horizontal en la parte inferior */}
