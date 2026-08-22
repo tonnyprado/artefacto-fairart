@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
+import rateLimit from 'express-rate-limit'
 import morgan from 'morgan'
 import dotenv from 'dotenv'
 import { fileURLToPath } from 'url'
@@ -8,6 +9,44 @@ import { dirname, join } from 'path'
 
 // Configuración de variables de entorno
 dotenv.config()
+
+// ==========================================
+// CONFIGURACIÓN DE SEGURIDAD
+// ==========================================
+
+// Rate limiter general para toda la API
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100, // máximo 100 requests por IP cada 15 minutos
+  message: {
+    error: 'Demasiadas solicitudes desde esta IP, intenta de nuevo en 15 minutos'
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+})
+
+// Rate limiter estricto para login (prevenir brute force)
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 5, // máximo 5 intentos de login por IP cada 15 minutos
+  message: {
+    error: 'Demasiados intentos de inicio de sesión. Intenta de nuevo en 15 minutos.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true // no contar los logins exitosos
+})
+
+// Rate limiter para creación de recursos (registro, etc)
+const createLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hora
+  max: 10, // máximo 10 creaciones por IP cada hora
+  message: {
+    error: 'Límite de creación alcanzado. Intenta de nuevo en 1 hora.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+})
 
 // Importar rutas
 import authRoutes from './routes/auth.routes.js'
@@ -33,8 +72,23 @@ const __dirname = dirname(__filename)
 const app = express()
 const PORT = process.env.PORT || 4000
 
-// Middlewares
-app.use(helmet()) // Seguridad headers
+// Middlewares de Seguridad
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:", "blob:"],
+      scriptSrc: ["'self'"],
+      connectSrc: ["'self'", "https://res.cloudinary.com", "https://*.amazonaws.com"]
+    }
+  },
+  crossOriginEmbedderPolicy: false, // Necesario para cargar imágenes externas
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}))
+
+// Rate limiting general
+app.use('/api/', generalLimiter)
 
 // Configuración de CORS mejorada
 const allowedOrigins = [
@@ -103,7 +157,8 @@ app.get('/health', (req, res) => {
   })
 })
 
-// Rutas de la API
+// Rutas de la API con rate limiting específico
+app.use('/api/auth/login', loginLimiter) // Rate limit estricto para login
 app.use('/api/auth', authRoutes)
 app.use('/api/artistas', artistasRoutes)
 app.use('/api/ediciones', edicionesRoutes)
@@ -117,8 +172,8 @@ app.use('/api/configuracion', configuracionRoutes)
 app.use('/api/contenido', contenidoRoutes)
 app.use('/api/contacto', contactoRoutes)
 app.use('/api/upload', uploadRoutes)
-app.use('/api/registro', registroRoutes)
-app.use('/api/opiniones', opinionesRoutes)
+app.use('/api/registro', createLimiter, registroRoutes) // Rate limit para registro
+app.use('/api/opiniones', createLimiter, opinionesRoutes) // Rate limit para opiniones
 
 // Ruta 404
 app.use('*', (req, res) => {

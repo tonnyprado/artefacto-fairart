@@ -14,15 +14,20 @@ import {
   verificarVoto
 } from '../controllers/votaciones.controller.js'
 import { verifyToken, isCurador, isAdminOrCurador } from '../middleware/auth.middleware.js'
+import {
+  validateCreateVotacion,
+  validateUpdateVotacion,
+  validateId
+} from '../middleware/validation.middleware.js'
 
 const router = express.Router()
 
 // Rutas para curadores
-router.post('/', verifyToken, isCurador, createVotacion)
-router.put('/:id', verifyToken, isCurador, updateVotacion)
+router.post('/', verifyToken, isCurador, validateCreateVotacion, createVotacion)
+router.put('/:id', verifyToken, isCurador, validateUpdateVotacion, updateVotacion)
 router.get('/mis-votos', verifyToken, isCurador, getMisVotaciones)
 router.get('/estadisticas', verifyToken, isCurador, getEstadisticasCurador)
-router.delete('/:id', verifyToken, isCurador, deleteVotacion)
+router.delete('/:id', verifyToken, isCurador, validateId, deleteVotacion)
 
 // Rutas para verificar votos
 router.get('/fase/:fase_id/artista/:artista_id', verifyToken, isCurador, verificarVoto)

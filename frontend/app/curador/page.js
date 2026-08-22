@@ -128,7 +128,7 @@ function CuradorDashboardContent() {
   // Show loading state
   if (isLoadingData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center curador-panel">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
           <p className="text-gray-600">Cargando dashboard...</p>
@@ -138,7 +138,7 @@ function CuradorDashboardContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 curador-panel">
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
