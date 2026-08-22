@@ -352,24 +352,16 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
           </div>
 
           {/* Texto destacado de comisiones */}
-          <div style={{
-            marginBottom: 48,
-            padding: '24px 32px',
-            background: 'rgba(0,0,0,0.15)',
-            borderRadius: 12,
+          <p style={{
+            margin: '0 0 48px',
+            fontSize: 17,
+            lineHeight: 1.6,
+            color: COLORS.cream,
+            fontFamily: FONTS.body,
             textAlign: 'center',
-            borderLeft: `4px solid ${COLORS.cream}`,
           }}>
-            <p style={{
-              margin: 0,
-              fontSize: 17,
-              lineHeight: 1.6,
-              color: COLORS.cream,
-              fontFamily: FONTS.body,
-            }}>
-              <strong>Tú defines tu precio</strong> (sin IVA). En caso de venta: <strong>75% para el artista</strong>, 25% para ARTE FACTO.
-            </p>
-          </div>
+            <strong>Tú defines tu precio</strong> (sin IVA). En caso de venta: <strong>75% para el artista</strong>, 25% para ARTE FACTO.
+          </p>
 
           {/* INFORMACIÓN DE REGISTRO - Grid organizado */}
           <div
