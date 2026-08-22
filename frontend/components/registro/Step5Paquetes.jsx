@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useLayoutEffect, forwardRef } from 'react'
 import { createPortal } from 'react-dom'
 import dynamic from 'next/dynamic'
 import { usePaquetesStore } from '@/stores/paquetesStore'
-import { ChevronDown, ChevronUp, Check, Plus, Edit2, Trash2, GripVertical, AlertCircle, Palette, Box, Download, ArrowRight, X, MousePointer2, Move, Save, FileText, ExternalLink, Info, Loader2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, Check, Plus, Edit2, Trash2, GripVertical, AlertCircle, Palette, Box, Download, ArrowRight, X, MousePointer2, Move, Save, FileText, ExternalLink, Info, Loader2, Layers, Frame, Boxes } from 'lucide-react'
 import gsap from 'gsap'
 import { compressImage } from '@/lib/imageCompression'
 
@@ -1590,29 +1590,44 @@ const InstructionsModal = forwardRef(function InstructionsModal({ onClose }, ref
 
   const steps = [
     {
+      icon: Layers,
+      title: '1. Elige tu Formato',
+      description: 'Selecciona 2D, 3D u Otro, y marca los medios en los que trabajas.'
+    },
+    {
       icon: Box,
-      title: '1. Elige tu Paquete',
+      title: '2. Elige tu Paquete',
       description: 'Haz clic en "Paquetes" y selecciona el espacio que mejor se adapte a tus obras.'
     },
     {
       icon: Plus,
-      title: '2. Sube tus Obras',
+      title: '3. Sube tus Obras',
       description: 'Abre "Mis Obras" y agrega las imágenes de las piezas que quieres exhibir.'
     },
     {
       icon: Edit2,
-      title: '3. Completa la Info',
+      title: '4. Completa la Info',
       description: 'Cada obra necesita título, medidas, técnica y precio para poder colocarla.'
     },
     {
       icon: Move,
-      title: '4. Arrastra al Lienzo',
+      title: '5. Arrastra al Lienzo',
       description: 'Arrastra tus obras desde el panel hacia el lienzo y acomódalas como prefieras.'
     },
     {
       icon: Save,
-      title: '5. Guarda tu Layout',
+      title: '6. Guarda tu Layout',
       description: 'Cuando estés satisfecho, haz clic en "Guardar y Continuar" para seguir con tu registro.'
+    },
+    {
+      icon: Frame,
+      title: '7. Obra en muro (2D)',
+      description: 'Tu acomodo es una referencia compositiva: el Comité puede conservarla total o parcialmente.'
+    },
+    {
+      icon: Boxes,
+      title: '8. Arte 3D',
+      description: 'La vista cenital confirma que tu obra cabe en los m² de tu paquete. La imagen que uses nos es clave para entender tu trabajo:\n· Escultura/cerámica: su ubicación final se define curatorialmente.\n· Instalación: se exhibe como unidad; represéntala fielmente y completa.'
     }
   ]
 
@@ -1741,6 +1756,7 @@ const InstructionsModal = forwardRef(function InstructionsModal({ onClose }, ref
                     color: COLORS.gray,
                     margin: 0,
                     lineHeight: 1.5,
+                    whiteSpace: 'pre-line',
                   }}>
                     {step.description}
                   </p>
