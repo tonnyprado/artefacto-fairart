@@ -6,6 +6,8 @@
 -- =====================================================
 
 -- Crear tabla de VOTACIONES
+-- NOTA: curador_id referencia curadores(id), NO usuarios(id)
+-- El curadorId viene del token JWT y corresponde al ID en la tabla curadores
 CREATE TABLE IF NOT EXISTS votaciones (
   id SERIAL PRIMARY KEY,
   curador_id INTEGER NOT NULL REFERENCES curadores(id) ON DELETE CASCADE,
