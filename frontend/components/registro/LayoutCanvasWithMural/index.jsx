@@ -36,6 +36,7 @@ import { VerticalRuler } from './components/rulers/VerticalRuler'
 import { GuideLines } from './components/guides/GuideLines'
 import { MuralBackground } from './components/canvas/MuralBackground'
 import { PaqueteDelimiter } from './components/canvas/PaqueteDelimiter'
+import { NotaAreaConsideracion } from './components/canvas/NotaAreaConsideracion'
 import { Obra2D } from './components/obras/Obra2D'
 import { Obra3D } from './components/obras/Obra3D'
 import { ObrasGallery } from './components/gallery/ObrasGallery'
@@ -542,6 +543,9 @@ export default function LayoutCanvasWithMural({
             <Layer x={RULER_SIZE} y={RULER_SIZE}>
               <MuralBackground plantillaURL={plantillaURL} width={canvasWidth} height={canvasHeight} />
               <PaqueteDelimiter paquete={paquete} areaDelimitada={areaDelimitada} canvasWidth={canvasWidth} canvasHeight={canvasHeight} />
+
+              {/* Nota de área de consideración solo en canvas 2D */}
+              {!es3D && <NotaAreaConsideracion canvasWidth={canvasWidth} canvasHeight={canvasHeight} />}
 
               {/* Obras en el canvas */}
               {obrasEnCanvas.map((obra, index) => {
