@@ -2,7 +2,13 @@
   <defs>
     <style>
       .bg { fill: #B83030; }
-      .line { fill: none; stroke: #fff; stroke-width: 2px; stroke-linecap: round; stroke-linejoin: round; }
+      .line {
+        fill: none;
+        stroke: #fff;
+        stroke-width: 2px;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
     </style>
   </defs>
   <circle class="bg" cx="34.15" cy="28.04" r="18.92"/>
