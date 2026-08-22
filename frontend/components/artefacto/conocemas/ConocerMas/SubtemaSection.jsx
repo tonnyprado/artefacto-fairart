@@ -1,7 +1,7 @@
 'use client';
 
 import { INTRO } from './content';
-import { cls } from './classes';
+import { cls, NAVBAR_HEIGHT } from './classes';
 
 /**
  * Block - Renderiza un bloque de contenido según su tipo
@@ -58,14 +58,54 @@ function Block({ b, introRef }) {
 }
 
 /**
- * SubtemaSection - Una sección de contenido
- * Los títulos ahora están en QueueIndex y se mueven desde ahí
+ * StickyLabel - Título sticky que se mueve con la sección
+ * Se posiciona debajo del LogoMask y empuja al label anterior
+ */
+function StickyLabel({ words, sectionId, labelRef, navbarHeight = NAVBAR_HEIGHT }) {
+  const handleClick = () => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      const offset = navbarHeight + 100;
+      const elementPosition = section.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  return (
+    <div
+      ref={labelRef}
+      onClick={handleClick}
+      className={`sticky z-[11] cursor-pointer bg-crema ${cls.labelW} ${cls.labelPad} ${cls.rule} hover:bg-rojo/10 transition-colors`}
+      style={{
+        // Posición sticky: justo debajo del LogoMask
+        top: `calc(${navbarHeight}px + min(24px, 1.2vw) + min(130px, 9.8vw) + 17.5902px + 30px + 6px)`,
+        marginLeft: `calc(-25vw)`, // Compensar el ml-[25vw] del section
+        marginBottom: '2vh',
+      }}
+    >
+      <div className={cls.labelRow}>
+        <span>{words[0]}</span>
+        <span>{words[1]}</span>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * SubtemaSection - Una sección de contenido con su título sticky integrado
+ * El título y contenido se mueven juntos como un solo bloque
  */
 export default function SubtemaSection({
   data,
   sectionRef = undefined,
+  labelRef = undefined,
   introRef,
   minH = 'min-h-[110vh]',
+  navbarHeight = NAVBAR_HEIGHT,
 }) {
   return (
     <section
@@ -74,6 +114,14 @@ export default function SubtemaSection({
       data-screen-label={data.id}
       className={`ml-[25vw] box-border pt-[11vh] pb-[14vh] pr-[calc(39.5vw+48px)] ${minH}`}
     >
+      {/* Título sticky integrado - se mueve con la sección */}
+      <StickyLabel
+        words={data.words}
+        sectionId={data.id}
+        labelRef={labelRef}
+        navbarHeight={navbarHeight}
+      />
+
       <div className="max-w-[641px]">
         {/* Etimología */}
         <div className="mb-[9vh] flex justify-between gap-10">

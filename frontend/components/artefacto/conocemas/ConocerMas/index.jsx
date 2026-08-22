@@ -6,7 +6,6 @@ import { SUBTEMAS, HERO, CIERRE, INTRO, LOGO, PHOTOS } from './content';
 import { cls } from './classes';
 import PhotoRail from './PhotoRail';
 import LogoMask from './LogoMask';
-import QueueIndex from './QueueIndex';
 import PinnedIntro from './PinnedIntro';
 import SubtemaSection from './SubtemaSection';
 
@@ -41,7 +40,6 @@ export default function ConocerMas() {
   const ghostRef = useRef(null);
   const pinRef = useRef(null);
   const introRef = useRef(null);
-  const labelsRef = useRef([]);
   const sectionRefs = useRef([]);
 
   // Refs Móvil
@@ -171,12 +169,13 @@ export default function ConocerMas() {
   }, [isMounted, isDesktop]);
 
   // ========== ANIMACIONES DESKTOP ==========
+  // Los labels ahora están dentro de SubtemaSection con position:sticky
+  // Solo necesitamos animar: carril de fotos, "CONOCE MÁS" ghost, y PinnedIntro
   useEffect(() => {
     if (!isMounted || isDesktop === null || !isDesktop) return;
 
     const track = trackRef.current;
     const rail = track?.parentElement;
-    const mask = maskRef.current;
     const ghost = ghostRef.current;
     const pin = pinRef.current;
     const flow = introRef.current;
@@ -214,11 +213,7 @@ export default function ConocerMas() {
     const frame = () => {
       const s = getScrollY();
       const vh = window.innerHeight || document.documentElement.clientHeight || 800;
-      const labels = labelsRef.current.filter(Boolean);
       const sections = sectionRefs.current.filter(Boolean);
-
-      // Verificar que tenemos elementos válidos
-      if (!labels.length) return;
 
       // 1) Carril de fotos
       if (track && rail) {
@@ -226,97 +221,7 @@ export default function ConocerMas() {
         setTrackY(-Math.min(s * PHOTO_SPEED, maxTy));
       }
 
-      // 2) Títulos que se mueven desde la pila hacia posición sticky
-      let maskBottom;
-      try {
-        maskBottom = mask ? mask.getBoundingClientRect().bottom : NAVBAR_HEIGHT + 150;
-      } catch (e) {
-        maskBottom = NAVBAR_HEIGHT + 150;
-      }
-
-      const stickyTop = maskBottom + 6;
-      const stackBaseBottom = 32; // Posición base de la pila
-      const labelSpacing = 45; // Espacio entre labels apilados
-      const totalLabels = labels.length;
-
-      for (let i = 0; i < labels.length; i++) {
-        const lab = labels[i];
-        const section = sections[i];
-        if (!lab) continue;
-
-        const labH = lab.offsetHeight || 45;
-
-        // Calcular posición inicial (apilado abajo)
-        // ARTIS FACTUM (i=0) arriba, ÉTICAS CREATIVAS (i=3) abajo
-        const visualIndex = totalLabels - 1 - i;
-        const initialBottom = stackBaseBottom + visualIndex * labelSpacing;
-
-        // Obtener posición de la sección correspondiente
-        let sectionTop = vh + 100; // Valor por defecto si no hay sección
-        if (section) {
-          try {
-            sectionTop = section.getBoundingClientRect().top;
-          } catch (e) {}
-        }
-
-        // Calcular cuándo debe empezar a moverse el label
-        // El label empieza a moverse cuando su sección está a 80% del viewport
-        const triggerPoint = vh * 0.8;
-        const moveDistance = vh - initialBottom - stickyTop; // Distancia total a recorrer
-
-        if (sectionTop > triggerPoint) {
-          // Sección aún no ha llegado - label en posición apilada
-          lab.style.top = 'auto';
-          lab.style.bottom = `${initialBottom}px`;
-          lab.style.transform = '';
-          lab.style.opacity = '1';
-        } else if (sectionTop > stickyTop) {
-          // Sección está entre el trigger y la posición sticky - animando
-          const progress = 1 - ((sectionTop - stickyTop) / (triggerPoint - stickyTop));
-          lab.style.bottom = 'auto';
-          lab.style.top = `${vh - initialBottom - labH - (progress * moveDistance)}px`;
-          lab.style.transform = '';
-          lab.style.opacity = '1';
-        } else {
-          // Sección llegó a sticky - label en posición sticky
-          lab.style.bottom = 'auto';
-          lab.style.top = `${stickyTop}px`;
-
-          // Verificar si el siguiente label lo está empujando
-          const nextSection = sections[i + 1];
-          if (nextSection) {
-            let nextSectionTop;
-            try {
-              nextSectionTop = nextSection.getBoundingClientRect().top;
-            } catch (e) {
-              nextSectionTop = vh + 100;
-            }
-
-            // pushZone más pequeño = el título se queda más tiempo en sticky
-            // El empuje empieza cuando el siguiente título está muy cerca
-            const pushZone = labH * 0.8;
-            if (nextSectionTop < stickyTop + pushZone && nextSectionTop > stickyTop - labH) {
-              // Siendo empujado - solo cuando el siguiente está casi alineado
-              const pushProgress = 1 - ((nextSectionTop - stickyTop) / pushZone);
-              const pushAmount = Math.max(0, pushProgress * labH);
-              lab.style.transform = `translateY(${-pushAmount}px)`;
-              lab.style.opacity = String(Math.max(0.2, 1 - pushProgress * 0.8));
-            } else if (nextSectionTop <= stickyTop - labH) {
-              // Completamente empujado (oculto)
-              lab.style.transform = `translateY(${-labH}px)`;
-              lab.style.opacity = '0';
-            } else {
-              lab.style.transform = '';
-              lab.style.opacity = '1';
-            }
-          } else {
-            lab.style.transform = '';
-            lab.style.opacity = '1';
-          }
-        }
-      }
-
-      // 3) "CONOCE MÁS" visibility
+      // 2) "CONOCE MÁS" visibility - se oculta cuando la primera sección llega
       const firstSection = sections[0];
       if (ghost && firstSection) {
         try {
@@ -327,7 +232,7 @@ export default function ConocerMas() {
         }
       }
 
-      // 4) Manifiesto fijado - texto INTRO sticky
+      // 3) Manifiesto fijado - texto INTRO sticky
       let flowRect;
       try {
         flowRect = flow?.getBoundingClientRect();
@@ -612,7 +517,6 @@ export default function ConocerMas() {
     <div className="bg-crema font-sans text-tinta">
       <PhotoRail trackRef={trackRef} navbarHeight={NAVBAR_HEIGHT} />
       <PinnedIntro pinRef={pinRef} navbarHeight={NAVBAR_HEIGHT} />
-      <QueueIndex labelsRef={labelsRef} navbarHeight={NAVBAR_HEIGHT} />
       <LogoMask maskRef={maskRef} ghostRef={ghostRef} navbarHeight={NAVBAR_HEIGHT} />
 
       <main className="relative z-[2]">
@@ -625,7 +529,7 @@ export default function ConocerMas() {
           />
         </div>
 
-        {/* Secciones de subtemas */}
+        {/* Secciones de subtemas - cada una tiene su sticky label integrado */}
         {SUBTEMAS.map((s, i) => (
           <SubtemaSection
             key={s.id}
@@ -635,6 +539,7 @@ export default function ConocerMas() {
             }}
             introRef={i === 0 ? introRef : undefined}
             minH={i === 2 ? 'min-h-[130vh]' : i === 3 ? '' : 'min-h-[110vh]'}
+            navbarHeight={NAVBAR_HEIGHT}
           />
         ))}
 
