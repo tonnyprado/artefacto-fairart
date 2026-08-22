@@ -348,7 +348,7 @@ export const getMisVotaciones = async (req, res) => {
                a.nombre_artistico,
                a.nombre,
                a.apellido,
-               a.foto_perfil,
+               a.foto,
                f.nombre as fase_nombre
         FROM votaciones v
         LEFT JOIN artistas a ON a.id = v.artista_id
@@ -423,7 +423,7 @@ export const getResultadosFase = async (req, res) => {
           a.nombre_artistico,
           a.nombre,
           a.apellido,
-          a.foto_perfil,
+          a.foto,
           COUNT(CASE WHEN v.voto = true THEN 1 END)::int as total_votos_favor,
           COUNT(CASE WHEN v.voto = false THEN 1 END)::int as total_votos_contra,
           COUNT(v.id)::int as total_votos,
@@ -445,7 +445,7 @@ export const getResultadosFase = async (req, res) => {
         JOIN artistas a ON a.id = af.artista_id
         LEFT JOIN votaciones v ON v.artista_id = a.id AND v.fase_id = af.fase_id
         WHERE af.fase_id = $1
-        GROUP BY a.id, a.nombre_artistico, a.nombre, a.apellido, a.foto_perfil
+        GROUP BY a.id, a.nombre_artistico, a.nombre, a.apellido, a.foto
         ORDER BY posicion
       `, [fase_id])
 

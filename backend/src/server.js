@@ -72,6 +72,9 @@ const __dirname = dirname(__filename)
 const app = express()
 const PORT = process.env.PORT || 4000
 
+// Trust proxy - necesario para rate limiting detrás de Railway/Vercel
+app.set('trust proxy', 1)
+
 // Middlewares de Seguridad
 app.use(helmet({
   contentSecurityPolicy: {
