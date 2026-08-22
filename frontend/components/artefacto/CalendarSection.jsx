@@ -266,13 +266,17 @@ export default function CalendarSection({ isActive = true }) {
   const daysInMonth = getDaysInMonth(currentMonth.name, currentMonth.year)
   const firstDay = getFirstDayOfMonth(currentMonth.name, currentMonth.year)
 
-  // Crear array de días
+  // Crear array de días (siempre 42 celdas = 6 filas para altura consistente)
   const days = []
   for (let i = 0; i < firstDay; i++) {
     days.push(null)
   }
   for (let i = 1; i <= daysInMonth; i++) {
     days.push(i)
+  }
+  // Rellenar hasta 42 celdas para mantener 6 filas siempre
+  while (days.length < 42) {
+    days.push(null)
   }
 
   // Verificar si un día tiene evento
@@ -346,7 +350,7 @@ export default function CalendarSection({ isActive = true }) {
     <section id="calendario" className="pt-16 pb-8 bg-[#E8DED0] min-h-screen flex items-center">
       <div className="container mx-auto px-4">
         {/* Main Content: Calendar + Event Display */}
-        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
           {/* LEFT: Calendar - Sin card, flotante - altura fija para evitar saltos */}
           <div className="p-4" style={{ minHeight: '420px' }}>
@@ -398,15 +402,15 @@ export default function CalendarSection({ isActive = true }) {
               </div>
             )}
 
-            {/* Days of Week Header - Card lineal */}
-            <div className="bg-[#141210] rounded-full px-4 py-2 mb-4">
+            {/* Days of Week Header - Con línea roja debajo */}
+            <div className="border-b-4 border-[#b83030] pb-2 mb-4">
               <div className="grid grid-cols-7 gap-2">
                 {['D', 'L', 'M', 'M', 'J', 'V', 'S'].map((day, i) => (
                   <div
                     key={i}
                     className="flex items-center justify-center"
                   >
-                    <span className="text-[#f4ede4] font-bold text-sm">{day}</span>
+                    <span className="text-[#141210] font-bold text-sm">{day}</span>
                   </div>
                 ))}
               </div>
