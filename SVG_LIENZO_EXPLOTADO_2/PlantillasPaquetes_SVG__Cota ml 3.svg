@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_7" data-name="Layer 7" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 465.28 33.19">
+  <defs>
+    <style>
+      .cls-1 {
+        letter-spacing: 0em;
+      }
+
+      .cls-2 {
+        letter-spacing: 0em;
+      }
+
+      .cls-3 {
+        letter-spacing: -.02em;
+      }
+
+      .cls-4 {
+        fill: #fff;
+        font-family: InterTight-SemiBoldItalic, 'Inter Tight';
+        font-size: 9px;
+        font-style: italic;
+        font-weight: 600;
+      }
+
+      .cls-5 {
+        fill: none;
+        stroke: #fff;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+    </style>
+  </defs>
+  <line class="cls-5" x1="6.63" y1="16.25" x2="10.88" y2="16.25"/>
+  <line class="cls-5" x1="10.88" y1="16.25" x2="156.11" y2="16.25"/>
+  <line class="cls-5" x1="13.72" y1="9.52" x2="8.05" y2="22.98"/>
+  <line class="cls-5" x1="270.77" y1="16.25" x2="436.08" y2="16.25"/>
+  <line class="cls-5" x1="433.25" y1="22.98" x2="438.92" y2="9.52"/>
+  <line class="cls-5" x1="436.08" y1="16.25" x2="440.33" y2="16.25"/>
+  <line class="cls-5" x1="10.88" y1="28.87" x2="10.88" y2="3.63"/>
+  <line class="cls-5" x1="436.08" y1="28.87" x2="436.08" y2="3.63"/>
+  <text class="cls-4" transform="translate(160.5 19.52)"><tspan class="cls-2" x="0" y="0">P</tspan><tspan x="5.36" y="0">aque</tspan><tspan class="cls-1" x="25.62" y="0">t</tspan><tspan x="28.66" y="0">e: 3 met</tspan><tspan class="cls-3" x="61.38" y="0">r</tspan><tspan x="64.42" y="0">os lineales</tspan></text>
+</svg>

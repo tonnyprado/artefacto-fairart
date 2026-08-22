@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_8" data-name="Layer 8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122.45 55.17">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+        font-family: InterTight-LightItalic, 'Inter Tight';
+        font-size: 8.3px;
+        font-style: italic;
+        font-weight: 300;
+        letter-spacing: 0em;
+        opacity: .75;
+      }
+
+      .cls-2 {
+        fill: #b93433;
+      }
+    </style>
+  </defs>
+  <rect class="cls-2" x="6.11" y="8.13" width="106.98" height="36.51" rx="3.22" ry="3.22"/>
+  <text class="cls-1" transform="translate(16.62 20.4)"><tspan x="0" y="0">Área no disponible para </tspan><tspan x="4.66" y="9.12">paquete de 4 metros </tspan><tspan x="23.65" y="18.24">cuadrados </tspan></text>
+</svg>

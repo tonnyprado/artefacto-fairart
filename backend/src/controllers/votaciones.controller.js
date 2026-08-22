@@ -332,6 +332,16 @@ export const getMisVotaciones = async (req, res) => {
     const curadorId = req.user.curadorId
     const { fase_id } = req.query
 
+    console.log('getMisVotaciones - user:', req.user)
+    console.log('getMisVotaciones - curadorId:', curadorId)
+
+    if (!curadorId) {
+      return res.status(400).json({
+        success: false,
+        error: 'curadorId no encontrado en el token. Por favor, cierra sesión e inicia de nuevo.'
+      })
+    }
+
     if (useDatabase()) {
       let query = `
         SELECT v.*,
@@ -376,9 +386,11 @@ export const getMisVotaciones = async (req, res) => {
     })
   } catch (error) {
     console.error('Error al obtener votaciones:', error)
+    console.error('Error stack:', error.stack)
     res.status(500).json({
       success: false,
-      error: 'Error al obtener votaciones'
+      error: 'Error al obtener votaciones',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     })
   }
 }
@@ -520,6 +532,22 @@ export const getEstadisticasCurador = async (req, res) => {
   try {
     const curadorId = req.user.curadorId
     const { fase_id } = req.query
+
+    console.log('getEstadisticasCurador - user:', req.user)
+    console.log('getEstadisticasCurador - curadorId:', curadorId)
+
+    if (!curadorId) {
+      // Si no hay curadorId, devolver estadísticas vacías en lugar de error
+      return res.json({
+        success: true,
+        data: {
+          total_votos: 0,
+          votos_favor: 0,
+          votos_contra: 0,
+          porcentaje_favor: 0
+        }
+      })
+    }
 
     if (useDatabase()) {
       let query = `

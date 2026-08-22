@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 449.7 508.25">
+  <defs>
+    <style>
+      .cls-1 {
+        letter-spacing: 0em;
+      }
+
+      .cls-2 {
+        letter-spacing: 0em;
+      }
+
+      .cls-3 {
+        letter-spacing: -.03em;
+      }
+
+      .cls-4, .cls-5, .cls-6 {
+        fill: none;
+        stroke: #fff;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .cls-4, .cls-6 {
+        stroke-width: 3px;
+      }
+
+      .cls-7 {
+        letter-spacing: -.02em;
+      }
+
+      .cls-8 {
+        fill: #fff;
+        font-family: InterTight-SemiBoldItalic, 'Inter Tight';
+        font-size: 9px;
+        font-style: italic;
+        font-weight: 600;
+      }
+
+      .cls-9 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-6 {
+        stroke-dasharray: 12.01 13.01;
+      }
+
+      .cls-10 {
+        letter-spacing: 0em;
+      }
+    </style>
+  </defs>
+  <g id="Layer_7" data-name="Layer 7">
+    <line class="cls-5" x1="9.09" y1="489.22" x2="13.34" y2="489.22"/>
+    <line class="cls-5" x1="13.34" y1="489.22" x2="193.91" y2="489.22"/>
+    <line class="cls-5" x1="16.17" y1="482.48" x2="10.5" y2="495.95"/>
+    <line class="cls-5" x1="239.53" y1="489.22" x2="438.54" y2="489.22"/>
+    <line class="cls-5" x1="435.7" y1="495.95" x2="441.37" y2="482.48"/>
+    <line class="cls-5" x1="438.54" y1="489.22" x2="442.79" y2="489.22"/>
+    <line class="cls-5" x1="13.34" y1="501.84" x2="13.34" y2="476.59"/>
+    <line class="cls-5" x1="438.54" y1="501.84" x2="438.54" y2="476.59"/>
+    <text class="cls-8" transform="translate(198.27 492.49)"><tspan x="0" y="0">3 met</tspan><tspan class="cls-7" x="23.26" y="0">r</tspan><tspan x="26.3" y="0">os </tspan></text>
+    <text class="cls-8" transform="translate(173.28 24.04)"><tspan x="0" y="0">Vista superio</tspan><tspan class="cls-3" x="53.03" y="0">r</tspan><tspan class="cls-10" x="55.99" y="0">/cenital</tspan></text>
+    <text class="cls-8" transform="translate(156.71 15.07)"><tspan class="cls-2" x="0" y="0">P</tspan><tspan x="5.36" y="0">aque</tspan><tspan class="cls-1" x="25.62" y="0">t</tspan><tspan x="28.66" y="0">e: 9 met</tspan><tspan class="cls-7" x="61.32" y="0">r</tspan><tspan x="64.36" y="0">os cuad</tspan><tspan class="cls-9" x="96.14" y="0">r</tspan><tspan x="99.29" y="0">ados </tspan></text>
+  </g>
+  <g id="Layer_5" data-name="Layer 5">
+    <g>
+      <polyline class="cls-4" points="438.57 44.53 438.57 38.53 432.57 38.53"/>
+      <line class="cls-6" x1="419.57" y1="38.53" x2="25.88" y2="38.53"/>
+      <polyline class="cls-4" points="19.38 38.53 13.38 38.53 13.38 44.53"/>
+      <line class="cls-6" x1="13.38" y1="57.53" x2="13.38" y2="451.22"/>
+      <polyline class="cls-4" points="13.38 457.72 13.38 463.72 19.38 463.72"/>
+      <line class="cls-6" x1="32.38" y1="463.72" x2="426.07" y2="463.72"/>
+      <polyline class="cls-4" points="432.57 463.72 438.57 463.72 438.57 457.72"/>
+      <line class="cls-6" x1="438.57" y1="444.72" x2="438.57" y2="51.03"/>
+    </g>
+  </g>
+</svg>
