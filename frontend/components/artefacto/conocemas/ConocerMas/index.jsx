@@ -12,7 +12,7 @@ import SubtemaSection from './SubtemaSection';
 
 const PHOTO_SPEED = 1.6;
 const NAVBAR_HEIGHT = 80;
-const DESKTOP_BREAKPOINT = 1024;
+const DESKTOP_BREAKPOINT = 1180; // Subido para que iPads usen versión móvil
 const MOBILE_LOGO_FINAL_TOP = 16;
 const MOBILE_STICKY_TOP = 10;
 
@@ -403,12 +403,12 @@ export default function ConocerMas() {
         {/* Logo - empieza en el centro del hero y sube al navbar */}
         <div
           ref={mobileLogoRef}
-          className="fixed left-0 z-20 px-5"
+          className="fixed left-0 z-20 px-5 md:px-8"
           style={{
             top: `calc(37.5vh - 40px)`, // Posición inicial: centro del hero
           }}
         >
-          <img src={LOGO} alt="ARTE FACTO" className="w-40" />
+          <img src={LOGO} alt="ARTE FACTO" className="w-40 md:w-52" />
         </div>
 
         {/* Hero móvil */}
@@ -431,21 +431,21 @@ export default function ConocerMas() {
               {/* Título sticky que se empuja */}
               <div
                 ref={(el) => { if (el) mobileLabelRefs.current[idx] = el; }}
-                className="sticky z-10 bg-crema px-5 py-3 border-b border-rojo/50"
+                className="sticky z-10 bg-crema px-5 md:px-8 py-3 md:py-4 border-b border-rojo/50"
                 style={{ top: `${NAVBAR_HEIGHT + MOBILE_STICKY_TOP}px` }}
               >
-                <div className="flex justify-between">
-                  <span className="text-rojo text-2xl font-black italic tracking-tight">{s.words[0]}</span>
-                  <span className="text-rojo text-2xl font-black italic tracking-tight">{s.words[1]}</span>
+                <div className="flex justify-between max-w-3xl mx-auto">
+                  <span className="text-rojo text-2xl md:text-3xl font-black italic tracking-tight">{s.words[0]}</span>
+                  <span className="text-rojo text-2xl md:text-3xl font-black italic tracking-tight">{s.words[1]}</span>
                 </div>
               </div>
 
               {/* Contenido de la sección */}
-              <div className="px-5 py-8 pb-16">
+              <div className="px-5 md:px-8 py-8 pb-16 max-w-3xl mx-auto">
                 {s.isIntro ? (
                   <>
                     {/* Contenido de CONOCE MÁS */}
-                    <p className="text-base leading-relaxed text-tinta mb-8">
+                    <p className="text-base md:text-lg leading-relaxed text-tinta mb-8">
                       {INTRO}
                     </p>
                     <img
@@ -457,11 +457,11 @@ export default function ConocerMas() {
                 ) : (
                   <>
                     {/* Etimología */}
-                    <div className="grid grid-cols-2 gap-4 mb-8">
+                    <div className="grid grid-cols-2 gap-4 md:gap-8 mb-8">
                       {s.etim.map((e) => (
                         <div key={e.word}>
-                          <div className="text-rojo text-base font-black italic">{e.word}</div>
-                          <p className="text-sm text-tinta/70 mt-1 leading-snug">{e.def}</p>
+                          <div className="text-rojo text-base md:text-xl font-black italic">{e.word}</div>
+                          <p className="text-sm md:text-base text-tinta/70 mt-1 leading-snug">{e.def}</p>
                         </div>
                       ))}
                     </div>
@@ -476,11 +476,11 @@ export default function ConocerMas() {
                     )}
 
                     {/* Bloques de contenido */}
-                    <div className="space-y-5">
+                    <div className="space-y-5 md:space-y-6">
                       {s.blocks.map((b, i) => {
                         if (b.type === 'intro') {
                           return (
-                            <p key={i} className="text-base leading-relaxed">
+                            <p key={i} className="text-base md:text-lg leading-relaxed">
                               {INTRO}
                             </p>
                           );
@@ -488,8 +488,8 @@ export default function ConocerMas() {
                         if (b.type === 'etimExtra') {
                           return (
                             <div key={i} className="mb-10">
-                              <div className="text-rojo text-xl font-black italic">{b.word}</div>
-                              <p className="text-sm text-tinta/70 mt-2 max-w-[280px]">
+                              <div className="text-rojo text-xl md:text-2xl font-black italic">{b.word}</div>
+                              <p className="text-sm md:text-base text-tinta/70 mt-2 max-w-[320px]">
                                 <em>(lat.)</em>{b.def.replace('(lat.)', '')}
                               </p>
                             </div>
@@ -497,21 +497,21 @@ export default function ConocerMas() {
                         }
                         if (b.type === 'h2') {
                           return (
-                            <h2 key={i} className="text-2xl font-bold text-tinta leading-tight pt-4">
+                            <h2 key={i} className="text-2xl md:text-3xl font-bold text-tinta leading-tight pt-4">
                               {b.text}
                             </h2>
                           );
                         }
                         if (b.type === 'h3') {
                           return (
-                            <h3 key={i} className="text-lg font-black italic text-rojo pt-2">
+                            <h3 key={i} className="text-lg md:text-xl font-black italic text-rojo pt-2">
                               {b.text}
                             </h3>
                           );
                         }
                         if (b.type === 'kicker') {
                           return (
-                            <div key={i} className="text-base font-black italic text-rojo pt-6">
+                            <div key={i} className="text-base md:text-lg font-black italic text-rojo pt-6">
                               {b.text}
                             </div>
                           );
@@ -527,7 +527,7 @@ export default function ConocerMas() {
                           );
                         }
                         return (
-                          <p key={i} className="text-base leading-relaxed">
+                          <p key={i} className="text-base md:text-lg leading-relaxed">
                             {b.strongLead && <strong className="font-bold">{b.strongLead}</strong>}
                             {b.text}
                           </p>
@@ -550,15 +550,15 @@ export default function ConocerMas() {
           ))}
 
           {/* Cierre */}
-          <div className="px-5 py-12 border-t border-rojo">
-            <div className="text-rojo text-xl font-black italic text-center">
+          <div className="px-5 md:px-8 py-12 border-t border-rojo">
+            <div className="text-rojo text-xl md:text-2xl font-black italic text-center max-w-3xl mx-auto">
               {CIERRE}
             </div>
           </div>
 
           {/* Grid de fotos final */}
-          <div className="px-5 pb-12">
-            <div className="grid grid-cols-2 gap-3">
+          <div className="px-5 md:px-8 pb-12 max-w-3xl mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
               {mobilePhotos.slice(5).map((photo, i) => (
                 <img
                   key={i}
