@@ -341,7 +341,7 @@ export default function CalendarSection({ isActive = true }) {
     <section id="calendario" className="pt-16 pb-8 bg-[#E8DED0] min-h-screen flex items-center">
       <div className="container mx-auto px-4">
         {/* Main Content: Calendar + Event Display */}
-        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
 
           {/* LEFT: Calendar - Sin card, flotante - altura fija para evitar saltos */}
           <div className="p-4" style={{ minHeight: '420px' }}>
