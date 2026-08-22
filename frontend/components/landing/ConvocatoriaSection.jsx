@@ -82,7 +82,7 @@ export default function ConvocatoriaSection() {
   const convocatoriaData = {
     title: hayInscripcionesAbiertas ? 'Convocatoria Abierta' : 'Próxima Convocatoria',
     description: 'Invitamos a artistas emergentes a formar parte de ARTEFACT 2027. Participa en nuestro proceso de selección por fases y comparte tu talento con coleccionistas y amantes del arte.',
-    pdfUrl: '/pdfs/Convocatoria_ARTEFACTO.pdf',
+    pdfUrl: '/convocatoria-artefacto.pdf',
     requirements: [
       'Ser mayor de 18 años',
       'Obra original y de autoría propia',

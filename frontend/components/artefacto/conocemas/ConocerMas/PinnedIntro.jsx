@@ -15,14 +15,15 @@ export default function PinnedIntro({ pinRef, navbarHeight = 80 }) {
   return (
     <div
       ref={pinRef}
-      className="fixed z-[10] hidden bg-crema pb-[22px] border-b border-rojo/35"
+      className="fixed z-[10] hidden bg-crema pb-2 border-b border-rojo/35"
       style={{
         top: 0,
-        paddingTop: `${navbarHeight}px`,
+        // Alinear el borde inferior con el sticky label
+        paddingTop: `calc(${navbarHeight}px + min(24px, 1.2vw) + min(130px, 9.8vw) + 4px + 40px - 110px)`,
         paddingLeft: '17.59px',
       }}
     >
-      <p className={`m-0 pt-4 ${cls.body}`}>{INTRO}</p>
+      <p className={`m-0 ${cls.body}`}>{INTRO}</p>
     </div>
   );
 }

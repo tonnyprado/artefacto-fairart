@@ -250,7 +250,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
           </p>
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
             <HoverButton
-              href="/pdfs/Convocatoria_ARTEFACTO.pdf"
+              href="/convocatoria-artefacto.pdf"
               bg={COLORS.cream}
               color={COLORS.black}
               hoverBg={COLORS.black}
@@ -456,7 +456,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
               alignItems: 'center',
             }}>
               <HoverButton
-                href="/pdfs/Convocatoria_ARTEFACTO.pdf"
+                href="/convocatoria-artefacto.pdf"
                 bg={COLORS.cream}
                 color={COLORS.black}
                 hoverBg={COLORS.black}
