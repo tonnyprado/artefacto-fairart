@@ -680,3 +680,85 @@ export const getVotacionesCurador = async (req, res) => {
     })
   }
 }
+
+/**
+ * PUT /api/curadores/:id/reset-password
+ * Resetear contraseña de un curador (Solo admin)
+ */
+export const resetPasswordCurador = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { password } = req.body
+
+    if (!password) {
+      return res.status(400).json({
+        success: false,
+        error: 'La nueva contraseña es requerida'
+      })
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        error: 'La contraseña debe tener al menos 8 caracteres'
+      })
+    }
+
+    if (useDatabase()) {
+      // Buscar curador
+      const curadorResult = await pool.query(
+        'SELECT c.*, c.usuario_id FROM curadores c WHERE c.id = $1',
+        [id]
+      )
+
+      if (curadorResult.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Curador no encontrado'
+        })
+      }
+
+      const curador = curadorResult.rows[0]
+
+      // Hash nueva contraseña
+      const hashedPassword = await bcrypt.hash(password, 10)
+
+      // Actualizar contraseña del usuario
+      await pool.query(
+        'UPDATE usuarios SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+        [hashedPassword, curador.usuario_id]
+      )
+
+      return res.json({
+        success: true,
+        message: `Contraseña actualizada para ${curador.nombre} ${curador.apellido}`
+      })
+    }
+
+    // Fallback a mockData
+    const curador = curadores.find(c => c.id === parseInt(id))
+    if (!curador) {
+      return res.status(404).json({
+        success: false,
+        error: 'Curador no encontrado'
+      })
+    }
+
+    const usuario = usuarios.find(u => u.id === curador.usuario_id)
+    if (usuario) {
+      usuario.password = await hashPassword(password)
+      usuario.updated_at = now()
+    }
+
+    res.json({
+      success: true,
+      message: `Contraseña actualizada para ${curador.nombre} ${curador.apellido}`
+    })
+  } catch (error) {
+    console.error('Error al resetear contraseña:', error)
+    res.status(500).json({
+      success: false,
+      error: 'Error al resetear contraseña'
+    })
+  }
+}

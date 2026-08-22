@@ -243,6 +243,9 @@ export const curadoresApi = {
   desactivar: (id) =>
     api.put(`/curadores/${id}/desactivar`),
 
+  resetPassword: (id, password) =>
+    api.put(`/curadores/${id}/reset-password`, { password }),
+
   delete: (id) =>
     api.delete(`/curadores/${id}`)
 }

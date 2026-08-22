@@ -12,7 +12,8 @@ import {
   activarCurador,
   desactivarCurador,
   deleteCurador,
-  getVotacionesCurador
+  getVotacionesCurador,
+  resetPasswordCurador
 } from '../controllers/curadores.controller.js'
 import { verifyToken, isAdmin, isAdminOrCurador } from '../middleware/auth.middleware.js'
 
@@ -28,6 +29,7 @@ router.post('/', verifyToken, isAdmin, createCurador)
 router.put('/:id', verifyToken, isAdmin, updateCurador)
 router.put('/:id/activar', verifyToken, isAdmin, activarCurador)
 router.put('/:id/desactivar', verifyToken, isAdmin, desactivarCurador)
+router.put('/:id/reset-password', verifyToken, isAdmin, resetPasswordCurador)
 router.delete('/:id', verifyToken, isAdmin, deleteCurador)
 
 export default router

@@ -258,6 +258,24 @@ export const useCuradoresStore = create((set, get) => ({
   },
 
   /**
+   * Resetear contraseña de curador (admin only)
+   */
+  resetPassword: async (id, password) => {
+    set({ isLoading: true, error: null })
+    try {
+      const response = await curadoresApi.resetPassword(id, password)
+      set({ isLoading: false })
+      return { success: true, message: response.message }
+    } catch (error) {
+      set({
+        error: error.message,
+        isLoading: false
+      })
+      return { success: false, error: error.message }
+    }
+  },
+
+  /**
    * Estadísticas locales
    */
   getEstadisticas: () => {

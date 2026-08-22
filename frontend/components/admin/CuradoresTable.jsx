@@ -45,6 +45,7 @@ export default function CuradoresTable() {
     updateCurador,
     deleteCurador,
     toggleActivo,
+    resetPassword,
     isLoading
   } = useCuradoresStore()
 
@@ -55,7 +56,9 @@ export default function CuradoresTable() {
 
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
+  const [showPasswordModal, setShowPasswordModal] = useState(false)
   const [selectedCurador, setSelectedCurador] = useState(null)
+  const [newPassword, setNewPassword] = useState('')
   const [formData, setFormData] = useState({
     nombre: '',
     apellido: '',
@@ -138,6 +141,28 @@ export default function CuradoresTable() {
     const accion = curador.activo ? 'desactivar' : 'activar'
     if (window.confirm(`¿Estás seguro de ${accion} a ${curador.nombre} ${curador.apellido}?`)) {
       await toggleActivo(curador.id, !curador.activo)
+    }
+  }
+
+  const handleShowPasswordModal = (curador) => {
+    setSelectedCurador(curador)
+    setNewPassword(generateTempPassword())
+    setShowPasswordModal(true)
+  }
+
+  const handleResetPassword = async () => {
+    if (!newPassword || newPassword.length < 8) {
+      alert('La contraseña debe tener al menos 8 caracteres')
+      return
+    }
+    const result = await resetPassword(selectedCurador.id, newPassword)
+    if (result.success) {
+      alert(`Contraseña actualizada.\n\nNueva contraseña: ${newPassword}\n\nCópiala y entrégala al curador de forma segura.`)
+      setShowPasswordModal(false)
+      setSelectedCurador(null)
+      setNewPassword('')
+    } else {
+      alert('Error: ' + result.error)
     }
   }
 
@@ -280,6 +305,16 @@ export default function CuradoresTable() {
                           ) : (
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                           )}
+                        </svg>
+                      </button>
+
+                      <button
+                        onClick={() => handleShowPasswordModal(curador)}
+                        className="text-purple-600 hover:text-purple-800 transition-colors"
+                        title="Cambiar contraseña"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                         </svg>
                       </button>
 
@@ -499,6 +534,78 @@ export default function CuradoresTable() {
             />
           </div>
         </form>
+      </Modal>
+
+      {/* Modal Cambiar Contraseña */}
+      <Modal
+        isOpen={showPasswordModal}
+        onClose={() => setShowPasswordModal(false)}
+        title="Cambiar Contraseña"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setShowPasswordModal(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleResetPassword}>
+              Cambiar Contraseña
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          {selectedCurador && (
+            <p className="text-gray-600">
+              Cambiar contraseña para: <strong>{selectedCurador.nombre} {selectedCurador.apellido}</strong>
+            </p>
+          )}
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Nueva Contraseña
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full px-4 py-2 pr-24 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono"
+                placeholder="Mínimo 8 caracteres"
+              />
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="px-2 py-1 text-xs text-gray-600 hover:text-gray-800 bg-gray-100 rounded"
+                >
+                  {showPassword ? 'Ocultar' : 'Ver'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(newPassword)
+                    alert('Contraseña copiada al portapapeles')
+                  }}
+                  className="px-2 py-1 text-xs text-blue-600 hover:text-blue-800 bg-blue-50 rounded"
+                >
+                  Copiar
+                </button>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setNewPassword(generateTempPassword())}
+              className="text-sm text-purple-600 hover:text-purple-800 underline"
+            >
+              Generar nueva contraseña
+            </button>
+          </div>
+
+          <div className="bg-amber-50 border-l-4 border-amber-400 p-4">
+            <p className="text-sm text-amber-700">
+              <strong>Importante:</strong> Copia esta contraseña y entrégala al curador de forma segura.
+            </p>
+          </div>
+        </div>
       </Modal>
     </div>
   )
