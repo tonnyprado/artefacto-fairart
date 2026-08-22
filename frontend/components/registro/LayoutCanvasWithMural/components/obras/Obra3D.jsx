@@ -30,7 +30,11 @@ export function Obra3D({
   otrasObras,
   areaDelimitada,
   freeArea,
-  obraIndex = 0
+  obraIndex = 0,
+  onCursorDragStart,
+  onCursorDragEnd,
+  onCursorMouseEnter,
+  onCursorMouseLeave
 }) {
   const areaRestriccion = areaDelimitada || freeArea
 
@@ -54,6 +58,7 @@ export function Obra3D({
   const handleDragStart = () => {
     resetCollision()
     onDragMove && onDragMove(obra.id, obra.x, obra.y, obra.width, obra.height, false)
+    onCursorDragStart && onCursorDragStart()
   }
 
   const handleDragMove = (e) => {
@@ -102,6 +107,7 @@ export function Obra3D({
     const finalCollision = isColliding
     resetCollision()
     onDragMove && onDragMove(null, null, null, null, null, false)
+    onCursorDragEnd && onCursorDragEnd()
     // Si hay colisión, usar la última posición válida guardada
     // Si no hay colisión, usar la posición final
     onDragEnd(obra.id, finalX, finalY, finalCollision, lastValidPos)
@@ -130,6 +136,8 @@ export function Obra3D({
         onDragEnd={handleDragEnd}
         onClick={handleSelect}
         onTap={handleSelect}
+        onMouseEnter={() => onCursorMouseEnter && onCursorMouseEnter()}
+        onMouseLeave={() => onCursorMouseLeave && onCursorMouseLeave()}
         shadowBlur={isSelected ? SHADOWS.large.blur : SHADOWS.small.blur}
         shadowColor={COLORS.black}
         shadowOpacity={SHADOWS.large.opacity}

@@ -28,7 +28,11 @@ export function Obra2D({
   onDelete,
   otrasObras,
   areaDelimitada,
-  freeArea
+  freeArea,
+  onCursorDragStart,
+  onCursorDragEnd,
+  onCursorMouseEnter,
+  onCursorMouseLeave
 }) {
   const [image, status] = useImage(obra.preview, 'anonymous')
   const areaRestriccion = areaDelimitada || freeArea
@@ -50,6 +54,7 @@ export function Obra2D({
   const handleDragStart = () => {
     resetCollision()
     onDragMove && onDragMove(obra.id, obra.x, obra.y, obra.width, obra.height, false)
+    onCursorDragStart && onCursorDragStart()
   }
 
   const handleDragMove = (e) => {
@@ -98,6 +103,7 @@ export function Obra2D({
     const finalCollision = isColliding
     resetCollision()
     onDragMove && onDragMove(null, null, null, null, null, false)
+    onCursorDragEnd && onCursorDragEnd()
     // Si hay colisión, usar la última posición válida guardada
     // Si no hay colisión, usar la posición final
     onDragEnd(obra.id, finalX, finalY, finalCollision, lastValidPos)
@@ -165,6 +171,8 @@ export function Obra2D({
         onDragEnd={handleDragEnd}
         onClick={handleSelect}
         onTap={handleSelect}
+        onMouseEnter={() => onCursorMouseEnter && onCursorMouseEnter()}
+        onMouseLeave={() => onCursorMouseLeave && onCursorMouseLeave()}
         shadowBlur={isSelected ? SHADOWS.selected.blur : SHADOWS.medium.blur}
         shadowColor={COLORS.black}
         shadowOpacity={isSelected ? SHADOWS.selected.opacity : SHADOWS.medium.opacity}

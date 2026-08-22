@@ -83,6 +83,8 @@ export default function LayoutCanvasWithMural({
   const [dragGuide, setDragGuide] = useState({ x: null, y: null, width: null, height: null, isColliding: false })
   const [draggedFromRow, setDraggedFromRow] = useState(null)
   const [dropPreview, setDropPreview] = useState(null)
+  const [isDraggingObra, setIsDraggingObra] = useState(false) // Para cursor grab/grabbing
+  const [isHoveringObra, setIsHoveringObra] = useState(false) // Para cursor grab al hover
 
   // Hooks personalizados
   const { es3D, canvasWidth, canvasHeight, freeArea, plantillaURL, areaDelimitada } =
@@ -189,6 +191,23 @@ export default function LayoutCanvasWithMural({
 
   const handleDragMove = (obraId, x, y, width, height, isColliding) => {
     setDragGuide({ x, y, width, height, isColliding })
+  }
+
+  // Handlers para cursor de obras
+  const handleObraDragStart = () => {
+    setIsDraggingObra(true)
+  }
+
+  const handleObraDragEnd = () => {
+    setIsDraggingObra(false)
+  }
+
+  const handleObraMouseEnter = () => {
+    setIsHoveringObra(true)
+  }
+
+  const handleObraMouseLeave = () => {
+    setIsHoveringObra(false)
   }
 
   const handleDragEnd = (obraId, newX, newY, hasCollision, lastValidPos) => {
@@ -485,7 +504,9 @@ export default function LayoutCanvasWithMural({
             overflow: 'auto',
             background: 'white',
             borderRadius: '8px',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+            // Cursor dinámico: grabbing mientras arrastra, grab mientras hover, default si no
+            cursor: isDraggingObra ? 'grabbing' : (isHoveringObra ? 'grab' : 'default')
           }}
           onDragOver={handleCanvasDragOver}
           onDrop={handleCanvasDrop}
@@ -538,6 +559,10 @@ export default function LayoutCanvasWithMural({
                     areaDelimitada={areaDelimitada}
                     freeArea={freeArea}
                     obraIndex={index}
+                    onCursorDragStart={handleObraDragStart}
+                    onCursorDragEnd={handleObraDragEnd}
+                    onCursorMouseEnter={handleObraMouseEnter}
+                    onCursorMouseLeave={handleObraMouseLeave}
                   />
                 )
               })}
