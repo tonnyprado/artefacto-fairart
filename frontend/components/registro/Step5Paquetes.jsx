@@ -955,10 +955,10 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
                                   </span>
                                 )}
                                 <span style={{ background: 'rgba(184,48,48,0.1)', padding: '4px 8px', borderRadius: '6px', fontFamily: FONTS.body, fontSize: '11px', color: COLORS.black }}>
-                                  ${paquete.precio} MXN
+                                  ${(paquete.precio_fase1 || paquete.precio).toLocaleString('es-MX')} MXN
                                 </span>
                                 <span style={{ background: 'rgba(34, 197, 94, 0.2)', padding: '4px 8px', borderRadius: '6px', fontFamily: FONTS.body, fontSize: '9px', color: 'rgba(34, 197, 94, 0.95)', fontWeight: 700, textTransform: 'uppercase' }}>
-                                  Incluye IVA
+                                  −20% Fase I
                                 </span>
                               </div>
                               {!isConfirmed ? (
