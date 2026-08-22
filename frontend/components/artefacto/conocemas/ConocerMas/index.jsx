@@ -418,6 +418,13 @@ export default function ConocerMas() {
             alt="Centro Cultural Estación Indianilla"
             className="h-full w-full object-cover"
           />
+          {/* Indicador sutil de scroll */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-white/70 animate-bounce">
+            <span className="text-[10px] tracking-widest uppercase font-light">desliza</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </div>
         </div>
 
         {/* Contenido móvil */}
@@ -590,6 +597,13 @@ export default function ConocerMas() {
             alt="Centro Cultural Estación Indianilla"
             className="block h-full w-full object-cover"
           />
+          {/* Indicador sutil de scroll */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/70 animate-bounce">
+            <span className="text-xs tracking-widest uppercase font-light">desliza</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </div>
         </div>
 
         {/* Secciones de subtemas - cada una tiene su sticky label integrado */}

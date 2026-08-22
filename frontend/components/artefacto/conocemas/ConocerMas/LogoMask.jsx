@@ -16,7 +16,8 @@ export default function LogoMask({ maskRef, ghostRef, navbarHeight = 80 }) {
       style={{
         top: 0,
         paddingTop: `${navbarHeight}px`,
-        height: `calc(${navbarHeight}px + min(24px, 1.2vw) + min(130px, 9.8vw) + 18px + 35px)`,
+        // Solo cubre el logo, no el label - el label aparece justo debajo
+        height: `calc(${navbarHeight}px + min(24px, 1.2vw) + min(130px, 9.8vw))`,
       }}
     >
       <img
@@ -28,7 +29,7 @@ export default function LogoMask({ maskRef, ghostRef, navbarHeight = 80 }) {
       <div
         ref={ghostRef}
         className={`absolute left-[max(24px,3.75vw)] w-[min(232px,17.5vw)] transition-opacity duration-300 ${cls.labelRow}`}
-        style={{ top: `calc(${navbarHeight}px + min(24px, 1.2vw) + min(130px, 9.8vw) + 18px)` }}
+        style={{ top: `calc(${navbarHeight}px + min(24px, 1.2vw) + min(130px, 9.8vw))` }}
       >
         <span>CONOCE</span>
         <span>MÁS</span>

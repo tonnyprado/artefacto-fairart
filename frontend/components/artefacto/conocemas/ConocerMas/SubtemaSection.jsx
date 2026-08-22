@@ -82,8 +82,8 @@ function StickyLabel({ words, sectionId, labelRef, navbarHeight = NAVBAR_HEIGHT 
       onClick={handleClick}
       className={`sticky z-[11] cursor-pointer bg-crema ${cls.labelW} ${cls.labelPad} ${cls.rule} hover:bg-rojo/10 transition-colors`}
       style={{
-        // Posición sticky: misma posición que el ghost CONOCE MÁS (debajo del logo con 18px gap)
-        top: `calc(${navbarHeight}px + min(24px, 1.2vw) + min(130px, 9.8vw) + 18px)`,
+        // Posición sticky: misma posición que el ghost (justo debajo del logo)
+        top: `calc(${navbarHeight}px + min(24px, 1.2vw) + min(130px, 9.8vw))`,
         marginLeft: `calc(-25vw)`, // Compensar el ml-[25vw] del section
         marginBottom: '2vh',
         opacity: 0, // Empieza invisible, se controla via JS
