@@ -23,30 +23,89 @@ export function PaqueteDelimiter({ paquete, areaDelimitada, canvasWidth, canvasH
   // Metros del paquete
   const metros = paquete.tipo === '3D' ? paquete.metros_cuadrados : paquete.metros_lineales
 
+  // Para 3D: áreas superior e inferior del cuadrado
+  const topAreaHeight = delimiterY
+  const bottomAreaY = delimiterY + delimiterHeight
+  const bottomAreaHeight = canvasHeight - bottomAreaY
+
   return (
     <Group>
-      {/* Área de consideración IZQUIERDA - solo sombreado */}
-      {leftAreaWidth > 10 && (
-        <Rect
-          x={0}
-          y={0}
-          width={leftAreaWidth}
-          height={canvasHeight}
-          fill="rgba(0, 0, 0, 0.15)"
-          listening={false}
-        />
+      {/* ===== SOMBREADO PARA 2D: solo columnas izquierda y derecha ===== */}
+      {paquete.tipo !== '3D' && (
+        <>
+          {/* Área IZQUIERDA */}
+          {leftAreaWidth > 10 && (
+            <Rect
+              x={0}
+              y={0}
+              width={leftAreaWidth}
+              height={canvasHeight}
+              fill="rgba(0, 0, 0, 0.15)"
+              listening={false}
+            />
+          )}
+          {/* Área DERECHA */}
+          {rightAreaWidth > 10 && (
+            <Rect
+              x={rightAreaX}
+              y={0}
+              width={rightAreaWidth}
+              height={canvasHeight}
+              fill="rgba(0, 0, 0, 0.15)"
+              listening={false}
+            />
+          )}
+        </>
       )}
 
-      {/* Área de consideración DERECHA - solo sombreado */}
-      {rightAreaWidth > 10 && (
-        <Rect
-          x={rightAreaX}
-          y={0}
-          width={rightAreaWidth}
-          height={canvasHeight}
-          fill="rgba(0, 0, 0, 0.15)"
-          listening={false}
-        />
+      {/* ===== SOMBREADO PARA 3D: todo excepto el cuadrado delimitado ===== */}
+      {paquete.tipo === '3D' && (
+        <>
+          {/* Área SUPERIOR (todo el ancho) */}
+          {topAreaHeight > 0 && (
+            <Rect
+              x={0}
+              y={0}
+              width={canvasWidth}
+              height={topAreaHeight}
+              fill="rgba(0, 0, 0, 0.15)"
+              listening={false}
+            />
+          )}
+          {/* Área INFERIOR (todo el ancho) */}
+          {bottomAreaHeight > 0 && (
+            <Rect
+              x={0}
+              y={bottomAreaY}
+              width={canvasWidth}
+              height={bottomAreaHeight}
+              fill="rgba(0, 0, 0, 0.15)"
+              listening={false}
+            />
+          )}
+          {/* Área IZQUIERDA (solo altura del cuadrado) */}
+          {leftAreaWidth > 0 && (
+            <Rect
+              x={0}
+              y={delimiterY}
+              width={leftAreaWidth}
+              height={delimiterHeight}
+              fill="rgba(0, 0, 0, 0.15)"
+              listening={false}
+            />
+          )}
+          {/* Área DERECHA (solo altura del cuadrado) */}
+          {rightAreaWidth > 0 && (
+            <Rect
+              x={rightAreaX}
+              y={delimiterY}
+              width={rightAreaWidth}
+              height={delimiterHeight}
+              fill="rgba(0, 0, 0, 0.15)"
+              listening={false}
+            />
+          )}
+        </>
       )}
 
       {/* Para 2D: líneas verticales que cruzan todo el canvas */}
