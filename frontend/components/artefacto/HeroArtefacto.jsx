@@ -57,27 +57,17 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
             return { d, x, y };
           });
 
-          // En tablets, reducir cantidad de paths al 40% para mejor rendimiento
-          if (isTablet && pathsData.length > 50) {
-            const step = Math.ceil(pathsData.length / (pathsData.length * 0.4));
-            pathsData = pathsData.filter((_, i) => i % step === 0);
-          }
-
           // Encontrar bounds para normalizar
           const minX = Math.min(...pathsData.map(p => p.x));
           const maxX = Math.max(...pathsData.map(p => p.x));
           const minY = Math.min(...pathsData.map(p => p.y));
           const maxY = Math.max(...pathsData.map(p => p.y));
 
-          // Calcular delays - más rápidos en tablets
+          // Calcular delays basados en posición (onda diagonal)
           const paths = pathsData.map(({ d, x, y }) => {
             const normX = maxX > minX ? (x - minX) / (maxX - minX) : 0;
             const normY = maxY > minY ? (y - minY) / (maxY - minY) : 0;
-            // En tablets, delays más cortos para animación más rápida
-            const baseDelay = isTablet ? 0.1 : 0.2;
-            const multiplier = isTablet ? 0.03 : 0.045;
-            const randomFactor = isTablet ? 0.3 : 0.5;
-            const delay = +(baseDelay + (normY * 20 + normX * 7) * multiplier + rnd() * randomFactor).toFixed(2);
+            const delay = +(0.2 + (normY * 20 + normX * 7) * 0.045 + rnd() * 0.5).toFixed(2);
             return { d, delay };
           });
 

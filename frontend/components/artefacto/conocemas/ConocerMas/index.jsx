@@ -97,15 +97,7 @@ export default function ConocerMas() {
     const heroHeight = vh * 0.75;
     const logoInitialTop = (heroHeight / 2) - 40;
 
-    // Throttling agresivo para mejor rendimiento en tablets
-    const isTablet = isTabletDevice();
-    let lastFrameTime = 0;
-    const frameInterval = isTablet ? 42 : 16; // ~24fps en tablets, ~60fps en desktop
-
-    const frame = (currentTime) => {
-      // Throttle en tablets para mejor rendimiento
-      if (isTablet && currentTime - lastFrameTime < frameInterval) return;
-      lastFrameTime = currentTime;
+    const frame = () => {
       const scrollY = getScrollY();
       const stickyTop = NAVBAR_HEIGHT + MOBILE_STICKY_TOP;
 
@@ -202,11 +194,6 @@ export default function ConocerMas() {
     let introTop = null;
     let pinned = false;
 
-    // Detectar tablets para reducir frecuencia de animación agresivamente
-    const isTablet = isTabletDevice();
-    let lastFrameTime = 0;
-    const frameInterval = isTablet ? 42 : 16; // ~24fps en tablets, ~60fps en desktop
-
     // Usar quickSetter si está disponible, sino función directa
     const setTrackY = track && gsap?.quickSetter
       ? gsap.quickSetter(track, 'y', 'px')
@@ -235,11 +222,7 @@ export default function ConocerMas() {
       }
     };
 
-    const frame = (currentTime) => {
-      // Throttle en tablets para mejor rendimiento
-      if (isTablet && currentTime && currentTime - lastFrameTime < frameInterval) return;
-      if (currentTime) lastFrameTime = currentTime;
-
+    const frame = () => {
       const s = getScrollY();
       const vh = window.innerHeight || document.documentElement.clientHeight || 800;
       const sections = sectionRefs.current.filter(Boolean);
