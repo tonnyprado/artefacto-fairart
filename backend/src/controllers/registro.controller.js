@@ -362,6 +362,7 @@ export const registrarArtista = async (req, res) => {
         nombre: nuevoArtista.nombre,
         apellido: nuevoArtista.apellido,
         email: nuevoArtista.email,
+        telefono: nuevoArtista.telefono,
         folio: nuevoArtista.folio,
         categoria: nuevoArtista.categoria,
         // Info de fase/concurso

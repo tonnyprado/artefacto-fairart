@@ -220,8 +220,178 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
         </div>
       </div>
 
+      {/* Tu Lienzo */}
+      {formData.layout_canvas_url && (
+        <div ref={(el) => (sectionRefs.current[2] = el)} style={{ position: 'relative' }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '24px',
+            flexWrap: 'wrap',
+            gap: '16px'
+          }}>
+            <h3 style={{
+              fontFamily: FONTS.display,
+              fontWeight: FONTS.displayWeight,
+              fontStyle: FONTS.displayStyle,
+              fontSize: 'clamp(24px, 3vw, 32px)',
+              color: COLORS.cream,
+              margin: 0,
+              textTransform: 'uppercase',
+              letterSpacing: '0.03em'
+            }}>
+              Tu Lienzo
+            </h3>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                type="button"
+                onClick={handleDownloadPDF}
+                style={{
+                  padding: '10px 20px',
+                  background: COLORS.cream,
+                  color: COLORS.black,
+                  border: 'none',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  fontFamily: FONTS.body,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = COLORS.creamDark
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = COLORS.cream
+                }}
+              >
+                Descargar
+              </button>
+              <EditButton onClick={() => onEdit(2)} /> {/* Paso 2: Tu Lienzo */}
+            </div>
+          </div>
+
+          {/* Preview del canvas */}
+          <div style={{
+            background: 'white',
+            borderRadius: '16px',
+            overflow: 'hidden',
+            marginBottom: '20px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+          }}>
+            <img
+              src={formData.layout_canvas_url}
+              alt="Preview de tu lienzo"
+              style={{
+                width: '100%',
+                height: 'auto',
+                display: 'block'
+              }}
+            />
+          </div>
+
+          {/* Info del paquete y obras */}
+          {formData.layout_canvas_data && (
+            <div style={{
+              background: 'rgba(244, 237, 228, 0.1)',
+              backdropFilter: 'blur(10px)',
+              padding: '24px',
+              borderRadius: '16px',
+              border: `1px solid rgba(244, 237, 228, 0.2)`
+            }}>
+              <div style={{
+                display: 'flex',
+                gap: '20px',
+                flexWrap: 'wrap',
+                marginBottom: formData.layout_canvas_data.obras?.length > 0 ? '24px' : '0'
+              }}>
+                <div style={{
+                  flex: '1',
+                  minWidth: '200px'
+                }}>
+                  <span style={{ fontSize: '13px', color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '4px' }}>
+                    Paquete Seleccionado
+                  </span>
+                  <span style={{
+                    fontSize: '20px',
+                    fontWeight: '700',
+                    color: COLORS.cream,
+                    fontFamily: FONTS.display,
+                    fontStyle: FONTS.displayStyle,
+                    textTransform: 'uppercase'
+                  }}>
+                    {formData.layout_canvas_data.paquete_nombre || 'N/A'}
+                  </span>
+                </div>
+                <div style={{
+                  flex: '1',
+                  minWidth: '200px'
+                }}>
+                  <span style={{ fontSize: '13px', color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '4px' }}>
+                    Metros Lineales
+                  </span>
+                  <span style={{
+                    fontSize: '20px',
+                    fontWeight: '700',
+                    color: COLORS.cream,
+                    fontFamily: FONTS.display,
+                    fontStyle: FONTS.displayStyle
+                  }}>
+                    {formData.layout_canvas_data.metros_lineales
+                      ? `${formData.layout_canvas_data.metros_lineales}m`
+                      : 'N/A'}
+                  </span>
+                </div>
+                <div style={{
+                  flex: '1',
+                  minWidth: '200px'
+                }}>
+                  <span style={{ fontSize: '13px', color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '4px' }}>
+                    Obras Registradas
+                  </span>
+                  <span style={{
+                    fontSize: '20px',
+                    fontWeight: '700',
+                    color: COLORS.cream,
+                    fontFamily: FONTS.display,
+                    fontStyle: FONTS.displayStyle
+                  }}>
+                    {formData.layout_canvas_data.obras?.length || 0}
+                  </span>
+                </div>
+              </div>
+
+              {/* Lista de obras con galería animada */}
+              {formData.layout_canvas_data.obras && formData.layout_canvas_data.obras.length > 0 && (
+                <div>
+                  <span style={{
+                    fontSize: '14px',
+                    color: COLORS.cream,
+                    opacity: 0.7,
+                    display: 'block',
+                    marginBottom: '16px',
+                    fontFamily: FONTS.body
+                  }}>
+                    Obras en tu lienzo (click para ver detalle):
+                  </span>
+                  <FlipGallery
+                    obras={formData.layout_canvas_data.obras}
+                    columns={3}
+                    gap={16}
+                    variant="dark"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Información Artística */}
-      <div ref={(el) => (sectionRefs.current[2] = el)} style={{ position: 'relative' }}>
+      <div ref={(el) => (sectionRefs.current[3] = el)} style={{ position: 'relative' }}>
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -329,7 +499,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
       </div>
 
       {/* Documentos */}
-      <div ref={(el) => (sectionRefs.current[3] = el)} style={{ position: 'relative' }}>
+      <div ref={(el) => (sectionRefs.current[4] = el)} style={{ position: 'relative' }}>
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -506,176 +676,6 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
           </div>
         </div>
       </div>
-
-      {/* Tu Lienzo */}
-      {formData.layout_canvas_url && (
-        <div ref={(el) => (sectionRefs.current[4] = el)} style={{ position: 'relative' }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '24px',
-            flexWrap: 'wrap',
-            gap: '16px'
-          }}>
-            <h3 style={{
-              fontFamily: FONTS.display,
-              fontWeight: FONTS.displayWeight,
-              fontStyle: FONTS.displayStyle,
-              fontSize: 'clamp(24px, 3vw, 32px)',
-              color: COLORS.cream,
-              margin: 0,
-              textTransform: 'uppercase',
-              letterSpacing: '0.03em'
-            }}>
-              Tu Lienzo
-            </h3>
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button
-                type="button"
-                onClick={handleDownloadPDF}
-                style={{
-                  padding: '10px 20px',
-                  background: COLORS.cream,
-                  color: COLORS.black,
-                  border: 'none',
-                  borderRadius: '12px',
-                  cursor: 'pointer',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  fontFamily: FONTS.body,
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = COLORS.creamDark
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = COLORS.cream
-                }}
-              >
-                Descargar
-              </button>
-              <EditButton onClick={() => onEdit(2)} /> {/* Paso 2: Tu Lienzo */}
-            </div>
-          </div>
-
-          {/* Preview del canvas */}
-          <div style={{
-            background: 'white',
-            borderRadius: '16px',
-            overflow: 'hidden',
-            marginBottom: '20px',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
-          }}>
-            <img
-              src={formData.layout_canvas_url}
-              alt="Preview de tu lienzo"
-              style={{
-                width: '100%',
-                height: 'auto',
-                display: 'block'
-              }}
-            />
-          </div>
-
-          {/* Info del paquete y obras */}
-          {formData.layout_canvas_data && (
-            <div style={{
-              background: 'rgba(244, 237, 228, 0.1)',
-              backdropFilter: 'blur(10px)',
-              padding: '24px',
-              borderRadius: '16px',
-              border: `1px solid rgba(244, 237, 228, 0.2)`
-            }}>
-              <div style={{
-                display: 'flex',
-                gap: '20px',
-                flexWrap: 'wrap',
-                marginBottom: formData.layout_canvas_data.obras?.length > 0 ? '24px' : '0'
-              }}>
-                <div style={{
-                  flex: '1',
-                  minWidth: '200px'
-                }}>
-                  <span style={{ fontSize: '13px', color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '4px' }}>
-                    Paquete Seleccionado
-                  </span>
-                  <span style={{
-                    fontSize: '20px',
-                    fontWeight: '700',
-                    color: COLORS.cream,
-                    fontFamily: FONTS.display,
-                    fontStyle: FONTS.displayStyle,
-                    textTransform: 'uppercase'
-                  }}>
-                    {formData.layout_canvas_data.paquete_nombre || 'N/A'}
-                  </span>
-                </div>
-                <div style={{
-                  flex: '1',
-                  minWidth: '200px'
-                }}>
-                  <span style={{ fontSize: '13px', color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '4px' }}>
-                    Metros Lineales
-                  </span>
-                  <span style={{
-                    fontSize: '20px',
-                    fontWeight: '700',
-                    color: COLORS.cream,
-                    fontFamily: FONTS.display,
-                    fontStyle: FONTS.displayStyle
-                  }}>
-                    {formData.layout_canvas_data.metros_lineales
-                      ? `${formData.layout_canvas_data.metros_lineales}m`
-                      : 'N/A'}
-                  </span>
-                </div>
-                <div style={{
-                  flex: '1',
-                  minWidth: '200px'
-                }}>
-                  <span style={{ fontSize: '13px', color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '4px' }}>
-                    Obras Registradas
-                  </span>
-                  <span style={{
-                    fontSize: '20px',
-                    fontWeight: '700',
-                    color: COLORS.cream,
-                    fontFamily: FONTS.display,
-                    fontStyle: FONTS.displayStyle
-                  }}>
-                    {formData.layout_canvas_data.obras?.length || 0}
-                  </span>
-                </div>
-              </div>
-
-              {/* Lista de obras con galería animada */}
-              {formData.layout_canvas_data.obras && formData.layout_canvas_data.obras.length > 0 && (
-                <div>
-                  <span style={{
-                    fontSize: '14px',
-                    color: COLORS.cream,
-                    opacity: 0.7,
-                    display: 'block',
-                    marginBottom: '16px',
-                    fontFamily: FONTS.body
-                  }}>
-                    Obras en tu lienzo (click para ver detalle):
-                  </span>
-                  <FlipGallery
-                    obras={formData.layout_canvas_data.obras}
-                    columns={3}
-                    gap={16}
-                    variant="dark"
-                  />
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Términos y Condiciones */}
       <div ref={(el) => (sectionRefs.current[5] = el)} style={{

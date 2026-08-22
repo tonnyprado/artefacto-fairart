@@ -431,7 +431,7 @@ export const enviarConfirmacionRegistro = async (artista) => {
  */
 export const notificarNuevoArtista = async (artista) => {
   const {
-    nombre, apellido, email, folio, categoria,
+    nombre, apellido, email, telefono, folio, categoria,
     faseNombre, faseTipo, faseNumero,
     paqueteNombre, paqueteTipo, paquetePrecio, paqueteMetros
   } = artista
@@ -447,6 +447,7 @@ export const notificarNuevoArtista = async (artista) => {
         apellido,
         nombreCompleto: `${nombre} ${apellido}`,
         email,
+        telefono: telefono || 'No proporcionado',
         folio,
         categoria,
         // Fase/Concurso
@@ -458,7 +459,7 @@ export const notificarNuevoArtista = async (artista) => {
         paqueteNombre: paqueteNombre || 'Sin paquete',
         paqueteTipo: paqueteTipo || '',
         paquetePrecio: paquetePrecio ? `$${parseFloat(paquetePrecio).toLocaleString('es-MX')} MXN` : '',
-        paqueteMetros: paqueteMetros || '',
+        paqueteMetros: paqueteMetros ? `${paqueteMetros}m` : '',
         adminUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/admin`
       }
     })

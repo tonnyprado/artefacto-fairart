@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect } from 'react'
-import { Group, Rect, Text } from 'react-konva'
+import { useEffect, useState } from 'react'
+import { Group, Rect, Text, Image } from 'react-konva'
 import { useObraCollision } from '../../hooks/useObraCollision'
 import { ObraDeleteButton, ObraDragIndicator } from './ObraDeleteButton'
 import { COLORS, COMPONENT_SIZES, SHADOWS } from '../../constants/style.constants'
@@ -49,6 +49,25 @@ export function Obra3D({
   } = useObraCollision(obra, otrasObras, areaRestriccion)
 
   const numeroObra = obraIndex + 1
+
+  // Estado para la imagen de la obra
+  const [obraImage, setObraImage] = useState(null)
+  const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 })
+
+  // Cargar la imagen de la obra si existe preview
+  useEffect(() => {
+    if (obra.preview) {
+      const img = new window.Image()
+      img.crossOrigin = 'anonymous'
+      img.onload = () => {
+        setObraImage(img)
+        setImageDimensions({ width: img.width, height: img.height })
+      }
+      img.src = obra.preview
+    } else {
+      setObraImage(null)
+    }
+  }, [obra.preview])
 
   // Actualizar última posición válida cuando cambia la obra
   useEffect(() => {
@@ -143,52 +162,64 @@ export function Obra3D({
         shadowOpacity={SHADOWS.large.opacity}
       />
 
-      {/* Número grande identificador en esquina superior izquierda */}
-      <Rect
-        x={obra.x + 6}
-        y={obra.y + 6}
-        width={COMPONENT_SIZES.numberBadge.width}
-        height={COMPONENT_SIZES.numberBadge.height}
-        fill={COLORS.redPrimary}
-        cornerRadius={COMPONENT_SIZES.numberBadge.width / 2}
-        listening={false}
-      />
-      <Text
-        x={obra.x + 6}
-        y={obra.y + 6}
-        width={COMPONENT_SIZES.numberBadge.width}
-        height={COMPONENT_SIZES.numberBadge.height}
-        text={`${numeroObra}`}
-        fontSize={COMPONENT_SIZES.numberBadge.fontSize}
-        fontStyle="bold"
-        fill={COLORS.white}
-        align="center"
-        verticalAlign="middle"
-        listening={false}
-      />
+      {/* Imagen de la obra centrada en la base */}
+      {obraImage && imageDimensions.width > 0 && (() => {
+        // Calcular dimensiones de la imagen para que quepa centrada
+        // Usamos un margen del 15% en cada lado
+        const margin = 0.15
+        const availableWidth = obra.width * (1 - margin * 2)
+        const availableHeight = obra.height * (1 - margin * 2)
 
-      {/* Texto centrado con info de la escultura */}
-      <Text
-        x={obra.x}
-        y={obra.y + obra.height / 2 - 12}
-        text={obra.titulo || `Escultura ${numeroObra}`}
-        fontSize={13}
-        fontStyle="bold"
-        fill={COLORS.black}
-        width={obra.width}
-        align="center"
-        listening={false}
-      />
-      <Text
-        x={obra.x}
-        y={obra.y + obra.height / 2 + 4}
-        text={`${obra.ancho_cm} × ${obra.alto_cm} cm`}
-        fontSize={11}
-        fill={COLORS.grayDark}
-        width={obra.width}
-        align="center"
-        listening={false}
-      />
+        // Calcular escala manteniendo proporción
+        const scaleX = availableWidth / imageDimensions.width
+        const scaleY = availableHeight / imageDimensions.height
+        const scale = Math.min(scaleX, scaleY)
+
+        const imgWidth = imageDimensions.width * scale
+        const imgHeight = imageDimensions.height * scale
+
+        // Centrar la imagen
+        const imgX = obra.x + (obra.width - imgWidth) / 2
+        const imgY = obra.y + (obra.height - imgHeight) / 2
+
+        return (
+          <Image
+            image={obraImage}
+            x={imgX}
+            y={imgY}
+            width={imgWidth}
+            height={imgHeight}
+            listening={false}
+          />
+        )
+      })()}
+
+      {/* Texto de info solo si no hay imagen */}
+      {!obraImage && (
+        <>
+          <Text
+            x={obra.x}
+            y={obra.y + obra.height / 2 - 12}
+            text={obra.titulo || `Escultura ${numeroObra}`}
+            fontSize={13}
+            fontStyle="bold"
+            fill={COLORS.black}
+            width={obra.width}
+            align="center"
+            listening={false}
+          />
+          <Text
+            x={obra.x}
+            y={obra.y + obra.height / 2 + 4}
+            text={`${obra.ancho_cm} × ${obra.alto_cm} cm`}
+            fontSize={11}
+            fill={COLORS.grayDark}
+            width={obra.width}
+            align="center"
+            listening={false}
+          />
+        </>
+      )}
 
       {/* Indicadores cuando está seleccionada */}
       {isSelected && (
