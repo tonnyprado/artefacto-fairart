@@ -377,7 +377,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
         </button>
         <button
           type="button"
-          onClick={() => window.open('/docs/referencias-tu-lienzo.pdf', '_blank')}
+          onClick={() => window.open('/referencias-paquetes.pdf', '_blank')}
           style={{
             display: 'flex',
             alignItems: 'center',
