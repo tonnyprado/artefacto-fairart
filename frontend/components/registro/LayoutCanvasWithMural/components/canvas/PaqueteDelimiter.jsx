@@ -49,25 +49,45 @@ export function PaqueteDelimiter({ paquete, areaDelimitada, canvasWidth, canvasH
         />
       )}
 
-      {/* Líneas delimitantes verticales */}
-      <Line
-        points={[delimiterX, 0, delimiterX, canvasHeight]}
-        stroke="white"
-        strokeWidth={2}
-        dash={[10, 5]}
-        listening={false}
-      />
-      <Line
-        points={[delimiterX + delimiterWidth, 0, delimiterX + delimiterWidth, canvasHeight]}
-        stroke="white"
-        strokeWidth={2}
-        dash={[10, 5]}
-        listening={false}
-      />
+      {/* Para 2D: líneas verticales que cruzan todo el canvas */}
+      {paquete.tipo !== '3D' && (
+        <>
+          <Line
+            points={[delimiterX, 0, delimiterX, canvasHeight]}
+            stroke="white"
+            strokeWidth={2}
+            dash={[10, 5]}
+            listening={false}
+          />
+          <Line
+            points={[delimiterX + delimiterWidth, 0, delimiterX + delimiterWidth, canvasHeight]}
+            stroke="white"
+            strokeWidth={2}
+            dash={[10, 5]}
+            listening={false}
+          />
+        </>
+      )}
 
-      {/* Líneas delimitantes horizontales - solo para paquetes 3D (cuadrado) */}
+      {/* Para 3D: cuadrado completo del área delimitada */}
       {paquete.tipo === '3D' && (
         <>
+          {/* Línea izquierda */}
+          <Line
+            points={[delimiterX, delimiterY, delimiterX, delimiterY + delimiterHeight]}
+            stroke="white"
+            strokeWidth={2}
+            dash={[10, 5]}
+            listening={false}
+          />
+          {/* Línea derecha */}
+          <Line
+            points={[delimiterX + delimiterWidth, delimiterY, delimiterX + delimiterWidth, delimiterY + delimiterHeight]}
+            stroke="white"
+            strokeWidth={2}
+            dash={[10, 5]}
+            listening={false}
+          />
           {/* Línea superior */}
           <Line
             points={[delimiterX, delimiterY, delimiterX + delimiterWidth, delimiterY]}
