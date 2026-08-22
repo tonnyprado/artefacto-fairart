@@ -13,13 +13,11 @@ const getDeviceConfig = () => {
                   (navigator.maxTouchPoints > 1 && window.innerWidth >= 768 && window.innerWidth <= 1366)
   const isMobile = /iPhone|iPod|Android.*Mobile/i.test(ua) || window.innerWidth < 768
 
-  // Reducir pixelRatio en dispositivos móviles/tablets para mejor rendimiento
-  // iPad tiene pixelRatio de 2, pero renderizar a 2x es muy pesado para canvas
-  let pixelRatio = window.devicePixelRatio || 1
-  if (isTablet) {
-    pixelRatio = Math.min(pixelRatio, 1.5) // Máximo 1.5x en tablets
-  } else if (isMobile) {
-    pixelRatio = Math.min(pixelRatio, 1) // 1x en móviles
+  // Reducir pixelRatio agresivamente en tablets/móviles para mejor rendimiento
+  // iPad tiene pixelRatio de 2, pero renderizar a 2x es MUY pesado para Konva
+  let pixelRatio = 1 // Siempre 1x en tablets y móviles para máximo rendimiento
+  if (!isTablet && !isMobile) {
+    pixelRatio = Math.min(window.devicePixelRatio || 1, 2) // Desktop máximo 2x
   }
 
   return { isTablet, isMobile, pixelRatio }

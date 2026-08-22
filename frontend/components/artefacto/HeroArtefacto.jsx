@@ -14,6 +14,14 @@ const isTouchDevice = () => {
   );
 };
 
+// Helper para detectar tablets específicamente
+const isTabletDevice = () => {
+  if (typeof window === 'undefined') return false;
+  const ua = navigator.userAgent;
+  return /iPad|Android(?!.*Mobile)/i.test(ua) ||
+         (navigator.maxTouchPoints > 1 && window.innerWidth >= 768 && window.innerWidth <= 1366);
+};
+
 export default function HeroArtefacto({ startAnimation = true, exitAnimation = false, onOpenMenu }) {
   const heroRef = useRef(null);
   const svgContainerRef = useRef(null);
@@ -25,8 +33,10 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
     setIsTouch(isTouchDevice());
   }, []);
 
-  // Cargar SVG
+  // Cargar SVG - optimizado para tablets
   useEffect(() => {
+    const isTablet = isTabletDevice();
+
     fetch('/assets/fondohero1.svg')
       .then(res => res.text())
       .then(text => {
@@ -38,15 +48,20 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
           let seed = 7;
           const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
 
-          // Extraer coordenadas iniciales de cada path para calcular delays tipo onda diagonal
-          const pathsData = Array.from(svg.querySelectorAll('path')).map((p) => {
+          // Extraer coordenadas iniciales de cada path
+          let pathsData = Array.from(svg.querySelectorAll('path')).map((p) => {
             const d = p.getAttribute('d');
-            // Extraer primera coordenada M del path
             const match = d.match(/M([\d.]+)[,\s]([\d.]+)/);
             const x = match ? parseFloat(match[1]) : 0;
             const y = match ? parseFloat(match[2]) : 0;
             return { d, x, y };
           });
+
+          // En tablets, reducir cantidad de paths al 40% para mejor rendimiento
+          if (isTablet && pathsData.length > 50) {
+            const step = Math.ceil(pathsData.length / (pathsData.length * 0.4));
+            pathsData = pathsData.filter((_, i) => i % step === 0);
+          }
 
           // Encontrar bounds para normalizar
           const minX = Math.min(...pathsData.map(p => p.x));
@@ -54,13 +69,15 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
           const minY = Math.min(...pathsData.map(p => p.y));
           const maxY = Math.max(...pathsData.map(p => p.y));
 
-          // Calcular delays basados en posición (onda diagonal como el original)
+          // Calcular delays - más rápidos en tablets
           const paths = pathsData.map(({ d, x, y }) => {
-            // Normalizar posiciones a 0-1
             const normX = maxX > minX ? (x - minX) / (maxX - minX) : 0;
             const normY = maxY > minY ? (y - minY) / (maxY - minY) : 0;
-            // Fórmula similar al original: 0.2 + (row + col * 0.35) * 0.045 + random * 0.5
-            const delay = +(0.2 + (normY * 20 + normX * 7) * 0.045 + rnd() * 0.5).toFixed(2);
+            // En tablets, delays más cortos para animación más rápida
+            const baseDelay = isTablet ? 0.1 : 0.2;
+            const multiplier = isTablet ? 0.03 : 0.045;
+            const randomFactor = isTablet ? 0.3 : 0.5;
+            const delay = +(baseDelay + (normY * 20 + normX * 7) * multiplier + rnd() * randomFactor).toFixed(2);
             return { d, delay };
           });
 

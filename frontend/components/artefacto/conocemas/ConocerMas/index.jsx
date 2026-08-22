@@ -97,10 +97,10 @@ export default function ConocerMas() {
     const heroHeight = vh * 0.75;
     const logoInitialTop = (heroHeight / 2) - 40;
 
-    // Throttling para mejor rendimiento en tablets
+    // Throttling agresivo para mejor rendimiento en tablets
     const isTablet = isTabletDevice();
     let lastFrameTime = 0;
-    const frameInterval = isTablet ? 32 : 16; // ~30fps en tablets, ~60fps en desktop
+    const frameInterval = isTablet ? 42 : 16; // ~24fps en tablets, ~60fps en desktop
 
     const frame = (currentTime) => {
       // Throttle en tablets para mejor rendimiento
@@ -202,10 +202,10 @@ export default function ConocerMas() {
     let introTop = null;
     let pinned = false;
 
-    // Detectar tablets para reducir frecuencia de animación
+    // Detectar tablets para reducir frecuencia de animación agresivamente
     const isTablet = isTabletDevice();
     let lastFrameTime = 0;
-    const frameInterval = isTablet ? 32 : 16; // ~30fps en tablets, ~60fps en desktop
+    const frameInterval = isTablet ? 42 : 16; // ~24fps en tablets, ~60fps en desktop
 
     // Usar quickSetter si está disponible, sino función directa
     const setTrackY = track && gsap?.quickSetter

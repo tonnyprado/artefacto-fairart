@@ -104,12 +104,12 @@ export function useAnimationConfig() {
 
     if (device.isTablet) {
       return {
-        frameInterval: 32, // ~30fps
-        enableParallax: true,
+        frameInterval: 42, // ~24fps - optimizado para iPads más viejos
+        enableParallax: false, // Desactivar parallax en tablets
         enableComplexEffects: false,
         enableSmoothScroll: true,
-        scrollDuration: 0.8,
-        scrollLerp: 0.15,
+        scrollDuration: 0.9,
+        scrollLerp: 0.14,
       };
     }
 
