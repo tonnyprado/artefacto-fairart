@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56.68 64.34">
+  <defs>
+    <style>
+      .bg { fill: #B83030; }
+      .line { fill: none; stroke: #fff; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2px; }
+    </style>
+  </defs>
+  <circle class="bg" cx="28.34" cy="32.17" r="26"/>
+  <polyline class="line" points="16.57 27.04 18.3 53.17 39.43 53.17 41.42 27.04"/>
+  <path class="line" d="M11.95,26.33s-1.27-7.25,4.62-7.25h25.39s4.55-.06,3.87,6.77"/>
+  <path class="line" d="M25.2,15.16s-.02-4.99,3.47-4.99,3.22,4.99,3.22,4.99"/>
+  <line class="line" x1="22.95" y1="27.03" x2="23.65" y2="47.35"/>
+  <line class="line" x1="28.88" y1="27.04" x2="28.88" y2="47.35"/>
+  <line class="line" x1="35.23" y1="27.03" x2="34.32" y2="47.35"/>
+</svg>

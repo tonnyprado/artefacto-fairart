@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48.51 69.45">
+  <defs>
+    <style>
+      .bg { fill: #B83030; }
+      .line { fill: none; stroke: #fff; stroke-miterlimit: 10; stroke-width: 2px; stroke-linecap: round; }
+    </style>
+  </defs>
+  <circle class="bg" cx="23.12" cy="33.65" r="18.92"/>
+  <line class="line" x1="23.12" y1="21.67" x2="23.12" y2="45.13"/>
+  <line class="line" x1="11.39" y1="33.4" x2="34.85" y2="33.4"/>
+</svg>

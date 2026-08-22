@@ -1,7 +1,7 @@
 'use client'
 
-import { Group, Rect, Text } from 'react-konva'
-import { COLORS, COMPONENT_SIZES } from '../../constants/style.constants'
+import { Group, Image } from 'react-konva'
+import useImage from 'use-image'
 
 /**
  * Botón de eliminar para obras en el canvas
@@ -10,6 +10,9 @@ import { COLORS, COMPONENT_SIZES } from '../../constants/style.constants'
  * @param {Function} onClick - Callback al hacer click
  */
 export function ObraDeleteButton({ x, y, onClick }) {
+  const [deleteIcon] = useImage('/assets/icon-delete.svg')
+  const iconSize = 32
+
   const handleClick = (e) => {
     e.cancelBubble = true
     onClick()
@@ -17,31 +20,17 @@ export function ObraDeleteButton({ x, y, onClick }) {
 
   return (
     <Group>
-      {/* Fondo del botón QUITAR */}
-      <Rect
+      <Image
+        image={deleteIcon}
         x={x}
         y={y}
-        width={60}
-        height={24}
-        fill={COLORS.redPrimary}
-        cornerRadius={12}
+        width={iconSize}
+        height={iconSize}
         onClick={handleClick}
+        onTap={handleClick}
         shadowBlur={4}
         shadowColor="rgba(0,0,0,0.3)"
         shadowOffsetY={2}
-      />
-      <Text
-        x={x}
-        y={y}
-        width={60}
-        height={24}
-        text="QUITAR"
-        fontSize={10}
-        fontStyle="bold"
-        fill={COLORS.white}
-        align="center"
-        verticalAlign="middle"
-        onClick={handleClick}
       />
     </Group>
   )
@@ -54,34 +43,21 @@ export function ObraDeleteButton({ x, y, onClick }) {
  * @param {number} width - Ancho de la obra
  */
 export function ObraDragIndicator({ x, y, width }) {
-  const indicatorWidth = 80
-  const indicatorX = x + (width / 2) - (indicatorWidth / 2)
+  const [dragIcon] = useImage('/assets/icon-drag.svg')
+  const iconSize = 32
+  const indicatorX = x + (width / 2) - (iconSize / 2)
 
   return (
     <Group>
-      {/* Fondo del indicador ARRASTRAR */}
-      <Rect
+      <Image
+        image={dragIcon}
         x={indicatorX}
         y={y}
-        width={indicatorWidth}
-        height={24}
-        fill="rgba(20, 18, 16, 0.85)"
-        cornerRadius={12}
+        width={iconSize}
+        height={iconSize}
         shadowBlur={4}
         shadowColor="rgba(0,0,0,0.3)"
         shadowOffsetY={2}
-      />
-      <Text
-        x={indicatorX}
-        y={y}
-        width={indicatorWidth}
-        height={24}
-        text="⤭ ARRASTRAR"
-        fontSize={9}
-        fontStyle="bold"
-        fill="#ffffff"
-        align="center"
-        verticalAlign="middle"
       />
     </Group>
   )

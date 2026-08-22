@@ -46,7 +46,12 @@ export function ObrasGallery({
             onClick={() => fileInputRef.current?.click()}
             className={styles.btnAgregarObra}
           >
-            <span>+</span> Agregar obra
+            <img
+              src="/assets/icon-add.svg"
+              alt=""
+              style={{ width: '20px', height: '20px' }}
+            />
+            Agregar obra
           </button>
           <input
             ref={fileInputRef}

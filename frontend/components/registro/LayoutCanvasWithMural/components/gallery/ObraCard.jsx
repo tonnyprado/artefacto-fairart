@@ -134,7 +134,11 @@ export function ObraCard({
           onClick={() => onDelete(obra.id)}
           className={styles.btnEliminar}
         >
-          ×
+          <img
+            src="/assets/icon-delete.svg"
+            alt="Eliminar"
+            style={{ width: '20px', height: '20px' }}
+          />
         </button>
       </div>
     </div>
