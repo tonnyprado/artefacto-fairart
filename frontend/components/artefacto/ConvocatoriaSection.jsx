@@ -34,7 +34,7 @@ const CONTENIDO = {
     'Tu paquete incluye montaje, asesores de venta, catálogo digital, difusión y más.',
   ],
   fechas: [
-    { titulo: 'Fases', texto: 'I: 24 ago – 14 sept · II: 23 sept – 14 oct · III: 23 oct – 13 nov 2026.' },
+    { titulo: 'Fases', texto: 'I: 24 ago – 14 sept (−20%) · II: 23 sept – 14 oct (−10%) · III: 23 oct – 13 nov.' },
     { titulo: 'Resultados', texto: '22 sept · 22 oct · 20 nov 2026.' },
     { titulo: 'La feria', texto: '4 al 7 de febrero de 2027, Estación Indianilla, CDMX.' },
   ],
@@ -349,6 +349,26 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
                 </li>
               ))}
             </ul>
+          </div>
+
+          {/* Texto destacado de comisiones */}
+          <div style={{
+            marginBottom: 48,
+            padding: '24px 32px',
+            background: 'rgba(0,0,0,0.15)',
+            borderRadius: 12,
+            textAlign: 'center',
+            borderLeft: `4px solid ${COLORS.cream}`,
+          }}>
+            <p style={{
+              margin: 0,
+              fontSize: 17,
+              lineHeight: 1.6,
+              color: COLORS.cream,
+              fontFamily: FONTS.body,
+            }}>
+              <strong>Tú defines tu precio</strong> (sin IVA). En caso de venta: <strong>75% para el artista</strong>, 25% para ARTE FACTO.
+            </p>
           </div>
 
           {/* INFORMACIÓN DE REGISTRO - Grid organizado */}
