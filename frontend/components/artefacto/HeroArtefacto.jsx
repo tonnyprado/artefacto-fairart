@@ -4,10 +4,26 @@ import { gsap } from 'gsap';
 import { COLORS, FONTS } from './theme';
 import { useTextScrambleMultiple } from './useTextScramble';
 
+// Helper para detectar dispositivos táctiles
+const isTouchDevice = () => {
+  if (typeof window === 'undefined') return false;
+  return (
+    'ontouchstart' in window ||
+    navigator.maxTouchPoints > 0 ||
+    /iPad|iPhone|iPod|Android/i.test(navigator.userAgent)
+  );
+};
+
 export default function HeroArtefacto({ startAnimation = true, exitAnimation = false, onOpenMenu }) {
   const heroRef = useRef(null);
   const svgContainerRef = useRef(null);
   const [svgData, setSvgData] = useState(null);
+  const [isTouch, setIsTouch] = useState(false);
+
+  // Detectar si es dispositivo táctil
+  useEffect(() => {
+    setIsTouch(isTouchDevice());
+  }, []);
 
   // Cargar SVG
   useEffect(() => {
@@ -57,8 +73,10 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
   }, []);
 
   // Efecto de proximidad con el mouse - OPTIMIZADO con spatial partitioning
+  // DESACTIVADO en dispositivos táctiles para mejor rendimiento
   useEffect(() => {
-    if (!svgContainerRef.current || !svgData || exitAnimation) return;
+    // En tablets/móviles, no ejecutar este efecto - mejora significativa de rendimiento
+    if (isTouch || !svgContainerRef.current || !svgData || exitAnimation) return;
 
     const delay = startAnimation ? 2500 : 0;
     let cleanup = () => {};
@@ -173,7 +191,7 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
       clearTimeout(timeoutId);
       cleanup();
     };
-  }, [svgData, exitAnimation, startAnimation]);
+  }, [svgData, exitAnimation, startAnimation, isTouch]);
 
   // Botones de navegación
   const navButtons = [

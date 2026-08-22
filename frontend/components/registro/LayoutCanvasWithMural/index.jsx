@@ -1,8 +1,29 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { Stage, Layer, Group, Rect } from 'react-konva'
 import { layoutsApi } from '@/lib/api'
+
+// Helper para detectar dispositivos y optimizar rendimiento
+const getDeviceConfig = () => {
+  if (typeof window === 'undefined') return { isTablet: false, isMobile: false, pixelRatio: 1 }
+
+  const ua = navigator.userAgent
+  const isTablet = /iPad|Android(?!.*Mobile)/i.test(ua) ||
+                  (navigator.maxTouchPoints > 1 && window.innerWidth >= 768 && window.innerWidth <= 1366)
+  const isMobile = /iPhone|iPod|Android.*Mobile/i.test(ua) || window.innerWidth < 768
+
+  // Reducir pixelRatio en dispositivos móviles/tablets para mejor rendimiento
+  // iPad tiene pixelRatio de 2, pero renderizar a 2x es muy pesado para canvas
+  let pixelRatio = window.devicePixelRatio || 1
+  if (isTablet) {
+    pixelRatio = Math.min(pixelRatio, 1.5) // Máximo 1.5x en tablets
+  } else if (isMobile) {
+    pixelRatio = Math.min(pixelRatio, 1) // 1x en móviles
+  }
+
+  return { isTablet, isMobile, pixelRatio }
+}
 
 // Hooks
 import { useCanvasDimensions } from './hooks/useCanvasDimensions'
@@ -54,6 +75,9 @@ export default function LayoutCanvasWithMural({
   // Referencias
   const stageRef = useRef()
   const canvasWrapperRef = useRef()
+
+  // Configuración de dispositivo para optimización de rendimiento
+  const deviceConfig = useMemo(() => getDeviceConfig(), [])
 
   // Estado local - DEBE IR PRIMERO antes de los hooks que lo usan
   const [obrasEnCanvas, setObrasEnCanvas] = useState(initialLayout?.obras || [])
@@ -471,9 +495,15 @@ export default function LayoutCanvasWithMural({
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
-          <Stage ref={stageRef} width={canvasWidth + RULER_SIZE} height={canvasHeight + RULER_SIZE}>
-            {/* Layer de reglas */}
-            <Layer>
+          <Stage
+            ref={stageRef}
+            width={canvasWidth + RULER_SIZE}
+            height={canvasHeight + RULER_SIZE}
+            // Optimización: usar pixelRatio reducido en tablets/móviles
+            pixelRatio={deviceConfig.pixelRatio}
+          >
+            {/* Layer de reglas - listening:false para mejor rendimiento */}
+            <Layer listening={false}>
               <Rect
                 x={0}
                 y={0}

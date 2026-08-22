@@ -280,22 +280,31 @@ export default function LandingArtefacto() {
     checkMobile();
     window.addEventListener('resize', checkMobile);
 
-    // Lenis smooth scroll con configuración adaptativa
+    // Lenis smooth scroll con configuración adaptativa OPTIMIZADA
     (async () => {
       try {
         const { default: Lenis } = await import('lenis');
         const mobile = isMobile.current;
 
+        // Detectar iPad/tablet específicamente
+        const isTablet = /iPad|Android(?!.*Mobile)/i.test(navigator.userAgent) ||
+                        (navigator.maxTouchPoints > 1 && window.innerWidth >= 768);
+
         lenis.current = new Lenis({
           autoRaf: true,
-          duration: mobile ? 1.4 : 3.5,           // Desktop más pesado (3.5), móvil más ligero (1.4)
-          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Easing suave
-          lerp: mobile ? 0.12 : 0.04,             // Móvil más responsivo, desktop más suave y pesado
-          wheelMultiplier: mobile ? 1.0 : 0.45,   // Desktop más pesado
-          touchMultiplier: mobile ? 1.2 : 1.0,    // Móvil más rápido al tacto
-          smoothWheel: true,                      // Suavizar scroll de rueda
-          syncTouch: mobile,                      // ACTIVAR suavizado táctil en móvil
-          syncTouchLerp: mobile ? 0.10 : 0.04,    // Más suave
+          // Velocidades optimizadas - balance entre fluidez y control
+          duration: isTablet ? 1.0 : (mobile ? 1.1 : 1.4),  // Un poco más suave
+          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          lerp: isTablet ? 0.12 : (mobile ? 0.1 : 0.08),    // Ligeramente más suave
+          wheelMultiplier: isTablet ? 1.0 : (mobile ? 0.9 : 0.9), // Un poco más controlado
+          touchMultiplier: isTablet ? 1.6 : (mobile ? 1.4 : 1.1), // Tablets con buena sensibilidad
+          smoothWheel: true,
+          syncTouch: mobile || isTablet,          // También activar en tablets
+          syncTouchLerp: isTablet ? 0.12 : (mobile ? 0.10 : 0.08),
+          // Optimizaciones de rendimiento
+          infinite: false,
+          orientation: 'vertical',
+          gestureOrientation: 'vertical',
         });
       } catch { /* lenis no instalado — scroll nativo */ }
     })();

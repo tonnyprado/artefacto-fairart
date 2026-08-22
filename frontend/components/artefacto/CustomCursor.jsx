@@ -1,14 +1,33 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 
+// Helper para detectar dispositivos táctiles (tablets/móviles)
+const isTouchDevice = () => {
+  if (typeof window === 'undefined') return false;
+  return (
+    'ontouchstart' in window ||
+    navigator.maxTouchPoints > 0 ||
+    /iPad|iPhone|iPod|Android/i.test(navigator.userAgent)
+  );
+};
+
 export default function CustomCursor() {
   const cursorRef = useRef(null);
   const [isClicking, setIsClicking] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [isHovering, setIsHovering] = useState(false);
   const [isDraggable, setIsDraggable] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
+
+  // Detectar si debemos desactivar el cursor custom
+  useEffect(() => {
+    setIsDisabled(isTouchDevice());
+  }, []);
 
   useEffect(() => {
+    // No ejecutar en dispositivos táctiles - mejora rendimiento en iPad/tablets
+    if (isDisabled) return;
+
     const cursor = cursorRef.current;
     if (!cursor) return;
 
@@ -94,7 +113,12 @@ export default function CustomCursor() {
       document.removeEventListener('mouseleave', handleMouseLeave);
       cancelAnimationFrame(rafId);
     };
-  }, [isVisible]);
+  }, [isVisible, isDisabled]);
+
+  // No renderizar nada en dispositivos táctiles - mejora rendimiento significativo
+  if (isDisabled) {
+    return null;
+  }
 
   return (
     <div

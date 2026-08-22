@@ -24,6 +24,14 @@ const getScrollY = () => {
 // Helper para verificar si estamos en el cliente
 const isClient = typeof window !== 'undefined';
 
+// Helper para detectar iPad/tablets - para reducir animaciones
+const isTabletDevice = () => {
+  if (!isClient) return false;
+  const ua = navigator.userAgent;
+  return /iPad|Android(?!.*Mobile)/i.test(ua) ||
+         (navigator.maxTouchPoints > 1 && window.innerWidth >= 768 && window.innerWidth <= 1366);
+};
+
 /**
  * ConocerMas - Sección principal "CONOCE MÁS"
  *
@@ -89,7 +97,15 @@ export default function ConocerMas() {
     const heroHeight = vh * 0.75;
     const logoInitialTop = (heroHeight / 2) - 40;
 
-    const frame = () => {
+    // Throttling para mejor rendimiento en tablets
+    const isTablet = isTabletDevice();
+    let lastFrameTime = 0;
+    const frameInterval = isTablet ? 32 : 16; // ~30fps en tablets, ~60fps en desktop
+
+    const frame = (currentTime) => {
+      // Throttle en tablets para mejor rendimiento
+      if (isTablet && currentTime - lastFrameTime < frameInterval) return;
+      lastFrameTime = currentTime;
       const scrollY = getScrollY();
       const stickyTop = NAVBAR_HEIGHT + MOBILE_STICKY_TOP;
 
@@ -186,6 +202,11 @@ export default function ConocerMas() {
     let introTop = null;
     let pinned = false;
 
+    // Detectar tablets para reducir frecuencia de animación
+    const isTablet = isTabletDevice();
+    let lastFrameTime = 0;
+    const frameInterval = isTablet ? 32 : 16; // ~30fps en tablets, ~60fps en desktop
+
     // Usar quickSetter si está disponible, sino función directa
     const setTrackY = track && gsap?.quickSetter
       ? gsap.quickSetter(track, 'y', 'px')
@@ -214,7 +235,11 @@ export default function ConocerMas() {
       }
     };
 
-    const frame = () => {
+    const frame = (currentTime) => {
+      // Throttle en tablets para mejor rendimiento
+      if (isTablet && currentTime && currentTime - lastFrameTime < frameInterval) return;
+      if (currentTime) lastFrameTime = currentTime;
+
       const s = getScrollY();
       const vh = window.innerHeight || document.documentElement.clientHeight || 800;
       const sections = sectionRefs.current.filter(Boolean);
