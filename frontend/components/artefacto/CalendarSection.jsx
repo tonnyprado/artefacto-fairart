@@ -26,111 +26,102 @@ export default function CalendarSection({ isActive = true }) {
   // HARDCODED: Eventos del calendario con fechas específicas
   const calendarEvents = [
     {
-      day: 1,
+      day: 24,
       month: 'Agosto',
       year: 2026,
-      time: '10:00',
+      time: '00:00',
       title: 'Apertura de convocatoria',
       description: 'Lanzamiento oficial de la convocatoria ARTEFACT 2027',
       type: 'milestone'
     },
     {
-      day: 15,
-      month: 'Enero',
+      day: 24,
+      month: 'Agosto',
       year: 2026,
-      time: '09:00',
-      title: 'Inicio Inscripciones Fase 1',
+      time: '00:00',
+      title: 'Fase 1 — Apertura',
       description: 'Comienza el periodo de inscripción - Primera fase',
       type: 'phase'
     },
     {
-      day: 31,
-      month: 'Marzo',
+      day: 14,
+      month: 'Septiembre',
       year: 2026,
       time: '23:59',
-      title: 'Cierre Inscripciones Fase 1',
+      title: 'Fase 1 — Cierre',
       description: 'Fin del periodo de inscripción - Primera fase',
       type: 'phase'
     },
     {
-      day: 15,
-      month: 'Abril',
+      day: 22,
+      month: 'Septiembre',
       year: 2026,
-      time: '18:00',
+      time: '12:00',
       title: 'Publicación de resultados (Fase 1)',
       description: 'Curadores votan por artistas de la Fase 1',
       type: 'voting'
     },
     {
-      day: 1,
-      month: 'Mayo',
+      day: 23,
+      month: 'Septiembre',
       year: 2026,
-      time: '09:00',
-      title: 'Inicio Inscripciones Fase 2',
+      time: '00:00',
+      title: 'Fase 2 — Apertura',
       description: 'Comienza el periodo de inscripción - Segunda fase',
       type: 'phase'
     },
     {
-      day: 31,
-      month: 'Julio',
+      day: 14,
+      month: 'Octubre',
       year: 2026,
       time: '23:59',
-      title: 'Cierre Inscripciones Fase 2',
+      title: 'Fase 2 — Cierre',
       description: 'Fin del periodo de inscripción - Segunda fase',
       type: 'phase'
     },
     {
-      day: 15,
-      month: 'Agosto',
+      day: 22,
+      month: 'Octubre',
       year: 2026,
-      time: '18:00',
+      time: '12:00',
       title: 'Publicación de resultados (Fase 2)',
       description: 'Curadores votan por artistas de la Fase 2',
       type: 'voting'
     },
     {
-      day: 1,
-      month: 'Septiembre',
+      day: 23,
+      month: 'Octubre',
       year: 2026,
-      time: '09:00',
-      title: 'Inicio Inscripciones Fase 3',
+      time: '00:00',
+      title: 'Fase 3 — Apertura',
       description: 'Comienza el periodo de inscripción - Tercera fase',
       type: 'phase'
     },
     {
-      day: 30,
+      day: 13,
       month: 'Noviembre',
       year: 2026,
       time: '23:59',
-      title: 'Cierre Inscripciones Fase 3',
+      title: 'Fase 3 — Cierre',
       description: 'Fin del periodo de inscripción - Tercera fase',
       type: 'phase'
     },
     {
-      day: 15,
-      month: 'Diciembre',
+      day: 20,
+      month: 'Noviembre',
       year: 2026,
-      time: '18:00',
+      time: '12:00',
       title: 'Publicación de resultados (Fase 3)',
       description: 'Curadores votan por artistas de la Fase 3',
       type: 'voting'
     },
     {
-      day: 20,
-      month: 'Diciembre',
-      year: 2026,
-      time: '12:00',
-      title: 'Bootcamp Cerámica',
-      description: 'Taller especial de cerámica para artistas seleccionados',
-      type: 'special'
-    },
-    {
-      day: 1,
-      month: 'Febrero',
+      day: 30,
+      month: 'Enero',
       year: 2027,
       time: '10:00',
       title: 'Recepción de obra',
-      description: 'Entrega de obras por parte de artistas seleccionados',
+      description: 'Entrega de obras (30 ene – 2 feb)',
       type: 'important'
     },
     {
@@ -139,7 +130,7 @@ export default function CalendarSection({ isActive = true }) {
       year: 2027,
       time: '10:00',
       title: 'ARTEFACT 2027 - La Feria',
-      description: 'Feria de Arte - Exhibición de obras seleccionadas',
+      description: 'Feria de Arte (4 – 7 feb)',
       type: 'main-event'
     },
     {
@@ -148,7 +139,7 @@ export default function CalendarSection({ isActive = true }) {
       year: 2027,
       time: '09:00',
       title: 'Desmontaje y devolución de obra',
-      description: 'Proceso de desmontaje y devolución de obras',
+      description: 'Desmontaje y devolución (8 – 14 feb)',
       type: 'important'
     },
     {
@@ -156,8 +147,8 @@ export default function CalendarSection({ isActive = true }) {
       month: 'Febrero',
       year: 2027,
       time: '00:00',
-      title: 'Periodo de pagos a artistas',
-      description: 'Inicio del periodo de pagos y venta post-evento',
+      title: 'Pagos a artistas',
+      description: 'Periodo de pagos y venta post-evento (10 feb – 10 mar)',
       type: 'important'
     }
   ]

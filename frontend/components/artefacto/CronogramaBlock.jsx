@@ -142,9 +142,9 @@ export default function CronogramaBlock() {
             }}
           >
             {[
-              { fase: 'Fase 1', fecha: 'Agosto 2027', actividad: 'Registro abierto' },
-              { fase: 'Fase 2', fecha: 'Septiembre 2027', actividad: 'Selección y curaduría' },
-              { fase: 'Fase 3', fecha: 'Octubre - Noviembre 2027', actividad: 'Preparación final' },
+              { fase: 'Fase 1', fecha: '24 Ago – 14 Sept 2026', actividad: 'Registro abierto' },
+              { fase: 'Fase 2', fecha: '23 Sept – 14 Oct 2026', actividad: 'Selección y curaduría' },
+              { fase: 'Fase 3', fecha: '23 Oct – 13 Nov 2026', actividad: 'Preparación final' },
             ].map((item, idx) => (
               <div
                 key={idx}

@@ -194,9 +194,9 @@ export default function ConoceMasDesktop() {
         />
 
         {/* CardFaseI/II/III - Fases de la convocatoria */}
-        <DeskFase col={3} numero="I" fechas="Del 15-31 ago" abierta />
-        <DeskFase col={4} numero="II" fechas="15 sep al 03 oct" />
-        <DeskFase col={5} numero="III" fechas="Del 15-31 agosto" />
+        <DeskFase col={3} numero="I" fechas="24 ago – 14 sept" abierta />
+        <DeskFase col={4} numero="II" fechas="23 sept – 14 oct" />
+        <DeskFase col={5} numero="III" fechas="23 oct – 13 nov" />
 
         {/* CardConsulta - Consulta la convocatoria */}
         <div

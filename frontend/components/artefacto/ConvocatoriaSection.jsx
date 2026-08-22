@@ -18,7 +18,7 @@ const CONTENIDO = {
     'Solo cubres el costo de tu paquete si resultas seleccionado.',
     'En Tu Lienzo eliges tu paquete, cargas tus obras con ficha técnica y propones su acomodo.',
     'Tú pones el precio de tu obra; la interfaz calcula las comisiones automáticamente.',
-    'Convocatoria abierta del 17 de agosto al 10 de noviembre de 2026, en tres fases.',
+    'Convocatoria abierta del 24 de agosto al 13 de noviembre de 2026, en tres fases.',
   ],
   requisitos: [
     'Mayores de 18 años, emergentes o consolidados, con o sin estudios en artes visuales.',
@@ -34,8 +34,8 @@ const CONTENIDO = {
     'Tu paquete incluye montaje, asesores de venta, catálogo digital, difusión y más.',
   ],
   fechas: [
-    { titulo: 'Fases', texto: 'I: 17 ago – 7 sept (−20%) · II: 18 sept – 9 oct (−10%) · III: 20 oct – 10 nov.' },
-    { titulo: 'Resultados', texto: '17 sept · 19 oct · 20 nov 2026.' },
+    { titulo: 'Fases', texto: 'I: 24 ago – 14 sept · II: 23 sept – 14 oct · III: 23 oct – 13 nov 2026.' },
+    { titulo: 'Resultados', texto: '22 sept · 22 oct · 20 nov 2026.' },
     { titulo: 'La feria', texto: '4 al 7 de febrero de 2027, Estación Indianilla, CDMX.' },
   ],
 };

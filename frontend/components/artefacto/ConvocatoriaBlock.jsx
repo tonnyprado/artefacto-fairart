@@ -7,9 +7,9 @@ import { FONTS, COLORS } from './theme';
 gsap.registerPlugin(ScrollTrigger);
 
 const FASES = [
-  { numero: 1, nombre: 'Fase 1', fecha: 'Agosto 1 - Septiembre 10, 2027' },
-  { numero: 2, nombre: 'Fase 2', fecha: 'Septiembre 11 - Octubre 20, 2027' },
-  { numero: 3, nombre: 'Fase 3', fecha: 'Octubre 21 - Noviembre 30, 2027' },
+  { numero: 1, nombre: 'Fase 1', fecha: '24 Agosto – 14 Septiembre, 2026' },
+  { numero: 2, nombre: 'Fase 2', fecha: '23 Septiembre – 14 Octubre, 2026' },
+  { numero: 3, nombre: 'Fase 3', fecha: '23 Octubre – 13 Noviembre, 2026' },
 ];
 
 /**
