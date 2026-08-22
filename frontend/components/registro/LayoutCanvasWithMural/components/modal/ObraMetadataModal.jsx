@@ -410,31 +410,19 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
                     </div>
                   </div>
 
-                  {/* Notas al pie */}
-                  <div style={{
+                  {/* Nota al pie */}
+                  <p style={{
                     marginTop: '14px',
                     paddingTop: '12px',
-                    borderTop: '1px solid rgba(244, 237, 228, 0.1)'
+                    borderTop: '1px solid rgba(244, 237, 228, 0.1)',
+                    fontSize: '11px',
+                    color: '#F4EDE4',
+                    opacity: 0.6,
+                    margin: '14px 0 0 0',
+                    lineHeight: '1.4'
                   }}>
-                    <p style={{
-                      fontSize: '11px',
-                      color: '#F4EDE4',
-                      opacity: 0.6,
-                      margin: '0 0 4px 0',
-                      lineHeight: '1.4'
-                    }}>
-                      *Montos sin IVA
-                    </p>
-                    <p style={{
-                      fontSize: '11px',
-                      color: '#F4EDE4',
-                      opacity: 0.6,
-                      margin: 0,
-                      lineHeight: '1.4'
-                    }}>
-                      *Otras comisiones pueden aplicarse dependiendo del método de pago del comprador.
-                    </p>
-                  </div>
+                    *Montos sin IVA
+                  </p>
                 </div>
               )
             })()}
