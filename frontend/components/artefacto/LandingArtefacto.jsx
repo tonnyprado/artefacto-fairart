@@ -292,12 +292,12 @@ export default function LandingArtefacto() {
 
         lenis.current = new Lenis({
           autoRaf: true,
-          // Velocidades optimizadas - balance entre fluidez y control
-          duration: isTablet ? 1.0 : (mobile ? 1.1 : 1.4),  // Un poco más suave
+          // Velocidades optimizadas - rápido pero suave
+          duration: isTablet ? 0.9 : (mobile ? 1.0 : 1.2),
           easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-          lerp: isTablet ? 0.12 : (mobile ? 0.1 : 0.08),    // Ligeramente más suave
-          wheelMultiplier: isTablet ? 1.0 : (mobile ? 0.9 : 0.9), // Un poco más controlado
-          touchMultiplier: isTablet ? 1.6 : (mobile ? 1.4 : 1.1), // Tablets con buena sensibilidad
+          lerp: isTablet ? 0.14 : (mobile ? 0.12 : 0.1),
+          wheelMultiplier: isTablet ? 1.1 : (mobile ? 1.0 : 1.0),
+          touchMultiplier: isTablet ? 1.7 : (mobile ? 1.5 : 1.2),
           smoothWheel: true,
           syncTouch: mobile || isTablet,          // También activar en tablets
           syncTouchLerp: isTablet ? 0.12 : (mobile ? 0.10 : 0.08),
