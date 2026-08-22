@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useCuradoresStore } from '@/stores/curadoresStore'
 import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell } from '@/components/ui/Table'
 import Badge from '@/components/ui/Badge'
@@ -40,11 +40,18 @@ const generateTempPassword = () => {
 export default function CuradoresTable() {
   const {
     curadores,
+    fetchCuradores,
     createCurador,
     updateCurador,
     deleteCurador,
-    toggleActivo
+    toggleActivo,
+    isLoading
   } = useCuradoresStore()
+
+  // Cargar curadores al montar el componente
+  useEffect(() => {
+    fetchCuradores()
+  }, [fetchCuradores])
 
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
@@ -171,7 +178,16 @@ export default function CuradoresTable() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {curadores.length === 0 ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center text-gray-500 py-8">
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-600"></div>
+                    Cargando curadores...
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : curadores.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center text-gray-500 py-8">
                   No hay curadores registrados
