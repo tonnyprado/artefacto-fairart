@@ -1,8 +1,10 @@
 /**
  * Controlador de Votaciones
  * Maneja la lógica de negocio para las votaciones de curadores
+ * Usa PostgreSQL si está disponible, sino usa mockData
  */
 
+import pool from '../config/database.js'
 import {
   votaciones,
   fases,
@@ -12,6 +14,9 @@ import {
   getNextId,
   now
 } from '../data/mockData.js'
+
+// Helper para determinar si usamos DB o mockData
+const useDatabase = () => !!pool
 
 /**
  * POST /api/votaciones
@@ -30,6 +35,87 @@ export const createVotacion = async (req, res) => {
       })
     }
 
+    if (useDatabase()) {
+      // Verificar que la fase existe y tiene votaciones abiertas
+      const faseResult = await pool.query(
+        'SELECT * FROM fases WHERE id = $1',
+        [fase_id]
+      )
+      if (faseResult.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Fase no encontrada'
+        })
+      }
+
+      const fase = faseResult.rows[0]
+
+      if (!fase.votaciones_abiertas) {
+        return res.status(400).json({
+          success: false,
+          error: 'Las votaciones están cerradas para esta fase'
+        })
+      }
+
+      if (fase.finalizada) {
+        return res.status(400).json({
+          success: false,
+          error: 'No se puede votar en una fase finalizada'
+        })
+      }
+
+      // Verificar que el artista existe
+      const artistaResult = await pool.query(
+        'SELECT id FROM artistas WHERE id = $1',
+        [artista_id]
+      )
+      if (artistaResult.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Artista no encontrado'
+        })
+      }
+
+      // Verificar que el artista está inscrito en la fase
+      const inscripcionResult = await pool.query(
+        'SELECT id FROM artistas_fases WHERE artista_id = $1 AND fase_id = $2',
+        [artista_id, fase_id]
+      )
+      if (inscripcionResult.rows.length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'El artista no está inscrito en esta fase'
+        })
+      }
+
+      // Verificar que el curador no ha votado ya por este artista en esta fase
+      const votacionExistenteResult = await pool.query(
+        'SELECT id FROM votaciones WHERE curador_id = $1 AND artista_id = $2 AND fase_id = $3',
+        [curadorId, artista_id, fase_id]
+      )
+      if (votacionExistenteResult.rows.length > 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Ya has votado por este artista en esta fase. Usa PUT para actualizar tu voto.'
+        })
+      }
+
+      // Crear votación
+      const result = await pool.query(
+        `INSERT INTO votaciones (curador_id, artista_id, fase_id, voto, comentario, fecha, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+         RETURNING *`,
+        [curadorId, artista_id, fase_id, Boolean(voto), comentario || null]
+      )
+
+      return res.status(201).json({
+        success: true,
+        data: result.rows[0],
+        message: 'Voto registrado exitosamente'
+      })
+    }
+
+    // Fallback a mockData
     // Verificar que la fase existe
     const fase = fases.find(f => f.id === parseInt(fase_id))
     if (!fase) {
@@ -127,7 +213,69 @@ export const updateVotacion = async (req, res) => {
     const { voto, comentario } = req.body
     const curadorId = req.user.curadorId
 
-    // Buscar votación
+    if (useDatabase()) {
+      // Buscar votación con información de fase
+      const votacionResult = await pool.query(
+        `SELECT v.*, f.finalizada as fase_finalizada
+         FROM votaciones v
+         LEFT JOIN fases f ON f.id = v.fase_id
+         WHERE v.id = $1`,
+        [id]
+      )
+      if (votacionResult.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Votación no encontrada'
+        })
+      }
+
+      const votacion = votacionResult.rows[0]
+
+      // Verificar permisos
+      if (votacion.curador_id !== curadorId && req.user.role !== 'admin') {
+        return res.status(403).json({
+          success: false,
+          error: 'No tienes permiso para editar esta votación'
+        })
+      }
+
+      // Verificar que la fase no está finalizada
+      if (votacion.fase_finalizada) {
+        return res.status(400).json({
+          success: false,
+          error: 'No se puede editar un voto de una fase finalizada'
+        })
+      }
+
+      // Construir UPDATE dinámico
+      const updates = []
+      const values = []
+      let paramCount = 1
+
+      if (voto !== undefined) {
+        updates.push(`voto = $${paramCount}`)
+        values.push(Boolean(voto))
+        paramCount++
+      }
+      if (comentario !== undefined) {
+        updates.push(`comentario = $${paramCount}`)
+        values.push(comentario)
+        paramCount++
+      }
+      updates.push('updated_at = CURRENT_TIMESTAMP')
+
+      values.push(id)
+      const query = `UPDATE votaciones SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING *`
+      const result = await pool.query(query, values)
+
+      return res.json({
+        success: true,
+        data: result.rows[0],
+        message: 'Voto actualizado exitosamente'
+      })
+    }
+
+    // Fallback a mockData
     const votacionIndex = votaciones.findIndex(v => v.id === parseInt(id))
     if (votacionIndex === -1) {
       return res.status(404).json({
@@ -138,7 +286,6 @@ export const updateVotacion = async (req, res) => {
 
     const votacion = votaciones[votacionIndex]
 
-    // Verificar que el curador es dueño de la votación
     if (votacion.curador_id !== curadorId && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
@@ -146,7 +293,6 @@ export const updateVotacion = async (req, res) => {
       })
     }
 
-    // Verificar que la fase aún tiene votaciones abiertas
     const fase = fases.find(f => f.id === votacion.fase_id)
     if (!fase || fase.finalizada) {
       return res.status(400).json({
@@ -155,7 +301,6 @@ export const updateVotacion = async (req, res) => {
       })
     }
 
-    // Actualizar votación
     if (voto !== undefined) {
       votaciones[votacionIndex].voto = Boolean(voto)
     }
@@ -187,6 +332,37 @@ export const getMisVotaciones = async (req, res) => {
     const curadorId = req.user.curadorId
     const { fase_id } = req.query
 
+    if (useDatabase()) {
+      let query = `
+        SELECT v.*,
+               a.nombre_artistico,
+               a.nombre,
+               a.apellido,
+               a.foto_perfil,
+               f.nombre as fase_nombre
+        FROM votaciones v
+        LEFT JOIN artistas a ON a.id = v.artista_id
+        LEFT JOIN fases f ON f.id = v.fase_id
+        WHERE v.curador_id = $1
+      `
+      const values = [curadorId]
+
+      if (fase_id) {
+        query += ' AND v.fase_id = $2'
+        values.push(fase_id)
+      }
+
+      query += ' ORDER BY v.fecha DESC'
+
+      const result = await pool.query(query, values)
+
+      return res.json({
+        success: true,
+        data: result.rows
+      })
+    }
+
+    // Fallback a mockData
     let votacionesCurador = votaciones.filter(v => v.curador_id === curadorId)
 
     // Filtrar por fase si se especifica
@@ -215,6 +391,59 @@ export const getResultadosFase = async (req, res) => {
   try {
     const { fase_id } = req.params
 
+    if (useDatabase()) {
+      // Verificar que la fase existe
+      const faseResult = await pool.query(
+        'SELECT * FROM fases WHERE id = $1',
+        [fase_id]
+      )
+      if (faseResult.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Fase no encontrada'
+        })
+      }
+
+      // Obtener resultados agregados por artista con ranking
+      const result = await pool.query(`
+        SELECT
+          a.id as artista_id,
+          a.nombre_artistico,
+          a.nombre,
+          a.apellido,
+          a.foto_perfil,
+          COUNT(CASE WHEN v.voto = true THEN 1 END)::int as total_votos_favor,
+          COUNT(CASE WHEN v.voto = false THEN 1 END)::int as total_votos_contra,
+          COUNT(v.id)::int as total_votos,
+          CASE
+            WHEN COUNT(v.id) > 0
+            THEN ROUND((COUNT(CASE WHEN v.voto = true THEN 1 END)::numeric / COUNT(v.id) * 100), 2)
+            ELSE 0
+          END as porcentaje_aprobacion,
+          ROW_NUMBER() OVER (
+            ORDER BY
+              CASE
+                WHEN COUNT(v.id) > 0
+                THEN (COUNT(CASE WHEN v.voto = true THEN 1 END)::numeric / COUNT(v.id))
+                ELSE 0
+              END DESC,
+              COUNT(CASE WHEN v.voto = true THEN 1 END) DESC
+          ) as posicion
+        FROM artistas_fases af
+        JOIN artistas a ON a.id = af.artista_id
+        LEFT JOIN votaciones v ON v.artista_id = a.id AND v.fase_id = af.fase_id
+        WHERE af.fase_id = $1
+        GROUP BY a.id, a.nombre_artistico, a.nombre, a.apellido, a.foto_perfil
+        ORDER BY posicion
+      `, [fase_id])
+
+      return res.json({
+        success: true,
+        data: result.rows
+      })
+    }
+
+    // Fallback a mockData
     // Verificar que la fase existe
     const fase = fases.find(f => f.id === parseInt(fase_id))
     if (!fase) {
@@ -292,6 +521,36 @@ export const getEstadisticasCurador = async (req, res) => {
     const curadorId = req.user.curadorId
     const { fase_id } = req.query
 
+    if (useDatabase()) {
+      let query = `
+        SELECT
+          COUNT(*)::int as total_votos,
+          COUNT(CASE WHEN voto = true THEN 1 END)::int as votos_favor,
+          COUNT(CASE WHEN voto = false THEN 1 END)::int as votos_contra,
+          CASE
+            WHEN COUNT(*) > 0
+            THEN ROUND((COUNT(CASE WHEN voto = true THEN 1 END)::numeric / COUNT(*) * 100), 1)
+            ELSE 0
+          END as porcentaje_favor
+        FROM votaciones
+        WHERE curador_id = $1
+      `
+      const values = [curadorId]
+
+      if (fase_id) {
+        query += ' AND fase_id = $2'
+        values.push(fase_id)
+      }
+
+      const result = await pool.query(query, values)
+
+      return res.json({
+        success: true,
+        data: result.rows[0]
+      })
+    }
+
+    // Fallback a mockData
     let votacionesCurador = votaciones.filter(v => v.curador_id === curadorId)
 
     // Filtrar por fase si se especifica
@@ -333,6 +592,49 @@ export const deleteVotacion = async (req, res) => {
     const { id } = req.params
     const curadorId = req.user.curadorId
 
+    if (useDatabase()) {
+      // Buscar votación con información de fase
+      const votacionResult = await pool.query(
+        `SELECT v.*, f.finalizada as fase_finalizada
+         FROM votaciones v
+         LEFT JOIN fases f ON f.id = v.fase_id
+         WHERE v.id = $1`,
+        [id]
+      )
+      if (votacionResult.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Votación no encontrada'
+        })
+      }
+
+      const votacion = votacionResult.rows[0]
+
+      // Verificar permisos
+      if (votacion.curador_id !== curadorId && req.user.role !== 'admin') {
+        return res.status(403).json({
+          success: false,
+          error: 'No tienes permiso para eliminar esta votación'
+        })
+      }
+
+      // Verificar que la fase no está finalizada
+      if (votacion.fase_finalizada) {
+        return res.status(400).json({
+          success: false,
+          error: 'No se puede eliminar un voto de una fase finalizada'
+        })
+      }
+
+      await pool.query('DELETE FROM votaciones WHERE id = $1', [id])
+
+      return res.json({
+        success: true,
+        message: 'Votación eliminada exitosamente'
+      })
+    }
+
+    // Fallback a mockData
     const votacionIndex = votaciones.findIndex(v => v.id === parseInt(id))
     if (votacionIndex === -1) {
       return res.status(404).json({
@@ -384,6 +686,25 @@ export const verificarVoto = async (req, res) => {
     const { fase_id, artista_id } = req.params
     const curadorId = req.user.curadorId
 
+    if (useDatabase()) {
+      const result = await pool.query(
+        `SELECT * FROM votaciones
+         WHERE curador_id = $1 AND artista_id = $2 AND fase_id = $3`,
+        [curadorId, artista_id, fase_id]
+      )
+
+      const votacion = result.rows.length > 0 ? result.rows[0] : null
+
+      return res.json({
+        success: true,
+        data: {
+          has_votado: !!votacion,
+          votacion: votacion
+        }
+      })
+    }
+
+    // Fallback a mockData
     const votacion = votaciones.find(
       v => v.curador_id === curadorId &&
            v.artista_id === parseInt(artista_id) &&
