@@ -31,7 +31,7 @@ import { COLORS, FONTS } from '@/components/artefacto/theme'
 
 export default function LoginPage() {
   const router = useRouter()
-  const { login, isAuthenticated, error, clearError, isLoading: authLoading } = useAuth()
+  const { login, isAuthenticated, error, clearError, isLoading: authLoading, user } = useAuth()
 
   const [formData, setFormData] = useState({
     email: '',
@@ -41,12 +41,16 @@ export default function LoginPage() {
   const [validationErrors, setValidationErrors] = useState({})
   const [showCredentials, setShowCredentials] = useState(true)
 
-  // Si ya está autenticado, redirigir
+  // Si ya está autenticado, redirigir según el rol
   useEffect(() => {
-    if (isAuthenticated && !authLoading) {
-      router.push('/admin') // Redirigir a admin por defecto
+    if (isAuthenticated && !authLoading && user) {
+      if (user.role === 'admin') {
+        router.push('/admin')
+      } else if (user.role === 'curador') {
+        router.push('/curador')
+      }
     }
-  }, [isAuthenticated, authLoading, router])
+  }, [isAuthenticated, authLoading, user, router])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -86,16 +90,19 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    // Login automático (usa backend si está disponible, sino modo mock)
+    // Validar formulario
+    if (!validate()) {
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
       // Delay mínimo para mostrar el loading
-      const minDelay = new Promise(resolve => setTimeout(resolve, 1500))
+      const minDelay = new Promise(resolve => setTimeout(resolve, 800))
 
-      // Intentar login con credenciales de admin
-      // Si el backend no está disponible, el store automáticamente usa modo mock
-      const loginPromise = login('admin@artefact.com', 'admin123')
+      // Intentar login con credenciales del formulario
+      const loginPromise = login(formData.email, formData.password)
 
       // Esperar tanto el login como el delay mínimo
       const [result] = await Promise.all([loginPromise, minDelay])
