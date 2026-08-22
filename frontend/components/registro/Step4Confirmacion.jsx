@@ -176,7 +176,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
           }}>
             Datos Personales
           </h3>
-          <EditButton onClick={() => onEdit(1)} />
+          <EditButton onClick={() => onEdit(1)} /> {/* Paso 1: Datos Personales */}
         </div>
         <div style={{
           background: 'rgba(244, 237, 228, 0.1)',
@@ -240,7 +240,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
           }}>
             Información Artística
           </h3>
-          <EditButton onClick={() => onEdit(2)} />
+          <EditButton onClick={() => onEdit(3)} /> {/* Paso 3: Info Artística */}
         </div>
         <div style={{
           background: 'rgba(244, 237, 228, 0.1)',
@@ -348,7 +348,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
           }}>
             Documentos
           </h3>
-          <EditButton onClick={() => onEdit(3)} />
+          <EditButton onClick={() => onEdit(4)} /> {/* Paso 4: Documentos */}
         </div>
         <div style={{
           background: 'rgba(244, 237, 228, 0.1)',
@@ -557,7 +557,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
               >
                 Descargar
               </button>
-              <EditButton onClick={() => onEdit(4)} />
+              <EditButton onClick={() => onEdit(2)} /> {/* Paso 2: Tu Lienzo */}
             </div>
           </div>
 

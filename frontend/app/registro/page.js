@@ -62,6 +62,7 @@ export default function RegistroPage() {
   const router = useRouter()
   const transition = usePageTransition()
   const [currentStep, setCurrentStep] = useState(1)
+  const [highestStepReached, setHighestStepReached] = useState(1) // Trackea el paso más alto alcanzado
 
   const handleVolver = () => {
     transition.navigateTo('/#convocatoria', {
@@ -215,7 +216,10 @@ export default function RegistroPage() {
     console.log('handleNext llamado con skipValidation:', skipValidation)
     if (skipValidation || validateStep(currentStep)) {
       console.log('Avanzando al siguiente paso...')
-      setCurrentStep((prev) => Math.min(prev + 1, steps.length))
+      const nextStep = Math.min(currentStep + 1, steps.length)
+      setCurrentStep(nextStep)
+      // Actualizar el paso más alto alcanzado
+      setHighestStepReached((prev) => Math.max(prev, nextStep))
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } else {
       console.log('Validación falló, no se avanza')
@@ -422,6 +426,7 @@ export default function RegistroPage() {
 
       // Limpiar localStorage después de envío exitoso
       localStorage.removeItem('artefacto_registro_draft')
+      localStorage.removeItem('artefacto_registro_highest_step')
 
       // Redirigir a página de confirmación con datos
       const folio = result.data?.folio || result.folio || 'ART-2027-XXX'
@@ -515,10 +520,29 @@ export default function RegistroPage() {
           ...cleanedData
         }))
       }
+
+      // Cargar el paso más alto alcanzado
+      const savedHighestStep = localStorage.getItem('artefacto_registro_highest_step')
+      if (savedHighestStep) {
+        const parsedStep = JSON.parse(savedHighestStep)
+        if (parsedStep && parsedStep >= 1 && parsedStep <= 5) {
+          setHighestStepReached(parsedStep)
+          console.log('Paso más alto cargado desde localStorage:', parsedStep)
+        }
+      }
     } catch (error) {
       console.warn('Error cargando desde localStorage:', error)
     }
   }, [])
+
+  // Guardar highestStepReached en localStorage cuando cambie
+  useEffect(() => {
+    try {
+      localStorage.setItem('artefacto_registro_highest_step', JSON.stringify(highestStepReached))
+    } catch (error) {
+      console.warn('Error guardando highestStepReached:', error)
+    }
+  }, [highestStepReached])
 
   // Animar transición entre pasos
   useEffect(() => {
@@ -924,7 +948,12 @@ export default function RegistroPage() {
 
         {/* Progress Bar */}
         <div style={{ marginBottom: 40 }}>
-          <ProgressBar steps={steps} currentStep={currentStep} onStepClick={goToStep} />
+          <ProgressBar
+            steps={steps}
+            currentStep={currentStep}
+            highestStepReached={highestStepReached}
+            onStepClick={goToStep}
+          />
         </div>
 
         {/* Form Card */}
