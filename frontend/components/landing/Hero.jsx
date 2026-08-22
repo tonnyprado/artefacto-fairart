@@ -35,7 +35,7 @@ import ActivePhaseBanner from './ActivePhaseBanner'
 export default function Hero() {
   // HARDCODED: En producción, estos datos vendrán de la BDD
   const heroData = {
-    title: 'ARTEFACT 2027',
+    title: 'ARTEFACTO 2027',
     subtitle: 'Feria de Arte Contemporáneo',
     description: 'Descubre el talento emergente de artistas locales. Una experiencia única donde el arte cobra vida.',
     eventDate: 'Febrero 2027',

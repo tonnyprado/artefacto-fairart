@@ -224,7 +224,7 @@ export default function EdicionesControl() {
                     value={edicionFormData.nombre}
                     onChange={(e) => setEdicionFormData({ ...edicionFormData, nombre: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                    placeholder="ARTEFACT 2027"
+                    placeholder="ARTEFACTO 2027"
                     required
                   />
                 </div>

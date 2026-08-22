@@ -195,7 +195,7 @@ export const artistas = [
 export const ediciones = [
   {
     id: 1,
-    nombre: 'ARTEFACT 2027',
+    nombre: 'ARTEFACTO 2027',
     anio: 2027,
     descripcion: 'Primera edición de ARTEFACT - Feria de Arte Contemporáneo',
     fecha_inicio: '2027-01-15T00:00:00Z',
@@ -213,7 +213,7 @@ export const fases = [
     id: 1,
     edicion_id: 1,
     nombre: 'Fase 1 - Selección Inicial',
-    descripcion: 'Primera fase de selección de artistas para ARTEFACT 2027',
+    descripcion: 'Primera fase de selección de artistas para ARTEFACTO 2027',
     tipo: 'fase',
     numero_fase: 1,
     fecha_inicio_inscripciones: '2027-01-15T00:00:00Z',
@@ -273,7 +273,7 @@ export const fases = [
     id: 4,
     edicion_id: 1,
     nombre: 'Concurso Final',
-    descripcion: 'Concurso final para seleccionar a los ganadores de ARTEFACT 2027',
+    descripcion: 'Concurso final para seleccionar a los ganadores de ARTEFACTO 2027',
     tipo: 'concurso',
     numero_fase: null,
     fecha_inicio_inscripciones: null,
@@ -498,7 +498,7 @@ export const contenidos = [
   {
     id: 1,
     tipo: 'hero',
-    titulo: 'ARTEFACT 2027',
+    titulo: 'ARTEFACTO 2027',
     subtitulo: 'Feria de Arte Contemporáneo',
     slug: 'hero-principal',
     contenido: 'Descubre el talento emergente de artistas locales en la feria de arte contemporáneo más importante de México. Un espacio donde el arte cobra vida y las nuevas propuestas encuentran su público.',
@@ -550,7 +550,7 @@ export const contenidos = [
     tipo: 'convocatoria',
     titulo: 'Convocatoria Abierta',
     slug: 'convocatoria',
-    contenido: 'Invitamos a artistas emergentes a formar parte de ARTEFACT 2027. Esta es tu oportunidad de mostrar tu trabajo ante coleccionistas, galeristas y un público ávido de nuevas propuestas artísticas.',
+    contenido: 'Invitamos a artistas emergentes a formar parte de ARTEFACTO 2027. Esta es tu oportunidad de mostrar tu trabajo ante coleccionistas, galeristas y un público ávido de nuevas propuestas artísticas.',
     publicado: true,
     pdf_url: '/pdfs/Convocatoria_ARTEFACTO.pdf',
     requisitos: [
@@ -579,7 +579,7 @@ export const contenidos = [
 export const eventos = [
   {
     id: 1,
-    nombre: 'ARTEFACT 2027',
+    nombre: 'ARTEFACTO 2027',
     descripcion: 'La feria de arte contemporáneo más importante de México regresa en 2027 con una selección de los mejores artistas emergentes del país.',
     tipo_evento: 'feria_principal',
     fecha_inicio: '2027-02-01T10:00:00Z',

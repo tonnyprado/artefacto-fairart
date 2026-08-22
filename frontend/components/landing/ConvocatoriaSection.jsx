@@ -81,7 +81,7 @@ export default function ConvocatoriaSection() {
   // Datos estáticos (estos podrían venir de la BDD en el futuro)
   const convocatoriaData = {
     title: hayInscripcionesAbiertas ? 'Convocatoria Abierta' : 'Próxima Convocatoria',
-    description: 'Invitamos a artistas emergentes a formar parte de ARTEFACT 2027. Participa en nuestro proceso de selección por fases y comparte tu talento con coleccionistas y amantes del arte.',
+    description: 'Invitamos a artistas emergentes a formar parte de ARTEFACTO 2027. Participa en nuestro proceso de selección por fases y comparte tu talento con coleccionistas y amantes del arte.',
     pdfUrl: '/convocatoria-artefacto.pdf',
     requirements: [
       'Ser mayor de 18 años',
@@ -276,7 +276,7 @@ export default function ConvocatoriaSection() {
           <div className="bg-gradient-to-br from-red-900 to-red-700 rounded-2xl p-8 md:p-12 text-center text-white shadow-xl">
             <h3 className="text-3xl font-bold mb-4">¿Listo para participar?</h3>
             <p className="text-red-100 mb-8 text-lg">
-              Descarga la convocatoria completa y regístrate para formar parte de ARTEFACT 2027
+              Descarga la convocatoria completa y regístrate para formar parte de ARTEFACTO 2027
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               {/* Download PDF Button */}

@@ -31,7 +31,7 @@ export default function CalendarSection({ isActive = true }) {
       year: 2026,
       time: '00:00',
       title: 'Apertura de convocatoria',
-      description: 'Lanzamiento oficial de la convocatoria ARTEFACT 2027',
+      description: 'Lanzamiento oficial de la convocatoria ARTEFACTO 2027',
       type: 'milestone'
     },
     {
@@ -129,7 +129,7 @@ export default function CalendarSection({ isActive = true }) {
       month: 'Febrero',
       year: 2027,
       time: '10:00',
-      title: 'ARTEFACT 2027 - La Feria',
+      title: 'ARTEFACTO 2027 - La Feria',
       description: 'Feria de Arte (4 – 7 feb)',
       type: 'main-event'
     },
