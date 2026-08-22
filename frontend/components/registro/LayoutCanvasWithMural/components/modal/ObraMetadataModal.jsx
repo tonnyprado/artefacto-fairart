@@ -5,6 +5,37 @@ import { createPortal } from 'react-dom'
 import { gsap } from 'gsap'
 import styles from '../../styles/LayoutCanvas.module.css'
 
+// Configuración de precios (no hardcodeada)
+const CONFIG_PRECIO = {
+  porcentajeArtista: 0.75,
+  multiploRedondeo: 500,
+}
+
+/**
+ * Calcula los precios basados en la ganancia deseada del artista
+ * @param {number} input - Ganancia deseada (MXN, > 0)
+ * @returns {Object} - { ganancia, comision, precioPublico, precioSugerido }
+ */
+function calcularPrecio(input, config = CONFIG_PRECIO) {
+  if (typeof input !== 'number' || !isFinite(input) || input <= 0) {
+    return null
+  }
+  const precioPublico = input / config.porcentajeArtista
+  const comision = precioPublico - input
+  const m = config.multiploRedondeo
+  const precioSugerido = Math.ceil(precioPublico / m) * m
+
+  // Redondear a centavos
+  const centavos = (n) => Math.round(n * 100) / 100
+
+  return {
+    ganancia: centavos(input),
+    comision: centavos(comision),
+    precioPublico: centavos(precioPublico),
+    precioSugerido: centavos(precioSugerido),
+  }
+}
+
 /**
  * Modal para editar metadata de una obra
  * @param {Object} obra - Obra que se está editando
@@ -15,6 +46,7 @@ import styles from '../../styles/LayoutCanvas.module.css'
 export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
   const modalContentRef = useRef(null)
   const [mounted, setMounted] = useState(false)
+  const [showTooltip, setShowTooltip] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -242,21 +274,170 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
               />
             </div>
 
-            {/* Precio */}
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Precio de venta (MXN) *</label>
-              <input
-                type="text"
-                inputMode="numeric"
-                value={obra.precio_mxn ? Number(obra.precio_mxn).toLocaleString('es-MX') : ''}
-                onChange={(e) => {
-                  const rawValue = e.target.value.replace(/[^\d]/g, '')
-                  handleUpdate('precio_mxn', rawValue)
-                }}
-                placeholder="10,000"
-                className={styles.formInput}
-              />
-            </div>
+            {/* Calculadora de Precio */}
+            {(() => {
+              const inputValue = obra.precio_mxn ? Number(obra.precio_mxn) : 0
+              const precios = calcularPrecio(inputValue)
+              const formatMoney = (n) => '$' + n.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
+              return (
+                <div style={{
+                  background: 'rgba(244, 237, 228, 0.08)',
+                  borderRadius: '12px',
+                  padding: '20px',
+                  marginBottom: '16px',
+                  border: '1px solid rgba(244, 237, 228, 0.15)'
+                }}>
+                  {/* Input: Tu precio */}
+                  <div className={styles.formGroup} style={{ marginBottom: '16px' }}>
+                    <label className={styles.formLabel}>Tu precio (MXN) *</label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={obra.precio_mxn ? Number(obra.precio_mxn).toLocaleString('es-MX') : ''}
+                      onChange={(e) => {
+                        const rawValue = e.target.value.replace(/[^\d]/g, '')
+                        handleUpdate('precio_mxn', rawValue)
+                      }}
+                      placeholder="10,000"
+                      className={styles.formInput}
+                      style={{ marginBottom: 0 }}
+                    />
+                  </div>
+
+                  {/* Desglose de precios */}
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
+                    borderTop: '1px solid rgba(244, 237, 228, 0.15)',
+                    paddingTop: '16px'
+                  }}>
+                    {/* Tu ganancia */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '13px', color: '#F4EDE4', opacity: 0.8 }}>Tu ganancia (75%)</span>
+                      <span style={{ fontSize: '14px', color: '#F4EDE4', fontWeight: '600' }}>
+                        {precios ? formatMoney(precios.ganancia) : '—'}
+                      </span>
+                    </div>
+
+                    {/* Comisión ARTE FACTO */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '13px', color: '#F4EDE4', opacity: 0.8 }}>Comisión ARTE FACTO (25%)</span>
+                      <span style={{ fontSize: '14px', color: '#F4EDE4', fontWeight: '600' }}>
+                        {precios ? formatMoney(precios.comision) : '—'}
+                      </span>
+                    </div>
+
+                    {/* Precio al público */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '13px', color: '#F4EDE4', opacity: 0.8 }}>Precio al público</span>
+                      <span style={{ fontSize: '14px', color: '#F4EDE4', fontWeight: '600' }}>
+                        {precios ? formatMoney(precios.precioPublico) : '—'}
+                      </span>
+                    </div>
+
+                    {/* Precio sugerido (destacado) */}
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      background: 'rgba(184, 48, 48, 0.15)',
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      marginTop: '4px'
+                    }}>
+                      <span style={{
+                        fontSize: '13px',
+                        color: '#F4EDE4',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}>
+                        Precio sugerido
+                        {/* Tooltip trigger */}
+                        <span
+                          tabIndex="0"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setShowTooltip(!showTooltip)
+                          }}
+                          onMouseEnter={() => setShowTooltip(true)}
+                          onMouseLeave={() => setShowTooltip(false)}
+                          onFocus={() => setShowTooltip(true)}
+                          onBlur={() => setShowTooltip(false)}
+                          style={{
+                            width: '16px',
+                            height: '16px',
+                            borderRadius: '50%',
+                            background: 'rgba(244, 237, 228, 0.2)',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '11px',
+                            color: '#F4EDE4',
+                            cursor: 'pointer',
+                            position: 'relative'
+                          }}
+                        >
+                          i
+                          {/* Tooltip */}
+                          {showTooltip && (
+                            <div style={{
+                              position: 'absolute',
+                              bottom: '24px',
+                              left: '50%',
+                              transform: 'translateX(-50%)',
+                              background: '#141210',
+                              color: '#F4EDE4',
+                              padding: '10px 14px',
+                              borderRadius: '8px',
+                              fontSize: '12px',
+                              lineHeight: '1.5',
+                              width: '220px',
+                              boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+                              zIndex: 10,
+                              textAlign: 'left'
+                            }}>
+                              Recuerda que estos valores son referencias. Se definirán los precios al ser seleccionado, en la hoja de consigna.
+                            </div>
+                          )}
+                        </span>
+                      </span>
+                      <span style={{ fontSize: '16px', color: '#B83030', fontWeight: '700' }}>
+                        {precios ? formatMoney(precios.precioSugerido) : '—'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Notas al pie */}
+                  <div style={{
+                    marginTop: '14px',
+                    paddingTop: '12px',
+                    borderTop: '1px solid rgba(244, 237, 228, 0.1)'
+                  }}>
+                    <p style={{
+                      fontSize: '11px',
+                      color: '#F4EDE4',
+                      opacity: 0.6,
+                      margin: '0 0 4px 0',
+                      lineHeight: '1.4'
+                    }}>
+                      *Montos sin IVA
+                    </p>
+                    <p style={{
+                      fontSize: '11px',
+                      color: '#F4EDE4',
+                      opacity: 0.6,
+                      margin: 0,
+                      lineHeight: '1.4'
+                    }}>
+                      *Otras comisiones pueden aplicarse dependiendo del método de pago del comprador.
+                    </p>
+                  </div>
+                </div>
+              )
+            })()}
 
             {/* Notas de montaje */}
             <div className={styles.formGroup}>
