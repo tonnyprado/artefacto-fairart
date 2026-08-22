@@ -6,6 +6,7 @@ import { SUBTEMAS, HERO, CIERRE, INTRO, LOGO, PHOTOS } from './content';
 import { cls } from './classes';
 import PhotoRail from './PhotoRail';
 import LogoMask from './LogoMask';
+import QueueIndex from './QueueIndex';
 import PinnedIntro from './PinnedIntro';
 import SubtemaSection from './SubtemaSection';
 
@@ -41,6 +42,8 @@ export default function ConocerMas() {
   const pinRef = useRef(null);
   const introRef = useRef(null);
   const sectionRefs = useRef([]);
+  const labelsRef = useRef([]); // Labels apilados (QueueIndex)
+  const stickyLabelsRef = useRef([]); // Labels sticky dentro de secciones
 
   // Refs Móvil
   const mobileLogoRef = useRef(null);
@@ -169,13 +172,14 @@ export default function ConocerMas() {
   }, [isMounted, isDesktop]);
 
   // ========== ANIMACIONES DESKTOP ==========
-  // Los labels ahora están dentro de SubtemaSection con position:sticky
-  // Solo necesitamos animar: carril de fotos, "CONOCE MÁS" ghost, y PinnedIntro
+  // Coordinación entre labels apilados (QueueIndex) y labels sticky (SubtemaSection)
+  // Cuando la sección entra al viewport, el label apilado se desvanece y el sticky aparece
   useEffect(() => {
     if (!isMounted || isDesktop === null || !isDesktop) return;
 
     const track = trackRef.current;
     const rail = track?.parentElement;
+    const mask = maskRef.current;
     const ghost = ghostRef.current;
     const pin = pinRef.current;
     const flow = introRef.current;
@@ -214,6 +218,8 @@ export default function ConocerMas() {
       const s = getScrollY();
       const vh = window.innerHeight || document.documentElement.clientHeight || 800;
       const sections = sectionRefs.current.filter(Boolean);
+      const stackedLabels = labelsRef.current.filter(Boolean);
+      const stickyLabels = stickyLabelsRef.current.filter(Boolean);
 
       // 1) Carril de fotos
       if (track && rail) {
@@ -221,7 +227,55 @@ export default function ConocerMas() {
         setTrackY(-Math.min(s * PHOTO_SPEED, maxTy));
       }
 
-      // 2) "CONOCE MÁS" visibility - se oculta cuando la primera sección llega
+      // 2) Calcular posición del LogoMask para referencia
+      let maskBottom;
+      try {
+        maskBottom = mask ? mask.getBoundingClientRect().bottom : NAVBAR_HEIGHT + 150;
+      } catch (e) {
+        maskBottom = NAVBAR_HEIGHT + 150;
+      }
+
+      // 3) Coordinación de labels: apilados vs sticky
+      // El label apilado se desvanece cuando su sección entra, el sticky aparece
+      const triggerPoint = vh * 0.85; // Punto donde empieza la transición
+
+      for (let i = 0; i < sections.length; i++) {
+        const section = sections[i];
+        const stackedLabel = stackedLabels[i];
+        const stickyLabel = stickyLabels[i];
+
+        if (!section) continue;
+
+        let sectionTop;
+        try {
+          sectionTop = section.getBoundingClientRect().top;
+        } catch (e) {
+          continue;
+        }
+
+        // Calcular progreso de la transición
+        // 0 = sección no ha llegado, 1 = sección completamente en viewport
+        const transitionZone = vh * 0.3; // Zona de transición
+        let progress = 0;
+
+        if (sectionTop < triggerPoint) {
+          progress = Math.min(1, (triggerPoint - sectionTop) / transitionZone);
+        }
+
+        // Label apilado: se desvanece (1 -> 0)
+        if (stackedLabel) {
+          stackedLabel.style.opacity = String(1 - progress);
+          // También mover hacia arriba mientras se desvanece
+          stackedLabel.style.transform = `translateY(${-progress * 30}px)`;
+        }
+
+        // Label sticky: aparece (0 -> 1)
+        if (stickyLabel) {
+          stickyLabel.style.opacity = String(progress);
+        }
+      }
+
+      // 4) "CONOCE MÁS" visibility - se oculta cuando la primera sección llega
       const firstSection = sections[0];
       if (ghost && firstSection) {
         try {
@@ -232,7 +286,7 @@ export default function ConocerMas() {
         }
       }
 
-      // 3) Manifiesto fijado - texto INTRO sticky
+      // 5) Manifiesto fijado - texto INTRO sticky
       let flowRect;
       try {
         flowRect = flow?.getBoundingClientRect();
@@ -517,6 +571,7 @@ export default function ConocerMas() {
     <div className="bg-crema font-sans text-tinta">
       <PhotoRail trackRef={trackRef} navbarHeight={NAVBAR_HEIGHT} />
       <PinnedIntro pinRef={pinRef} navbarHeight={NAVBAR_HEIGHT} />
+      <QueueIndex labelsRef={labelsRef} navbarHeight={NAVBAR_HEIGHT} />
       <LogoMask maskRef={maskRef} ghostRef={ghostRef} navbarHeight={NAVBAR_HEIGHT} />
 
       <main className="relative z-[2]">
@@ -536,6 +591,9 @@ export default function ConocerMas() {
             data={s}
             sectionRef={(el) => {
               if (el) sectionRefs.current[i] = el;
+            }}
+            labelRef={(el) => {
+              if (el) stickyLabelsRef.current[i] = el;
             }}
             introRef={i === 0 ? introRef : undefined}
             minH={i === 2 ? 'min-h-[130vh]' : i === 3 ? '' : 'min-h-[110vh]'}
