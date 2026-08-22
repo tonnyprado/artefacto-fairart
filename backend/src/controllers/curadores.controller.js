@@ -24,11 +24,43 @@ const useDatabase = () => !!pool
  */
 export const getAllCuradores = async (req, res) => {
   try {
+    if (useDatabase()) {
+      // Query optimizada con conteo de votaciones
+      const result = await pool.query(`
+        SELECT
+          c.*,
+          u.email as usuario_email,
+          u.role as usuario_role,
+          COALESCE(v_count.total_votaciones, 0) as total_votaciones
+        FROM curadores c
+        LEFT JOIN usuarios u ON u.id = c.usuario_id
+        LEFT JOIN LATERAL (
+          SELECT COUNT(*) as total_votaciones
+          FROM votaciones
+          WHERE curador_id = c.id
+        ) v_count ON true
+        ORDER BY c.created_at DESC
+      `)
+
+      return res.json({
+        success: true,
+        data: result.rows
+      })
+    }
+
+    // Fallback a mockData
+    // Agregar conteo de votaciones a cada curador
+    const curadoresConVotaciones = curadores.map(c => ({
+      ...c,
+      total_votaciones: votaciones.filter(v => v.curador_id === c.id).length
+    }))
+
     res.json({
       success: true,
-      data: curadores
+      data: curadoresConVotaciones
     })
   } catch (error) {
+    console.error('Error al obtener curadores:', error)
     res.status(500).json({
       success: false,
       error: 'Error al obtener curadores'
@@ -43,6 +75,38 @@ export const getAllCuradores = async (req, res) => {
 export const getCuradorById = async (req, res) => {
   try {
     const { id } = req.params
+
+    if (useDatabase()) {
+      const result = await pool.query(`
+        SELECT
+          c.*,
+          u.email as usuario_email,
+          u.role as usuario_role,
+          COALESCE(v_count.total_votaciones, 0) as total_votaciones
+        FROM curadores c
+        LEFT JOIN usuarios u ON u.id = c.usuario_id
+        LEFT JOIN LATERAL (
+          SELECT COUNT(*) as total_votaciones
+          FROM votaciones
+          WHERE curador_id = c.id
+        ) v_count ON true
+        WHERE c.id = $1
+      `, [id])
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Curador no encontrado'
+        })
+      }
+
+      return res.json({
+        success: true,
+        data: result.rows[0]
+      })
+    }
+
+    // Fallback a mockData
     const curador = curadores.find(c => c.id === parseInt(id))
 
     if (!curador) {
@@ -63,6 +127,7 @@ export const getCuradorById = async (req, res) => {
       }
     })
   } catch (error) {
+    console.error('Error al obtener curador:', error)
     res.status(500).json({
       success: false,
       error: 'Error al obtener curador'
@@ -231,6 +296,74 @@ export const updateCurador = async (req, res) => {
       activo
     } = req.body
 
+    if (useDatabase()) {
+      // Verificar que el curador existe
+      const checkCurador = await pool.query('SELECT * FROM curadores WHERE id = $1', [id])
+      if (checkCurador.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Curador no encontrado'
+        })
+      }
+
+      const curadorActual = checkCurador.rows[0]
+
+      // Si se cambia el email, verificar que no esté en uso
+      if (email && email !== curadorActual.email) {
+        const emailCheck = await pool.query(
+          'SELECT id FROM usuarios WHERE email = $1 AND id != $2',
+          [email, curadorActual.usuario_id]
+        )
+        if (emailCheck.rows.length > 0) {
+          return res.status(400).json({
+            success: false,
+            error: 'El email ya está en uso'
+          })
+        }
+
+        // Actualizar email en usuario
+        await pool.query(
+          'UPDATE usuarios SET email = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+          [email, curadorActual.usuario_id]
+        )
+      }
+
+      // Construir UPDATE dinámico
+      const updates = []
+      const values = []
+      let paramCount = 1
+
+      if (nombre !== undefined) { updates.push(`nombre = $${paramCount}`); values.push(nombre); paramCount++ }
+      if (apellido !== undefined) { updates.push(`apellido = $${paramCount}`); values.push(apellido); paramCount++ }
+      if (email !== undefined) { updates.push(`email = $${paramCount}`); values.push(email); paramCount++ }
+      if (telefono !== undefined) { updates.push(`telefono = $${paramCount}`); values.push(telefono); paramCount++ }
+      if (especialidad !== undefined) { updates.push(`especialidad = $${paramCount}`); values.push(especialidad); paramCount++ }
+      if (bio !== undefined) { updates.push(`bio = $${paramCount}`); values.push(bio); paramCount++ }
+      if (foto !== undefined) { updates.push(`foto = $${paramCount}`); values.push(foto); paramCount++ }
+      if (activo !== undefined) { updates.push(`activo = $${paramCount}`); values.push(activo); paramCount++ }
+      updates.push('updated_at = CURRENT_TIMESTAMP')
+
+      if (updates.length === 1) {
+        return res.json({
+          success: true,
+          data: curadorActual,
+          message: 'No hay cambios que actualizar'
+        })
+      }
+
+      values.push(id)
+      const query = `UPDATE curadores SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING *`
+
+      const result = await pool.query(query, values)
+
+      return res.json({
+        success: true,
+        data: result.rows[0],
+        message: 'Curador actualizado exitosamente'
+      })
+    }
+
+    // Fallback a mockData
     const curadorIndex = curadores.findIndex(c => c.id === parseInt(id))
 
     if (curadorIndex === -1) {
@@ -278,6 +411,7 @@ export const updateCurador = async (req, res) => {
       message: 'Curador actualizado exitosamente'
     })
   } catch (error) {
+    console.error('Error al actualizar curador:', error)
     res.status(500).json({
       success: false,
       error: 'Error al actualizar curador'
@@ -292,6 +426,29 @@ export const updateCurador = async (req, res) => {
 export const activarCurador = async (req, res) => {
   try {
     const { id } = req.params
+
+    if (useDatabase()) {
+      const result = await pool.query(
+        `UPDATE curadores SET activo = true, updated_at = CURRENT_TIMESTAMP
+         WHERE id = $1 RETURNING *`,
+        [id]
+      )
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Curador no encontrado'
+        })
+      }
+
+      return res.json({
+        success: true,
+        data: result.rows[0],
+        message: 'Curador activado exitosamente'
+      })
+    }
+
+    // Fallback a mockData
     const curadorIndex = curadores.findIndex(c => c.id === parseInt(id))
 
     if (curadorIndex === -1) {
@@ -310,6 +467,7 @@ export const activarCurador = async (req, res) => {
       message: 'Curador activado exitosamente'
     })
   } catch (error) {
+    console.error('Error al activar curador:', error)
     res.status(500).json({
       success: false,
       error: 'Error al activar curador'
@@ -324,6 +482,29 @@ export const activarCurador = async (req, res) => {
 export const desactivarCurador = async (req, res) => {
   try {
     const { id } = req.params
+
+    if (useDatabase()) {
+      const result = await pool.query(
+        `UPDATE curadores SET activo = false, updated_at = CURRENT_TIMESTAMP
+         WHERE id = $1 RETURNING *`,
+        [id]
+      )
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Curador no encontrado'
+        })
+      }
+
+      return res.json({
+        success: true,
+        data: result.rows[0],
+        message: 'Curador desactivado exitosamente'
+      })
+    }
+
+    // Fallback a mockData
     const curadorIndex = curadores.findIndex(c => c.id === parseInt(id))
 
     if (curadorIndex === -1) {
@@ -342,6 +523,7 @@ export const desactivarCurador = async (req, res) => {
       message: 'Curador desactivado exitosamente'
     })
   } catch (error) {
+    console.error('Error al desactivar curador:', error)
     res.status(500).json({
       success: false,
       error: 'Error al desactivar curador'
@@ -356,6 +538,46 @@ export const desactivarCurador = async (req, res) => {
 export const deleteCurador = async (req, res) => {
   try {
     const { id } = req.params
+
+    if (useDatabase()) {
+      // Verificar que el curador existe
+      const checkCurador = await pool.query('SELECT * FROM curadores WHERE id = $1', [id])
+      if (checkCurador.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Curador no encontrado'
+        })
+      }
+
+      const curador = checkCurador.rows[0]
+
+      // Verificar si tiene votaciones
+      const votacionesCheck = await pool.query(
+        'SELECT COUNT(*) as total FROM votaciones WHERE curador_id = $1',
+        [id]
+      )
+      if (parseInt(votacionesCheck.rows[0].total) > 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'No se puede eliminar un curador con votaciones registradas. Considere desactivarlo en su lugar.'
+        })
+      }
+
+      // Eliminar curador (CASCADE eliminará el usuario automáticamente si está configurado)
+      await pool.query('DELETE FROM curadores WHERE id = $1', [id])
+
+      // También eliminar el usuario asociado
+      if (curador.usuario_id) {
+        await pool.query('DELETE FROM usuarios WHERE id = $1', [curador.usuario_id])
+      }
+
+      return res.json({
+        success: true,
+        message: 'Curador eliminado exitosamente'
+      })
+    }
+
+    // Fallback a mockData
     const curadorIndex = curadores.findIndex(c => c.id === parseInt(id))
 
     if (curadorIndex === -1) {
@@ -389,6 +611,7 @@ export const deleteCurador = async (req, res) => {
       message: 'Curador eliminado exitosamente'
     })
   } catch (error) {
+    console.error('Error al eliminar curador:', error)
     res.status(500).json({
       success: false,
       error: 'Error al eliminar curador'
@@ -403,6 +626,37 @@ export const deleteCurador = async (req, res) => {
 export const getVotacionesCurador = async (req, res) => {
   try {
     const { id } = req.params
+
+    if (useDatabase()) {
+      // Verificar que el curador existe
+      const checkCurador = await pool.query('SELECT id FROM curadores WHERE id = $1', [id])
+      if (checkCurador.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Curador no encontrado'
+        })
+      }
+
+      // Obtener votaciones con información del artista
+      const result = await pool.query(`
+        SELECT
+          v.*,
+          a.nombre as artista_nombre,
+          a.apellido as artista_apellido,
+          a.categoria as artista_categoria
+        FROM votaciones v
+        LEFT JOIN artistas a ON a.id = v.artista_id
+        WHERE v.curador_id = $1
+        ORDER BY v.created_at DESC
+      `, [id])
+
+      return res.json({
+        success: true,
+        data: result.rows
+      })
+    }
+
+    // Fallback a mockData
     const curador = curadores.find(c => c.id === parseInt(id))
 
     if (!curador) {
@@ -419,6 +673,7 @@ export const getVotacionesCurador = async (req, res) => {
       data: votacionesCurador
     })
   } catch (error) {
+    console.error('Error al obtener votaciones del curador:', error)
     res.status(500).json({
       success: false,
       error: 'Error al obtener votaciones del curador'

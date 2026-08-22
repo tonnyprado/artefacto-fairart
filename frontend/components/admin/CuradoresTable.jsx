@@ -1,12 +1,22 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useCuradoresStore } from '@/stores/curadoresStore'
 import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell } from '@/components/ui/Table'
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
 import Input from '@/components/ui/Input'
+
+// Generador de contraseña temporal
+const generateTempPassword = () => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'
+  let password = ''
+  for (let i = 0; i < 12; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return password
+}
 
 /**
  * CuradoresTable - Tabla de gestión de curadores
@@ -45,8 +55,10 @@ export default function CuradoresTable() {
     email: '',
     telefono: '',
     especialidad: '',
-    bio: ''
+    bio: '',
+    password: ''
   })
+  const [showPassword, setShowPassword] = useState(false)
 
   const resetForm = () => {
     setFormData({
@@ -55,12 +67,25 @@ export default function CuradoresTable() {
       email: '',
       telefono: '',
       especialidad: '',
-      bio: ''
+      bio: '',
+      password: ''
     })
+    setShowPassword(false)
   }
 
   const handleCreate = () => {
-    resetForm()
+    // Generar contraseña temporal automáticamente
+    const tempPassword = generateTempPassword()
+    setFormData({
+      nombre: '',
+      apellido: '',
+      email: '',
+      telefono: '',
+      especialidad: '',
+      bio: '',
+      password: tempPassword
+    })
+    setShowPassword(false)
     setShowCreateModal(true)
   }
 
@@ -333,9 +358,53 @@ export default function CuradoresTable() {
             />
           </div>
 
-          <div className="bg-blue-50 border-l-4 border-blue-400 p-4">
-            <p className="text-sm text-blue-700">
-              Se generará una contraseña temporal y se enviará un email al curador con instrucciones para cambiarla.
+          {/* Campo de contraseña generada */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Contraseña Temporal
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full px-4 py-2 pr-24 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent font-mono"
+                required
+              />
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="px-2 py-1 text-xs text-gray-600 hover:text-gray-800 bg-gray-100 rounded"
+                >
+                  {showPassword ? 'Ocultar' : 'Ver'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(formData.password)
+                    alert('Contraseña copiada al portapapeles')
+                  }}
+                  className="px-2 py-1 text-xs text-blue-600 hover:text-blue-800 bg-blue-50 rounded"
+                >
+                  Copiar
+                </button>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setFormData(prev => ({ ...prev, password: generateTempPassword() }))}
+              className="text-sm text-red-600 hover:text-red-800 underline"
+            >
+              Regenerar contraseña
+            </button>
+          </div>
+
+          <div className="bg-amber-50 border-l-4 border-amber-400 p-4">
+            <p className="text-sm text-amber-700">
+              <strong>Importante:</strong> Copia esta contraseña y entrégala al curador de forma segura.
+              El curador la necesitará para acceder al sistema por primera vez.
             </p>
           </div>
         </form>

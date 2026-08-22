@@ -179,6 +179,36 @@ export const useCuradoresStore = create((set, get) => ({
   },
 
   /**
+   * Toggle activo/inactivo de curador (admin only)
+   * Llama a activar o desactivar según el estado actual
+   */
+  toggleActivo: async (id, nuevoEstado) => {
+    set({ isLoading: true, error: null })
+    try {
+      // Llamar al endpoint correcto según el nuevo estado
+      const response = nuevoEstado
+        ? await curadoresApi.activar(id)
+        : await curadoresApi.desactivar(id)
+
+      // Actualizar en el estado local
+      set(state => ({
+        curadores: state.curadores.map(c =>
+          c.id === id ? { ...c, activo: nuevoEstado, ...response.data } : c
+        ),
+        isLoading: false
+      }))
+
+      return { success: true, data: response.data }
+    } catch (error) {
+      set({
+        error: error.message,
+        isLoading: false
+      })
+      return { success: false, error: error.message }
+    }
+  },
+
+  /**
    * Eliminar curador (admin only)
    */
   deleteCurador: async (id) => {

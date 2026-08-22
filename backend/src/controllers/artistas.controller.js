@@ -228,8 +228,43 @@ export const getArtistaById = async (req, res) => {
     const { id } = req.params
 
     if (useDatabase()) {
-      // Obtener artista con fases y votos
-      const artistaResult = await pool.query('SELECT * FROM artistas WHERE id = $1', [id])
+      // Query optimizada: obtener artista con paquete, fase y conteo de votos en una sola consulta
+      const artistaResult = await pool.query(`
+        SELECT
+          a.*,
+          p.id as paquete_id_info,
+          p.nombre as paquete_nombre,
+          p.tipo as paquete_tipo,
+          p.metros_lineales as paquete_metros_lineales,
+          p.altura_pared as paquete_altura_pared,
+          p.metros_cuadrados as paquete_metros_cuadrados,
+          p.precio as paquete_precio,
+          p.obras_maximas as paquete_obras_maximas,
+          f.id as fase_id,
+          f.nombre as fase_nombre,
+          f.numero_fase as fase_numero,
+          f.inscripciones_abiertas as fase_inscripciones_abiertas,
+          f.votaciones_abiertas as fase_votaciones_abiertas,
+          f.descripcion as fase_descripcion,
+          COALESCE(v_stats.total_votos, 0) as total_votos,
+          COALESCE(v_stats.votos_favor, 0) as votos_favor,
+          COALESCE(v_stats.votos_contra, 0) as votos_contra,
+          ARRAY_AGG(DISTINCT af.fase_id) FILTER (WHERE af.fase_id IS NOT NULL) as fases_ids
+        FROM artistas a
+        LEFT JOIN paquetes p ON p.id = a.paquete_id
+        LEFT JOIN artistas_fases af ON af.artista_id = a.id
+        LEFT JOIN fases f ON f.id = af.fase_id
+        LEFT JOIN LATERAL (
+          SELECT
+            COUNT(*) as total_votos,
+            COUNT(*) FILTER (WHERE voto = true) as votos_favor,
+            COUNT(*) FILTER (WHERE voto = false) as votos_contra
+          FROM votaciones
+          WHERE artista_id = a.id
+        ) v_stats ON true
+        WHERE a.id = $1
+        GROUP BY a.id, p.id, f.id, v_stats.total_votos, v_stats.votos_favor, v_stats.votos_contra
+      `, [id])
 
       if (artistaResult.rows.length === 0) {
         return res.status(404).json({
@@ -238,60 +273,66 @@ export const getArtistaById = async (req, res) => {
         })
       }
 
-      const artista = artistaResult.rows[0]
+      const row = artistaResult.rows[0]
 
-      // Obtener fases en las que participa
-      const fasesResult = await pool.query(
-        'SELECT fase_id FROM artistas_fases WHERE artista_id = $1',
-        [id]
-      )
-      const fasesArtista = fasesResult.rows.map(row => row.fase_id)
+      // Extraer datos del artista
+      const artista = {
+        id: row.id,
+        nombre: row.nombre,
+        apellido: row.apellido,
+        nombre_artistico: row.nombre_artistico,
+        email: row.email,
+        telefono: row.telefono,
+        fecha_nacimiento: row.fecha_nacimiento,
+        ciudad: row.ciudad,
+        pais: row.pais,
+        categoria: row.categoria,
+        bio: row.bio,
+        foto: row.foto,
+        instagram: row.instagram,
+        facebook: row.facebook,
+        website: row.website,
+        cv_url: row.cv_url,
+        portfolio_url: row.portfolio_url,
+        identificacion_url: row.identificacion_url,
+        paquete_id: row.paquete_id,
+        layout_canvas_url: row.layout_canvas_url,
+        layout_canvas_data: row.layout_canvas_data,
+        aprobado: row.aprobado,
+        estado_registro: row.estado_registro,
+        folio: row.folio,
+        created_at: row.created_at,
+        updated_at: row.updated_at
+      }
 
-      // Contar votos
-      const votosResult = await pool.query(
-        'SELECT COUNT(*) as total FROM votaciones WHERE artista_id = $1',
-        [id]
-      )
-      const totalVotos = parseInt(votosResult.rows[0].total)
+      const fasesArtista = row.fases_ids || []
+      const totalVotos = parseInt(row.total_votos) || 0
 
-      // Obtener obras del artista
+      // Construir info del paquete
+      const paqueteInfo = row.paquete_id_info ? {
+        id: row.paquete_id_info,
+        nombre: row.paquete_nombre,
+        tipo: row.paquete_tipo,
+        metros_lineales: row.paquete_metros_lineales,
+        altura_pared: row.paquete_altura_pared,
+        metros_cuadrados: row.paquete_metros_cuadrados,
+        precio: row.paquete_precio,
+        obras_maximas: row.paquete_obras_maximas
+      } : null
+
+      // Construir info de la fase
+      const faseInfo = row.fase_id ? {
+        id: row.fase_id,
+        nombre: row.fase_nombre,
+        numero_fase: row.fase_numero,
+        inscripciones_abiertas: row.fase_inscripciones_abiertas,
+        votaciones_abiertas: row.fase_votaciones_abiertas,
+        descripcion: row.fase_descripcion
+      } : null
+
+      // Segunda query: obtener obras (necesario para el array completo)
       const obrasResult = await pool.query(
         'SELECT * FROM obras WHERE artista_id = $1 ORDER BY created_at DESC',
-        [id]
-      )
-
-      // Obtener información del paquete
-      let paqueteInfo = null
-      if (artista.paquete_id) {
-        const paqueteResult = await pool.query(
-          'SELECT * FROM paquetes WHERE id = $1',
-          [artista.paquete_id]
-        )
-        if (paqueteResult.rows.length > 0) {
-          paqueteInfo = paqueteResult.rows[0]
-        }
-      }
-
-      // Obtener información de la fase de inscripción
-      let faseInfo = null
-      const faseResult = await pool.query(
-        `SELECT f.* FROM fases f
-         INNER JOIN artistas_fases af ON af.fase_id = f.id
-         WHERE af.artista_id = $1
-         LIMIT 1`,
-        [id]
-      )
-      if (faseResult.rows.length > 0) {
-        faseInfo = faseResult.rows[0]
-      }
-
-      // Contar votos a favor y en contra
-      const votosFavorResult = await pool.query(
-        'SELECT COUNT(*) as total FROM votaciones WHERE artista_id = $1 AND voto = true',
-        [id]
-      )
-      const votosContraResult = await pool.query(
-        'SELECT COUNT(*) as total FROM votaciones WHERE artista_id = $1 AND voto = false',
         [id]
       )
 
@@ -373,8 +414,8 @@ export const getArtistaById = async (req, res) => {
           } : null,
           fases: fasesArtista,
           total_votos: totalVotos,
-          total_votos_favor: parseInt(votosFavorResult.rows[0].total) || 0,
-          total_votos_contra: parseInt(votosContraResult.rows[0].total) || 0,
+          total_votos_favor: parseInt(row.votos_favor) || 0,
+          total_votos_contra: parseInt(row.votos_contra) || 0,
           estado: artista.estado_registro || artista.estado || 'pendiente'
         }
       })
