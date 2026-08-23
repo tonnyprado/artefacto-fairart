@@ -342,18 +342,22 @@ export default function ConocerMas() {
           const ghostHeight = ghostRect.height;
 
           // Cuando el sticky label se acerca al ghost, empujar el ghost hacia arriba
-          if (distance < ghostHeight * 2) {
-            // Calcular cuánto empujar (0 cuando están lejos, ghostHeight cuando chocan)
-            const pushAmount = Math.max(0, ghostHeight * 2 - distance);
-            const pushProgress = Math.min(1, pushAmount / (ghostHeight * 2));
+          if (distance < ghostHeight * 1.5) {
+            // Calcular cuánto empujar
+            const pushAmount = Math.max(0, ghostHeight * 1.5 - distance);
+            const pushProgress = Math.min(1, pushAmount / (ghostHeight * 1.5));
 
             // Mover hacia arriba y desvanecer
             ghost.style.transform = `translateY(${-pushAmount}px)`;
-            ghost.style.opacity = String(1 - pushProgress);
+            ghost.style.opacity = String(Math.max(0, 1 - pushProgress * 1.5));
+
+            // Ocultar completamente cuando está totalmente empujado
+            ghost.style.visibility = pushProgress >= 0.8 ? 'hidden' : 'visible';
           } else {
             // Reset cuando están lejos
             ghost.style.transform = 'translateY(0)';
             ghost.style.opacity = '1';
+            ghost.style.visibility = 'visible';
           }
         } catch (e) {
           // Ignorar errores de getBoundingClientRect
