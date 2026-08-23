@@ -60,7 +60,7 @@ function Block({ b, introRef }) {
 /**
  * StickyLabel - Título sticky que se mueve con la sección
  * Se posiciona debajo del LogoMask y empuja al label anterior
- * Empieza invisible (opacity: 0) y aparece cuando la sección entra al viewport
+ * Visible por defecto, el JS controla transiciones suaves
  */
 function StickyLabel({ words, sectionId, labelRef, navbarHeight = NAVBAR_HEIGHT }) {
   const handleClick = () => {
@@ -80,13 +80,13 @@ function StickyLabel({ words, sectionId, labelRef, navbarHeight = NAVBAR_HEIGHT 
     <div
       ref={labelRef}
       onClick={handleClick}
-      className={`sticky z-[11] cursor-pointer bg-crema ${cls.labelW} ${cls.labelPad} ${cls.rule} hover:bg-rojo/10 transition-colors`}
+      className={`sticky z-[11] cursor-pointer bg-crema ${cls.labelW} ${cls.labelPad} ${cls.rule} hover:bg-rojo/10 transition-opacity duration-300`}
       style={{
         // Posición sticky: misma posición que el ghost (justo debajo del logo)
         top: `calc(${navbarHeight}px + min(24px, 1.2vw) + min(130px, 9.8vw))`,
         marginLeft: `calc(-25vw)`, // Compensar el ml-[25vw] del section
         marginBottom: '2vh',
-        opacity: 0, // Empieza invisible, se controla via JS
+        // Visible por defecto - el JS suaviza las transiciones pero no es requerido
       }}
     >
       <div className={cls.labelRow}>
