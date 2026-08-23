@@ -223,6 +223,22 @@ export default function ConocerMas() {
       }
     };
 
+    // Calcular altura fija del pin una vez (basada en posición sticky del label)
+    let pinHeight = null;
+
+    const calculatePinHeight = () => {
+      const firstStickyLabel = stickyLabelsRef.current[0];
+      if (firstStickyLabel) {
+        // Obtener el valor de 'top' del sticky label (posición CSS fija)
+        const labelStyle = window.getComputedStyle(firstStickyLabel);
+        const labelTop = parseFloat(labelStyle.top) || 0;
+        // Altura del label
+        const labelHeight = firstStickyLabel.offsetHeight;
+        // La altura del pin = top del sticky label + altura del label
+        pinHeight = labelTop + labelHeight;
+      }
+    };
+
     const placePin = () => {
       if (!flow || !pin) return;
       try {
@@ -232,12 +248,12 @@ export default function ConocerMas() {
           pin.style.width = r.width + 'px';
         }
 
-        // Medir la posición real del primer sticky label para alinear el borde del PinnedIntro
-        const firstStickyLabel = stickyLabelsRef.current[0];
-        if (firstStickyLabel) {
-          const labelRect = firstStickyLabel.getBoundingClientRect();
-          // La altura del PinnedIntro debe llegar hasta el borde inferior del sticky label
-          pin.style.height = labelRect.bottom + 'px';
+        // Usar altura fija calculada (no cambia con scroll)
+        if (pinHeight === null) {
+          calculatePinHeight();
+        }
+        if (pinHeight) {
+          pin.style.height = pinHeight + 'px';
         }
       } catch (e) {
         console.warn('ConocerMas: Error placing pin');
@@ -348,9 +364,6 @@ export default function ConocerMas() {
           placePin();
           pin.style.display = 'block';
           flow.style.visibility = 'hidden';
-        } else if (shouldPin && pinned) {
-          // Mantener actualizada la posición mientras está pinned (para responsive)
-          placePin();
         } else if (!shouldPin && pinned) {
           pinned = false;
           pin.style.display = 'none';
@@ -394,7 +407,9 @@ export default function ConocerMas() {
     // Handler de resize que actualiza medidas y posición del pin
     const onResize = () => {
       measure();
-      // Siempre actualizar placePin en resize para mantener alineación
+      // Recalcular altura del pin en resize (puede cambiar con el viewport)
+      pinHeight = null;
+      calculatePinHeight();
       if (pin) {
         placePin();
       }
