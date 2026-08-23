@@ -61,11 +61,15 @@ export function Obra2D({
     let currentX = e.target.x()
     let currentY = e.target.y()
 
-    // Aplicar límites solo horizontales (lados izquierdo y derecho)
+    // Límites horizontales: usar área delimitada del paquete (lados)
     const minX = areaRestriccion.x
     const maxX = areaRestriccion.x + areaRestriccion.width - obra.width
 
-    // Limitar X (solo lados)
+    // Límites verticales: usar área libre del canvas (arriba/abajo)
+    const minY = freeArea.y
+    const maxY = freeArea.y + freeArea.height - obra.height
+
+    // Limitar X (lados del paquete)
     if (currentX < minX) {
       e.target.x(minX)
       currentX = minX
@@ -74,7 +78,14 @@ export function Obra2D({
       currentX = maxX
     }
 
-    // Sin límites verticales (arriba/abajo) - el artista puede posicionar libremente
+    // Limitar Y (bordes del canvas, no del paquete)
+    if (currentY < minY) {
+      e.target.y(minY)
+      currentY = minY
+    } else if (currentY > maxY) {
+      e.target.y(maxY)
+      currentY = maxY
+    }
 
     // Verificar colisión y actualizar guías
     const currentCollision = checkPositionHasCollision({ x: currentX, y: currentY })
