@@ -231,6 +231,14 @@ export default function ConocerMas() {
           pin.style.left = r.left + 'px';
           pin.style.width = r.width + 'px';
         }
+
+        // Medir la posición real del primer sticky label para alinear el borde del PinnedIntro
+        const firstStickyLabel = stickyLabelsRef.current[0];
+        if (firstStickyLabel) {
+          const labelRect = firstStickyLabel.getBoundingClientRect();
+          // La altura del PinnedIntro debe llegar hasta el borde inferior del sticky label
+          pin.style.height = labelRect.bottom + 'px';
+        }
       } catch (e) {
         console.warn('ConocerMas: Error placing pin');
       }
