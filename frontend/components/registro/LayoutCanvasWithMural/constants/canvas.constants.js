@@ -84,6 +84,6 @@ export const EXPORT_CONFIG = {
 }
 
 // ========== CURSOR PARA ARRASTRAR ==========
-// PNG 32x32 con círculo rojo y flechas blancas
-export const CURSOR_DRAG = 'url("/cursor-drag.png") 16 16, move'
-export const CURSOR_DRAGGING = 'url("/cursor-drag.png") 16 16, move'
+// Cursor nativo 'move' (flechas en cruz, sólido sin transparencia)
+export const CURSOR_DRAG = 'move'
+export const CURSOR_DRAGGING = 'move'
