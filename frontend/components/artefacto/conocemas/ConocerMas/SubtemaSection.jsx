@@ -60,8 +60,10 @@ function Block({ b, introRef }) {
 /**
  * StickyLabel - Título sticky que se mueve con la sección
  * Se posiciona debajo del LogoMask y empuja al label anterior
- * Empieza oculto (opacity: 0) y el JS lo controla
+ * Empieza oculto (opacity: 0, visibility: hidden) y el JS lo controla
  * Usa constantes CSS compartidas para alineación perfecta con PinnedIntro
+ *
+ * IMPORTANTE: El JS en index.jsx coordina la visibilidad con los labels apilados
  */
 function StickyLabel({ words, sectionId, labelRef, navbarHeight = NAVBAR_HEIGHT }) {
   const handleClick = () => {
@@ -82,13 +84,17 @@ function StickyLabel({ words, sectionId, labelRef, navbarHeight = NAVBAR_HEIGHT 
       ref={labelRef}
       onClick={handleClick}
       data-sticky-label={sectionId}
-      className={`sticky z-[11] cursor-pointer bg-crema ${cls.labelW} ${cls.labelPad} ${cls.rule} hover:bg-rojo/10 transition-opacity duration-300`}
+      className={`sticky z-[11] cursor-pointer bg-crema ${cls.labelW} ${cls.labelPad} ${cls.rule} hover:bg-rojo/10 transition-colors duration-300`}
       style={{
         // Posición sticky: usa la constante compartida para consistencia
         top: CSS.stickyLabelTop(navbarHeight),
         marginLeft: 'calc(-25vw)', // Compensar el ml-[25vw] del section
         marginBottom: '2vh',
-        opacity: 0, // Empieza oculto, JS lo controla
+        // Estado inicial: oculto (el JS lo muestra cuando el stacked se oculta)
+        opacity: 0,
+        visibility: 'hidden',
+        // Transición suave para opacity controlada por JS
+        transition: 'opacity 0.3s ease, background-color 0.3s ease',
       }}
     >
       <div className={cls.labelRow}>

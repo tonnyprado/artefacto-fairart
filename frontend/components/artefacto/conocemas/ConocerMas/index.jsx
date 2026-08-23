@@ -34,6 +34,14 @@ const isTabletDevice = () => {
          (navigator.maxTouchPoints > 1 && window.innerWidth >= 768 && window.innerWidth <= 1366);
 };
 
+// Helper para detectar dispositivos táctiles (incluye laptops con pantalla táctil)
+const isTouchDevice = () => {
+  if (!isClient) return false;
+  return 'ontouchstart' in window ||
+         navigator.maxTouchPoints > 0 ||
+         window.matchMedia('(pointer: coarse)').matches;
+};
+
 /**
  * ConocerMas - Sección principal "CONOCE MÁS"
  *
@@ -196,6 +204,10 @@ export default function ConocerMas() {
     let introTop = null;
     let pinned = false;
 
+    // Detectar si es dispositivo táctil (incluye laptops con pantalla táctil)
+    const isTouch = isTouchDevice();
+    const isTablet = isTabletDevice();
+
     // Usar quickSetter si está disponible, sino función directa
     const setTrackY = track && gsap?.quickSetter
       ? gsap.quickSetter(track, 'y', 'px')
@@ -247,7 +259,9 @@ export default function ConocerMas() {
 
       // 3) Coordinación de labels: apilados vs sticky
       // El label apilado se desvanece cuando su sección entra, el sticky aparece
-      const triggerPoint = vh * 0.85; // Punto donde empieza la transición
+      // En tablets/touch, usar un trigger point más bajo para mejor UX
+      const triggerPoint = isTablet ? vh * 0.9 : vh * 0.85;
+      const transitionZone = isTablet ? vh * 0.25 : vh * 0.3;
 
       for (let i = 0; i < sections.length; i++) {
         const section = sections[i];
@@ -265,7 +279,6 @@ export default function ConocerMas() {
 
         // Calcular progreso de la transición
         // 0 = sección no ha llegado, 1 = sección completamente en viewport
-        const transitionZone = vh * 0.3; // Zona de transición
         let progress = 0;
 
         if (sectionTop < triggerPoint) {
@@ -274,14 +287,20 @@ export default function ConocerMas() {
 
         // Label apilado: se desvanece (1 -> 0)
         if (stackedLabel) {
-          stackedLabel.style.opacity = String(1 - progress);
+          const stackedOpacity = Math.max(0, 1 - progress);
+          stackedLabel.style.opacity = String(stackedOpacity);
           // También mover hacia arriba mientras se desvanece
           stackedLabel.style.transform = `translateY(${-progress * 30}px)`;
+          // Ocultar completamente cuando progress >= 1 para evitar cualquier artefacto
+          stackedLabel.style.visibility = progress >= 0.95 ? 'hidden' : 'visible';
         }
 
         // Label sticky: aparece (0 -> 1)
         if (stickyLabel) {
-          stickyLabel.style.opacity = String(progress);
+          const stickyOpacity = Math.min(1, progress);
+          stickyLabel.style.opacity = String(stickyOpacity);
+          // Mostrar solo cuando tiene opacidad significativa
+          stickyLabel.style.visibility = progress >= 0.05 ? 'visible' : 'hidden';
         }
       }
 
@@ -333,46 +352,94 @@ export default function ConocerMas() {
       }
     };
 
-    // Usar GSAP ticker si está disponible, sino requestAnimationFrame
+    // SIEMPRE usar requestAnimationFrame para máxima compatibilidad
+    // En dispositivos táctiles, GSAP ticker puede no funcionar correctamente
     let rafId = null;
-    const useRaf = !gsap?.ticker;
+    let isRunning = true;
 
-    if (useRaf) {
-      const loop = () => {
-        frame();
-        rafId = requestAnimationFrame(loop);
-      };
+    const loop = () => {
+      if (!isRunning) return;
+      frame();
       rafId = requestAnimationFrame(loop);
-    } else {
-      gsap.ticker.add(frame);
-    }
+    };
+
+    // Iniciar loop de animación
+    rafId = requestAnimationFrame(loop);
+
+    // También escuchar eventos de scroll como fallback para dispositivos táctiles
+    const onScroll = () => {
+      // El frame() ya se ejecuta en el RAF loop, pero esto asegura
+      // que se actualice inmediatamente en dispositivos táctiles
+      if (isTouch) {
+        frame();
+      }
+    };
+
+    // En tablets/touch, también escuchar touchmove para actualizaciones más frecuentes
+    const onTouchMove = () => {
+      frame();
+    };
 
     window.addEventListener('resize', measure);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    if (isTouch) {
+      window.addEventListener('touchmove', onTouchMove, { passive: true });
+    }
 
     // Esperar a que las fuentes estén listas si es posible
     if (document.fonts?.ready) {
       document.fonts.ready.then(measure).catch(() => {});
     }
 
-    // Inicializar inmediatamente
-    measure();
-    frame(); // Ejecutar frame inicial para setear opacidades
+    // Inicializar estado inmediatamente - CRÍTICO para evitar flash de contenido incorrecto
+    const initializeState = () => {
+      const stackedLabels = labelsRef.current.filter(Boolean);
+      const stickyLabels = stickyLabelsRef.current.filter(Boolean);
 
-    // Re-ejecutar después de delays para asegurar que refs estén listas
-    const t1 = setTimeout(() => { measure(); frame(); }, 100);
-    const t2 = setTimeout(() => { measure(); frame(); }, 500);
-    const t3 = setTimeout(() => { measure(); frame(); }, 1500);
+      // Estado inicial: todos los labels apilados visibles, sticky ocultos
+      stackedLabels.forEach((label) => {
+        if (label) {
+          label.style.opacity = '1';
+          label.style.visibility = 'visible';
+          label.style.transform = 'translateY(0)';
+        }
+      });
+
+      stickyLabels.forEach((label) => {
+        if (label) {
+          label.style.opacity = '0';
+          label.style.visibility = 'hidden';
+        }
+      });
+
+      // Ahora ejecutar frame para ajustar según posición de scroll actual
+      measure();
+      frame();
+    };
+
+    // Inicializar en múltiples momentos para asegurar que los refs estén listos
+    initializeState();
+    const t1 = setTimeout(initializeState, 50);
+    const t2 = setTimeout(initializeState, 150);
+    const t3 = setTimeout(initializeState, 300);
+    const t4 = setTimeout(initializeState, 600);
+    const t5 = setTimeout(initializeState, 1200);
 
     return () => {
-      if (useRaf && rafId) {
+      isRunning = false;
+      if (rafId) {
         cancelAnimationFrame(rafId);
-      } else if (gsap?.ticker) {
-        gsap.ticker.remove(frame);
       }
       window.removeEventListener('resize', measure);
+      window.removeEventListener('scroll', onScroll);
+      if (isTouch) {
+        window.removeEventListener('touchmove', onTouchMove);
+      }
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(t3);
+      clearTimeout(t4);
+      clearTimeout(t5);
     };
   }, [isMounted, isDesktop]);
 

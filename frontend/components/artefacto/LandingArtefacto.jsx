@@ -290,17 +290,29 @@ export default function LandingArtefacto() {
         const isTablet = /iPad|Android(?!.*Mobile)/i.test(navigator.userAgent) ||
                         (navigator.maxTouchPoints > 1 && window.innerWidth >= 768);
 
+        // Detectar laptops con pantalla táctil (Windows Surface, etc.)
+        const isTouchLaptop = navigator.maxTouchPoints > 0 &&
+                             !mobile &&
+                             !isTablet &&
+                             window.matchMedia('(pointer: fine)').matches;
+
+        // Detectar cualquier dispositivo con capacidad táctil
+        const hasTouch = 'ontouchstart' in window ||
+                        navigator.maxTouchPoints > 0 ||
+                        window.matchMedia('(pointer: coarse)').matches;
+
         lenis.current = new Lenis({
           autoRaf: true,
           // Velocidades balanceadas
-          duration: isTablet ? 1.3 : (mobile ? 1.2 : 1.4),
+          duration: isTablet ? 1.3 : (mobile ? 1.2 : (isTouchLaptop ? 1.25 : 1.4)),
           easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-          lerp: isTablet ? 0.1 : (mobile ? 0.1 : 0.08),
+          lerp: isTablet ? 0.1 : (mobile ? 0.1 : (isTouchLaptop ? 0.09 : 0.08)),
           wheelMultiplier: isTablet ? 0.9 : (mobile ? 0.9 : 0.9),
-          touchMultiplier: isTablet ? 1.4 : (mobile ? 1.3 : 1.1),
+          touchMultiplier: isTablet ? 1.4 : (mobile ? 1.3 : (isTouchLaptop ? 1.2 : 1.1)),
           smoothWheel: true,
-          syncTouch: mobile || isTablet,          // También activar en tablets
-          syncTouchLerp: isTablet ? 0.12 : (mobile ? 0.10 : 0.08),
+          // Activar syncTouch en cualquier dispositivo con capacidad táctil
+          syncTouch: mobile || isTablet || isTouchLaptop || hasTouch,
+          syncTouchLerp: isTablet ? 0.12 : (mobile ? 0.10 : (isTouchLaptop ? 0.09 : 0.08)),
           // Optimizaciones de rendimiento
           infinite: false,
           orientation: 'vertical',
