@@ -348,6 +348,9 @@ export default function ConocerMas() {
           placePin();
           pin.style.display = 'block';
           flow.style.visibility = 'hidden';
+        } else if (shouldPin && pinned) {
+          // Mantener actualizada la posición mientras está pinned (para responsive)
+          placePin();
         } else if (!shouldPin && pinned) {
           pinned = false;
           pin.style.display = 'none';
@@ -388,7 +391,16 @@ export default function ConocerMas() {
       frame();
     };
 
-    window.addEventListener('resize', measure);
+    // Handler de resize que actualiza medidas y posición del pin
+    const onResize = () => {
+      measure();
+      // Siempre actualizar placePin en resize para mantener alineación
+      if (pin) {
+        placePin();
+      }
+    };
+
+    window.addEventListener('resize', onResize);
     window.addEventListener('scroll', onScroll, { passive: true });
     if (isTouch) {
       window.addEventListener('touchmove', onTouchMove, { passive: true });
@@ -438,7 +450,7 @@ export default function ConocerMas() {
       if (rafId) {
         cancelAnimationFrame(rafId);
       }
-      window.removeEventListener('resize', measure);
+      window.removeEventListener('resize', onResize);
       window.removeEventListener('scroll', onScroll);
       if (isTouch) {
         window.removeEventListener('touchmove', onTouchMove);
