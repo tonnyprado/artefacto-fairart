@@ -7,6 +7,7 @@
 export const PLANTILLA_2D_URL = '/plantilla-base2.svg'
 export const PLANTILLA_3D_URL = '/PLANTILLA_3D.svg'
 export const NOTA_AREA_CONSIDERACION_2D_URL = '/nota-area-consideracion-2d.svg'
+export const NOTA_AREA_NO_DISPONIBLE_3D_URL = '/nota-area-no-disponible-3d.svg'
 
 // ========== DIMENSIONES DEL CANVAS ==========
 // Canvas 2D (mural horizontal)
