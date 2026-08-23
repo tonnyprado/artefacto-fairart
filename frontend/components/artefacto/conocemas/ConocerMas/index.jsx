@@ -447,6 +447,11 @@ export default function ConocerMas() {
         }
       });
 
+      // Calcular altura del pin cuando los refs estén listos
+      if (stickyLabels.length > 0 && pinHeight === null) {
+        calculatePinHeight();
+      }
+
       // Ahora ejecutar frame para ajustar según posición de scroll actual
       measure();
       frame();
