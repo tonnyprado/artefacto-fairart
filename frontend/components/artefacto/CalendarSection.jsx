@@ -346,17 +346,7 @@ export default function CalendarSection({ isActive = true }) {
           {/* LEFT: Calendar - Sin card, flotante - altura fija para evitar saltos */}
           <div className="p-4" style={{ minHeight: '420px' }}>
             {/* Month Header */}
-            <div className="flex items-center justify-between mb-6">
-              <button
-                onClick={() => setSelectedMonth(Math.max(0, selectedMonth - 1))}
-                disabled={selectedMonth === 0}
-                className="p-2 hover:bg-black/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors rounded-full"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-
+            <div className="flex items-center justify-center mb-6">
               <div className="text-center">
                 <h3 className="text-3xl font-bold text-[#141210] uppercase tracking-wider">
                   {currentMonth.name}
@@ -365,16 +355,6 @@ export default function CalendarSection({ isActive = true }) {
                   {currentMonth.year}
                 </p>
               </div>
-
-              <button
-                onClick={() => setSelectedMonth(Math.min(months.length - 1, selectedMonth + 1))}
-                disabled={selectedMonth === months.length - 1}
-                className="p-2 hover:bg-black/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors rounded-full"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
             </div>
 
             {/* Botón Hoy */}
@@ -482,21 +462,21 @@ export default function CalendarSection({ isActive = true }) {
               </div>
             </div>
 
-            {/* Controls */}
-            <div className="flex items-center justify-center gap-3 pt-3 border-t border-gray-200">
+            {/* Controls - Botones grandes para navegación */}
+            <div className="flex items-center justify-center gap-4 pt-4 border-t border-gray-200">
               <button
                 onClick={handlePrevEvent}
-                className="p-2 hover:bg-gray-100 transition-colors rounded-full"
+                className="p-4 bg-[#141210] hover:bg-[#2C2C2C] text-white transition-colors rounded-full shadow-lg"
                 aria-label="Evento anterior"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
 
               <button
                 onClick={() => setIsPlaying(!isPlaying)}
-                className="p-2 bg-[#b83030] hover:bg-[#9a2828] text-white transition-colors rounded-full"
+                className="p-3 bg-[#b83030] hover:bg-[#9a2828] text-white transition-colors rounded-full"
                 aria-label={isPlaying ? 'Pausar' : 'Reproducir'}
               >
                 {isPlaying ? (
@@ -512,11 +492,11 @@ export default function CalendarSection({ isActive = true }) {
 
               <button
                 onClick={handleNextEvent}
-                className="p-2 hover:bg-gray-100 transition-colors rounded-full"
+                className="p-4 bg-[#141210] hover:bg-[#2C2C2C] text-white transition-colors rounded-full shadow-lg"
                 aria-label="Evento siguiente"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
             </div>
