@@ -5,6 +5,35 @@
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-rgb: 255, 255, 255;
+
+  /* Safe Area Insets - para dispositivos con notch (iPhone X+) */
+  --sat: env(safe-area-inset-top, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+
+  /* Spacing responsive base */
+  --spacing-xs: clamp(8px, 2vw, 12px);
+  --spacing-sm: clamp(12px, 3vw, 16px);
+  --spacing-md: clamp(16px, 4vw, 24px);
+  --spacing-lg: clamp(24px, 5vw, 40px);
+  --spacing-xl: clamp(40px, 6vw, 64px);
+  --spacing-2xl: clamp(64px, 8vw, 100px);
+
+  /* Font sizes responsive */
+  --text-xs: clamp(11px, 0.7rem, 12px);
+  --text-sm: clamp(13px, 0.85rem, 14px);
+  --text-base: clamp(15px, 1rem, 16px);
+  --text-lg: clamp(17px, 1.15rem, 18px);
+  --text-xl: clamp(19px, 1.3rem, 20px);
+  --text-2xl: clamp(22px, 1.5rem, 24px);
+  --text-3xl: clamp(26px, 2rem, 30px);
+  --text-4xl: clamp(32px, 2.5rem, 36px);
+  --text-5xl: clamp(40px, 3.5rem, 48px);
+  --text-6xl: clamp(52px, 4.5rem, 64px);
+
+  /* Navbar height responsive */
+  --navbar-height: clamp(60px, 8vh, 80px);
 }
 
 @media (prefers-color-scheme: dark) {

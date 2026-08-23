@@ -199,7 +199,8 @@ input:focus, textarea:focus { outline: 2px solid #b83030; outline-offset: -2px; 
 .arte-navlogo img { transition: transform .25s; }
 .arte-navlogo:hover img { transform: scale(1.08); }
 .arte-nav-mob { display: none; }
-@media (max-width: 760px) {
+/* Breakpoint md (768px) - consistente con Tailwind */
+@media (max-width: 767px) {
   .arte-nav-desk { display: none !important; }
   .arte-nav-mob { display: flex !important; }
 }

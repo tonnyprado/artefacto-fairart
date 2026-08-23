@@ -1,7 +1,8 @@
 // Clases compartidas del sistema CONOCE MÁS (Tailwind)
 // Mantener sincronizadas entre componentes
+// IMPORTANTE: Usar variables CSS de globals.css para valores responsive
 
-// Altura del navbar para offset
+// Altura del navbar para offset (fallback, preferir --navbar-height de CSS)
 export const NAVBAR_HEIGHT = 80;
 
 export const cls = {

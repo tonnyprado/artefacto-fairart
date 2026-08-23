@@ -9,10 +9,12 @@ import LogoMask from './LogoMask';
 import QueueIndex from './QueueIndex';
 import PinnedIntro from './PinnedIntro';
 import SubtemaSection from './SubtemaSection';
+import { BREAKPOINTS } from '@/lib/breakpoints';
 
 const PHOTO_SPEED = 1.6;
 const NAVBAR_HEIGHT = 80;
-const DESKTOP_BREAKPOINT = 1180; // Subido para que iPads usen versión móvil
+// Usar breakpoint lg (1024px) para consistencia con todo el proyecto
+const DESKTOP_BREAKPOINT = BREAKPOINTS.lg;
 const MOBILE_LOGO_FINAL_TOP = 16;
 const MOBILE_STICKY_TOP = 10;
 
