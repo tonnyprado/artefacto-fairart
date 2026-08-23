@@ -81,3 +81,20 @@ export const EXPORT_CONFIG = {
   quality: 0.6,
   format: 'image/jpeg'
 }
+
+// ========== CURSOR PERSONALIZADO PARA ARRASTRAR ==========
+// SVG con círculo rojo y flechas blancas (icono de mover)
+const DRAG_CURSOR_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
+  <circle cx="20" cy="20" r="18" fill="%23B83030"/>
+  <g fill="none" stroke="%23fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="22 12 20 10 20 30 22 28"/>
+    <line x1="20" y1="10" x2="18" y2="12"/>
+    <line x1="20" y1="30" x2="18" y2="28"/>
+    <polyline points="12 18 10 20 30 20 28 18"/>
+    <line x1="10" y1="20" x2="12" y2="22"/>
+    <line x1="30" y1="20" x2="28" y2="22"/>
+  </g>
+</svg>`
+
+export const CURSOR_DRAG = `url("data:image/svg+xml,${DRAG_CURSOR_SVG}") 20 20, grab`
+export const CURSOR_DRAGGING = `url("data:image/svg+xml,${DRAG_CURSOR_SVG}") 20 20, grabbing`

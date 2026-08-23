@@ -47,7 +47,7 @@ import { calcularDimensionesObra, centrarObraEnArea } from './utils/scaling.util
 import { checkPositionCollision } from './utils/collision.utils'
 
 // Constantes
-import { RULER_SIZE, RULER_BG_COLOR } from './constants/canvas.constants'
+import { RULER_SIZE, RULER_BG_COLOR, CURSOR_DRAG, CURSOR_DRAGGING } from './constants/canvas.constants'
 
 // Estilos
 import styles from './styles/LayoutCanvas.module.css'
@@ -506,8 +506,8 @@ export default function LayoutCanvasWithMural({
             background: 'white',
             borderRadius: '8px',
             boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-            // Cursor dinámico: grabbing mientras arrastra, grab mientras hover, default si no
-            cursor: isDraggingObra ? 'grabbing' : (isHoveringObra ? 'grab' : 'default')
+            // Cursor dinámico: icono personalizado mientras arrastra/hover
+            cursor: isDraggingObra ? CURSOR_DRAGGING : (isHoveringObra ? CURSOR_DRAG : 'default')
           }}
           onDragOver={handleCanvasDragOver}
           onDrop={handleCanvasDrop}
