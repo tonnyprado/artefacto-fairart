@@ -223,17 +223,17 @@ export default function ConocerMas() {
       }
     };
 
-    // Calcular altura fija del pin (basada en LogoMask + altura del sticky label)
+    // Calcular altura fija del pin (basada en LogoMask + altura del label)
     let pinHeight = null;
 
     const calculatePinHeight = () => {
-      const firstStickyLabel = stickyLabelsRef.current[0];
-      // Usar el LogoMask como referencia - su bottom es donde empieza el sticky label
-      if (mask && firstStickyLabel) {
-        const maskBottom = mask.getBoundingClientRect().height; // altura del mask = top del sticky
-        const labelHeight = firstStickyLabel.offsetHeight;
-        // La altura del pin = altura del mask + altura del sticky label
-        pinHeight = maskBottom + labelHeight;
+      const firstLabel = labelsRef.current[0];
+      // Usar el LogoMask como referencia - su bottom es donde empieza el label en posición sticky
+      if (mask && firstLabel) {
+        const maskHeight = mask.getBoundingClientRect().height; // altura del mask = top del label
+        const labelHeight = firstLabel.offsetHeight;
+        // La altura del pin = altura del mask + altura del label
+        pinHeight = maskHeight + labelHeight;
       }
     };
 
@@ -279,18 +279,18 @@ export default function ConocerMas() {
         maskBottom = NAVBAR_HEIGHT + 150;
       }
 
-      // 3) Coordinación de labels: apilados vs sticky
-      // El label apilado se desvanece cuando su sección entra, el sticky aparece
-      // En tablets/touch, usar un trigger point más bajo para mejor UX
-      const triggerPoint = isTablet ? vh * 0.9 : vh * 0.85;
-      const transitionZone = isTablet ? vh * 0.25 : vh * 0.3;
+      // 3) Mover labels de la pila a posición sticky (UN solo label, no dos)
+      // Cada label se mueve desde su posición apilada hasta la posición sticky
+      // cuando su sección entra al viewport
+
+      // Posición sticky target (donde deben llegar los labels)
+      const stickyTop = mask ? mask.getBoundingClientRect().height : 234;
 
       for (let i = 0; i < sections.length; i++) {
         const section = sections[i];
-        const stackedLabel = stackedLabels[i];
-        const stickyLabel = stickyLabels[i];
+        const label = stackedLabels[i];
 
-        if (!section) continue;
+        if (!section || !label) continue;
 
         let sectionTop;
         try {
@@ -299,44 +299,65 @@ export default function ConocerMas() {
           continue;
         }
 
-        // Calcular progreso de la transición
-        // 0 = sección no ha llegado, 1 = sección completamente en viewport
-        let progress = 0;
+        // Calcular cuándo el label debe empezar a moverse
+        // Empieza cuando la sección está cerca del viewport
+        const startMoving = vh * 0.9;
+        const endMoving = stickyTop + 50; // Termina un poco después de la posición sticky
 
-        if (sectionTop < triggerPoint) {
-          progress = Math.min(1, (triggerPoint - sectionTop) / transitionZone);
-        }
+        if (sectionTop < startMoving) {
+          // Calcular progreso del movimiento (0 = en pila, 1 = en posición sticky)
+          const moveProgress = Math.min(1, (startMoving - sectionTop) / (startMoving - endMoving));
 
-        // Label apilado: se desvanece (1 -> 0)
-        if (stackedLabel) {
-          const stackedOpacity = Math.max(0, 1 - progress);
-          stackedLabel.style.opacity = String(stackedOpacity);
-          // También mover hacia arriba mientras se desvanece
-          stackedLabel.style.transform = `translateY(${-progress * 30}px)`;
-          // Ocultar completamente cuando progress >= 1 para evitar cualquier artefacto
-          stackedLabel.style.visibility = progress >= 0.95 ? 'hidden' : 'visible';
-        }
+          // Calcular posición actual del label en la pila
+          const totalLabels = stackedLabels.length;
+          const visualIndex = totalLabels - 1 - i;
+          const stackedBottom = 24 + visualIndex * 40; // Posición original en la pila
 
-        // Label sticky: aparece (0 -> 1)
-        if (stickyLabel) {
-          const stickyOpacity = Math.min(1, progress);
-          stickyLabel.style.opacity = String(stickyOpacity);
-          // Mostrar solo cuando tiene opacidad significativa
-          stickyLabel.style.visibility = progress >= 0.05 ? 'visible' : 'hidden';
+          // Posición inicial (desde bottom) y final (desde top)
+          const initialY = vh - stackedBottom - label.offsetHeight;
+          const finalY = stickyTop;
+
+          // Interpolar entre posición inicial y final
+          const currentY = initialY + (finalY - initialY) * moveProgress;
+
+          // Cambiar de bottom a top positioning cuando se mueve
+          label.style.bottom = 'auto';
+          label.style.top = currentY + 'px';
+          label.style.opacity = '1';
+          label.style.visibility = 'visible';
+
+          // Marcar como "en posición sticky" cuando llegue
+          label.dataset.atSticky = moveProgress >= 0.95 ? 'true' : 'false';
+        } else {
+          // Resetear a posición en la pila
+          const totalLabels = stackedLabels.length;
+          const visualIndex = totalLabels - 1 - i;
+          label.style.top = 'auto';
+          label.style.bottom = `calc(clamp(24px, 3vh, 40px) + ${visualIndex} * clamp(36px, 4vh, 50px))`;
+          label.style.opacity = '1';
+          label.style.visibility = 'visible';
+          label.dataset.atSticky = 'false';
         }
       }
 
-      // 4) "CONOCE MÁS" - empujado hacia arriba por el primer sticky label (ARTIS FACTUM)
-      const firstStickyLabel = stickyLabels[0];
-      if (ghost && firstStickyLabel) {
+      // Ocultar los sticky labels de las secciones (ya no los usamos)
+      stickyLabels.forEach(label => {
+        if (label) {
+          label.style.display = 'none';
+        }
+      });
+
+      // 4) "CONOCE MÁS" - empujado hacia arriba por el primer label (ARTIS FACTUM)
+      const firstLabel = stackedLabels[0];
+      if (ghost && firstLabel) {
         try {
           const ghostRect = ghost.getBoundingClientRect();
-          const stickyRect = firstStickyLabel.getBoundingClientRect();
+          const labelRect = firstLabel.getBoundingClientRect();
 
-          // Calcular la distancia entre el bottom del ghost y el top del sticky label
+          // Calcular la distancia entre el bottom del ghost y el top del label
           const ghostBottom = ghostRect.bottom;
-          const stickyTop = stickyRect.top;
-          const distance = stickyTop - ghostBottom;
+          const labelTop = labelRect.top;
+          const distance = labelTop - ghostBottom;
 
           // Altura del ghost para calcular cuánto empujar
           const ghostHeight = ghostRect.height;
@@ -462,24 +483,27 @@ export default function ConocerMas() {
       const stackedLabels = labelsRef.current.filter(Boolean);
       const stickyLabels = stickyLabelsRef.current.filter(Boolean);
 
-      // Estado inicial: todos los labels apilados visibles, sticky ocultos
-      stackedLabels.forEach((label) => {
+      // Estado inicial: todos los labels apilados visibles en su posición de pila
+      stackedLabels.forEach((label, i) => {
         if (label) {
+          const totalLabels = stackedLabels.length;
+          const visualIndex = totalLabels - 1 - i;
           label.style.opacity = '1';
           label.style.visibility = 'visible';
-          label.style.transform = 'translateY(0)';
+          label.style.top = 'auto';
+          label.style.bottom = `calc(clamp(24px, 3vh, 40px) + ${visualIndex} * clamp(36px, 4vh, 50px))`;
         }
       });
 
+      // Ocultar sticky labels (ya no los usamos, solo usamos los de la pila)
       stickyLabels.forEach((label) => {
         if (label) {
-          label.style.opacity = '0';
-          label.style.visibility = 'hidden';
+          label.style.display = 'none';
         }
       });
 
       // Calcular altura del pin cuando los refs estén listos
-      if (stickyLabels.length > 0 && pinHeight === null) {
+      if (stackedLabels.length > 0 && pinHeight === null) {
         calculatePinHeight();
       }
 
