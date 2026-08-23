@@ -1,15 +1,15 @@
 'use client';
 
 import { INTRO } from './content';
-import { cls, CSS, NAVBAR_HEIGHT } from './classes';
+import { cls, NAVBAR_HEIGHT } from './classes';
 
 /**
  * PinnedIntro - Copia fija del manifiesto
  * Se muestra cuando el párrafo en flujo alcanza lo alto de la pantalla
  * El contenido posterior desaparece por detrás
  *
- * NOTA: El left, width y height se asignan dinámicamente via JavaScript en index.jsx
- * La línea roja inferior se alinea midiendo la posición real del sticky label
+ * NOTA: El left, width, height y paddingTop se asignan dinámicamente via JavaScript
+ * para que coincida exactamente con la posición del texto en flow
  */
 export default function PinnedIntro({ pinRef, navbarHeight = NAVBAR_HEIGHT }) {
   return (
@@ -18,10 +18,8 @@ export default function PinnedIntro({ pinRef, navbarHeight = NAVBAR_HEIGHT }) {
       className={`fixed z-[10] hidden bg-crema ${cls.rule}`}
       style={{
         top: 0,
-        // Height se asigna dinámicamente en JS midiendo el sticky label real
+        // Height y paddingTop se asignan dinámicamente en JS
         boxSizing: 'border-box',
-        // Alinear un poco debajo del inicio del logo
-        paddingTop: `calc(${navbarHeight}px + ${CSS.logoMarginTop} + 1.5em)`,
         paddingLeft: 'max(16px, 1.2vw)',
         paddingRight: '16px',
         overflow: 'hidden',

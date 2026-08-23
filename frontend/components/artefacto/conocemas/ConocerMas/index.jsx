@@ -237,6 +237,9 @@ export default function ConocerMas() {
       }
     };
 
+    // Guardar la posición inicial del texto en flow para calcular paddingTop
+    let flowInitialTop = null;
+
     const placePin = () => {
       if (!flow || !pin) return;
       try {
@@ -245,6 +248,16 @@ export default function ConocerMas() {
           pin.style.left = r.left + 'px';
           pin.style.width = r.width + 'px';
         }
+
+        // Calcular paddingTop para que coincida con la posición del texto en flow
+        // cuando está en el punto de trigger (NAVBAR_HEIGHT + 4)
+        if (flowInitialTop === null) {
+          // Guardar la posición inicial del flow relativa al viewport
+          flowInitialTop = r.top;
+        }
+        // El paddingTop debe ser igual a la posición donde el texto debería estar
+        const triggerPoint = NAVBAR_HEIGHT + 4;
+        pin.style.paddingTop = triggerPoint + 'px';
 
         // Usar altura fija calculada (no cambia con scroll)
         if (pinHeight === null) {
@@ -461,6 +474,7 @@ export default function ConocerMas() {
         measure();
         // Recalcular altura del pin en resize (puede cambiar con el viewport)
         pinHeight = null;
+        flowInitialTop = null; // Recalcular posición del flow
         calculatePinHeight();
         if (pin && pinned) {
           placePin();
