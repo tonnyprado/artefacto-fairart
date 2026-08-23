@@ -223,19 +223,17 @@ export default function ConocerMas() {
       }
     };
 
-    // Calcular altura fija del pin una vez (basada en posición sticky del label)
+    // Calcular altura fija del pin (basada en LogoMask + altura del sticky label)
     let pinHeight = null;
 
     const calculatePinHeight = () => {
       const firstStickyLabel = stickyLabelsRef.current[0];
-      if (firstStickyLabel) {
-        // Obtener el valor de 'top' del sticky label (posición CSS fija)
-        const labelStyle = window.getComputedStyle(firstStickyLabel);
-        const labelTop = parseFloat(labelStyle.top) || 0;
-        // Altura del label
+      // Usar el LogoMask como referencia - su bottom es donde empieza el sticky label
+      if (mask && firstStickyLabel) {
+        const maskBottom = mask.getBoundingClientRect().height; // altura del mask = top del sticky
         const labelHeight = firstStickyLabel.offsetHeight;
-        // La altura del pin = top del sticky label + altura del label
-        pinHeight = labelTop + labelHeight;
+        // La altura del pin = altura del mask + altura del sticky label
+        pinHeight = maskBottom + labelHeight;
       }
     };
 
