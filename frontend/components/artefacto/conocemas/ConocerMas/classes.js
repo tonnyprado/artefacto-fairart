@@ -15,14 +15,13 @@ export const CSS = {
   // Posición donde empieza el sticky label (top del label)
   stickyLabelTop: (navH = NAVBAR_HEIGHT) =>
     `calc(${navH}px + min(24px, 1.2vw) + min(130px, 9.8vw))`,
-  // Altura visible del label (texto + padding)
-  // El label tiene font-size clamp(16px,1.35vw,26px) y pb-2 (8px)
-  // Ajustado para alinear perfectamente con la línea del sticky label
-  labelHeight: 'clamp(28px, 2.2vw, 38px)',
+  // Altura del texto del label (font-size * line-height aprox)
+  labelTextHeight: 'clamp(20px, 1.6vw, 32px)',
+  // Padding bottom del label
+  labelPaddingBottom: '8px',
   // Posición del borde inferior del sticky label
-  // = stickyLabelTop + labelHeight
   stickyLabelBottom: (navH = NAVBAR_HEIGHT) =>
-    `calc(${navH}px + min(24px, 1.2vw) + min(130px, 9.8vw) + clamp(28px, 2.2vw, 38px))`,
+    `calc(${navH}px + min(24px, 1.2vw) + min(130px, 9.8vw) + clamp(20px, 1.6vw, 32px) + 8px)`,
 };
 
 export const cls = {
