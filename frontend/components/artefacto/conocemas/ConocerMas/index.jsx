@@ -354,9 +354,14 @@ export default function ConocerMas() {
       document.fonts.ready.then(measure).catch(() => {});
     }
 
+    // Inicializar inmediatamente
     measure();
-    const t1 = setTimeout(measure, 500);
-    const t2 = setTimeout(measure, 1500);
+    frame(); // Ejecutar frame inicial para setear opacidades
+
+    // Re-ejecutar después de delays para asegurar que refs estén listas
+    const t1 = setTimeout(() => { measure(); frame(); }, 100);
+    const t2 = setTimeout(() => { measure(); frame(); }, 500);
+    const t3 = setTimeout(() => { measure(); frame(); }, 1500);
 
     return () => {
       if (useRaf && rafId) {
@@ -367,6 +372,7 @@ export default function ConocerMas() {
       window.removeEventListener('resize', measure);
       clearTimeout(t1);
       clearTimeout(t2);
+      clearTimeout(t3);
     };
   }, [isMounted, isDesktop]);
 
