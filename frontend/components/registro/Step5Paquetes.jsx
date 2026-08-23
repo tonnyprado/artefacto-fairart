@@ -1539,7 +1539,7 @@ function PrecioCalculadora({ value, onChange }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0' }}>
               <span style={{ fontFamily: FONTS.body, fontSize: '13px', fontWeight: 600, color: COLORS.black, display: 'flex', alignItems: 'center', gap: '6px' }}>
                 Precio sugerido
-                <TooltipIcon text="Redondeado al múltiplo de $500 más cercano" />
+                <TooltipIcon text="Recuerda que estos valores son referencias. Se definirán los precios al ser seleccionado, en la hoja de consigna." />
               </span>
               <span style={{ fontFamily: FONTS.body, fontSize: '15px', fontWeight: 700, color: COLORS.red }}>
                 ${formatNumber(precioSugerido)}
@@ -1576,17 +1576,17 @@ function TooltipIcon({ text }) {
         <span style={{
           position: 'absolute',
           bottom: '100%',
-          left: '50%',
-          transform: 'translateX(-50%)',
+          right: 0,
           marginBottom: '6px',
-          padding: '8px 12px',
+          padding: '10px 14px',
           background: COLORS.black,
           color: COLORS.cream,
           fontFamily: FONTS.body,
           fontSize: '11px',
           fontWeight: 400,
-          borderRadius: '6px',
-          whiteSpace: 'nowrap',
+          borderRadius: '8px',
+          width: '220px',
+          lineHeight: 1.4,
           zIndex: 1000,
           boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
         }}>
@@ -1594,8 +1594,7 @@ function TooltipIcon({ text }) {
           <span style={{
             position: 'absolute',
             top: '100%',
-            left: '50%',
-            transform: 'translateX(-50%)',
+            right: '8px',
             borderWidth: '5px',
             borderStyle: 'solid',
             borderColor: `${COLORS.black} transparent transparent transparent`,
