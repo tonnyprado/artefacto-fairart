@@ -18,10 +18,8 @@ export default function PinnedIntro({ pinRef, navbarHeight = NAVBAR_HEIGHT }) {
       className={`fixed z-[10] hidden bg-crema ${cls.rule}`}
       style={{
         top: 0,
-        // Height y paddingTop se asignan dinámicamente en JS
+        // Todo se asigna dinámicamente en JS para coincidir exactamente con el flow
         boxSizing: 'border-box',
-        paddingLeft: 'max(16px, 1.2vw)',
-        paddingRight: '16px',
         overflow: 'hidden',
       }}
     >
