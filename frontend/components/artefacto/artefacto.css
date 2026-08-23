@@ -27,7 +27,21 @@ body {
   /* Asegurar que el scroll funcione sin barra visible */
   overflow-x: hidden;
   overflow-y: scroll;
-  /* Ocultar cursor por defecto para usar cursor personalizado */
+  /* Cursor normal por defecto - se oculta solo cuando el cursor personalizado está activo */
+  cursor: auto;
+}
+
+/* Ocultar cursor SOLO cuando el cursor personalizado está funcionando */
+body.custom-cursor-active {
+  cursor: none;
+}
+
+body.custom-cursor-active a,
+body.custom-cursor-active button,
+body.custom-cursor-active input,
+body.custom-cursor-active textarea,
+body.custom-cursor-active select,
+body.custom-cursor-active [role="button"] {
   cursor: none;
 }
 
@@ -122,10 +136,7 @@ body {
   }
 }
 
-/* Restaurar cursor en elementos interactivos */
-a, button, input, textarea, select, [role="button"] {
-  cursor: none;
-}
+/* Los elementos interactivos usan cursor:none solo cuando .custom-cursor-active está presente (manejado arriba) */
 
 @keyframes flipIn {
   0%   { transform: rotateX(-90deg) translateZ(0); opacity: 0; }
