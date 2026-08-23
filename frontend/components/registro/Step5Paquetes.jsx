@@ -1539,9 +1539,7 @@ function PrecioCalculadora({ value, onChange }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0' }}>
               <span style={{ fontFamily: FONTS.body, fontSize: '13px', fontWeight: 600, color: COLORS.black, display: 'flex', alignItems: 'center', gap: '6px' }}>
                 Precio sugerido
-                <span title="Redondeado al múltiplo de $500 más cercano" style={{ display: 'flex', cursor: 'help' }}>
-                  <Info size={14} color={COLORS.gray} />
-                </span>
+                <TooltipIcon text="Redondeado al múltiplo de $500 más cercano" />
               </span>
               <span style={{ fontFamily: FONTS.body, fontSize: '15px', fontWeight: 700, color: COLORS.red }}>
                 ${formatNumber(precioSugerido)}
@@ -1561,6 +1559,50 @@ function PrecioCalculadora({ value, onChange }) {
         </div>
       )}
     </div>
+  )
+}
+
+function TooltipIcon({ text }) {
+  const [show, setShow] = useState(false)
+
+  return (
+    <span
+      style={{ position: 'relative', display: 'inline-flex', cursor: 'help' }}
+      onMouseEnter={() => setShow(true)}
+      onMouseLeave={() => setShow(false)}
+    >
+      <Info size={14} color={COLORS.gray} />
+      {show && (
+        <span style={{
+          position: 'absolute',
+          bottom: '100%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          marginBottom: '6px',
+          padding: '8px 12px',
+          background: COLORS.black,
+          color: COLORS.cream,
+          fontFamily: FONTS.body,
+          fontSize: '11px',
+          fontWeight: 400,
+          borderRadius: '6px',
+          whiteSpace: 'nowrap',
+          zIndex: 1000,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+        }}>
+          {text}
+          <span style={{
+            position: 'absolute',
+            top: '100%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            borderWidth: '5px',
+            borderStyle: 'solid',
+            borderColor: `${COLORS.black} transparent transparent transparent`,
+          }} />
+        </span>
+      )}
+    </span>
   )
 }
 
