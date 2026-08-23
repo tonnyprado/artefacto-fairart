@@ -341,10 +341,10 @@ export default function CalendarSection({ isActive = true }) {
     <section id="calendario" className="pt-16 pb-8 bg-[#E8DED0] min-h-screen flex items-center">
       <div className="container mx-auto px-4">
         {/* Main Content: Calendar + Event Display */}
-        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
 
           {/* LEFT: Calendar - Sin card, flotante - altura fija para evitar saltos */}
-          <div className="p-4" style={{ minHeight: '420px' }}>
+          <div className="p-4 order-2 lg:order-1" style={{ minHeight: '420px' }}>
             {/* Month Header */}
             <div className="flex items-center justify-center mb-6">
               <div className="text-center">
@@ -413,8 +413,8 @@ export default function CalendarSection({ isActive = true }) {
             </div>
           </div>
 
-          {/* RIGHT: Event Display */}
-          <div className="bg-white/80 backdrop-blur-sm p-6 shadow-lg relative flex flex-col" style={{ borderRadius: '20px' }}>
+          {/* RIGHT: Event Display - Primero en móvil para clarificar navegación */}
+          <div className="bg-white/80 backdrop-blur-sm p-6 shadow-lg relative flex flex-col order-1 lg:order-2" style={{ borderRadius: '20px' }}>
             {/* Event Card */}
             <div className="flex-1 flex flex-col justify-center">
               <div className="border-t-4 border-[#141210] pt-4 mb-4">
