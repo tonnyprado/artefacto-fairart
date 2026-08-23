@@ -9,26 +9,29 @@ import { cls, CSS, NAVBAR_HEIGHT } from './classes';
  * El contenido posterior desaparece por detrás
  *
  * NOTA: El left y width se asignan dinámicamente via JavaScript en index.jsx
- * La línea roja inferior debe alinearse EXACTAMENTE con la línea del sticky label
- * Usa las constantes CSS compartidas para garantizar alineación en todas las pantallas
+ * La línea roja inferior debe alinearse con la línea del sticky label
+ *
+ * IMPORTANTE: No usar height fija - usar paddingBottom para que el borde
+ * quede alineado sin importar la altura del texto
  */
 export default function PinnedIntro({ pinRef, navbarHeight = NAVBAR_HEIGHT }) {
+  // Posición donde termina el sticky label (donde está su línea roja)
+  const stickyLabelTop = CSS.stickyLabelTop(navbarHeight);
+
   return (
     <div
       ref={pinRef}
       className={`fixed z-[10] hidden bg-crema ${cls.rule}`}
       style={{
         top: 0,
-        // Altura total = posición del borde del sticky label
-        // Esto garantiza que ambas líneas rojas estén alineadas
-        height: CSS.stickyLabelBottom(navbarHeight),
-        // El texto se posiciona con padding para quedar arriba del borde
-        paddingTop: `calc(${CSS.stickyLabelTop(navbarHeight)} - 90px)`,
+        // NO usar height - dejar que el contenido defina la altura
+        // El borde se alinea con paddingBottom calculado
+        paddingTop: `max(${navbarHeight}px, 10vh)`,
+        // Padding bottom = distancia desde el final del texto hasta la línea del sticky label
+        // Usamos la posición del sticky label + altura del label como referencia
+        paddingBottom: `calc(${stickyLabelTop} - max(${navbarHeight}px, 10vh) - 4em + clamp(28px, 2vw, 40px))`,
         paddingLeft: 'max(16px, 1.2vw)',
-        // Flexbox para empujar el contenido hacia arriba
-        display: 'none', // Se cambia a flex via JS
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
+        paddingRight: '16px',
       }}
     >
       <p className={`m-0 ${cls.body}`}>{INTRO}</p>
