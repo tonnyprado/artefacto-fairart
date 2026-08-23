@@ -1539,7 +1539,9 @@ function PrecioCalculadora({ value, onChange }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0' }}>
               <span style={{ fontFamily: FONTS.body, fontSize: '13px', fontWeight: 600, color: COLORS.black, display: 'flex', alignItems: 'center', gap: '6px' }}>
                 Precio sugerido
-                <Info size={14} color={COLORS.gray} style={{ cursor: 'help' }} title="Redondeado al múltiplo de $500 más cercano" />
+                <span title="Redondeado al múltiplo de $500 más cercano" style={{ display: 'flex', cursor: 'help' }}>
+                  <Info size={14} color={COLORS.gray} />
+                </span>
               </span>
               <span style={{ fontFamily: FONTS.body, fontSize: '15px', fontWeight: 700, color: COLORS.red }}>
                 ${formatNumber(precioSugerido)}
