@@ -487,7 +487,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
               color: COLORS.gray,
               margin: '0 0 10px',
             }}>
-              Selecciona uno o más formatos:
+              Selecciona uno o más medios:
             </p>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               {FORMATOS_2D.map((formato) => (
@@ -530,7 +530,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
               color: COLORS.gray,
               margin: '0 0 10px',
             }}>
-              Selecciona uno o más formatos:
+              Selecciona uno o más medios:
             </p>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               {FORMATOS_3D.map((formato) => (
