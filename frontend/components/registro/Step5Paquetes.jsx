@@ -1435,22 +1435,10 @@ function ObraModal({ obra, es3D, onSave, onClose }) {
 
 // Componente de precio con calculadora de comisiones
 function PrecioCalculadora({ value, onChange }) {
-  // Formatear número con comas (sin decimales para el input)
-  const formatInputNumber = (num) => {
-    if (!num) return ''
-    return Number(num).toLocaleString('es-MX', { maximumFractionDigits: 0 })
-  }
-
-  // Formatear número con decimales (para los cálculos)
+  // Formatear número con decimales (para los cálculos mostrados)
   const formatNumber = (num) => {
     if (!num) return ''
     return Number(num).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-  }
-
-  // Parsear número quitando todo excepto dígitos
-  const parseNumber = (str) => {
-    if (!str) return ''
-    return str.replace(/[^0-9]/g, '')
   }
 
   // Calcular desglose (75% artista, 25% comisión)
@@ -1482,15 +1470,13 @@ function PrecioCalculadora({ value, onChange }) {
           color: COLORS.gray
         }}>$</span>
         <input
-          type="text"
+          type="number"
           inputMode="numeric"
-          value={value ? formatInputNumber(value) : ''}
-          onChange={(e) => {
-            const rawValue = parseNumber(e.target.value)
-            onChange(rawValue)
-          }}
-          placeholder="10,000"
+          value={value || ''}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="10000"
           required
+          min="0"
           style={{
             width: '100%',
             padding: '12px 14px 12px 28px',
@@ -1501,6 +1487,7 @@ function PrecioCalculadora({ value, onChange }) {
             background: 'white',
             color: COLORS.black,
             outline: 'none',
+            MozAppearance: 'textfield',
           }}
         />
       </div>
