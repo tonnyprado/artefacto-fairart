@@ -188,6 +188,20 @@ export default function LayoutCanvasWithMural({
     setTodasLasObras(portfolioImages)
   }, [portfolioImages, setTodasLasObras])
 
+  // Aplicar cursor personalizado directamente al canvas de Konva
+  useEffect(() => {
+    if (stageRef.current) {
+      const container = stageRef.current.container()
+      if (container) {
+        if (isDraggingObra || isHoveringObra) {
+          container.style.cursor = CURSOR_DRAG
+        } else {
+          container.style.cursor = 'default'
+        }
+      }
+    }
+  }, [isDraggingObra, isHoveringObra])
+
   // ========== MANEJADORES DE DRAG & DROP ==========
 
   const handleDragMove = (obraId, x, y, width, height, isColliding) => {
