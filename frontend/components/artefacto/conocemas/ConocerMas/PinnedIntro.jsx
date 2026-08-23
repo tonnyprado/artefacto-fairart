@@ -1,7 +1,7 @@
 'use client';
 
 import { INTRO } from './content';
-import { cls, NAVBAR_HEIGHT } from './classes';
+import { cls, CSS, NAVBAR_HEIGHT } from './classes';
 
 /**
  * PinnedIntro - Copia fija del manifiesto
@@ -20,7 +20,8 @@ export default function PinnedIntro({ pinRef, navbarHeight = NAVBAR_HEIGHT }) {
         top: 0,
         // Height se asigna dinámicamente en JS midiendo el sticky label real
         boxSizing: 'border-box',
-        paddingTop: `max(${navbarHeight}px, 10vh)`,
+        // Alinear con el inicio del logo
+        paddingTop: `calc(${navbarHeight}px + ${CSS.logoMarginTop})`,
         paddingLeft: 'max(16px, 1.2vw)',
         paddingRight: '16px',
         overflow: 'hidden',
