@@ -1,9 +1,28 @@
 // Clases compartidas del sistema CONOCE MÁS (Tailwind)
 // Mantener sincronizadas entre componentes
-// IMPORTANTE: Usar variables CSS de globals.css para valores responsive
+// IMPORTANTE: Usar estas constantes en TODOS los componentes para consistencia
 
-// Altura del navbar para offset (fallback, preferir --navbar-height de CSS)
+// ============ CONSTANTES RESPONSIVE ============
+// Altura del navbar
 export const NAVBAR_HEIGHT = 80;
+
+// Fórmulas CSS responsive - USAR ESTAS EN TODOS LOS COMPONENTES
+export const CSS = {
+  // Margen superior del logo (desde navbar)
+  logoMarginTop: 'min(24px, 1.2vw)',
+  // Altura del logo
+  logoHeight: 'min(130px, 9.8vw)',
+  // Posición donde empieza el sticky label (top del label)
+  stickyLabelTop: (navH = NAVBAR_HEIGHT) =>
+    `calc(${navH}px + min(24px, 1.2vw) + min(130px, 9.8vw))`,
+  // Altura del texto del label (font-size * line-height aprox)
+  labelTextHeight: 'clamp(20px, 1.6vw, 32px)',
+  // Padding bottom del label
+  labelPaddingBottom: '8px',
+  // Posición del borde inferior del sticky label
+  stickyLabelBottom: (navH = NAVBAR_HEIGHT) =>
+    `calc(${navH}px + min(24px, 1.2vw) + min(130px, 9.8vw) + clamp(20px, 1.6vw, 32px) + 8px)`,
+};
 
 export const cls = {
   // Subtemas / palabras etimológicas / numerales — Inter Tight Black Italic
@@ -20,7 +39,6 @@ export const cls = {
   caption: 'text-[clamp(11.5px,0.79vw,15px)] leading-[1.47] text-tinta/75',
 
   // Geometría del bloque del logo (ajustada para navbar)
-  // El pinTop ahora incluye el offset del navbar
   maskH: 'h-[calc(min(44px,2.3vw)+min(130px,9.8vw)+2px)]',
   pinTop: `top-[calc(80px+min(44px,2.3vw)+min(130px,9.8vw)+6px)]`,
   labelW: 'w-[calc(max(24px,3.75vw)+min(232px,17.5vw)+14px)]',

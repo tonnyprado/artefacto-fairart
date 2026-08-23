@@ -1,7 +1,7 @@
 'use client';
 
 import { INTRO } from './content';
-import { cls, NAVBAR_HEIGHT } from './classes';
+import { cls, CSS, NAVBAR_HEIGHT } from './classes';
 
 /**
  * Block - Renderiza un bloque de contenido según su tipo
@@ -61,8 +61,9 @@ function Block({ b, introRef }) {
  * StickyLabel - Título sticky que se mueve con la sección
  * Se posiciona debajo del LogoMask y empuja al label anterior
  * Empieza oculto (opacity: 0) y el JS lo controla
+ * Usa constantes CSS compartidas para alineación perfecta con PinnedIntro
  */
-function StickyLabel({ words, sectionId, labelRef, navbarHeight = NAVBAR_HEIGHT, isFirst = false }) {
+function StickyLabel({ words, sectionId, labelRef, navbarHeight = NAVBAR_HEIGHT }) {
   const handleClick = () => {
     const section = document.getElementById(sectionId);
     if (section) {
@@ -83,9 +84,9 @@ function StickyLabel({ words, sectionId, labelRef, navbarHeight = NAVBAR_HEIGHT,
       data-sticky-label={sectionId}
       className={`sticky z-[11] cursor-pointer bg-crema ${cls.labelW} ${cls.labelPad} ${cls.rule} hover:bg-rojo/10 transition-opacity duration-300`}
       style={{
-        // Posición sticky: misma posición que el ghost (justo debajo del logo)
-        top: `calc(${navbarHeight}px + min(24px, 1.2vw) + min(130px, 9.8vw))`,
-        marginLeft: `calc(-25vw)`, // Compensar el ml-[25vw] del section
+        // Posición sticky: usa la constante compartida para consistencia
+        top: CSS.stickyLabelTop(navbarHeight),
+        marginLeft: 'calc(-25vw)', // Compensar el ml-[25vw] del section
         marginBottom: '2vh',
         opacity: 0, // Empieza oculto, JS lo controla
       }}
