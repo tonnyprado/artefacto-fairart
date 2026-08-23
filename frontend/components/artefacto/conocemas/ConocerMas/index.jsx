@@ -328,12 +328,35 @@ export default function ConocerMas() {
         }
       }
 
-      // 4) "CONOCE MÁS" visibility - se oculta cuando la primera sección llega
-      const firstSection = sections[0];
-      if (ghost && firstSection) {
+      // 4) "CONOCE MÁS" - empujado hacia arriba por el primer sticky label (ARTIS FACTUM)
+      const firstStickyLabel = stickyLabels[0];
+      if (ghost && firstStickyLabel) {
         try {
-          const firstSectionTop = firstSection.getBoundingClientRect().top;
-          ghost.style.opacity = firstSectionTop <= vh * 0.8 ? '0' : '1';
+          const ghostRect = ghost.getBoundingClientRect();
+          const stickyRect = firstStickyLabel.getBoundingClientRect();
+
+          // Calcular la distancia entre el bottom del ghost y el top del sticky label
+          const ghostBottom = ghostRect.bottom;
+          const stickyTop = stickyRect.top;
+          const distance = stickyTop - ghostBottom;
+
+          // Altura del ghost para calcular cuánto empujar
+          const ghostHeight = ghostRect.height;
+
+          // Cuando el sticky label se acerca al ghost, empujar el ghost hacia arriba
+          if (distance < ghostHeight * 2) {
+            // Calcular cuánto empujar (0 cuando están lejos, ghostHeight cuando chocan)
+            const pushAmount = Math.max(0, ghostHeight * 2 - distance);
+            const pushProgress = Math.min(1, pushAmount / (ghostHeight * 2));
+
+            // Mover hacia arriba y desvanecer
+            ghost.style.transform = `translateY(${-pushAmount}px)`;
+            ghost.style.opacity = String(1 - pushProgress);
+          } else {
+            // Reset cuando están lejos
+            ghost.style.transform = 'translateY(0)';
+            ghost.style.opacity = '1';
+          }
         } catch (e) {
           // Ignorar errores de getBoundingClientRect
         }
