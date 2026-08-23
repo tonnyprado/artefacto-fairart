@@ -42,9 +42,13 @@ export function NotaAreaConsideracion({ canvasWidth, canvasHeight }) {
 /**
  * Nota de área no disponible para canvas 3D
  * Muestra el aviso sobre el área no disponible para paquetes de 4m²
+ * No se muestra en el paquete "Completo 3D" (9m²)
  */
-export function NotaAreaNoDisponible3D({ canvasWidth, canvasHeight }) {
+export function NotaAreaNoDisponible3D({ canvasWidth, canvasHeight, paquete }) {
   const [image, status] = useImage(NOTA_AREA_NO_DISPONIBLE_3D_URL)
+
+  // No mostrar en paquete Completo 3D
+  if (paquete?.nombre === 'Completo 3D') return null
 
   if (status !== 'loaded' || !image) return null
 

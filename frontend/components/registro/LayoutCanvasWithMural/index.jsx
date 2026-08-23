@@ -546,7 +546,7 @@ export default function LayoutCanvasWithMural({
 
               {/* Nota de área de consideración en 2D / área no disponible en 3D */}
               {!es3D && <NotaAreaConsideracion canvasWidth={canvasWidth} canvasHeight={canvasHeight} />}
-              {es3D && <NotaAreaNoDisponible3D canvasWidth={canvasWidth} canvasHeight={canvasHeight} />}
+              {es3D && <NotaAreaNoDisponible3D canvasWidth={canvasWidth} canvasHeight={canvasHeight} paquete={paquete} />}
 
               {/* Obras en el canvas */}
               {obrasEnCanvas.map((obra, index) => {
