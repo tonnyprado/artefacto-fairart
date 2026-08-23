@@ -15,10 +15,10 @@ export default function LogoMask({ maskRef, ghostRef, navbarHeight = NAVBAR_HEIG
 
   return (
     <>
-      {/* Máscara que cubre SOLO el logo - altura reducida */}
+      {/* Máscara que cubre SOLO el logo - z-index mayor para ocultar el ghost */}
       <div
         ref={maskRef}
-        className="fixed left-0 z-10 w-[25vw] bg-crema pointer-events-none"
+        className="fixed left-0 z-[12] w-[25vw] bg-crema pointer-events-none"
         style={{
           top: 0,
           height: logoMaskHeight,

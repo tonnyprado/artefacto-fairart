@@ -348,6 +348,7 @@ export default function ConocerMas() {
       });
 
       // 4) "CONOCE MÁS" - empujado hacia arriba por el primer label (ARTIS FACTUM)
+      // El LogoMask (z-12) está encima del ghost (z-10), así que desaparece "detrás" del logo
       const firstLabel = stackedLabels[0];
       if (ghost && firstLabel) {
         try {
@@ -362,18 +363,19 @@ export default function ConocerMas() {
           // Altura del ghost para calcular cuánto empujar
           const ghostHeight = ghostRect.height;
 
-          // Cuando el sticky label se acerca al ghost, empujar el ghost hacia arriba
-          if (distance < ghostHeight * 1.5) {
-            // Calcular cuánto empujar
-            const pushAmount = Math.max(0, ghostHeight * 1.5 - distance);
-            const pushProgress = Math.min(1, pushAmount / (ghostHeight * 1.5));
+          // Cuando el label se acerca al ghost, empujar el ghost hacia arriba
+          if (distance < ghostHeight) {
+            // Calcular cuánto empujar (más rápido)
+            const pushAmount = Math.max(0, ghostHeight - distance);
+            const pushProgress = Math.min(1, pushAmount / ghostHeight);
 
-            // Mover hacia arriba y desvanecer
-            ghost.style.transform = `translateY(${-pushAmount}px)`;
-            ghost.style.opacity = String(Math.max(0, 1 - pushProgress * 1.5));
+            // Mover hacia arriba rápidamente
+            ghost.style.transform = `translateY(${-pushAmount * 1.2}px)`;
+            // Desvanecer rápido
+            ghost.style.opacity = String(Math.max(0, 1 - pushProgress * 2));
 
-            // Ocultar completamente cuando está totalmente empujado
-            ghost.style.visibility = pushProgress >= 0.8 ? 'hidden' : 'visible';
+            // Ocultar completamente más temprano
+            ghost.style.visibility = pushProgress >= 0.5 ? 'hidden' : 'visible';
           } else {
             // Reset cuando están lejos
             ghost.style.transform = 'translateY(0)';
