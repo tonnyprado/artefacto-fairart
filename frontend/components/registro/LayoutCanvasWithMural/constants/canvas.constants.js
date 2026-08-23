@@ -84,6 +84,6 @@ export const EXPORT_CONFIG = {
 }
 
 // ========== CURSOR PERSONALIZADO PARA ARRASTRAR ==========
-// SVG con círculo rojo y flechas blancas (icono de mover) - archivo en /public
-export const CURSOR_DRAG = 'url("/cursor-drag.svg") 24 24, grab'
-export const CURSOR_DRAGGING = 'url("/cursor-drag.svg") 24 24, grabbing'
+// SVG 32x32 con círculo rojo y flechas blancas (icono de mover) - archivo en /public
+export const CURSOR_DRAG = 'url("/cursor-drag.svg") 16 16, move'
+export const CURSOR_DRAGGING = 'url("/cursor-drag.svg") 16 16, move'
