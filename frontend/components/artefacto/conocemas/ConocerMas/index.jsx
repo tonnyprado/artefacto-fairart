@@ -430,17 +430,23 @@ export default function ConocerMas() {
     };
 
     // Handler de resize que actualiza medidas y posición del pin
+    let resizeTimeout = null;
     const onResize = () => {
-      measure();
-      // Recalcular altura del pin en resize (puede cambiar con el viewport)
-      pinHeight = null;
-      calculatePinHeight();
-      if (pin) {
-        placePin();
-      }
+      // Debounce para esperar a que los elementos se actualicen
+      if (resizeTimeout) clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        measure();
+        // Recalcular altura del pin en resize (puede cambiar con el viewport)
+        pinHeight = null;
+        calculatePinHeight();
+        if (pin && pinned) {
+          placePin();
+        }
+      }, 100);
     };
 
     window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', onResize); // Para móviles/tablets
     window.addEventListener('scroll', onScroll, { passive: true });
     if (isTouch) {
       window.addEventListener('touchmove', onTouchMove, { passive: true });
@@ -495,7 +501,11 @@ export default function ConocerMas() {
       if (rafId) {
         cancelAnimationFrame(rafId);
       }
+      if (resizeTimeout) {
+        clearTimeout(resizeTimeout);
+      }
       window.removeEventListener('resize', onResize);
+      window.removeEventListener('orientationchange', onResize);
       window.removeEventListener('scroll', onScroll);
       if (isTouch) {
         window.removeEventListener('touchmove', onTouchMove);
