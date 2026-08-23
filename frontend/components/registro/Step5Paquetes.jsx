@@ -1438,7 +1438,7 @@ function PrecioCalculadora({ value, onChange }) {
   // Formatear número con comas
   const formatNumber = (num) => {
     if (!num) return ''
-    return Number(num).toLocaleString('es-MX', { maximumFractionDigits: 2 })
+    return Number(num).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   }
 
   // Parsear número quitando comas
@@ -1447,12 +1447,11 @@ function PrecioCalculadora({ value, onChange }) {
     return str.replace(/[^0-9]/g, '')
   }
 
-  // Calcular desglose
+  // Calcular desglose (75% artista, 25% comisión)
   const gananciaArtista = Number(value) || 0
-  const subtotal = gananciaArtista > 0 ? gananciaArtista / 0.70 : 0
-  const comisionArtefacto = subtotal - gananciaArtista
-  const iva = subtotal * 0.16
-  const precioPublico = subtotal * 1.16
+  const precioPublico = gananciaArtista > 0 ? gananciaArtista / 0.75 : 0
+  const comisionArtefacto = precioPublico - gananciaArtista
+  const precioSugerido = Math.ceil(precioPublico / 500) * 500
 
   return (
     <div>
@@ -1464,7 +1463,7 @@ function PrecioCalculadora({ value, onChange }) {
         color: COLORS.black,
         marginBottom: '6px'
       }}>
-        Tu ganancia por esta obra (MXN) *
+        Tu precio (MXN) *
       </label>
       <div style={{ position: 'relative' }}>
         <span style={{
@@ -1503,51 +1502,53 @@ function PrecioCalculadora({ value, onChange }) {
       {/* Mini calculadora - solo visible si hay precio */}
       {gananciaArtista > 0 && (
         <div style={{ marginTop: '14px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid ${COLORS.creamDark}` }}>
               <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.gray }}>
-                Tu ganancia (70%)
+                Tu ganancia (75%)
               </span>
               <span style={{ fontFamily: FONTS.body, fontSize: '12px', fontWeight: 600, color: COLORS.black }}>
-                ${formatNumber(gananciaArtista.toFixed(2))}
+                ${formatNumber(gananciaArtista)}
               </span>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid ${COLORS.creamDark}` }}>
               <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.gray }}>
-                Comisión Arte Facto (30%)
+                Comisión ARTE FACTO (25%)
               </span>
-              <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.gray }}>
-                ${formatNumber(comisionArtefacto.toFixed(2))}
-              </span>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.gray }}>
-                Subtotal
-              </span>
-              <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.gray }}>
-                ${formatNumber(subtotal.toFixed(2))}
+              <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.black }}>
+                ${formatNumber(comisionArtefacto)}
               </span>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid ${COLORS.creamDark}` }}>
               <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.gray }}>
-                IVA (16%)
-              </span>
-              <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.gray }}>
-                ${formatNumber(iva.toFixed(2))}
-              </span>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
-              <span style={{ fontFamily: FONTS.body, fontSize: '13px', fontWeight: 600, color: COLORS.black }}>
                 Precio al público
               </span>
-              <span style={{ fontFamily: FONTS.body, fontSize: '13px', fontWeight: 600, color: COLORS.red }}>
-                ${formatNumber(precioPublico.toFixed(2))}
+              <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.black }}>
+                ${formatNumber(precioPublico)}
               </span>
             </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0' }}>
+              <span style={{ fontFamily: FONTS.body, fontSize: '13px', fontWeight: 600, color: COLORS.black, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                Precio sugerido
+                <Info size={14} color={COLORS.gray} style={{ cursor: 'help' }} title="Redondeado al múltiplo de $500 más cercano" />
+              </span>
+              <span style={{ fontFamily: FONTS.body, fontSize: '15px', fontWeight: 700, color: COLORS.red }}>
+                ${formatNumber(precioSugerido)}
+              </span>
+            </div>
+          </div>
+
+          {/* Notas al pie */}
+          <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: `1px solid ${COLORS.creamDark}` }}>
+            <p style={{ fontFamily: FONTS.body, fontSize: '10px', color: COLORS.gray, margin: 0, lineHeight: 1.4 }}>
+              *Montos sin IVA
+            </p>
+            <p style={{ fontFamily: FONTS.body, fontSize: '10px', color: COLORS.gray, margin: '2px 0 0', lineHeight: 1.4 }}>
+              *Otras comisiones pueden aplicarse dependiendo del método de pago del comprador.
+            </p>
           </div>
         </div>
       )}

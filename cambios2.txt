@@ -1,1 +1,0 @@
-Canvas de Tu Lienzo, quita las lineas horizontales de cualquier paquete, deja solo las medidas verticales, o sea quitales las limitantes que tiene de forma horizontal y deja las limitantes verticales. SOLO LAS VERTICALES ENTONCES DEJA LAS REGLAS NO LAS QUITES, NO QUITES LA FUNCIONALIDAD QUE HEMOS LOGRADO POR FAV VOR TE LO RUEGO

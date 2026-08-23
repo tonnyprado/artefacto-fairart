@@ -1,5 +1,0 @@
-params.telefono
-params.paqueteMetros no sale la medida de ese paquete
-params.Precio no sale correcto, por 
-params.paquete
-Por alguna razón sale en spam aunque ya lo agarro de la plantilla de Brevo
