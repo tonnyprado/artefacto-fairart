@@ -284,17 +284,17 @@ export const enviarRespuestaMensaje = async (mensaje, respuesta, adminNombre = '
  *
  * Parámetros disponibles para la plantilla de Brevo:
  * - nombre, apellido, nombreCompleto
- * - email, folio, categoria
+ * - email, telefono, folio, categoria
  * - faseNombre, faseTipo, faseNumero, esConcurso
- * - paqueteNombre, paqueteTipo, paquetePrecio
+ * - paqueteNombre, paqueteTipo, paquetePrecio, paqueteMetros
  * - fecha (fecha actual)
  * - anio (año del evento)
  */
 export const enviarConfirmacionRegistro = async (artista) => {
   const {
-    nombre, apellido, email, folio, categoria,
+    nombre, apellido, email, telefono, folio, categoria,
     faseNombre, faseTipo, faseNumero,
-    paqueteNombre, paqueteTipo, paquetePrecio
+    paqueteNombre, paqueteTipo, paquetePrecio, paqueteMetros
   } = artista
 
   // Siempre intentar usar plantilla de Brevo (ID=1 por defecto)
@@ -318,6 +318,8 @@ export const enviarConfirmacionRegistro = async (artista) => {
         CATEGORIA: categoria,
         email,
         EMAIL: email,
+        telefono: telefono || 'No proporcionado',
+        TELEFONO: telefono || 'No proporcionado',
         // Fase/Concurso
         faseNombre: faseNombre || 'Sin fase asignada',
         faseTipo: faseTipo || '',
@@ -328,6 +330,8 @@ export const enviarConfirmacionRegistro = async (artista) => {
         // Paquete
         paqueteNombre: paqueteNombre || 'Sin paquete',
         paqueteTipo: paqueteTipo || '',
+        paqueteMetros: paqueteMetros ? `${paqueteMetros}m` : '',
+        PAQUETEMETROS: paqueteMetros ? `${paqueteMetros}m` : '',
         paquetePrecio: paquetePrecio ? `$${parseFloat(paquetePrecio).toLocaleString('es-MX')} MXN` : '',
         paquete: paqueteNombre || 'Sin paquete',
         PAQUETE: paqueteNombre || 'Sin paquete',

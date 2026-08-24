@@ -339,6 +339,7 @@ export const registrarArtista = async (req, res) => {
         nombre: nuevoArtista.nombre,
         apellido: nuevoArtista.apellido,
         email: nuevoArtista.email,
+        telefono: nuevoArtista.telefono,
         folio: nuevoArtista.folio,
         categoria: nuevoArtista.categoria,
         // Info de fase/concurso
@@ -350,7 +351,8 @@ export const registrarArtista = async (req, res) => {
         paquete: nuevoArtista.paquete || null,
         paqueteNombre: nuevoArtista.paquete?.nombre || 'Sin paquete',
         paqueteTipo: nuevoArtista.paquete?.tipo || null, // '2D' o '3D'
-        paquetePrecio: nuevoArtista.paquete?.precio || null
+        paquetePrecio: nuevoArtista.paquete?.precio || null,
+        paqueteMetros: nuevoArtista.paquete?.metros_lineales || nuevoArtista.paquete?.metros_cuadrados || null
       }).then(result => {
         if (result.success) {
           console.log('📧 Email de confirmación enviado al artista')
