@@ -66,6 +66,7 @@ export default function SubtemaSection({
   data,
   sectionRef = undefined,
   labelRef = undefined,
+  contentRef = undefined,
   introRef,
   minH = 'min-h-[110vh]',
   navbarHeight = NAVBAR_HEIGHT,
@@ -100,6 +101,7 @@ export default function SubtemaSection({
 
       {/* Columna derecha: Contenido con padding-top para alinearse con el sticky label */}
       <div
+        ref={contentRef}
         className="max-w-[641px]"
         style={{ paddingTop: CSS.stickyLabelTop(navbarHeight) }}
       >

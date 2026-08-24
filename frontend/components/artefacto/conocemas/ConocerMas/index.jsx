@@ -60,6 +60,7 @@ export default function ConocerMas() {
   const pinRef = useRef(null);
   const introRef = useRef(null);
   const sectionRefs = useRef([]);
+  const contentRefs = useRef([]); // Refs al contenido de cada sección
   const labelsRef = useRef([]); // Labels apilados (QueueIndex)
   const stickyLabelsRef = useRef([]); // Labels sticky dentro de secciones
 
@@ -272,60 +273,61 @@ export default function ConocerMas() {
       // cuando su sección entra al viewport
 
       // Posición sticky target (donde deben llegar los labels)
-      const stickyTop = mask ? mask.getBoundingClientRect().height : 234;
+      // Posición donde el label se fija (debajo del logo)
+      const pinY = mask ? mask.getBoundingClientRect().bottom + 5 : 240;
+      const contents = contentRefs.current.filter(Boolean);
+      const n = stackedLabels.length;
 
-      for (let i = 0; i < sections.length; i++) {
-        const section = sections[i];
+      // Calcular la altura de un label
+      const labH = stackedLabels[0]?.offsetHeight || 35;
+      const slotGap = 12; // Espacio entre labels en la pila
+
+      // Calcular posiciones iniciales de la pila (slots en la parte inferior)
+      const slots = [];
+      for (let i = 0; i < n; i++) {
+        slots[i] = vh - 30 - (n - i) * labH - (n - 1 - i) * slotGap;
+      }
+
+      // Calcular posición Y de cada label basado en su contenido
+      const ys = new Array(n);
+      for (let i = 0; i < n; i++) {
+        const content = contents[i];
         const label = stackedLabels[i];
 
-        if (!section || !label) continue;
-
-        let sectionTop;
-        try {
-          sectionTop = section.getBoundingClientRect().top;
-        } catch (e) {
+        if (!content || !label) {
+          ys[i] = slots[i] || vh - 100;
           continue;
         }
 
-        // Calcular cuándo el label debe empezar a moverse
-        // Empieza cuando la sección está cerca del viewport
-        const startMoving = vh * 0.9;
-        const endMoving = stickyTop + 50; // Termina un poco después de la posición sticky
-
-        if (sectionTop < startMoving) {
-          // Calcular progreso del movimiento (0 = en pila, 1 = en posición sticky)
-          const moveProgress = Math.min(1, (startMoving - sectionTop) / (startMoving - endMoving));
-
-          // Calcular posición actual del label en la pila
-          const totalLabels = stackedLabels.length;
-          const visualIndex = totalLabels - 1 - i;
-          const stackedBottom = 24 + visualIndex * 40; // Posición original en la pila
-
-          // Posición inicial (desde bottom) y final (desde top)
-          const initialY = vh - stackedBottom - label.offsetHeight;
-          const finalY = stickyTop;
-
-          // Interpolar entre posición inicial y final
-          const currentY = initialY + (finalY - initialY) * moveProgress;
-
-          // Cambiar de bottom a top positioning cuando se mueve
-          label.style.bottom = 'auto';
-          label.style.top = currentY + 'px';
-          label.style.opacity = '1';
-          label.style.visibility = 'visible';
-
-          // Marcar como "en posición sticky" cuando llegue
-          label.dataset.atSticky = moveProgress >= 0.95 ? 'true' : 'false';
-        } else {
-          // Resetear a posición en la pila
-          const totalLabels = stackedLabels.length;
-          const visualIndex = totalLabels - 1 - i;
-          label.style.top = 'auto';
-          label.style.bottom = `calc(clamp(24px, 3vh, 40px) + ${visualIndex} * clamp(36px, 4vh, 50px))`;
-          label.style.opacity = '1';
-          label.style.visibility = 'visible';
-          label.dataset.atSticky = 'false';
+        // Obtener la posición top del contenido
+        let contentTop;
+        try {
+          contentTop = content.getBoundingClientRect().top;
+        } catch (e) {
+          ys[i] = slots[i];
+          continue;
         }
+
+        // El label sigue al contenido pero:
+        // - No puede subir más allá de pinY (donde se fija)
+        // - No puede bajar más allá de su slot en la pila
+        ys[i] = Math.max(pinY, Math.min(slots[i], contentTop));
+      }
+
+      // Efecto de empuje: el label entrante empuja al anterior hacia arriba
+      for (let i = n - 2; i >= 0; i--) {
+        ys[i] = Math.min(ys[i], ys[i + 1] - labH - slotGap);
+      }
+
+      // Aplicar posiciones a los labels
+      for (let i = 0; i < n; i++) {
+        const label = stackedLabels[i];
+        if (!label) continue;
+
+        label.style.bottom = 'auto';
+        label.style.top = ys[i] + 'px';
+        label.style.opacity = '1';
+        label.style.visibility = ys[i] <= pinY - labH - 2 ? 'hidden' : 'visible';
       }
 
       // Ocultar los sticky labels de las secciones (ya no los usamos)
@@ -772,6 +774,9 @@ export default function ConocerMas() {
             data={s}
             sectionRef={(el) => {
               if (el) sectionRefs.current[i] = el;
+            }}
+            contentRef={(el) => {
+              if (el) contentRefs.current[i] = el;
             }}
             labelRef={(el) => {
               if (el) stickyLabelsRef.current[i] = el;
