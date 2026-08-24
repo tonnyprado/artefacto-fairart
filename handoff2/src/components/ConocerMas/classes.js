@@ -1,7 +1,6 @@
 // Clases Tailwind compartidas — SOLO estilos estáticos.
 // Toda la geometría medida (posiciones, font de subtemas, alturas del bloque
 // del logo) la fija useConocerMasScroll a partir del rect real del logo.
-
 export const cls = {
   // Etimologías y numerales — Inter Tight Bold Italic, rojo, minúsculas
   etim: 'italic font-bold lowercase tracking-[-0.052em] text-[clamp(16px,1.35vw,26px)] text-rojo',

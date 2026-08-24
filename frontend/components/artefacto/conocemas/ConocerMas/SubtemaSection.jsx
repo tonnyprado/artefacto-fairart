@@ -1,7 +1,7 @@
 'use client';
 
 import { INTRO } from './content';
-import { cls, CSS, NAVBAR_HEIGHT } from './classes';
+import { cls } from './classes';
 
 /**
  * Block - Renderiza un bloque de contenido según su tipo
@@ -18,7 +18,7 @@ function Block({ b, introRef }) {
   if (b.type === 'etimExtra') {
     return (
       <div className="mb-[9vh]">
-        <div className={cls.displayRed}>{b.word}</div>
+        <div className={cls.etim}>{b.word}</div>
         <p className={`mt-2 max-w-[280px] ${cls.caption}`}>
           <em>(lat.)</em>
           {b.def.replace('(lat.)', '')}
@@ -32,11 +32,11 @@ function Block({ b, introRef }) {
   }
 
   if (b.type === 'h3') {
-    return <h3 className={`mb-3 ${cls.displayRed}`}>{b.text}</h3>;
+    return <h3 className={`mb-3 ${cls.etim}`}>{b.text}</h3>;
   }
 
   if (b.type === 'kicker') {
-    return <div className={`mb-1.5 ${cls.displayRed}`}>{b.text}</div>;
+    return <div className={`mb-1.5 ${cls.kicker}`}>{b.text}</div>;
   }
 
   if (b.type === 'image') {
@@ -58,86 +58,31 @@ function Block({ b, introRef }) {
 }
 
 /**
- * StickyLabel - Título sticky que se mueve con la sección
- * Se posiciona debajo del LogoMask y empuja al label anterior
- * Empieza oculto (opacity: 0, visibility: hidden) y el JS lo controla
- * Usa constantes CSS compartidas para alineación perfecta con PinnedIntro
- *
- * IMPORTANTE: El JS en index.jsx coordina la visibilidad con los labels apilados
- */
-function StickyLabel({ words, sectionId, labelRef, navbarHeight = NAVBAR_HEIGHT }) {
-  const handleClick = () => {
-    const section = document.getElementById(sectionId);
-    if (section) {
-      const offset = navbarHeight + 100;
-      const elementPosition = section.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-    }
-  };
-
-  return (
-    <div
-      ref={labelRef}
-      onClick={handleClick}
-      data-sticky-label={sectionId}
-      className={`sticky z-[11] cursor-pointer bg-crema ${cls.labelW} ${cls.labelPad} ${cls.rule} hover:bg-rojo/10 transition-colors duration-300`}
-      style={{
-        // Posición sticky: usa la constante compartida para consistencia
-        top: CSS.stickyLabelTop(navbarHeight),
-        marginLeft: 'calc(-25vw)', // Compensar el ml-[25vw] del section
-        marginBottom: '2vh',
-        // Estado inicial: oculto (el JS lo muestra cuando el stacked se oculta)
-        opacity: 0,
-        visibility: 'hidden',
-        // Transición suave para opacity controlada por JS
-        transition: 'opacity 0.3s ease, background-color 0.3s ease',
-      }}
-    >
-      <div className={cls.labelRow}>
-        <span>{words[0]}</span>
-        <span>{words[1]}</span>
-      </div>
-    </div>
-  );
-}
-
-/**
- * SubtemaSection - Una sección de contenido con su título sticky integrado
- * El título y contenido se mueven juntos como un solo bloque
+ * SubtemaSection - Sección de subtema: SOLO contenido.
+ * El label vive fuera (fixed, lo mueve el hook);
+ * la celda izquierda del grid queda vacía a propósito.
  */
 export default function SubtemaSection({
   data,
-  sectionRef = undefined,
-  labelRef = undefined,
+  contentRef,
   introRef,
   minH = 'min-h-[110vh]',
-  navbarHeight = NAVBAR_HEIGHT,
 }) {
   return (
     <section
       id={data.id}
-      ref={sectionRef}
-      data-screen-label={data.id}
-      className={`ml-[25vw] box-border pt-[11vh] pb-[14vh] pr-[calc(39.5vw+48px)] ${minH}`}
+      className={`grid grid-cols-[25vw_1fr] box-border pt-[11vh] pb-[14vh] pr-[calc(39.5vw+48px)] ${minH}`}
     >
-      {/* Título sticky integrado - se mueve con la sección */}
-      <StickyLabel
-        words={data.words}
-        sectionId={data.id}
-        labelRef={labelRef}
-        navbarHeight={navbarHeight}
-      />
+      {/* Celda izquierda vacía (el logo y labels fixed van aquí visualmente) */}
+      <div></div>
 
-      <div className="max-w-[641px]">
+      {/* Contenido */}
+      <div ref={contentRef} className="max-w-[641px]">
         {/* Etimología */}
         <div className="mb-[9vh] flex justify-between gap-10">
           {data.etim.map((e) => (
             <div key={e.word} className="flex-1">
-              <div className={cls.displayRed}>{e.word}</div>
+              <div className={cls.etim}>{e.word}</div>
               <p className={`mt-2 max-w-[250px] ${cls.caption}`}>{e.def}</p>
             </div>
           ))}
