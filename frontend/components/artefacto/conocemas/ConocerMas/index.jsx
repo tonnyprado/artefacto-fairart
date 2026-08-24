@@ -511,6 +511,9 @@ export default function ConocerMas() {
           label.style.visibility = 'visible';
           label.style.top = 'auto';
           label.style.bottom = `calc(clamp(24px, 3vh, 40px) + ${visualIndex} * clamp(36px, 4vh, 50px))`;
+          // Forzar repaint para asegurar que los bordes se pinten correctamente
+          // eslint-disable-next-line no-unused-expressions
+          label.offsetHeight;
         }
       });
 

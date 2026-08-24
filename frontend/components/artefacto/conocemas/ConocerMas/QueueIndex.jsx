@@ -44,7 +44,7 @@ export default function QueueIndex({ labelsRef, navbarHeight = NAVBAR_HEIGHT }) 
               if (el) labelsRef.current[i] = el;
             }}
             onClick={() => handleLabelClick(s.id)}
-            className={`pointer-events-auto cursor-pointer fixed z-[11] box-border bg-crema ${cls.labelW} ${cls.labelPad} hover:bg-rojo/10 transition-colors duration-300`}
+            className={`pointer-events-auto cursor-pointer fixed z-[11] box-border bg-crema border-b-[1.33px] border-rojo ${cls.labelW} ${cls.labelPad} hover:bg-rojo/10 transition-colors duration-300`}
             style={{
               // Posición inicial: apilados en la parte inferior
               // Usar clamp() para espaciado responsive
