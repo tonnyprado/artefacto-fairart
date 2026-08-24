@@ -75,7 +75,7 @@ export default function SubtemaSection({
       id={data.id}
       ref={sectionRef}
       data-screen-label={data.id}
-      className={`grid grid-cols-[25vw_1fr] box-border pt-[11vh] pb-[14vh] pr-[calc(39.5vw+48px)] ${minH}`}
+      className={`grid grid-cols-[25vw_1fr] box-border pb-[14vh] pr-[calc(39.5vw+48px)] ${minH}`}
     >
       {/* Columna izquierda: Label sticky alineado con el contenido */}
       <div className="relative">
