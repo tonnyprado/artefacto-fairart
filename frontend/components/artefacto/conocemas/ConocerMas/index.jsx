@@ -223,30 +223,6 @@ export default function ConocerMas() {
       }
     };
 
-    // Calcular altura fija del pin para que la línea coincida con el sticky label
-    let pinHeight = null;
-
-    const calculatePinHeight = () => {
-      // La línea del PinnedIntro debe estar a la altura de la línea del sticky label
-      // Sticky label top = maskHeight, su altura incluye texto + padding + border
-      if (mask && ghost) {
-        const maskHeight = mask.getBoundingClientRect().height; // donde empieza el label
-        // Medir la altura real del ghost (tiene el mismo estilo que los labels)
-        const labelHeight = ghost.offsetHeight;
-        // Pin height = top del label + altura del label = bottom del label
-        pinHeight = maskHeight + labelHeight;
-      } else if (mask) {
-        // Fallback: usar el mask + estimación de altura del label
-        const maskHeight = mask.getBoundingClientRect().height;
-        // Estimar altura del label: font-size * line-height + padding + border
-        // clamp(16px, 1.35vw, 26px) * 1.2 + 8px (pb-2) + 1.33px (border)
-        const vw = window.innerWidth / 100;
-        const fontSize = Math.min(Math.max(16, 1.35 * vw), 26);
-        const labelHeight = fontSize * 1.2 + 8 + 1.33;
-        pinHeight = maskHeight + labelHeight;
-      }
-    };
-
     const placePin = () => {
       if (!flow || !pin) return;
       try {
@@ -263,13 +239,8 @@ export default function ConocerMas() {
         const logoTop = NAVBAR_HEIGHT + Math.min(24, window.innerWidth * 0.012);
         pin.style.paddingTop = (logoTop + 10) + 'px'; // 10px debajo del inicio del logo
 
-        // Usar altura fija calculada (no cambia con scroll)
-        if (pinHeight === null) {
-          calculatePinHeight();
-        }
-        if (pinHeight) {
-          pin.style.height = pinHeight + 'px';
-        }
+        // La altura ya está definida en PinnedIntro via CSS.stickyLabelBottom
+        // No necesitamos calcularla aquí
       } catch (e) {
         console.warn('ConocerMas: Error placing pin');
       }
