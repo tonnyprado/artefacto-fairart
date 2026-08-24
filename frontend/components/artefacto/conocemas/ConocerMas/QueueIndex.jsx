@@ -44,18 +44,13 @@ export default function QueueIndex({ labelsRef, navbarHeight = NAVBAR_HEIGHT }) 
               if (el) labelsRef.current[i] = el;
             }}
             onClick={() => handleLabelClick(s.id)}
-            className={`pointer-events-auto cursor-pointer fixed z-[11] box-border bg-crema border-b-[1.33px] border-rojo ${cls.labelW} ${cls.labelPad} hover:bg-rojo/10 transition-colors duration-300`}
+            className={`pointer-events-auto cursor-pointer fixed z-[11] box-border bg-crema ${cls.labelW} ${cls.labelPad} hover:bg-rojo/10 transition-colors duration-300`}
             style={{
               // Posición inicial: apilados en la parte inferior
-              // Usar clamp() para espaciado responsive
               bottom: `calc(clamp(24px, 3vh, 40px) + ${visualIndex} * clamp(36px, 4vh, 50px))`,
               left: 0,
-              // Estado inicial: visible (el JS lo oculta cuando el sticky aparece)
               opacity: 1,
               visibility: 'visible',
-              // Línea roja inferior - inline para garantizar que aparezca en todos los navegadores
-              borderBottom: '1.33px solid #C8102E',
-              // Transición suave para opacity controlada por JS
               transition: 'opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease',
             }}
           >
@@ -63,6 +58,11 @@ export default function QueueIndex({ labelsRef, navbarHeight = NAVBAR_HEIGHT }) 
               <span>{s.words[0]}</span>
               <span>{s.words[1]}</span>
             </div>
+            {/* Línea roja como elemento separado para garantizar renderizado */}
+            <div
+              className="absolute bottom-0 left-0 right-0 bg-rojo"
+              style={{ height: '1.33px' }}
+            />
           </div>
         );
       })}
