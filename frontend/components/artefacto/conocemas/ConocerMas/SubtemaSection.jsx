@@ -98,8 +98,11 @@ export default function SubtemaSection({
         </div>
       </div>
 
-      {/* Columna derecha: Contenido alineado con el label */}
-      <div className="max-w-[641px]">
+      {/* Columna derecha: Contenido con padding-top para alinearse con el sticky label */}
+      <div
+        className="max-w-[641px]"
+        style={{ paddingTop: CSS.stickyLabelTop(navbarHeight) }}
+      >
         {/* Etimología */}
         <div className="mb-[9vh] flex justify-between gap-10">
           {data.etim.map((e) => (
