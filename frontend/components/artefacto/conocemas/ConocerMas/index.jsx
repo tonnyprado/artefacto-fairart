@@ -447,9 +447,6 @@ export default function ConocerMas() {
       if (resizeTimeout) clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
         measure();
-        // Recalcular altura del pin en resize (puede cambiar con el viewport)
-        pinHeight = null;
-        calculatePinHeight();
         if (pin && pinned) {
           placePin();
         }
@@ -495,12 +492,7 @@ export default function ConocerMas() {
         }
       });
 
-      // Calcular altura del pin cuando los refs estén listos
-      if (ghost && pinHeight === null) {
-        calculatePinHeight();
-      }
-
-      // Ahora ejecutar frame para ajustar según posición de scroll actual
+      // Ejecutar medición y frame para ajustar según posición de scroll actual
       measure();
       frame();
     };
