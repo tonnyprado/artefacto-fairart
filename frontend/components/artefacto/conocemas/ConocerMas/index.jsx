@@ -278,14 +278,18 @@ export default function ConocerMas() {
       const contents = contentRefs.current.filter(Boolean);
       const n = stackedLabels.length;
 
-      // Calcular la altura de un label
+      // Calcular la altura de un label (runtime, responsive)
       const labH = stackedLabels[0]?.offsetHeight || 35;
-      const slotGap = 12; // Espacio entre labels en la pila
+
+      // Espaciado responsive basado en viewport
+      const vw = window.innerWidth / 100;
+      const slotGap = Math.max(8, Math.min(14, vw * 1)); // 1vw, min 8px, max 14px
+      const bottomOffset = Math.max(20, Math.min(40, vh * 0.03)); // 3vh, min 20px, max 40px
 
       // Calcular posiciones iniciales de la pila (slots en la parte inferior)
       const slots = [];
       for (let i = 0; i < n; i++) {
-        slots[i] = vh - 30 - (n - i) * labH - (n - 1 - i) * slotGap;
+        slots[i] = vh - bottomOffset - (n - i) * labH - (n - 1 - i) * slotGap;
       }
 
       // Calcular posición Y de cada label basado en su contenido
