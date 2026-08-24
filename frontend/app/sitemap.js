@@ -31,6 +31,12 @@ export default async function sitemap() {
       changeFrequency: 'yearly',
       priority: 0.3,
     },
+    {
+      url: `${baseUrl}/terms`,
+      lastModified,
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
   ]
 
   // Rutas de secciones (anchors de la landing)

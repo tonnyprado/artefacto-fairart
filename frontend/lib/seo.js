@@ -48,10 +48,10 @@ export function generateOrganizationSchema() {
     },
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Centro Cultural Estacion Indianilla, Claudio Bernard 111',
+      streetAddress: 'Providencia 325, Col. Del Valle Norte',
       addressLocality: 'Ciudad de Mexico',
-      addressRegion: 'CDMX',
-      postalCode: '06720',
+      addressRegion: 'Benito Juarez',
+      postalCode: '03103',
       addressCountry: 'MX',
     },
     contactPoint: [
@@ -59,16 +59,10 @@ export function generateOrganizationSchema() {
         '@type': 'ContactPoint',
         telephone: '+52-55-7836-3207',
         contactType: 'customer service',
-        email: 'convocatoria@artefacto.mx',
+        email: 'curatorial@arte-facto.mx',
         availableLanguage: ['Spanish', 'English'],
         areaServed: 'MX',
       },
-      {
-        '@type': 'ContactPoint',
-        email: 'artefacto.curatorial@gmail.com',
-        contactType: 'curatorial',
-        availableLanguage: ['Spanish', 'English'],
-      }
     ],
     sameAs: [
       'https://www.instagram.com/artefacto.feria',
@@ -331,4 +325,81 @@ export function generateHomePageSchemas() {
     generateOrganizationSchema(),
     generateMainEventSchema(),
   ]
+}
+
+/**
+ * Genera Schema.org markup para la pagina de Aviso de Privacidad
+ */
+export function generatePrivacyPolicySchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${BASE_URL}/privacy-policy`,
+    url: `${BASE_URL}/privacy-policy`,
+    name: 'Aviso de Privacidad - ARTE FACTO',
+    description: 'Aviso de Privacidad de ARTE FACTO ETICAS CREATIVAS, S. de R.L. de C.V. conforme a la Ley Federal de Proteccion de Datos Personales en Posesion de los Particulares.',
+    inLanguage: 'es-MX',
+    isPartOf: {
+      '@id': `${BASE_URL}/#website`,
+    },
+    about: {
+      '@type': 'Thing',
+      name: 'Proteccion de Datos Personales',
+    },
+    datePublished: '2026-08-23',
+    dateModified: '2026-08-23',
+    publisher: {
+      '@id': `${BASE_URL}/#organization`,
+    },
+  }
+}
+
+/**
+ * Genera Schema.org markup para la pagina de Terminos y Condiciones
+ */
+export function generateTermsSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${BASE_URL}/terms`,
+    url: `${BASE_URL}/terms`,
+    name: 'Terminos y Condiciones de Postulacion - ARTE FACTO',
+    description: 'Terminos y Condiciones de Postulacion a la convocatoria ARTE FACTO Eticas Creativas Edicion II.',
+    inLanguage: 'es-MX',
+    isPartOf: {
+      '@id': `${BASE_URL}/#website`,
+    },
+    about: {
+      '@type': 'Thing',
+      name: 'Condiciones de Participacion en Convocatoria de Arte',
+    },
+    datePublished: '2026-08-23',
+    dateModified: '2026-08-23',
+    publisher: {
+      '@id': `${BASE_URL}/#organization`,
+    },
+  }
+}
+
+/**
+ * Genera Schema.org markup para paginas legales (breadcrumbs incluidos)
+ */
+export function generateLegalPageSchemas(page) {
+  const schemas = []
+
+  if (page === 'privacy-policy') {
+    schemas.push(generatePrivacyPolicySchema())
+    schemas.push(generateBreadcrumbSchema([
+      { name: 'Inicio', path: '/' },
+      { name: 'Aviso de Privacidad', path: '/privacy-policy' },
+    ]))
+  } else if (page === 'terms') {
+    schemas.push(generateTermsSchema())
+    schemas.push(generateBreadcrumbSchema([
+      { name: 'Inicio', path: '/' },
+      { name: 'Terminos y Condiciones', path: '/terms' },
+    ]))
+  }
+
+  return schemas
 }
