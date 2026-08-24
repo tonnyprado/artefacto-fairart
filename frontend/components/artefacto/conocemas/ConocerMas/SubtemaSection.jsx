@@ -99,11 +99,10 @@ export default function SubtemaSection({
         </div>
       </div>
 
-      {/* Columna derecha: Contenido con padding-top para alinearse con el sticky label */}
+      {/* Columna derecha: Contenido alineado con el label */}
       <div
         ref={contentRef}
         className="max-w-[641px]"
-        style={{ paddingTop: CSS.stickyLabelTop(navbarHeight) }}
       >
         {/* Etimología */}
         <div className="mb-[9vh] flex justify-between gap-10">
