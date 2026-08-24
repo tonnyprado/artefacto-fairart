@@ -1575,9 +1575,10 @@ function TooltipIcon({ text }) {
       {show && (
         <span style={{
           position: 'absolute',
-          bottom: '100%',
-          right: 0,
-          marginBottom: '6px',
+          top: '50%',
+          right: '100%',
+          transform: 'translateY(-50%)',
+          marginRight: '8px',
           padding: '10px 14px',
           background: COLORS.black,
           color: COLORS.cream,
@@ -1585,7 +1586,7 @@ function TooltipIcon({ text }) {
           fontSize: '11px',
           fontWeight: 400,
           borderRadius: '8px',
-          width: '220px',
+          width: '200px',
           lineHeight: 1.4,
           zIndex: 1000,
           boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
@@ -1593,11 +1594,12 @@ function TooltipIcon({ text }) {
           {text}
           <span style={{
             position: 'absolute',
-            top: '100%',
-            right: '8px',
+            top: '50%',
+            left: '100%',
+            transform: 'translateY(-50%)',
             borderWidth: '5px',
             borderStyle: 'solid',
-            borderColor: `${COLORS.black} transparent transparent transparent`,
+            borderColor: `transparent transparent transparent ${COLORS.black}`,
           }} />
         </span>
       )}
