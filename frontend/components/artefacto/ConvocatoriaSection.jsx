@@ -99,12 +99,29 @@ function HoverButton({ href, bg, color, hoverBg, hoverColor, children, download,
     );
   }
 
+  // Si es download + external, abrir nueva pestaña Y descargar simultáneamente
+  const handleClick = (e) => {
+    if (download && external) {
+      e.preventDefault();
+      // Abrir en nueva pestaña
+      window.open(href, '_blank', 'noopener,noreferrer');
+      // Iniciar descarga
+      const link = document.createElement('a');
+      link.href = href;
+      link.download = typeof download === 'string' ? download : '';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   return (
     <a
       href={href}
       target={external ? "_blank" : undefined}
       rel={external ? "noopener noreferrer" : undefined}
-      download={download}
+      download={download && !external ? download : undefined}
+      onClick={handleClick}
       style={style}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
