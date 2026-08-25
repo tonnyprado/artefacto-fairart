@@ -31,37 +31,28 @@ const ESTADO_COLORS = {
   rechazado: 'error'
 }
 
-// Formatos actualizados (sincronizados con Step5Paquetes)
+// Formatos de trabajo reales (sincronizados con Step5Paquetes)
 const FORMATOS_2D = [
-  { value: 'pintura', label: 'Pintura' },
-  { value: 'dibujo', label: 'Dibujo' },
+  { value: 'pintura', label: 'Pintura (técnicas húmedas)' },
+  { value: 'dibujo', label: 'Dibujo (técnicas secas)' },
   { value: 'grafica', label: 'Gráfica' },
   { value: 'fotografia', label: 'Fotografía' },
   { value: 'collage_mixta', label: 'Collage & Mixta' },
   { value: 'textil', label: 'Textil' },
-  { value: 'otro_2d', label: 'Otro 2D' },
+  { value: 'otro_2d', label: 'Otro (2D)' },
 ]
 
 const FORMATOS_3D = [
   { value: 'escultura', label: 'Escultura' },
   { value: 'ceramica', label: 'Cerámica' },
-  { value: 'textil_3d', label: 'Textil 3D' },
-  { value: 'otro_3d', label: 'Otro 3D' },
+  { value: 'textil_3d', label: 'Textil (3D)' },
+  { value: 'otro_3d', label: 'Otro (3D)' },
 ]
 
-// Categorías legacy + nuevos formatos para compatibilidad
+// Todas las categorías combinadas para búsquedas de labels
 const CATEGORIAS = [
   ...FORMATOS_2D,
   ...FORMATOS_3D,
-  // Legacy
-  { value: 'ilustracion', label: 'Ilustración' },
-  { value: 'arte_digital', label: 'Arte Digital' },
-  { value: 'instalacion', label: 'Instalación' },
-  { value: 'video_arte', label: 'Video Arte' },
-  { value: 'performance', label: 'Performance' },
-  { value: 'arte_textil', label: 'Arte Textil' },
-  { value: 'grabado', label: 'Grabado' },
-  { value: 'arte_objeto', label: 'Arte Objeto' },
   { value: 'otro', label: 'Otro' },
   { value: 'otro_general', label: 'Otro' },
 ]
@@ -523,9 +514,17 @@ export default function ArtistasTable() {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
             >
               <option value="all">Todas las categorías</option>
-              {CATEGORIAS.map(cat => (
-                <option key={cat.value} value={cat.value}>{cat.label}</option>
-              ))}
+              <optgroup label="2D">
+                {FORMATOS_2D.map(cat => (
+                  <option key={cat.value} value={cat.value}>{cat.label}</option>
+                ))}
+              </optgroup>
+              <optgroup label="3D">
+                {FORMATOS_3D.map(cat => (
+                  <option key={cat.value} value={cat.value}>{cat.label}</option>
+                ))}
+              </optgroup>
+              <option value="otro">Otro</option>
             </select>
           </div>
         </div>
@@ -1617,14 +1616,16 @@ export default function ArtistasTable() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   >
                     <option value="">Seleccionar...</option>
-                    <option value="pintura">Pintura</option>
-                    <option value="dibujo">Dibujo</option>
-                    <option value="grafica">Gráfica</option>
-                    <option value="fotografia">Fotografía</option>
-                    <option value="collage_mixta">Collage & Mixta</option>
-                    <option value="textil">Textil</option>
-                    <option value="escultura">Escultura</option>
-                    <option value="ceramica">Cerámica</option>
+                    <optgroup label="2D">
+                      {FORMATOS_2D.map(f => (
+                        <option key={f.value} value={f.value}>{f.label}</option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="3D">
+                      {FORMATOS_3D.map(f => (
+                        <option key={f.value} value={f.value}>{f.label}</option>
+                      ))}
+                    </optgroup>
                     <option value="otro">Otro</option>
                   </select>
                 </div>
