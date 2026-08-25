@@ -147,6 +147,20 @@ export default function RegistroPage() {
     })
   }
 
+  // Función para validar formato de email
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+  }
+
+  // Función para validar formato de teléfono (mínimo 10 dígitos)
+  const isValidPhone = (phone) => {
+    // Eliminar espacios, guiones, paréntesis y el prefijo +
+    const cleanPhone = phone.replace(/[\s\-\(\)\+]/g, '')
+    // Verificar que tenga solo números y al menos 10 dígitos
+    return /^\d{10,15}$/.test(cleanPhone)
+  }
+
   const validateStep = (step) => {
     const newErrors = {}
 
@@ -155,8 +169,21 @@ export default function RegistroPage() {
         // Datos Personales
         if (!formData.nombre) newErrors.nombre = 'Nombre es requerido'
         if (!formData.apellido) newErrors.apellido = 'Apellido es requerido'
-        if (!formData.email) newErrors.email = 'Email es requerido'
-        if (!formData.telefono) newErrors.telefono = 'Teléfono es requerido'
+
+        // Validación de email
+        if (!formData.email) {
+          newErrors.email = 'Email es requerido'
+        } else if (!isValidEmail(formData.email)) {
+          newErrors.email = 'Ingresa un email válido (ej: tu@email.com)'
+        }
+
+        // Validación de teléfono
+        if (!formData.telefono) {
+          newErrors.telefono = 'Teléfono es requerido'
+        } else if (!isValidPhone(formData.telefono)) {
+          newErrors.telefono = 'Ingresa un número válido (mínimo 10 dígitos)'
+        }
+
         if (!formData.fecha_nacimiento)
           newErrors.fecha_nacimiento = 'Fecha de nacimiento es requerida'
         if (!formData.pais) newErrors.pais = 'País es requerido'

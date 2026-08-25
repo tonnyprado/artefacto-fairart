@@ -11,6 +11,19 @@ import pool from '../config/database.js'
 import { uploadToS3 } from '../services/upload.service.js'
 import { enviarConfirmacionRegistro, notificarNuevoArtista, isBrevoConfigured } from '../services/email.service.js'
 
+// Funciones de validación
+const isValidEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email)
+}
+
+const isValidPhone = (phone) => {
+  // Eliminar espacios, guiones, paréntesis y prefijo +
+  const cleanPhone = phone.replace(/[\s\-\(\)\+]/g, '')
+  // Verificar que tenga solo números y al menos 10 dígitos
+  return /^\d{10,15}$/.test(cleanPhone)
+}
+
 // Verificar si S3 está configurado
 const isS3Configured = () => {
   return !!(
@@ -89,6 +102,24 @@ export const registrarArtista = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: 'Faltan campos requeridos: ' + missing.join(', ')
+      })
+    }
+
+    // Validar formato de email
+    if (!isValidEmail(email)) {
+      console.log('❌ ERROR 400: Email inválido -', email)
+      return res.status(400).json({
+        success: false,
+        error: 'El email no tiene un formato válido'
+      })
+    }
+
+    // Validar formato de teléfono (si se proporciona)
+    if (telefono && !isValidPhone(telefono)) {
+      console.log('❌ ERROR 400: Teléfono inválido -', telefono)
+      return res.status(400).json({
+        success: false,
+        error: 'El teléfono debe tener entre 10 y 15 dígitos'
       })
     }
 
