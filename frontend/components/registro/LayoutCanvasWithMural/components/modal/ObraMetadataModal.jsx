@@ -381,36 +381,34 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
                           }}
                         >
                           i
-                          {/* Tooltip a la derecha */}
+                          {/* Tooltip - ABAJO del trigger para que quepa en el modal */}
                           {showTooltip && (
                             <div style={{
                               position: 'absolute',
-                              left: 'calc(100% + 10px)',
-                              top: '50%',
-                              transform: 'translateY(-50%)',
+                              top: 'calc(100% + 8px)',
+                              right: 0,
                               background: '#141210',
                               color: '#F4EDE4',
                               padding: '10px 14px',
                               borderRadius: '8px',
                               fontSize: '12px',
                               lineHeight: '1.5',
-                              width: '180px',
+                              width: '200px',
                               boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
                               zIndex: 9999,
                               textAlign: 'left',
                               whiteSpace: 'normal'
                             }}>
-                              {/* Flecha apuntando a la izquierda */}
+                              {/* Flecha apuntando arriba */}
                               <div style={{
                                 position: 'absolute',
-                                left: '-6px',
-                                top: '50%',
-                                transform: 'translateY(-50%)',
+                                top: '-6px',
+                                right: '4px',
                                 width: 0,
                                 height: 0,
-                                borderTop: '6px solid transparent',
-                                borderBottom: '6px solid transparent',
-                                borderRight: '6px solid #141210'
+                                borderLeft: '6px solid transparent',
+                                borderRight: '6px solid transparent',
+                                borderBottom: '6px solid #141210'
                               }} />
                               Recuerda que estos valores son referencias. Se definirán los precios al ser seleccionado, en la hoja de consigna.
                             </div>
