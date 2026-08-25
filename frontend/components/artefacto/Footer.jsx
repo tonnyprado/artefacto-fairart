@@ -72,7 +72,10 @@ export default function Footer() {
         </div>
         <div style={footerBarStyle}>
           <span>© {new Date().getFullYear()} ARTEFACTO. Todos los derechos reservados.</span>
-          <a href="/privacy-policy" style={{ color: 'rgba(244,237,228,0.6)', textDecoration: 'none', fontSize: 11 }}>Aviso de Privacidad</a>
+          <div style={{ display: 'flex', gap: 16 }}>
+            <a href="/terms" style={{ color: 'rgba(244,237,228,0.6)', textDecoration: 'none', fontSize: 11 }}>Terminos y Condiciones</a>
+            <a href="/privacy-policy" style={{ color: 'rgba(244,237,228,0.6)', textDecoration: 'none', fontSize: 11 }}>Aviso de Privacidad</a>
+          </div>
           <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>Hecho en Mexico <img src="/assets/star-red.svg" alt="" style={{ width: 10, height: 10 }} /></span>
         </div>
       </div>

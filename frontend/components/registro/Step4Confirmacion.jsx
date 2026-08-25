@@ -728,7 +728,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
             <span style={{ flex: 1, lineHeight: '1.6' }}>
               He leído y acepto los{' '}
               <a
-                href="/terminos"
+                href="/terms"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -767,7 +767,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
             <span style={{ flex: 1, lineHeight: '1.6' }}>
               He leído y acepto el{' '}
               <a
-                href="/privacidad"
+                href="/privacy-policy"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{

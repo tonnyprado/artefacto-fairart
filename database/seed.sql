@@ -23,36 +23,37 @@ INSERT INTO configuracion_sitio (
   '© 2027 ARTEFACT - Todos los derechos reservados'
 );
 
--- 3. Paquetes de inscripción
-INSERT INTO paquetes (nombre, descripcion, precio, metros_lineales, altura_pared, obras_maximas, beneficios)
+-- 3. Paquetes de inscripcion - Convocatoria ARTE FACTO 2027
+-- PAQUETES 2D (Obra Bidimensional)
+INSERT INTO paquetes (id, nombre, tipo, descripcion, precio, metros_lineales, altura_pared, beneficios, activo)
 VALUES
-  (
-    'Paquete Básico',
-    'Ideal para artistas emergentes que desean mostrar sus primeras obras en ARTEFACT',
-    1500.00,
-    3.0,
-    2.4,
-    8,
-    '["Espacio de 3 metros lineales de pared", "Altura de 2.4 metros", "Iluminación profesional LED", "Tarjeta de presentación junto a las obras", "Mención en catálogo digital", "Acceso a inauguración"]'::jsonb
-  ),
-  (
-    'Paquete Profesional',
-    'Para artistas establecidos con trayectoria reconocida que buscan mayor espacio de exhibición',
-    2800.00,
-    5.0,
-    2.8,
-    15,
-    '["Espacio de 5 metros lineales de pared", "Altura de 2.8 metros", "Iluminación premium con spotlights dirigibles", "Página completa en catálogo impreso", "Sesión fotográfica profesional de las obras", "Promoción en redes sociales de ARTEFACT", "Invitaciones VIP para la inauguración (5)", "Video time-lapse del montaje"]'::jsonb
-  ),
-  (
-    'Paquete Premium',
-    'Espacio exclusivo para artistas de alto reconocimiento con propuestas ambiciosas',
-    4500.00,
-    8.0,
-    3.0,
-    25,
-    '["Espacio de 8 metros lineales de pared", "Altura de 3 metros", "Iluminación de museo con sistema de control", "Stand personalizado con diseño arquitectónico", "Portada del catálogo impreso", "Video promocional de 2 minutos", "Conferencia de prensa con medios especializados", "Cocktail privado de inauguración (20 invitados)", "Entrevista en revista de arte", "Coordinador personal de montaje"]'::jsonb
-  );
+(1, 'Basico 2D', '2D', 'Paquete basico para obra bidimensional', 9500.00, 2.0, 2.4,
+ '["2 metros lineales de pared", "Bootcamp de ceramica con material incluido", "5 boletos dobles de cortesia", "Asesores de venta durante la feria", "Acceso a 1-2 talleres en Estudio ARTE FACTO", "Difusion masiva en redes", "Playeras y totebags con serigrafias de tu arte", "Publicaciones y entrevistas previas al evento"]'::jsonb, true),
+(2, 'Estandar 2D', '2D', 'Paquete estandar para obra bidimensional', 13000.00, 3.0, 2.4,
+ '["3 metros lineales de pared", "Bootcamp de ceramica con material incluido", "5 boletos dobles de cortesia", "Asesores de venta durante la feria", "Acceso a 1-2 talleres en Estudio ARTE FACTO", "Difusion masiva en redes", "Playeras y totebags con serigrafias de tu arte", "Publicaciones y entrevistas previas al evento"]'::jsonb, true),
+(3, 'Medio 2D', '2D', 'Paquete medio para obra bidimensional', 19500.00, 5.0, 2.4,
+ '["5 metros lineales de pared", "Bootcamp de ceramica con material incluido", "5 boletos dobles de cortesia", "Asesores de venta durante la feria", "Acceso a 1-2 talleres en Estudio ARTE FACTO", "Difusion masiva en redes", "Playeras y totebags con serigrafias de tu arte", "Publicaciones y entrevistas previas al evento"]'::jsonb, true),
+(4, 'Amplio 2D', '2D', 'Paquete amplio para obra bidimensional', 24500.00, 7.0, 2.4,
+ '["7 metros lineales de pared", "Bootcamp de ceramica con material incluido", "5 boletos dobles de cortesia", "Asesores de venta durante la feria", "Acceso a 1-2 talleres en Estudio ARTE FACTO", "Difusion masiva en redes", "Playeras y totebags con serigrafias de tu arte", "Publicaciones y entrevistas previas al evento"]'::jsonb, true),
+(5, 'Completo 2D', '2D', 'Paquete completo para obra bidimensional', 33500.00, 10.0, 2.4,
+ '["10 metros lineales de pared", "Bootcamp de ceramica con material incluido", "5 boletos dobles de cortesia", "Asesores de venta durante la feria", "Acceso a 1-2 talleres en Estudio ARTE FACTO", "Difusion masiva en redes", "Playeras y totebags con serigrafias de tu arte", "Publicaciones y entrevistas previas al evento"]'::jsonb, true);
+
+-- PAQUETES 3D (Obra Tridimensional)
+INSERT INTO paquetes (id, nombre, tipo, descripcion, precio, metros_cuadrados, beneficios, activo)
+VALUES
+(6, 'Basico 3D', '3D', 'Paquete basico para obra tridimensional', 6500.00, 1.0,
+ '["1 metro cuadrado de espacio", "Bootcamp de ceramica con material incluido", "5 boletos dobles de cortesia", "Asesores de venta durante la feria", "Acceso a 1-2 talleres en Estudio ARTE FACTO", "Difusion masiva en redes", "Playeras y totebags con serigrafias de tu arte", "Publicaciones y entrevistas previas al evento"]'::jsonb, true),
+(7, 'Estandar 3D', '3D', 'Paquete estandar para obra tridimensional', 11500.00, 2.0,
+ '["2 metros cuadrados de espacio", "Bootcamp de ceramica con material incluido", "5 boletos dobles de cortesia", "Asesores de venta durante la feria", "Acceso a 1-2 talleres en Estudio ARTE FACTO", "Difusion masiva en redes", "Playeras y totebags con serigrafias de tu arte", "Publicaciones y entrevistas previas al evento"]'::jsonb, true),
+(8, 'Medio 3D', '3D', 'Paquete medio para obra tridimensional', 15500.00, 3.0,
+ '["3 metros cuadrados de espacio", "Bootcamp de ceramica con material incluido", "5 boletos dobles de cortesia", "Asesores de venta durante la feria", "Acceso a 1-2 talleres en Estudio ARTE FACTO", "Difusion masiva en redes", "Playeras y totebags con serigrafias de tu arte", "Publicaciones y entrevistas previas al evento"]'::jsonb, true),
+(9, 'Amplio 3D', '3D', 'Paquete amplio para obra tridimensional', 19000.00, 4.0,
+ '["4 metros cuadrados de espacio", "Bootcamp de ceramica con material incluido", "5 boletos dobles de cortesia", "Asesores de venta durante la feria", "Acceso a 1-2 talleres en Estudio ARTE FACTO", "Difusion masiva en redes", "Playeras y totebags con serigrafias de tu arte", "Publicaciones y entrevistas previas al evento"]'::jsonb, true),
+(10, 'Completo 3D', '3D', 'Paquete completo para obra tridimensional', 33500.00, 9.0,
+ '["9 metros cuadrados de espacio", "Bootcamp de ceramica con material incluido", "5 boletos dobles de cortesia", "Asesores de venta durante la feria", "Acceso a 1-2 talleres en Estudio ARTE FACTO", "Difusion masiva en redes", "Playeras y totebags con serigrafias de tu arte", "Publicaciones y entrevistas previas al evento"]'::jsonb, true);
+
+-- Actualizar secuencia
+SELECT setval('paquetes_id_seq', 10);
 
 -- 4. Contenido Hero
 INSERT INTO contenido (
