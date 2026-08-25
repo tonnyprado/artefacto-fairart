@@ -339,23 +339,35 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
 
                     {/* Precio sugerido (destacado) */}
                     <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
                       background: 'rgba(184, 48, 48, 0.15)',
                       padding: '10px 12px',
                       borderRadius: '8px',
                       marginTop: '4px'
                     }}>
-                      <span style={{
-                        fontSize: '13px',
-                        color: '#F4EDE4',
+                      <div style={{
                         display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px'
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
                       }}>
-                        Precio sugerido
-                        {/* Tooltip trigger con tooltip inline */}
+                        <span style={{ fontSize: '13px', color: '#F4EDE4' }}>
+                          Precio sugerido
+                        </span>
+                        <span style={{ fontSize: '16px', color: '#B83030', fontWeight: '700' }}>
+                          {precios ? formatMoney(precios.precioSugerido) : '—'}
+                        </span>
+                      </div>
+                      {/* Info con tooltip - en línea separada */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '6px',
+                          marginTop: '8px',
+                          paddingTop: '8px',
+                          borderTop: '1px solid rgba(244, 237, 228, 0.1)',
+                          position: 'relative'
+                        }}
+                      >
                         <span
                           tabIndex="0"
                           onClick={(e) => {
@@ -377,47 +389,23 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
                             fontSize: '11px',
                             color: '#F4EDE4',
                             cursor: 'pointer',
-                            position: 'relative'
+                            flexShrink: 0
                           }}
                         >
                           i
-                          {/* Tooltip - ABAJO del trigger para que quepa en el modal */}
-                          {showTooltip && (
-                            <div style={{
-                              position: 'absolute',
-                              top: 'calc(100% + 8px)',
-                              right: 0,
-                              background: '#141210',
-                              color: '#F4EDE4',
-                              padding: '10px 14px',
-                              borderRadius: '8px',
-                              fontSize: '12px',
-                              lineHeight: '1.5',
-                              width: '200px',
-                              boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
-                              zIndex: 9999,
-                              textAlign: 'left',
-                              whiteSpace: 'normal'
-                            }}>
-                              {/* Flecha apuntando arriba */}
-                              <div style={{
-                                position: 'absolute',
-                                top: '-6px',
-                                right: '4px',
-                                width: 0,
-                                height: 0,
-                                borderLeft: '6px solid transparent',
-                                borderRight: '6px solid transparent',
-                                borderBottom: '6px solid #141210'
-                              }} />
-                              Recuerda que estos valores son referencias. Se definirán los precios al ser seleccionado, en la hoja de consigna.
-                            </div>
-                          )}
                         </span>
-                      </span>
-                      <span style={{ fontSize: '16px', color: '#B83030', fontWeight: '700' }}>
-                        {precios ? formatMoney(precios.precioSugerido) : '—'}
-                      </span>
+                        <span style={{
+                          fontSize: '11px',
+                          color: '#F4EDE4',
+                          opacity: 0.7,
+                          lineHeight: '1.4'
+                        }}>
+                          {showTooltip
+                            ? 'Recuerda que estos valores son referencias. Se definirán los precios al ser seleccionado, en la hoja de consigna.'
+                            : 'Toca para más información'
+                          }
+                        </span>
+                      </div>
                     </div>
                   </div>
 
