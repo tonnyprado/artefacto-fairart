@@ -332,11 +332,11 @@ export const enviarConfirmacionRegistro = async (artista) => {
         paqueteTipo: paqueteTipo || '',
         paqueteMetros: paqueteMetros ? `${paqueteMetros}m` : '',
         PAQUETEMETROS: paqueteMetros ? `${paqueteMetros}m` : '',
-        paquetePrecio: paquetePrecio ? `$${parseFloat(paquetePrecio).toLocaleString('es-MX')} MXN` : '',
+        paquetePrecio: paquetePrecio ? `$${parseFloat(paquetePrecio).toLocaleString('es-MX')} MXN + IVA` : '',
         paquete: paqueteNombre || 'Sin paquete',
         PAQUETE: paqueteNombre || 'Sin paquete',
-        precio: paquetePrecio ? `$${parseFloat(paquetePrecio).toLocaleString('es-MX')} MXN` : '',
-        PRECIO: paquetePrecio ? `$${parseFloat(paquetePrecio).toLocaleString('es-MX')} MXN` : '',
+        precio: paquetePrecio ? `$${parseFloat(paquetePrecio).toLocaleString('es-MX')} MXN + IVA` : '',
+        PRECIO: paquetePrecio ? `$${parseFloat(paquetePrecio).toLocaleString('es-MX')} MXN + IVA` : '',
         // Fechas
         fecha: new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }),
         anio: '2027',
@@ -402,7 +402,7 @@ export const enviarConfirmacionRegistro = async (artista) => {
             ${paquetePrecio ? `
             <div class="info-row">
               <span class="info-label">Inversión:</span>
-              <span class="info-value">$${parseFloat(paquetePrecio).toLocaleString('es-MX')} MXN</span>
+              <span class="info-value">$${parseFloat(paquetePrecio).toLocaleString('es-MX')} MXN + IVA</span>
             </div>
             ` : ''}
           </div>
@@ -462,7 +462,7 @@ export const notificarNuevoArtista = async (artista) => {
         // Paquete
         paqueteNombre: paqueteNombre || 'Sin paquete',
         paqueteTipo: paqueteTipo || '',
-        paquetePrecio: paquetePrecio ? `$${parseFloat(paquetePrecio).toLocaleString('es-MX')} MXN` : '',
+        paquetePrecio: paquetePrecio ? `$${parseFloat(paquetePrecio).toLocaleString('es-MX')} MXN + IVA` : '',
         paqueteMetros: paqueteMetros ? `${paqueteMetros}m` : '',
         adminUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/admin`
       }
@@ -513,7 +513,7 @@ export const notificarNuevoArtista = async (artista) => {
           ${paquetePrecio ? `
           <div class="field">
             <div class="field-label">Inversión</div>
-            <div style="color:#10B981;font-weight:600;">$${parseFloat(paquetePrecio).toLocaleString('es-MX')} MXN</div>
+            <div style="color:#10B981;font-weight:600;">$${parseFloat(paquetePrecio).toLocaleString('es-MX')} MXN + IVA</div>
           </div>
           ` : ''}
           <center><a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/admin" class="btn">Revisar en Panel de Admin</a></center>
