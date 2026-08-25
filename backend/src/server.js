@@ -40,12 +40,17 @@ const loginLimiter = rateLimit({
 // Rate limiter para creación de recursos (registro, etc)
 const createLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hora
-  max: 10, // máximo 10 creaciones por IP cada hora
+  max: 20, // máximo 20 creaciones por IP cada hora (aumentado para debug)
   message: {
+    success: false,
     error: 'Límite de creación alcanzado. Intenta de nuevo en 1 hora.'
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  handler: (req, res, next, options) => {
+    console.log('❌ RATE LIMIT: Límite de creación alcanzado para IP:', req.ip)
+    res.status(429).json(options.message)
+  }
 })
 
 // Importar rutas

@@ -101,6 +101,7 @@ export const uploadArtistaFiles = upload.fields([
  */
 export const handleMulterError = (err, req, res, next) => {
   if (err instanceof multer.MulterError) {
+    console.log('❌ MULTER ERROR:', err.code, '-', err.message)
     if (err.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({
         success: false,
@@ -120,12 +121,15 @@ export const handleMulterError = (err, req, res, next) => {
   }
 
   if (err) {
+    console.log('❌ UPLOAD ERROR (no Multer):', err.message)
     return res.status(400).json({
       success: false,
       error: err.message
     })
   }
 
+  // Log cuando todo está OK y pasa al controlador
+  console.log('✅ Archivos procesados correctamente, pasando al controlador...')
   next()
 }
 

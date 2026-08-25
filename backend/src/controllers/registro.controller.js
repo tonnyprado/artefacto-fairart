@@ -26,10 +26,15 @@ const isS3Configured = () => {
  * Maneja FormData con archivos + campos de texto
  */
 export const registrarArtista = async (req, res) => {
+  console.log('='.repeat(60))
+  console.log('📝 CONTROLADOR REGISTRO: Iniciando...')
+  console.log('='.repeat(60))
+
   try {
-    console.log('📝 Iniciando registro de artista...')
     console.log('📦 Archivos recibidos:', req.files ? Object.keys(req.files) : 'ninguno')
     console.log('📋 Datos recibidos:', Object.keys(req.body).filter(k => !k.startsWith('obra_lienzo')))
+    console.log('📧 Email:', req.body.email)
+    console.log('👤 Nombre:', req.body.nombre, req.body.apellido)
     console.log('🎨 Formato tipo:', req.body.formato_tipo)
     console.log('🎨 Formatos:', req.body.formatos)
     console.log('🎨 Formato otro texto:', req.body.formato_otro_texto)
@@ -73,14 +78,23 @@ export const registrarArtista = async (req, res) => {
 
     // Validaciones básicas - ahora acepta formato_tipo o categoria
     if (!nombre || !apellido || !email || !fecha_nacimiento || !ciudad || !pais) {
+      const missing = []
+      if (!nombre) missing.push('nombre')
+      if (!apellido) missing.push('apellido')
+      if (!email) missing.push('email')
+      if (!fecha_nacimiento) missing.push('fecha_nacimiento')
+      if (!ciudad) missing.push('ciudad')
+      if (!pais) missing.push('pais')
+      console.log('❌ ERROR 400: Campos faltantes:', missing.join(', '))
       return res.status(400).json({
         success: false,
-        error: 'Faltan campos requeridos: nombre, apellido, email, fecha_nacimiento, ciudad, pais'
+        error: 'Faltan campos requeridos: ' + missing.join(', ')
       })
     }
 
     // Validar que al menos hay un formato/categoría seleccionado
     if (!categoriaFinal && !formato_tipo) {
+      console.log('❌ ERROR 400: Formato de trabajo no seleccionado')
       return res.status(400).json({
         success: false,
         error: 'Debes seleccionar un formato de trabajo (2D, 3D u Otro)'
@@ -91,6 +105,7 @@ export const registrarArtista = async (req, res) => {
     if (pool) {
       const emailCheck = await pool.query('SELECT id FROM artistas WHERE email = $1', [email])
       if (emailCheck.rows.length > 0) {
+        console.log('❌ ERROR 400: Email duplicado -', email)
         return res.status(400).json({
           success: false,
           error: 'El email ya está registrado'
