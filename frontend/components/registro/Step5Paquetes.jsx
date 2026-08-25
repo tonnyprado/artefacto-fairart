@@ -1537,8 +1537,9 @@ function PrecioCalculadora({ value, onChange }) {
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0' }}>
-              <span style={{ fontFamily: FONTS.body, fontSize: '13px', fontWeight: 600, color: COLORS.black }}>
+              <span style={{ fontFamily: FONTS.body, fontSize: '13px', fontWeight: 600, color: COLORS.black, display: 'flex', alignItems: 'center', gap: '6px' }}>
                 Precio sugerido
+                <TooltipIcon text="Recuerda que estos valores son referencias. Se definirán los precios al ser seleccionado, en la hoja de consigna." />
               </span>
               <span style={{ fontFamily: FONTS.body, fontSize: '15px', fontWeight: 700, color: COLORS.red }}>
                 ${formatNumber(precioSugerido)}
@@ -1575,9 +1576,9 @@ function TooltipIcon({ text }) {
         <span style={{
           position: 'absolute',
           top: '50%',
-          right: '100%',
+          left: '100%',
           transform: 'translateY(-50%)',
-          marginRight: '8px',
+          marginLeft: '8px',
           padding: '10px 14px',
           background: COLORS.black,
           color: COLORS.cream,
@@ -1591,14 +1592,15 @@ function TooltipIcon({ text }) {
           boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
         }}>
           {text}
+          {/* Flecha apuntando a la izquierda */}
           <span style={{
             position: 'absolute',
             top: '50%',
-            left: '100%',
+            right: '100%',
             transform: 'translateY(-50%)',
             borderWidth: '5px',
             borderStyle: 'solid',
-            borderColor: `transparent transparent transparent ${COLORS.black}`,
+            borderColor: `transparent ${COLORS.black} transparent transparent`,
           }} />
         </span>
       )}
