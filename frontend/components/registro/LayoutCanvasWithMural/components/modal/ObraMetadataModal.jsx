@@ -455,36 +455,47 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
     </>
   )
 
-  // Tooltip renderizado como portal separado (fuera del modal para evitar overflow)
-  const tooltipPortal = showTooltip && createPortal(
-    <div
-      style={{
-        position: 'fixed',
-        top: tooltipPosition.top,
-        left: tooltipPosition.left,
-        transform: 'translate(-50%, -100%)',
-        background: '#141210',
-        color: '#F4EDE4',
-        padding: '10px 14px',
-        borderRadius: '8px',
-        fontSize: '12px',
-        lineHeight: '1.5',
-        width: '220px',
-        boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
-        zIndex: 100001,
-        textAlign: 'left',
-        pointerEvents: 'none'
-      }}
-    >
-      Recuerda que estos valores son referencias. Se definirán los precios al ser seleccionado, en la hoja de consigna.
-    </div>,
-    document.body
-  )
-
   return (
     <>
       {createPortal(modalContent, document.body)}
-      {tooltipPortal}
+      {/* Tooltip renderizado como portal separado DESPUÉS del modal */}
+      {showTooltip && createPortal(
+        <div
+          style={{
+            position: 'fixed',
+            top: tooltipPosition.top,
+            left: tooltipPosition.left,
+            transform: 'translate(-50%, -100%)',
+            background: '#141210',
+            color: '#F4EDE4',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            fontSize: '12px',
+            lineHeight: '1.5',
+            width: '220px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+            zIndex: 2147483647,
+            textAlign: 'left',
+            pointerEvents: 'none',
+            isolation: 'isolate'
+          }}
+        >
+          Recuerda que estos valores son referencias. Se definirán los precios al ser seleccionado, en la hoja de consigna.
+          {/* Flechita */}
+          <div style={{
+            position: 'absolute',
+            bottom: '-6px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: 0,
+            height: 0,
+            borderLeft: '6px solid transparent',
+            borderRight: '6px solid transparent',
+            borderTop: '6px solid #141210'
+          }} />
+        </div>,
+        document.body
+      )}
     </>
   )
 }
