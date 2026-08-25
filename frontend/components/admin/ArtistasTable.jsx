@@ -8,7 +8,7 @@ import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
 import * as XLSX from 'xlsx'
-import { Download, Mail, MessageCircle, Phone, X, UserPlus } from 'lucide-react'
+import { Download, Mail, MessageCircle, Phone, X, UserPlus, Plus } from 'lucide-react'
 
 /**
  * ArtistasTable - Tabla de gestión de artistas
@@ -130,6 +130,25 @@ export default function ArtistasTable() {
   const [inscripcionModal, setInscripcionModal] = useState({ open: false, artista: null })
   const [selectedFaseId, setSelectedFaseId] = useState('')
   const [inscribiendoArtista, setInscribiendoArtista] = useState(false)
+  // Estado para modal de añadir artista
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [creandoArtista, setCreandoArtista] = useState(false)
+  const [nuevoArtistaForm, setNuevoArtistaForm] = useState({
+    nombre: '',
+    apellido: '',
+    nombre_artistico: '',
+    email: '',
+    telefono: '',
+    fecha_nacimiento: '',
+    ciudad: '',
+    pais: 'MX',
+    categoria: '',
+    formato_tipo: '2D',
+    bio: '',
+    instagram: '',
+    website: '',
+    notas_admin: ''
+  })
 
   // Cargar artistas y fases al montar
   useEffect(() => {
@@ -281,6 +300,94 @@ export default function ArtistasTable() {
     }
   }
 
+  // Manejar cambios en el formulario de nuevo artista
+  const handleNuevoArtistaChange = (e) => {
+    const { name, value } = e.target
+    setNuevoArtistaForm(prev => ({ ...prev, [name]: value }))
+  }
+
+  // Crear nuevo artista
+  const handleCrearArtista = async () => {
+    // Validar campos requeridos
+    if (!nuevoArtistaForm.nombre || !nuevoArtistaForm.apellido || !nuevoArtistaForm.email ||
+        !nuevoArtistaForm.fecha_nacimiento || !nuevoArtistaForm.ciudad || !nuevoArtistaForm.pais) {
+      alert('Por favor completa todos los campos requeridos: nombre, apellido, email, fecha de nacimiento, ciudad y país')
+      return
+    }
+
+    // Validar email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(nuevoArtistaForm.email)) {
+      alert('Por favor ingresa un email válido')
+      return
+    }
+
+    setCreandoArtista(true)
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5050/api'
+      const token = localStorage.getItem('token')
+
+      const response = await fetch(`${API_URL}/artistas`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          nombre: nuevoArtistaForm.nombre,
+          apellido: nuevoArtistaForm.apellido,
+          nombre_artistico: nuevoArtistaForm.nombre_artistico || null,
+          email: nuevoArtistaForm.email,
+          telefono: nuevoArtistaForm.telefono || null,
+          fecha_nacimiento: nuevoArtistaForm.fecha_nacimiento,
+          ciudad: nuevoArtistaForm.ciudad,
+          pais: nuevoArtistaForm.pais,
+          categoria: nuevoArtistaForm.categoria || nuevoArtistaForm.formato_tipo?.toLowerCase() || '2d',
+          formato_tipo: nuevoArtistaForm.formato_tipo || '2D',
+          bio: nuevoArtistaForm.bio || null,
+          redes_sociales: {
+            instagram: nuevoArtistaForm.instagram || null,
+            website: nuevoArtistaForm.website || null
+          },
+          notas_admin: nuevoArtistaForm.notas_admin || null
+        })
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.success) {
+        alert('Artista creado exitosamente')
+        setShowAddModal(false)
+        // Limpiar formulario
+        setNuevoArtistaForm({
+          nombre: '',
+          apellido: '',
+          nombre_artistico: '',
+          email: '',
+          telefono: '',
+          fecha_nacimiento: '',
+          ciudad: '',
+          pais: 'MX',
+          categoria: '',
+          formato_tipo: '2D',
+          bio: '',
+          instagram: '',
+          website: '',
+          notas_admin: ''
+        })
+        // Refrescar lista
+        fetchArtistas()
+      } else {
+        alert('Error al crear artista: ' + (result.error || 'Error desconocido'))
+      }
+    } catch (error) {
+      console.error('Error al crear artista:', error)
+      alert('Error al crear artista: ' + error.message)
+    } finally {
+      setCreandoArtista(false)
+    }
+  }
+
   const handleCambiarEstado = (artista) => {
     setSelectedArtista(artista)
     setNuevoEstado(artista.estado)
@@ -423,17 +530,26 @@ export default function ArtistasTable() {
           </div>
         </div>
 
-        {/* Resumen y Exportar */}
+        {/* Resumen y Botones */}
         <div className="flex items-center justify-between text-sm text-gray-600">
           <span>Mostrando {artistasFiltrados.length} de {artistas.length} artistas</span>
-          <button
-            onClick={handleExportarExcel}
-            disabled={artistasFiltrados.length === 0}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed font-medium"
-          >
-            <Download size={18} />
-            Exportar a Excel
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+            >
+              <Plus size={18} />
+              Añadir Artista
+            </button>
+            <button
+              onClick={handleExportarExcel}
+              disabled={artistasFiltrados.length === 0}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed font-medium"
+            >
+              <Download size={18} />
+              Exportar a Excel
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1314,6 +1430,302 @@ export default function ArtistasTable() {
                 alt={fotoPerfilModal.nombre}
                 className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-lg"
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Añadir Artista */}
+      {showAddModal && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4 overflow-y-auto"
+          onClick={() => setShowAddModal(false)}
+        >
+          <div
+            className="relative w-full max-w-2xl bg-white rounded-2xl overflow-hidden shadow-2xl my-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b bg-purple-50">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <Plus size={20} className="text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Añadir Artista</h3>
+                  <p className="text-sm text-gray-500">Crear un nuevo artista manualmente</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Formulario */}
+            <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+              {/* Datos básicos */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Nombre <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="nombre"
+                    value={nuevoArtistaForm.nombre}
+                    onChange={handleNuevoArtistaChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="Nombre"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Apellido <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="apellido"
+                    value={nuevoArtistaForm.apellido}
+                    onChange={handleNuevoArtistaChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="Apellido"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nombre Artístico
+                </label>
+                <input
+                  type="text"
+                  name="nombre_artistico"
+                  value={nuevoArtistaForm.nombre_artistico}
+                  onChange={handleNuevoArtistaChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="Nombre artístico (opcional)"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={nuevoArtistaForm.email}
+                    onChange={handleNuevoArtistaChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="correo@ejemplo.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Teléfono
+                  </label>
+                  <input
+                    type="tel"
+                    name="telefono"
+                    value={nuevoArtistaForm.telefono}
+                    onChange={handleNuevoArtistaChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="55 1234 5678"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Fecha de Nacimiento <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="fecha_nacimiento"
+                    value={nuevoArtistaForm.fecha_nacimiento}
+                    onChange={handleNuevoArtistaChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    País <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    name="pais"
+                    value={nuevoArtistaForm.pais}
+                    onChange={handleNuevoArtistaChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  >
+                    <option value="MX">México</option>
+                    <option value="US">Estados Unidos</option>
+                    <option value="AR">Argentina</option>
+                    <option value="CO">Colombia</option>
+                    <option value="ES">España</option>
+                    <option value="CL">Chile</option>
+                    <option value="PE">Perú</option>
+                    <option value="BR">Brasil</option>
+                    <option value="OTHER">Otro</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Ciudad <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="ciudad"
+                  value={nuevoArtistaForm.ciudad}
+                  onChange={handleNuevoArtistaChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="Ciudad de México"
+                />
+              </div>
+
+              {/* Formato de trabajo */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Formato de Trabajo
+                  </label>
+                  <select
+                    name="formato_tipo"
+                    value={nuevoArtistaForm.formato_tipo}
+                    onChange={handleNuevoArtistaChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  >
+                    <option value="2D">2D (Pintura, Dibujo, etc.)</option>
+                    <option value="3D">3D (Escultura, Cerámica, etc.)</option>
+                    <option value="OTRO">Otro</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Categoría/Disciplina
+                  </label>
+                  <select
+                    name="categoria"
+                    value={nuevoArtistaForm.categoria}
+                    onChange={handleNuevoArtistaChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  >
+                    <option value="">Seleccionar...</option>
+                    <option value="pintura">Pintura</option>
+                    <option value="dibujo">Dibujo</option>
+                    <option value="grafica">Gráfica</option>
+                    <option value="fotografia">Fotografía</option>
+                    <option value="collage_mixta">Collage & Mixta</option>
+                    <option value="textil">Textil</option>
+                    <option value="escultura">Escultura</option>
+                    <option value="ceramica">Cerámica</option>
+                    <option value="otro">Otro</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Redes sociales */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Instagram
+                  </label>
+                  <input
+                    type="text"
+                    name="instagram"
+                    value={nuevoArtistaForm.instagram}
+                    onChange={handleNuevoArtistaChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="@usuario"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Sitio Web
+                  </label>
+                  <input
+                    type="text"
+                    name="website"
+                    value={nuevoArtistaForm.website}
+                    onChange={handleNuevoArtistaChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="www.miportafolio.com"
+                  />
+                </div>
+              </div>
+
+              {/* Bio */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Semblanza / Biografía
+                </label>
+                <textarea
+                  name="bio"
+                  value={nuevoArtistaForm.bio}
+                  onChange={handleNuevoArtistaChange}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                  placeholder="Breve descripción del artista..."
+                />
+              </div>
+
+              {/* Notas admin */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Notas del Admin
+                </label>
+                <textarea
+                  name="notas_admin"
+                  value={nuevoArtistaForm.notas_admin}
+                  onChange={handleNuevoArtistaChange}
+                  rows={2}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                  placeholder="Notas internas (no visibles para el artista)"
+                />
+              </div>
+
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                <p className="text-sm text-yellow-700">
+                  <strong>Nota:</strong> El artista se creará sin archivos (foto, CV, portfolio).
+                  Podrás agregarlos después editando el registro.
+                </p>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-end gap-3 p-4 border-t bg-gray-50">
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition-colors font-medium"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleCrearArtista}
+                disabled={creandoArtista}
+                className="inline-flex items-center gap-2 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
+                {creandoArtista ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Creando...
+                  </>
+                ) : (
+                  <>
+                    <Plus size={18} />
+                    Crear Artista
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>
