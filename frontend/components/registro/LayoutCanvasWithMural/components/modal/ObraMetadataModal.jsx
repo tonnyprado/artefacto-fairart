@@ -45,8 +45,10 @@ function calcularPrecio(input, config = CONFIG_PRECIO) {
  */
 export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
   const modalContentRef = useRef(null)
+  const tooltipTriggerRef = useRef(null)
   const [mounted, setMounted] = useState(false)
   const [showTooltip, setShowTooltip] = useState(false)
+  const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 })
 
   useEffect(() => {
     setMounted(true)
@@ -88,6 +90,22 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
 
   const handleUpdate = (field, value) => {
     onUpdateMetadata(obra.id, field, value)
+  }
+
+  // Calcular posición del tooltip cuando se muestra
+  const updateTooltipPosition = () => {
+    if (tooltipTriggerRef.current) {
+      const rect = tooltipTriggerRef.current.getBoundingClientRect()
+      setTooltipPosition({
+        top: rect.top - 10, // Arriba del trigger
+        left: rect.left + rect.width / 2 // Centrado
+      })
+    }
+  }
+
+  const handleShowTooltip = () => {
+    updateTooltipPosition()
+    setShowTooltip(true)
   }
 
   if (!mounted) return null
@@ -357,14 +375,19 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
                         Precio sugerido
                         {/* Tooltip trigger */}
                         <span
+                          ref={tooltipTriggerRef}
                           tabIndex="0"
                           onClick={(e) => {
                             e.stopPropagation()
-                            setShowTooltip(!showTooltip)
+                            if (showTooltip) {
+                              setShowTooltip(false)
+                            } else {
+                              handleShowTooltip()
+                            }
                           }}
-                          onMouseEnter={() => setShowTooltip(true)}
+                          onMouseEnter={handleShowTooltip}
                           onMouseLeave={() => setShowTooltip(false)}
-                          onFocus={() => setShowTooltip(true)}
+                          onFocus={handleShowTooltip}
                           onBlur={() => setShowTooltip(false)}
                           style={{
                             width: '16px',
@@ -376,32 +399,10 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
                             justifyContent: 'center',
                             fontSize: '11px',
                             color: '#F4EDE4',
-                            cursor: 'pointer',
-                            position: 'relative'
+                            cursor: 'pointer'
                           }}
                         >
                           i
-                          {/* Tooltip */}
-                          {showTooltip && (
-                            <div style={{
-                              position: 'absolute',
-                              bottom: '24px',
-                              left: '50%',
-                              transform: 'translateX(-50%)',
-                              background: '#141210',
-                              color: '#F4EDE4',
-                              padding: '10px 14px',
-                              borderRadius: '8px',
-                              fontSize: '12px',
-                              lineHeight: '1.5',
-                              width: '220px',
-                              boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
-                              zIndex: 10,
-                              textAlign: 'left'
-                            }}>
-                              Recuerda que estos valores son referencias. Se definirán los precios al ser seleccionado, en la hoja de consigna.
-                            </div>
-                          )}
                         </span>
                       </span>
                       <span style={{ fontSize: '16px', color: '#B83030', fontWeight: '700' }}>
@@ -454,5 +455,36 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
     </>
   )
 
-  return createPortal(modalContent, document.body)
+  // Tooltip renderizado como portal separado (fuera del modal para evitar overflow)
+  const tooltipPortal = showTooltip && createPortal(
+    <div
+      style={{
+        position: 'fixed',
+        top: tooltipPosition.top,
+        left: tooltipPosition.left,
+        transform: 'translate(-50%, -100%)',
+        background: '#141210',
+        color: '#F4EDE4',
+        padding: '10px 14px',
+        borderRadius: '8px',
+        fontSize: '12px',
+        lineHeight: '1.5',
+        width: '220px',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+        zIndex: 100001,
+        textAlign: 'left',
+        pointerEvents: 'none'
+      }}
+    >
+      Recuerda que estos valores son referencias. Se definirán los precios al ser seleccionado, en la hoja de consigna.
+    </div>,
+    document.body
+  )
+
+  return (
+    <>
+      {createPortal(modalContent, document.body)}
+      {tooltipPortal}
+    </>
+  )
 }
