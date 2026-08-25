@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { useArtistasStore } from '@/stores/artistasStore'
+import { useFasesStore } from '@/stores/fasesStore'
 import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell } from '@/components/ui/Table'
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
 import * as XLSX from 'xlsx'
-import { Download, Mail, MessageCircle, Phone, X } from 'lucide-react'
+import { Download, Mail, MessageCircle, Phone, X, UserPlus } from 'lucide-react'
 
 /**
  * ArtistasTable - Tabla de gestión de artistas
@@ -106,6 +107,7 @@ const getFormatoDisplay = (artista) => {
 
 export default function ArtistasTable() {
   const { artistas, fetchArtistas, deleteArtista, cambiarEstadoArtista } = useArtistasStore()
+  const { fases, fetchFases, inscribirArtistas } = useFasesStore()
 
   const [searchTerm, setSearchTerm] = useState('')
   const [estadoFilter, setEstadoFilter] = useState('all')
@@ -124,10 +126,15 @@ export default function ArtistasTable() {
   const [mensajeForm, setMensajeForm] = useState({ asunto: '', mensaje: '' })
   // Estado para modal de foto de perfil ampliada
   const [fotoPerfilModal, setFotoPerfilModal] = useState({ open: false, url: '', nombre: '' })
+  // Estado para modal de inscripción a fase
+  const [inscripcionModal, setInscripcionModal] = useState({ open: false, artista: null })
+  const [selectedFaseId, setSelectedFaseId] = useState('')
+  const [inscribiendoArtista, setInscribiendoArtista] = useState(false)
 
-  // Cargar artistas al montar
+  // Cargar artistas y fases al montar
   useEffect(() => {
     fetchArtistas()
+    fetchFases()
   }, [])
 
   // Filtrar artistas
@@ -241,6 +248,37 @@ export default function ArtistasTable() {
     const mailto = `mailto:${mensajeModal.artista.email}?subject=${encodeURIComponent(mensajeForm.asunto)}&body=${encodeURIComponent(mensajeForm.mensaje)}`
     window.open(mailto)
     setMensajeModal({ open: false, artista: null })
+  }
+
+  // Abrir modal de inscripción a fase
+  const handleOpenInscripcion = (artista) => {
+    setInscripcionModal({ open: true, artista })
+    setSelectedFaseId('')
+  }
+
+  // Inscribir artista a fase
+  const handleInscribirAFase = async () => {
+    if (!inscripcionModal.artista || !selectedFaseId) return
+
+    setInscribiendoArtista(true)
+    try {
+      const result = await inscribirArtistas(parseInt(selectedFaseId), [inscripcionModal.artista.id])
+
+      if (result.success) {
+        alert(`Artista inscrito exitosamente a la fase seleccionada`)
+        setInscripcionModal({ open: false, artista: null })
+        setSelectedFaseId('')
+        // Refrescar lista de artistas para ver el cambio
+        fetchArtistas()
+      } else {
+        alert('Error al inscribir: ' + (result.error || 'Error desconocido'))
+      }
+    } catch (error) {
+      console.error('Error al inscribir artista:', error)
+      alert('Error al inscribir artista: ' + error.message)
+    } finally {
+      setInscribiendoArtista(false)
+    }
   }
 
   const handleCambiarEstado = (artista) => {
@@ -535,6 +573,14 @@ export default function ArtistasTable() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
+                      </button>
+
+                      <button
+                        onClick={() => handleOpenInscripcion(artista)}
+                        className="text-purple-600 hover:text-purple-800 transition-colors"
+                        title="Inscribir a Fase"
+                      >
+                        <UserPlus size={20} />
                       </button>
 
                       <button
@@ -1268,6 +1314,126 @@ export default function ArtistasTable() {
                 alt={fotoPerfilModal.nombre}
                 className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-lg"
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Inscripción a Fase */}
+      {inscripcionModal.open && inscripcionModal.artista && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4"
+          onClick={() => setInscripcionModal({ open: false, artista: null })}
+        >
+          <div
+            className="relative max-w-md w-full bg-white rounded-2xl overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b bg-purple-50">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <UserPlus size={20} className="text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Inscribir a Fase</h3>
+                  <p className="text-sm text-gray-500">
+                    {inscripcionModal.artista.nombre} {inscripcionModal.artista.apellido}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setInscripcionModal({ open: false, artista: null })}
+                className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Contenido */}
+            <div className="p-6 space-y-4">
+              {/* Info del artista actual */}
+              {inscripcionModal.artista.fase_inscripcion && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <p className="text-sm text-blue-700">
+                    <span className="font-medium">Fase actual:</span>{' '}
+                    {inscripcionModal.artista.fase_inscripcion.nombre}
+                  </p>
+                </div>
+              )}
+
+              {/* Selector de fase */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Selecciona la fase a inscribir
+                </label>
+                <select
+                  value={selectedFaseId}
+                  onChange={(e) => setSelectedFaseId(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
+                >
+                  <option value="">-- Selecciona una fase --</option>
+                  {fases.filter(f => !f.finalizada).map(fase => (
+                    <option key={fase.id} value={fase.id}>
+                      {fase.nombre} {fase.inscripciones_abiertas ? '(Inscripciones Abiertas)' : ''} {fase.votaciones_abiertas ? '(Votaciones Abiertas)' : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Fases finalizadas (opcionales) */}
+              {fases.some(f => f.finalizada) && (
+                <details className="text-sm">
+                  <summary className="text-gray-500 cursor-pointer hover:text-gray-700">
+                    Ver fases finalizadas ({fases.filter(f => f.finalizada).length})
+                  </summary>
+                  <div className="mt-2 space-y-1">
+                    {fases.filter(f => f.finalizada).map(fase => (
+                      <button
+                        key={fase.id}
+                        onClick={() => setSelectedFaseId(fase.id.toString())}
+                        className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                          selectedFaseId === fase.id.toString()
+                            ? 'bg-purple-100 text-purple-700'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        {fase.nombre} (Finalizada)
+                      </button>
+                    ))}
+                  </div>
+                </details>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-end gap-3 p-4 border-t bg-gray-50">
+              <button
+                onClick={() => setInscripcionModal({ open: false, artista: null })}
+                className="px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition-colors font-medium"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleInscribirAFase}
+                disabled={!selectedFaseId || inscribiendoArtista}
+                className="inline-flex items-center gap-2 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
+                {inscribiendoArtista ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Inscribiendo...
+                  </>
+                ) : (
+                  <>
+                    <UserPlus size={18} />
+                    Inscribir
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>
