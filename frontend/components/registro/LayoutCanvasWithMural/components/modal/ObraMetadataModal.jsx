@@ -98,7 +98,7 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
       const rect = tooltipTriggerRef.current.getBoundingClientRect()
       setTooltipPosition({
         top: rect.top + rect.height / 2, // Centrado verticalmente con el trigger
-        left: rect.left - 10 // A la izquierda del trigger
+        left: rect.right + 10 // A la DERECHA del trigger
       })
     }
   }
@@ -465,14 +465,14 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
             position: 'fixed',
             top: tooltipPosition.top,
             left: tooltipPosition.left,
-            transform: 'translate(-100%, -50%)', // A la izquierda, centrado verticalmente
+            transform: 'translateY(-50%)', // Solo centrado verticalmente
             background: '#141210',
             color: '#F4EDE4',
             padding: '12px 16px',
             borderRadius: '8px',
             fontSize: '12px',
             lineHeight: '1.5',
-            width: '220px',
+            width: '200px',
             boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
             zIndex: 2147483647,
             textAlign: 'left',
@@ -481,17 +481,17 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
           }}
         >
           Recuerda que estos valores son referencias. Se definirán los precios al ser seleccionado, en la hoja de consigna.
-          {/* Flechita apuntando a la derecha */}
+          {/* Flechita apuntando a la izquierda */}
           <div style={{
             position: 'absolute',
-            right: '-6px',
+            left: '-6px',
             top: '50%',
             transform: 'translateY(-50%)',
             width: 0,
             height: 0,
             borderTop: '6px solid transparent',
             borderBottom: '6px solid transparent',
-            borderLeft: '6px solid #141210'
+            borderRight: '6px solid #141210'
           }} />
         </div>,
         document.body
