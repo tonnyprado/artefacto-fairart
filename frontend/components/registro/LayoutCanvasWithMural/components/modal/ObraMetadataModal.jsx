@@ -45,10 +45,8 @@ function calcularPrecio(input, config = CONFIG_PRECIO) {
  */
 export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
   const modalContentRef = useRef(null)
-  const tooltipTriggerRef = useRef(null)
   const [mounted, setMounted] = useState(false)
   const [showTooltip, setShowTooltip] = useState(false)
-  const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 })
 
   useEffect(() => {
     setMounted(true)
@@ -90,22 +88,6 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
 
   const handleUpdate = (field, value) => {
     onUpdateMetadata(obra.id, field, value)
-  }
-
-  // Calcular posición del tooltip cuando se muestra
-  const updateTooltipPosition = () => {
-    if (tooltipTriggerRef.current) {
-      const rect = tooltipTriggerRef.current.getBoundingClientRect()
-      setTooltipPosition({
-        top: rect.top + rect.height / 2, // Centrado verticalmente con el trigger
-        left: rect.right + 10 // A la DERECHA del trigger
-      })
-    }
-  }
-
-  const handleShowTooltip = () => {
-    updateTooltipPosition()
-    setShowTooltip(true)
   }
 
   if (!mounted) return null
@@ -373,21 +355,16 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
                         gap: '6px'
                       }}>
                         Precio sugerido
-                        {/* Tooltip trigger */}
+                        {/* Tooltip trigger con tooltip inline */}
                         <span
-                          ref={tooltipTriggerRef}
                           tabIndex="0"
                           onClick={(e) => {
                             e.stopPropagation()
-                            if (showTooltip) {
-                              setShowTooltip(false)
-                            } else {
-                              handleShowTooltip()
-                            }
+                            setShowTooltip(!showTooltip)
                           }}
-                          onMouseEnter={handleShowTooltip}
+                          onMouseEnter={() => setShowTooltip(true)}
                           onMouseLeave={() => setShowTooltip(false)}
-                          onFocus={handleShowTooltip}
+                          onFocus={() => setShowTooltip(true)}
                           onBlur={() => setShowTooltip(false)}
                           style={{
                             width: '16px',
@@ -399,10 +376,45 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
                             justifyContent: 'center',
                             fontSize: '11px',
                             color: '#F4EDE4',
-                            cursor: 'pointer'
+                            cursor: 'pointer',
+                            position: 'relative'
                           }}
                         >
                           i
+                          {/* Tooltip a la derecha */}
+                          {showTooltip && (
+                            <div style={{
+                              position: 'absolute',
+                              left: 'calc(100% + 10px)',
+                              top: '50%',
+                              transform: 'translateY(-50%)',
+                              background: '#141210',
+                              color: '#F4EDE4',
+                              padding: '10px 14px',
+                              borderRadius: '8px',
+                              fontSize: '12px',
+                              lineHeight: '1.5',
+                              width: '180px',
+                              boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+                              zIndex: 9999,
+                              textAlign: 'left',
+                              whiteSpace: 'normal'
+                            }}>
+                              {/* Flecha apuntando a la izquierda */}
+                              <div style={{
+                                position: 'absolute',
+                                left: '-6px',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                width: 0,
+                                height: 0,
+                                borderTop: '6px solid transparent',
+                                borderBottom: '6px solid transparent',
+                                borderRight: '6px solid #141210'
+                              }} />
+                              Recuerda que estos valores son referencias. Se definirán los precios al ser seleccionado, en la hoja de consigna.
+                            </div>
+                          )}
                         </span>
                       </span>
                       <span style={{ fontSize: '16px', color: '#B83030', fontWeight: '700' }}>
@@ -455,47 +467,5 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
     </>
   )
 
-  return (
-    <>
-      {createPortal(modalContent, document.body)}
-      {/* Tooltip renderizado como portal separado DESPUÉS del modal */}
-      {showTooltip && createPortal(
-        <div
-          style={{
-            position: 'fixed',
-            top: tooltipPosition.top,
-            left: tooltipPosition.left,
-            transform: 'translateY(-50%)', // Solo centrado verticalmente
-            background: '#141210',
-            color: '#F4EDE4',
-            padding: '12px 16px',
-            borderRadius: '8px',
-            fontSize: '12px',
-            lineHeight: '1.5',
-            width: '200px',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-            zIndex: 2147483647,
-            textAlign: 'left',
-            pointerEvents: 'none',
-            isolation: 'isolate'
-          }}
-        >
-          Recuerda que estos valores son referencias. Se definirán los precios al ser seleccionado, en la hoja de consigna.
-          {/* Flechita apuntando a la izquierda */}
-          <div style={{
-            position: 'absolute',
-            left: '-6px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            width: 0,
-            height: 0,
-            borderTop: '6px solid transparent',
-            borderBottom: '6px solid transparent',
-            borderRight: '6px solid #141210'
-          }} />
-        </div>,
-        document.body
-      )}
-    </>
-  )
+  return createPortal(modalContent, document.body)
 }
