@@ -9,6 +9,15 @@ import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
 import * as XLSX from 'xlsx'
 import { Download, Mail, MessageCircle, Phone, X, UserPlus, Plus } from 'lucide-react'
+import AdminArtistasPorFase from './AdminArtistasPorFase'
+import ArtistasInscritos from './ArtistasInscritos'
+
+// Sub-tabs para diferentes vistas
+const SUB_TABS = [
+  { id: 'lista', label: 'Lista Completa', icon: 'M4 6h16M4 10h16M4 14h16M4 18h16' },
+  { id: 'por-fase', label: 'Por Fase', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01' },
+  { id: 'inscritos-feria', label: 'Inscritos Feria', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' }
+]
 
 /**
  * ArtistasTable - Tabla de gestión de artistas
@@ -99,6 +108,9 @@ const getFormatoDisplay = (artista) => {
 export default function ArtistasTable() {
   const { artistas, fetchArtistas, deleteArtista, cambiarEstadoArtista } = useArtistasStore()
   const { fases, fetchFases, inscribirArtistas } = useFasesStore()
+
+  // Estado para sub-tabs
+  const [activeView, setActiveView] = useState('lista')
 
   const [searchTerm, setSearchTerm] = useState('')
   const [estadoFilter, setEstadoFilter] = useState('all')
@@ -476,8 +488,49 @@ export default function ArtistasTable() {
     XLSX.writeFile(workbook, nombreArchivo)
   }
 
+  // Handler para ver detalles desde otros componentes
+  const handleVerDetallesFromChild = (artista) => {
+    setSelectedArtista(artista)
+    setShowDetailModal(true)
+  }
+
   return (
     <div className="space-y-4">
+      {/* Sub-tabs de navegacion */}
+      <div className="bg-white rounded-2xl shadow overflow-hidden">
+        <div className="flex border-b border-gray-200">
+          {SUB_TABS.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveView(tab.id)}
+              className={`flex items-center gap-2 px-6 py-4 text-sm font-medium transition-colors border-b-2 ${
+                activeView === tab.id
+                  ? 'border-red-600 text-red-600 bg-red-50'
+                  : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={tab.icon} />
+              </svg>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Vista: Por Fase */}
+      {activeView === 'por-fase' && (
+        <AdminArtistasPorFase onVerDetalles={handleVerDetallesFromChild} />
+      )}
+
+      {/* Vista: Inscritos Feria */}
+      {activeView === 'inscritos-feria' && (
+        <ArtistasInscritos onVerDetalles={handleVerDetallesFromChild} />
+      )}
+
+      {/* Vista: Lista Completa (default) */}
+      {activeView === 'lista' && (
+        <>
       {/* Filtros y búsqueda */}
       <div className="bg-white p-4 rounded-2xl shadow space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -725,6 +778,8 @@ export default function ArtistasTable() {
           </TableBody>
         </Table>
       </div>
+        </>
+      )}
 
       {/* Modal de detalles */}
       <Modal
