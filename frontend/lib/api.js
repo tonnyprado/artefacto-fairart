@@ -341,4 +341,50 @@ export const opinionesApi = {
     api.put(`/opiniones/${id}/toggle`)
 }
 
+/**
+ * Favoritos API
+ * Sistema de favoritos para curadores
+ */
+export const favoritosApi = {
+  // Agregar favorito
+  create: (data) =>
+    api.post('/favoritos', data),
+
+  // Eliminar favorito
+  delete: (id) =>
+    api.delete(`/favoritos/${id}`),
+
+  // Toggle favorito (agregar/quitar)
+  toggle: (artistaId, faseId, notas = null) =>
+    api.post('/favoritos/toggle', { artista_id: artistaId, fase_id: faseId, notas }),
+
+  // Obtener mis favoritos
+  getMisFavoritos: (faseId = null) => {
+    const params = faseId ? `?fase_id=${faseId}` : ''
+    return api.get(`/favoritos/mis-favoritos${params}`)
+  },
+
+  // Obtener favoritos por fase
+  getByFase: (faseId) =>
+    api.get(`/favoritos/fase/${faseId}`),
+
+  // Verificar si es favorito
+  check: (artistaId, faseId) =>
+    api.get(`/favoritos/check/${artistaId}/${faseId}`),
+
+  // Actualizar notas de favorito
+  update: (id, notas) =>
+    api.put(`/favoritos/${id}`, { notas }),
+
+  // Admin: Obtener estadisticas
+  getEstadisticasAdmin: () =>
+    api.get('/favoritos/admin/estadisticas'),
+
+  // Admin: Obtener favoritos de un curador
+  getByCuradorAdmin: (curadorId, faseId = null) => {
+    const params = faseId ? `?fase_id=${faseId}` : ''
+    return api.get(`/favoritos/admin/curador/${curadorId}${params}`)
+  }
+}
+
 export default api

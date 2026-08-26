@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useArtistasStore } from '@/stores/artistasStore'
 import { useFasesStore } from '@/stores/fasesStore'
 import { useVotacionesStore } from '@/stores/votacionesStore'
+import { useFavoritosStore } from '@/stores/favoritosStore'
 import { useAuth } from '@/hooks/useAuth'
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
@@ -47,25 +48,28 @@ export default function ArtistasVotacion() {
   const { artistas, fetchArtistasByFase, isLoading: isLoadingArtistas } = useArtistasStore()
   const { getFaseActiva } = useFasesStore()
   const { hasVotado, getVotacion, fetchMisVotaciones, votaciones } = useVotacionesStore()
+  const { favoritos, fetchMisFavoritos, toggleFavorito, isFavorito } = useFavoritosStore()
 
   const faseActiva = getFaseActiva()
 
-  const [filtroVotacion, setFiltroVotacion] = useState('all') // 'all' | 'votados' | 'sin_votar'
+  const [filtroVotacion, setFiltroVotacion] = useState('all') // 'all' | 'votados' | 'sin_votar' | 'favoritos'
   const [categoriaFilter, setCategoriaFilter] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedArtista, setSelectedArtista] = useState(null)
   const [showModal, setShowModal] = useState(false)
+  const [loadingFavorito, setLoadingFavorito] = useState(null)
 
-  // Fetch artistas and votaciones when fase activa changes
+  // Fetch artistas, votaciones and favoritos when fase activa changes
   useEffect(() => {
     const loadData = async () => {
       if (faseActiva) {
         await fetchArtistasByFase(faseActiva.id)
         await fetchMisVotaciones(faseActiva.id)
+        await fetchMisFavoritos(faseActiva.id)
       }
     }
     loadData()
-  }, [faseActiva, fetchArtistasByFase, fetchMisVotaciones])
+  }, [faseActiva, fetchArtistasByFase, fetchMisVotaciones, fetchMisFavoritos])
 
   // Artistas are already filtered by fase from the API
   // fetchArtistasByFase returns only artistas for that specific fase
@@ -73,24 +77,38 @@ export default function ArtistasVotacion() {
 
   // Aplicar filtros
   const artistasFiltrados = artistasFaseActiva.filter(artista => {
-    // Filtro de búsqueda
+    // Filtro de busqueda
     const matchesSearch =
       artista.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
       artista.apellido.toLowerCase().includes(searchTerm.toLowerCase())
 
-    // Filtro de categoría
+    // Filtro de categoria
     const matchesCategoria =
       categoriaFilter === 'all' || artista.categoria === categoriaFilter
 
-    // Filtro de votación
+    // Filtro de votacion y favoritos
     const yaVoto = hasVotado(user?.curadorId, artista.id, faseActiva?.id)
+    const esFavorito = isFavorito(artista.id, faseActiva?.id)
     const matchesVotacion =
       filtroVotacion === 'all' ||
       (filtroVotacion === 'votados' && yaVoto) ||
-      (filtroVotacion === 'sin_votar' && !yaVoto)
+      (filtroVotacion === 'sin_votar' && !yaVoto) ||
+      (filtroVotacion === 'favoritos' && esFavorito)
 
     return matchesSearch && matchesCategoria && matchesVotacion
   })
+
+  // Handler para toggle favorito
+  const handleToggleFavorito = async (e, artistaId) => {
+    e.stopPropagation()
+    if (!faseActiva) return
+    setLoadingFavorito(artistaId)
+    await toggleFavorito(artistaId, faseActiva.id)
+    setLoadingFavorito(null)
+  }
+
+  // Contar favoritos
+  const totalFavoritos = artistasFaseActiva.filter(a => isFavorito(a.id, faseActiva?.id)).length
 
   const handleVerPerfil = (artista) => {
     setSelectedArtista(artista)
@@ -192,7 +210,7 @@ export default function ArtistasVotacion() {
             />
           </div>
 
-          {/* Filtro de votación */}
+          {/* Filtro de votacion */}
           <div>
             <select
               value={filtroVotacion}
@@ -202,6 +220,7 @@ export default function ArtistasVotacion() {
               <option value="all">Todos ({totalArtistas})</option>
               <option value="sin_votar">Sin votar ({artistasSinVotar})</option>
               <option value="votados">Votados ({artistasVotados})</option>
+              <option value="favoritos">Favoritos ({totalFavoritos})</option>
             </select>
           </div>
 
@@ -235,11 +254,13 @@ export default function ArtistasVotacion() {
           {artistasFiltrados.map(artista => {
             const yaVoto = hasVotado(user?.curadorId, artista.id, faseActiva?.id)
             const votacion = yaVoto ? getVotacion(user?.curadorId, artista.id, faseActiva?.id) : null
+            const esFavorito = isFavorito(artista.id, faseActiva?.id)
+            const loadingThis = loadingFavorito === artista.id
 
             return (
               <div
                 key={artista.id}
-                className="bg-white rounded-lg shadow hover:shadow-lg transition-all overflow-hidden group"
+                className={`bg-white rounded-lg shadow hover:shadow-lg transition-all overflow-hidden group ${esFavorito ? 'ring-2 ring-red-400' : ''}`}
               >
                 {/* Foto */}
                 <div className="relative h-64 overflow-hidden">
@@ -248,13 +269,46 @@ export default function ArtistasVotacion() {
                     alt={artista.nombre}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
+                  {/* Badge de voto */}
                   {yaVoto && (
                     <div className="absolute top-3 right-3">
                       <Badge variant={votacion?.voto ? 'success' : 'error'}>
-                        {votacion?.voto ? 'A Favor ✓' : 'En Contra'}
+                        {votacion?.voto ? 'A Favor' : 'En Contra'}
                       </Badge>
                     </div>
                   )}
+                  {/* Boton favorito */}
+                  <button
+                    onClick={(e) => handleToggleFavorito(e, artista.id)}
+                    disabled={loadingThis}
+                    className={`absolute top-3 left-3 p-2 rounded-full shadow-lg transition-all ${
+                      esFavorito
+                        ? 'bg-red-500 text-white hover:bg-red-600'
+                        : 'bg-white text-gray-400 hover:text-red-500 hover:bg-red-50'
+                    } ${loadingThis ? 'opacity-50' : ''}`}
+                    title={esFavorito ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+                  >
+                    {loadingThis ? (
+                      <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    ) : (
+                      <svg
+                        className="w-5 h-5"
+                        fill={esFavorito ? 'currentColor' : 'none'}
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                        />
+                      </svg>
+                    )}
+                  </button>
                 </div>
 
                 {/* Info */}

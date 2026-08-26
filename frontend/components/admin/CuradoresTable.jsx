@@ -7,6 +7,7 @@ import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
 import Input from '@/components/ui/Input'
+import { favoritosApi } from '@/lib/api'
 
 // Generador de contraseña temporal
 const generateTempPassword = () => {
@@ -54,11 +55,38 @@ export default function CuradoresTable() {
     fetchCuradores()
   }, [fetchCuradores])
 
+  // Cargar estadísticas de favoritos
+  useEffect(() => {
+    const loadFavoritosStats = async () => {
+      try {
+        const stats = await favoritosApi.getEstadisticasAdmin()
+        // Convertir array a objeto indexado por curador_id
+        const statsMap = {}
+        if (stats.por_curador) {
+          stats.por_curador.forEach(item => {
+            statsMap[item.curador_id] = item.total_favoritos
+          })
+        }
+        setFavoritosStats(statsMap)
+      } catch (error) {
+        console.error('Error cargando stats de favoritos:', error)
+      }
+    }
+
+    if (curadores.length > 0) {
+      loadFavoritosStats()
+    }
+  }, [curadores])
+
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showPasswordModal, setShowPasswordModal] = useState(false)
+  const [showFavoritosModal, setShowFavoritosModal] = useState(false)
   const [selectedCurador, setSelectedCurador] = useState(null)
   const [newPassword, setNewPassword] = useState('')
+  const [favoritosStats, setFavoritosStats] = useState({})
+  const [curadorFavoritos, setCuradorFavoritos] = useState([])
+  const [loadingFavoritos, setLoadingFavoritos] = useState(false)
   const [formData, setFormData] = useState({
     nombre: '',
     apellido: '',
@@ -171,6 +199,41 @@ export default function CuradoresTable() {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
+  const handleViewFavoritos = async (curador) => {
+    setSelectedCurador(curador)
+    setLoadingFavoritos(true)
+    setShowFavoritosModal(true)
+
+    try {
+      const favoritos = await favoritosApi.getFavoritosByCuradorAdmin(curador.id)
+      setCuradorFavoritos(favoritos)
+    } catch (error) {
+      console.error('Error cargando favoritos del curador:', error)
+      setCuradorFavoritos([])
+    } finally {
+      setLoadingFavoritos(false)
+    }
+  }
+
+  const handleCloseFavoritosModal = () => {
+    setShowFavoritosModal(false)
+    setSelectedCurador(null)
+    setCuradorFavoritos([])
+  }
+
+  // Agrupar favoritos por fase
+  const favoritosPorFase = curadorFavoritos.reduce((acc, fav) => {
+    const faseId = fav.fase_id
+    if (!acc[faseId]) {
+      acc[faseId] = {
+        fase_nombre: fav.fase_nombre,
+        artistas: []
+      }
+    }
+    acc[faseId].artistas.push(fav)
+    return acc
+  }, {})
+
   return (
     <div className="space-y-4">
       {/* Header con botón crear */}
@@ -198,6 +261,7 @@ export default function CuradoresTable() {
               <TableHeader>Email</TableHeader>
               <TableHeader>Especialidad</TableHeader>
               <TableHeader>Votaciones</TableHeader>
+              <TableHeader>Favoritos</TableHeader>
               <TableHeader>Estado</TableHeader>
               <TableHeader>Acciones</TableHeader>
             </TableRow>
@@ -205,7 +269,7 @@ export default function CuradoresTable() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-gray-500 py-8">
+                <TableCell colSpan={7} className="text-center text-gray-500 py-8">
                   <div className="flex items-center justify-center gap-2">
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-600"></div>
                     Cargando curadores...
@@ -214,7 +278,7 @@ export default function CuradoresTable() {
               </TableRow>
             ) : curadores.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-gray-500 py-8">
+                <TableCell colSpan={7} className="text-center text-gray-500 py-8">
                   No hay curadores registrados
                 </TableCell>
               </TableRow>
@@ -270,6 +334,23 @@ export default function CuradoresTable() {
                       {curador.total_votaciones}
                     </span>
                     <span className="text-gray-500 text-sm ml-1">votos</span>
+                  </TableCell>
+
+                  {/* Favoritos */}
+                  <TableCell>
+                    <button
+                      onClick={() => handleViewFavoritos(curador)}
+                      className="flex items-center gap-1 text-red-600 hover:text-red-800 transition-colors group"
+                      title="Ver favoritos"
+                    >
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+                      </svg>
+                      <span className="font-semibold">{favoritosStats[curador.id] || 0}</span>
+                      <svg className="w-3 h-3 text-gray-400 group-hover:text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
                   </TableCell>
 
                   {/* Estado */}
@@ -605,6 +686,83 @@ export default function CuradoresTable() {
               <strong>Importante:</strong> Copia esta contraseña y entrégala al curador de forma segura.
             </p>
           </div>
+        </div>
+      </Modal>
+
+      {/* Modal Ver Favoritos del Curador */}
+      <Modal
+        isOpen={showFavoritosModal}
+        onClose={handleCloseFavoritosModal}
+        title={selectedCurador ? `Favoritos de ${selectedCurador.nombre} ${selectedCurador.apellido}` : 'Favoritos'}
+        size="lg"
+      >
+        <div className="space-y-4">
+          {loadingFavoritos ? (
+            <div className="text-center py-8">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mb-3"></div>
+              <p className="text-gray-600">Cargando favoritos...</p>
+            </div>
+          ) : curadorFavoritos.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full mb-3">
+                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </div>
+              <p className="text-gray-500">Este curador no tiene favoritos marcados</p>
+            </div>
+          ) : (
+            <>
+              {/* Estadística general */}
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+                <p className="text-red-800">
+                  <strong>{curadorFavoritos.length}</strong> artistas favoritos en{' '}
+                  <strong>{Object.keys(favoritosPorFase).length}</strong> fase(s)
+                </p>
+              </div>
+
+              {/* Lista por fase */}
+              <div className="space-y-4">
+                {Object.entries(favoritosPorFase).map(([faseId, data]) => (
+                  <div key={faseId} className="border border-gray-200 rounded-lg overflow-hidden">
+                    {/* Header de fase */}
+                    <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                      <h4 className="font-semibold text-gray-900">
+                        {data.fase_nombre}
+                        <span className="ml-2 text-sm font-normal text-gray-500">
+                          ({data.artistas.length} favoritos)
+                        </span>
+                      </h4>
+                    </div>
+
+                    {/* Lista de artistas */}
+                    <div className="divide-y divide-gray-100">
+                      {data.artistas.map(fav => (
+                        <div key={fav.id} className="px-4 py-3 flex items-center gap-3">
+                          <img
+                            src={fav.artista_foto || '/placeholder-avatar.png'}
+                            alt={fav.artista_nombre}
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-gray-900 truncate">
+                              {fav.artista_nombre} {fav.artista_apellido}
+                            </p>
+                            <p className="text-sm text-gray-500 truncate">
+                              {fav.artista_categoria} - {fav.artista_ciudad}, {fav.artista_pais}
+                            </p>
+                          </div>
+                          <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </Modal>
     </div>

@@ -69,6 +69,7 @@ import contactoRoutes from './routes/contacto.routes.js'
 import uploadRoutes from './routes/upload.routes.js'
 import registroRoutes from './routes/registro.routes.js'
 import opinionesRoutes from './routes/opiniones.routes.js'
+import favoritosRoutes from './routes/favoritos.routes.js'
 
 // Configuración de __dirname para ES modules
 const __filename = fileURLToPath(import.meta.url)
@@ -182,6 +183,7 @@ app.use('/api/contacto', contactoRoutes)
 app.use('/api/upload', uploadRoutes)
 app.use('/api/registro', createLimiter, registroRoutes) // Rate limit para registro
 app.use('/api/opiniones', createLimiter, opinionesRoutes) // Rate limit para opiniones
+app.use('/api/favoritos', favoritosRoutes)
 
 // Ruta 404
 app.use('*', (req, res) => {

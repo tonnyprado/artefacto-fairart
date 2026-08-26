@@ -3,21 +3,26 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useVotacionesStore } from '@/stores/votacionesStore'
+import { useFavoritosStore } from '@/stores/favoritosStore'
 import Modal from '@/components/ui/Modal'
 import Button from '@/components/ui/Button'
 import Badge from '@/components/ui/Badge'
 
 /**
- * ArtistaPerfilModal - Modal de perfil de artista con votación
+ * ArtistaPerfilModal - Modal de perfil de artista con votacion
  *
- * Muestra información completa del artista:
+ * Muestra informacion completa del artista:
  * - Foto y datos personales
- * - Biografía completa
+ * - Biografia completa
  * - Redes sociales (links)
  * - Documentos (CV, portfolio, ID)
- * - Interfaz de votación (A Favor / En Contra)
+ * - Boton de favorito
+ * - Interfaz de votacion (A Favor / En Contra) - solo si votaciones abiertas
  * - Textarea para comentarios
- * - Si ya votó, permite editar
+ * - Si ya voto, permite editar
+ *
+ * Props:
+ * - modoLectura: boolean - Si true, oculta la seccion de votacion
  */
 
 const CATEGORIAS = {
@@ -36,18 +41,31 @@ const CATEGORIAS = {
   otro: 'Otro'
 }
 
-export default function ArtistaPerfilModal({ artista, faseActiva, onClose }) {
+export default function ArtistaPerfilModal({ artista, faseActiva, onClose, modoLectura = false }) {
   const { user } = useAuth()
   const { hasVotado, getVotacion, createVotacion, updateVotacion } = useVotacionesStore()
+  const { isFavorito, toggleFavorito } = useFavoritosStore()
 
   const [votoSeleccionado, setVotoSeleccionado] = useState(null) // true = favor, false = contra, null = no seleccionado
   const [comentario, setComentario] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState(null)
+  const [loadingFavorito, setLoadingFavorito] = useState(false)
 
-  // Verificar si ya votó
-  const yaVoto = hasVotado(user?.id, artista.id, faseActiva.id)
-  const votacionExistente = yaVoto ? getVotacion(user?.id, artista.id, faseActiva.id) : null
+  // Verificar si ya voto
+  const yaVoto = hasVotado(user?.id, artista.id, faseActiva?.id)
+  const votacionExistente = yaVoto ? getVotacion(user?.id, artista.id, faseActiva?.id) : null
+
+  // Verificar si es favorito
+  const esFavorito = isFavorito(artista.id, faseActiva?.id)
+
+  // Handler para toggle favorito
+  const handleToggleFavorito = async () => {
+    if (!faseActiva) return
+    setLoadingFavorito(true)
+    await toggleFavorito(artista.id, faseActiva.id)
+    setLoadingFavorito(false)
+  }
 
   // Cargar voto existente
   useEffect(() => {
@@ -100,30 +118,64 @@ export default function ArtistaPerfilModal({ artista, faseActiva, onClose }) {
       size="xl"
       footer={
         <div className="flex items-center justify-between w-full">
-          <div>
+          <div className="flex items-center gap-4">
+            {/* Boton favorito */}
+            <button
+              onClick={handleToggleFavorito}
+              disabled={loadingFavorito}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
+                esFavorito
+                  ? 'bg-red-50 border-red-300 text-red-600 hover:bg-red-100'
+                  : 'bg-gray-50 border-gray-300 text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              {loadingFavorito ? (
+                <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              ) : (
+                <svg
+                  className="w-5 h-5"
+                  fill={esFavorito ? 'currentColor' : 'none'}
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  />
+                </svg>
+              )}
+              {esFavorito ? 'En favoritos' : 'Agregar a favoritos'}
+            </button>
             {error && (
               <p className="text-sm text-red-600">{error}</p>
             )}
           </div>
           <div className="flex gap-3">
             <Button variant="secondary" onClick={onClose} disabled={isSubmitting}>
-              Cancelar
+              {modoLectura ? 'Cerrar' : 'Cancelar'}
             </Button>
-            <Button onClick={handleVotar} disabled={isSubmitting || votoSeleccionado === null}>
-              {isSubmitting ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Guardando...
-                </>
-              ) : yaVoto ? (
-                'Actualizar Voto'
-              ) : (
-                'Guardar Voto'
-              )}
-            </Button>
+            {!modoLectura && (
+              <Button onClick={handleVotar} disabled={isSubmitting || votoSeleccionado === null}>
+                {isSubmitting ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Guardando...
+                  </>
+                ) : yaVoto ? (
+                  'Actualizar Voto'
+                ) : (
+                  'Guardar Voto'
+                )}
+              </Button>
+            )}
           </div>
         </div>
       }
@@ -239,84 +291,107 @@ export default function ArtistaPerfilModal({ artista, faseActiva, onClose }) {
           </div>
         </div>
 
-        {/* Separador */}
-        <div className="border-t border-gray-200 pt-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            {yaVoto ? 'Editar tu votación' : 'Emite tu voto'}
-          </h3>
+        {/* Seccion de votacion - solo si NO es modo lectura */}
+        {!modoLectura && (
+          <div className="border-t border-gray-200 pt-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              {yaVoto ? 'Editar tu votacion' : 'Emite tu voto'}
+            </h3>
 
-          {/* Botones de votación */}
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <button
-              onClick={() => setVotoSeleccionado(true)}
-              className={`
-                p-6 rounded-lg border-2 transition-all
-                ${votoSeleccionado === true
-                  ? 'border-green-600 bg-green-50 shadow-lg'
-                  : 'border-gray-200 hover:border-green-300 hover:bg-green-50'
-                }
-              `}
-            >
-              <div className="flex flex-col items-center gap-2">
-                <div className={`
-                  w-12 h-12 rounded-full flex items-center justify-center
-                  ${votoSeleccionado === true ? 'bg-green-600' : 'bg-gray-200'}
-                `}>
-                  <svg className={`w-7 h-7 ${votoSeleccionado === true ? 'text-white' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
+            {/* Botones de votacion */}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <button
+                onClick={() => setVotoSeleccionado(true)}
+                className={`
+                  p-6 rounded-lg border-2 transition-all
+                  ${votoSeleccionado === true
+                    ? 'border-green-600 bg-green-50 shadow-lg'
+                    : 'border-gray-200 hover:border-green-300 hover:bg-green-50'
+                  }
+                `}
+              >
+                <div className="flex flex-col items-center gap-2">
+                  <div className={`
+                    w-12 h-12 rounded-full flex items-center justify-center
+                    ${votoSeleccionado === true ? 'bg-green-600' : 'bg-gray-200'}
+                  `}>
+                    <svg className={`w-7 h-7 ${votoSeleccionado === true ? 'text-white' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <span className={`font-semibold ${votoSeleccionado === true ? 'text-green-700' : 'text-gray-700'}`}>
+                    A Favor
+                  </span>
+                  <span className="text-xs text-gray-600">Apoyo la participacion de este artista</span>
                 </div>
-                <span className={`font-semibold ${votoSeleccionado === true ? 'text-green-700' : 'text-gray-700'}`}>
-                  A Favor
-                </span>
-                <span className="text-xs text-gray-600">Apoyo la participación de este artista</span>
-              </div>
-            </button>
+              </button>
 
-            <button
-              onClick={() => setVotoSeleccionado(false)}
-              className={`
-                p-6 rounded-lg border-2 transition-all
-                ${votoSeleccionado === false
-                  ? 'border-red-600 bg-red-50 shadow-lg'
-                  : 'border-gray-200 hover:border-red-300 hover:bg-red-50'
-                }
-              `}
-            >
-              <div className="flex flex-col items-center gap-2">
-                <div className={`
-                  w-12 h-12 rounded-full flex items-center justify-center
-                  ${votoSeleccionado === false ? 'bg-red-600' : 'bg-gray-200'}
-                `}>
-                  <svg className={`w-7 h-7 ${votoSeleccionado === false ? 'text-white' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+              <button
+                onClick={() => setVotoSeleccionado(false)}
+                className={`
+                  p-6 rounded-lg border-2 transition-all
+                  ${votoSeleccionado === false
+                    ? 'border-red-600 bg-red-50 shadow-lg'
+                    : 'border-gray-200 hover:border-red-300 hover:bg-red-50'
+                  }
+                `}
+              >
+                <div className="flex flex-col items-center gap-2">
+                  <div className={`
+                    w-12 h-12 rounded-full flex items-center justify-center
+                    ${votoSeleccionado === false ? 'bg-red-600' : 'bg-gray-200'}
+                  `}>
+                    <svg className={`w-7 h-7 ${votoSeleccionado === false ? 'text-white' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </div>
+                  <span className={`font-semibold ${votoSeleccionado === false ? 'text-red-700' : 'text-gray-700'}`}>
+                    En Contra
+                  </span>
+                  <span className="text-xs text-gray-600">No apoyo la participacion</span>
                 </div>
-                <span className={`font-semibold ${votoSeleccionado === false ? 'text-red-700' : 'text-gray-700'}`}>
-                  En Contra
-                </span>
-                <span className="text-xs text-gray-600">No apoyo la participación</span>
-              </div>
-            </button>
-          </div>
+              </button>
+            </div>
 
-          {/* Comentarios */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Comentarios (opcional)
-            </label>
-            <textarea
-              value={comentario}
-              onChange={(e) => setComentario(e.target.value)}
-              rows={4}
-              placeholder="Escribe tus observaciones sobre el trabajo de este artista..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Tus comentarios son privados y solo visibles para los administradores
-            </p>
+            {/* Comentarios */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Comentarios (opcional)
+              </label>
+              <textarea
+                value={comentario}
+                onChange={(e) => setComentario(e.target.value)}
+                rows={4}
+                placeholder="Escribe tus observaciones sobre el trabajo de este artista..."
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Tus comentarios son privados y solo visibles para los administradores
+              </p>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Mensaje en modo lectura */}
+        {modoLectura && (
+          <div className="border-t border-gray-200 pt-6">
+            <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
+              <div className="flex items-start">
+                <svg className="w-5 h-5 text-blue-400 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+                <div>
+                  <p className="text-sm text-blue-700">
+                    <strong>Votaciones cerradas</strong>
+                  </p>
+                  <p className="text-sm text-blue-600 mt-1">
+                    Las votaciones para esta fase aun no estan abiertas. Puedes marcar este artista como favorito para tenerlo destacado cuando se abran las votaciones.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </Modal>
   )

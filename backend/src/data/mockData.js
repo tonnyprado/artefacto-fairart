@@ -23,6 +23,7 @@ let nextPaqueteId = 4
 let nextContenidoId = 4
 let nextEventoId = 2
 let nextMensajeContactoId = 1
+let nextFavoritoId = 5
 
 // USUARIOS (Admin y Curadores)
 // Password: admin123 (hasheado con bcrypt)
@@ -610,6 +611,46 @@ export const eventos = [
 // MENSAJES DE CONTACTO
 export const mensajesContacto = []
 
+// FAVORITOS (artistas marcados como favoritos por curadores)
+export const favoritos = [
+  {
+    id: 1,
+    curador_id: 1,
+    artista_id: 1,
+    fase_id: 1,
+    notas: 'Excelente uso del color, potencial para la feria',
+    created_at: '2027-02-04T10:00:00Z',
+    updated_at: '2027-02-04T10:00:00Z'
+  },
+  {
+    id: 2,
+    curador_id: 1,
+    artista_id: 2,
+    fase_id: 1,
+    notas: null,
+    created_at: '2027-02-04T11:00:00Z',
+    updated_at: '2027-02-04T11:00:00Z'
+  },
+  {
+    id: 3,
+    curador_id: 2,
+    artista_id: 1,
+    fase_id: 1,
+    notas: 'Propuesta muy interesante',
+    created_at: '2027-02-05T09:00:00Z',
+    updated_at: '2027-02-05T09:00:00Z'
+  },
+  {
+    id: 4,
+    curador_id: 1,
+    artista_id: 1,
+    fase_id: 2,
+    notas: 'Sigue destacando en fase 2',
+    created_at: '2027-02-17T10:00:00Z',
+    updated_at: '2027-02-17T10:00:00Z'
+  }
+]
+
 // Funciones helper para generar IDs
 export const getNextId = {
   usuario: () => nextUsuarioId++,
@@ -622,7 +663,8 @@ export const getNextId = {
   paquete: () => nextPaqueteId++,
   contenido: () => nextContenidoId++,
   evento: () => nextEventoId++,
-  mensajeContacto: () => nextMensajeContactoId++
+  mensajeContacto: () => nextMensajeContactoId++,
+  favorito: () => nextFavoritoId++
 }
 
 // Helper para crear timestamp
