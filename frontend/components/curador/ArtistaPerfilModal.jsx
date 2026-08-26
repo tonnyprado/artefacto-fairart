@@ -313,21 +313,54 @@ export default function ArtistaPerfilModal({ artista, faseActiva, onClose, modoL
         )}
 
         {/* Lienzo de Diseño */}
-        {artista.layout_canvas_url && (
+        {(artista.layout_canvas_pdf || artista.layout_canvas_url) && (
           <div className="bg-purple-50 p-4 rounded-lg">
             <h3 className="text-sm font-semibold text-gray-900 mb-3">Lienzo de Diseño</h3>
-            <div
-              className="cursor-pointer group"
-              onClick={() => handleOpenViewer(artista.layout_canvas_url, 'image', 'Lienzo del Artista')}
-            >
-              <img
-                src={artista.layout_canvas_url}
-                alt="Layout del lienzo"
-                className="w-full rounded-lg border-2 border-gray-200 group-hover:border-purple-400 transition-colors"
-                style={{ maxHeight: '300px', objectFit: 'contain' }}
-              />
-              <p className="text-xs text-gray-500 text-center mt-1">Click para ampliar</p>
-            </div>
+
+            {/* Si hay PDF, mostrarlo como principal */}
+            {artista.layout_canvas_pdf ? (
+              <div className="space-y-3">
+                {/* Preview thumbnail si existe */}
+                {artista.layout_canvas_url && (
+                  <div className="bg-white p-2 rounded-lg border border-gray-200">
+                    <img
+                      src={artista.layout_canvas_url}
+                      alt="Preview del lienzo"
+                      className="w-full rounded-lg"
+                      style={{ maxHeight: '200px', objectFit: 'contain' }}
+                    />
+                  </div>
+                )}
+
+                {/* Botón para ver PDF */}
+                <button
+                  onClick={() => handleOpenViewer(artista.layout_canvas_pdf, 'pdf', 'Lienzo del Artista (PDF)')}
+                  className="w-full flex items-center justify-center gap-3 p-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  <span className="font-medium">Ver Lienzo PDF</span>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </button>
+              </div>
+            ) : (
+              /* Si solo hay imagen */
+              <div
+                className="cursor-pointer group"
+                onClick={() => handleOpenViewer(artista.layout_canvas_url, 'image', 'Lienzo del Artista')}
+              >
+                <img
+                  src={artista.layout_canvas_url}
+                  alt="Layout del lienzo"
+                  className="w-full rounded-lg border-2 border-gray-200 group-hover:border-purple-400 transition-colors"
+                  style={{ maxHeight: '300px', objectFit: 'contain' }}
+                />
+                <p className="text-xs text-gray-500 text-center mt-1">Click para ampliar</p>
+              </div>
+            )}
           </div>
         )}
 
