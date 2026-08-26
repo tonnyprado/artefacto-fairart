@@ -203,7 +203,7 @@ function CuradorDashboardContent() {
   }
 
   return (
-    <div className="min-h-screen flex" style={{ backgroundColor: COLORS.cream }}>
+    <div className="min-h-screen flex font-sans" style={{ backgroundColor: COLORS.cream }}>
       {/* Sidebar */}
       <aside
         ref={sidebarRef}

@@ -106,7 +106,7 @@ function AdminDashboardContent() {
   const faseActiva = useFasesStore(state => state.getFaseActiva())
 
   return (
-    <div className="admin-panel" style={{ minHeight: '100vh', backgroundColor: COLORS.cream }}>
+    <div className="admin-panel font-sans" style={{ minHeight: '100vh', backgroundColor: COLORS.cream }}>
       {/* Header */}
       <header style={{
         backgroundColor: COLORS.red,
