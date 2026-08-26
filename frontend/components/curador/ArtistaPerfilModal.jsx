@@ -7,6 +7,7 @@ import { useFavoritosStore } from '@/stores/favoritosStore'
 import Modal from '@/components/ui/Modal'
 import Button from '@/components/ui/Button'
 import Badge from '@/components/ui/Badge'
+import { Download, X } from 'lucide-react'
 
 /**
  * ArtistaPerfilModal - Modal de perfil de artista con votacion
@@ -52,6 +53,10 @@ export default function ArtistaPerfilModal({ artista, faseActiva, onClose, modoL
   const [error, setError] = useState(null)
   const [loadingFavorito, setLoadingFavorito] = useState(false)
 
+  // Estados para visualización de documentos/obras
+  const [viewerModal, setViewerModal] = useState({ open: false, url: '', type: '', title: '' })
+  const [obraModal, setObraModal] = useState({ open: false, obra: null })
+
   // Verificar si ya voto
   const yaVoto = hasVotado(user?.id, artista.id, faseActiva?.id)
   const votacionExistente = yaVoto ? getVotacion(user?.id, artista.id, faseActiva?.id) : null
@@ -65,6 +70,24 @@ export default function ArtistaPerfilModal({ artista, faseActiva, onClose, modoL
     setLoadingFavorito(true)
     await toggleFavorito(artista.id, faseActiva.id)
     setLoadingFavorito(false)
+  }
+
+  // Determinar tipo de archivo
+  const getFileType = (url) => {
+    if (!url) return 'unknown'
+    const lowerUrl = url.toLowerCase()
+    if (lowerUrl.includes('.pdf') || lowerUrl.includes('application/pdf')) {
+      return 'pdf'
+    }
+    if (lowerUrl.match(/\.(jpg|jpeg|png|webp|gif)/i)) {
+      return 'image'
+    }
+    return 'unknown'
+  }
+
+  // Abrir visor de documentos
+  const handleOpenViewer = (url, type, title) => {
+    setViewerModal({ open: true, url, type, title })
   }
 
   // Cargar voto existente
@@ -258,38 +281,133 @@ export default function ArtistaPerfilModal({ artista, faseActiva, onClose, modoL
           </div>
         )}
 
-        {/* Documentos */}
-        <div>
-          <h3 className="text-sm font-semibold text-gray-900 mb-3">Documentos</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {artista.documentos && Object.entries(artista.documentos).map(([key, value]) => (
-              <a
-                key={key}
-                href={value}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group"
-              >
-                <div className="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
-                  <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
-                    {key === 'cv' && 'Currículum Vitae'}
-                    {key === 'portfolio' && 'Portfolio'}
-                    {key === 'identificacion' && 'Identificación'}
-                  </p>
-                  <p className="text-xs text-gray-500">Ver documento</p>
-                </div>
-                <svg className="w-5 h-5 text-gray-400 group-hover:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-              </a>
-            ))}
+        {/* Paquete seleccionado */}
+        {artista.paquete && (
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <h3 className="text-sm font-semibold text-gray-900 mb-3">Paquete Seleccionado</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <span className="text-xs text-gray-500">Paquete</span>
+                <p className="font-medium text-gray-900">{artista.paquete.nombre}</p>
+              </div>
+              <div>
+                <span className="text-xs text-gray-500">Tipo</span>
+                <p className="font-medium text-gray-900">{artista.paquete.tipo}</p>
+              </div>
+              <div>
+                <span className="text-xs text-gray-500">Dimensiones</span>
+                <p className="font-medium text-gray-900">
+                  {artista.paquete.tipo === '3D' ? (
+                    `${artista.paquete.metros_cuadrados}m² (base)`
+                  ) : (
+                    `${artista.paquete.metros_lineales}m × ${artista.paquete.altura_pared}m`
+                  )}
+                </p>
+              </div>
+              <div>
+                <span className="text-xs text-gray-500">Precio</span>
+                <p className="font-medium text-gray-900">${artista.paquete.precio_mxn?.toLocaleString('es-MX')} MXN</p>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Lienzo de Diseño */}
+        {artista.layout_canvas_url && (
+          <div className="bg-purple-50 p-4 rounded-lg">
+            <h3 className="text-sm font-semibold text-gray-900 mb-3">Lienzo de Diseño</h3>
+            <div
+              className="cursor-pointer group"
+              onClick={() => handleOpenViewer(artista.layout_canvas_url, 'image', 'Lienzo del Artista')}
+            >
+              <img
+                src={artista.layout_canvas_url}
+                alt="Layout del lienzo"
+                className="w-full rounded-lg border-2 border-gray-200 group-hover:border-purple-400 transition-colors"
+                style={{ maxHeight: '300px', objectFit: 'contain' }}
+              />
+              <p className="text-xs text-gray-500 text-center mt-1">Click para ampliar</p>
+            </div>
+          </div>
+        )}
+
+        {/* Obras para Exhibición */}
+        {artista.layout_canvas_data?.obras && artista.layout_canvas_data.obras.length > 0 && (
+          <div className="bg-green-50 p-4 rounded-lg">
+            <h3 className="text-sm font-semibold text-gray-900 mb-3">
+              Obras para Exhibición ({artista.layout_canvas_data.obras.length})
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {artista.layout_canvas_data.obras.map((obra, index) => (
+                <div
+                  key={index}
+                  onClick={() => setObraModal({ open: true, obra })}
+                  className="bg-white p-3 rounded-lg border border-gray-200 hover:border-green-400 hover:shadow-md transition-all cursor-pointer group"
+                >
+                  {obra.preview && (
+                    <div className="aspect-square rounded-lg overflow-hidden mb-2 bg-gray-100 relative">
+                      <img
+                        src={obra.preview}
+                        alt={obra.titulo}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      />
+                      {obra.tipo_obra && (
+                        <span className={`absolute top-1 right-1 px-1.5 py-0.5 text-[10px] font-semibold rounded ${
+                          obra.tipo_obra === '3D' ? 'bg-purple-600 text-white' : 'bg-blue-600 text-white'
+                        }`}>
+                          {obra.tipo_obra}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  <p className="font-medium text-gray-900 text-sm truncate">{obra.titulo || `Obra ${index + 1}`}</p>
+                  <p className="text-xs text-gray-500">
+                    {obra.ancho_cm} × {obra.alto_cm}{obra.largo_cm ? ` × ${obra.largo_cm}` : ''} cm
+                  </p>
+                  <p className="text-xs text-green-600 font-medium mt-1">${obra.precio_mxn?.toLocaleString('es-MX')} MXN</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Documentos */}
+        {artista.documentos && Object.keys(artista.documentos).filter(k => k !== 'portfolio_images' && artista.documentos[k]).length > 0 && (
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 mb-3">Documentos</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {Object.entries(artista.documentos).filter(([key, value]) => value && key !== 'portfolio_images').map(([key, value]) => {
+                const fileType = key.includes('cv') || key.includes('portfolio') || key.includes('identificacion') ? 'pdf' : getFileType(value)
+                const displayName = key === 'cv' ? 'Currículum Vitae' :
+                                    key === 'portfolio' ? 'Portfolio' :
+                                    key === 'identificacion' ? 'Identificación' :
+                                    key.replace(/_url$/i, '').replace(/_/g, ' ')
+
+                return (
+                  <button
+                    key={key}
+                    onClick={() => handleOpenViewer(value, fileType, displayName)}
+                    className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group text-left"
+                  >
+                    <div className="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+                      <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">{displayName}</p>
+                      <p className="text-xs text-gray-500">Click para ver</p>
+                    </div>
+                    <svg className="w-5 h-5 text-gray-400 group-hover:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Seccion de votacion - solo si NO es modo lectura */}
         {!modoLectura && (
@@ -393,6 +511,169 @@ export default function ArtistaPerfilModal({ artista, faseActiva, onClose, modoL
           </div>
         )}
       </div>
+
+      {/* Modal de visualización de documentos/imágenes */}
+      {viewerModal.open && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-4"
+          onClick={() => setViewerModal({ open: false, url: '', type: '', title: '' })}
+        >
+          <div
+            className="relative max-w-[95vw] max-h-[95vh] bg-white rounded-lg overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-lg font-semibold text-gray-900">{viewerModal.title}</h3>
+              <div className="flex items-center gap-2">
+                <a
+                  href={viewerModal.url}
+                  download
+                  className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
+                  title="Descargar"
+                >
+                  <Download size={20} />
+                </a>
+                <a
+                  href={viewerModal.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
+                  title="Abrir en nueva pestaña"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+                <button
+                  onClick={() => setViewerModal({ open: false, url: '', type: '', title: '' })}
+                  className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="overflow-auto" style={{ maxHeight: 'calc(95vh - 80px)' }}>
+              {viewerModal.type === 'pdf' ? (
+                <iframe
+                  src={viewerModal.url}
+                  className="w-full"
+                  style={{ height: 'calc(95vh - 80px)', minWidth: '800px' }}
+                  title={viewerModal.title}
+                />
+              ) : (
+                <div className="flex items-center justify-center p-4 bg-gray-100">
+                  <img
+                    src={viewerModal.url}
+                    alt={viewerModal.title}
+                    className="max-w-full max-h-[calc(95vh-120px)] object-contain"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Obra Individual */}
+      {obraModal.open && obraModal.obra && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4"
+          onClick={() => setObraModal({ open: false, obra: null })}
+        >
+          <div
+            className="relative max-w-4xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Botón cerrar */}
+            <button
+              onClick={() => setObraModal({ open: false, obra: null })}
+              className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="flex flex-col md:flex-row">
+              {/* Imagen grande */}
+              <div className="md:w-2/3 bg-gray-900 flex items-center justify-center p-4 relative">
+                {obraModal.obra.preview && (
+                  <>
+                    <img
+                      src={obraModal.obra.preview}
+                      alt={obraModal.obra.titulo}
+                      className="max-w-full max-h-[70vh] object-contain"
+                    />
+                    <a
+                      href={obraModal.obra.preview}
+                      download={`obra-${(obraModal.obra.titulo || 'sin-titulo').replace(/\s+/g, '-').toLowerCase()}.jpg`}
+                      className="absolute bottom-6 left-1/2 -translate-x-1/2 inline-flex items-center gap-2 px-4 py-2 bg-white/90 hover:bg-white text-gray-900 rounded-lg shadow-lg transition-all text-sm font-medium"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Download size={16} />
+                      Descargar imagen
+                    </a>
+                  </>
+                )}
+              </div>
+
+              {/* Ficha técnica */}
+              <div className="md:w-1/3 p-6 bg-white">
+                <div className="flex items-start justify-between mb-4">
+                  <h3 className="text-xl font-bold text-gray-900">
+                    {obraModal.obra.titulo || 'Sin título'}
+                  </h3>
+                  {obraModal.obra.tipo_obra && (
+                    <span className={`px-2 py-1 text-xs font-semibold rounded ${
+                      obraModal.obra.tipo_obra === '3D'
+                        ? 'bg-purple-100 text-purple-700'
+                        : 'bg-blue-100 text-blue-700'
+                    }`}>
+                      {obraModal.obra.tipo_obra}
+                    </span>
+                  )}
+                </div>
+
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-xs text-gray-500 uppercase tracking-wide">Dimensiones</span>
+                      <p className="font-medium text-gray-900">
+                        {obraModal.obra.ancho_cm} × {obraModal.obra.alto_cm}
+                        {obraModal.obra.largo_cm ? ` × ${obraModal.obra.largo_cm}` : ''} cm
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500 uppercase tracking-wide">Año</span>
+                      <p className="font-medium text-gray-900">{obraModal.obra.anio || '-'}</p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-xs text-gray-500 uppercase tracking-wide">Técnica</span>
+                    <p className="font-medium text-gray-900">{obraModal.obra.tecnica || '-'}</p>
+                  </div>
+
+                  <div className="pt-4 border-t">
+                    <span className="text-xs text-gray-500 uppercase tracking-wide">Precio</span>
+                    <p className="text-2xl font-bold text-green-600">
+                      ${obraModal.obra.precio_mxn?.toLocaleString('es-MX')} MXN
+                    </p>
+                  </div>
+
+                  {obraModal.obra.notas_montaje && (
+                    <div className="pt-4 border-t">
+                      <span className="text-xs text-gray-500 uppercase tracking-wide">Notas de montaje</span>
+                      <p className="text-sm text-gray-700 mt-1 italic">{obraModal.obra.notas_montaje}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </Modal>
   )
 }
