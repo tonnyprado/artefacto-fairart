@@ -47,7 +47,7 @@ export default function MensajesContacto() {
     try {
       setLoading(true)
       const token = localStorage.getItem('token')
-      const response = await fetch('${API_URL}/api/contacto', {
+      const response = await fetch(`${API_URL}/api/contacto`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
