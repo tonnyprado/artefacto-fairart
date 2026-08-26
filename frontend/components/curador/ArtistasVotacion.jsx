@@ -73,7 +73,8 @@ export default function ArtistasVotacion() {
 
   // Artistas are already filtered by fase from the API
   // fetchArtistasByFase returns only artistas for that specific fase
-  const artistasFaseActiva = artistas.filter(a => a.aprobado === true)
+  // Ya no filtramos por aprobado - el estado se maneja en artistas_fases.estado
+  const artistasFaseActiva = artistas
 
   // Aplicar filtros
   const artistasFiltrados = artistasFaseActiva.filter(artista => {

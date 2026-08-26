@@ -132,10 +132,8 @@ function CuradorDashboardContent() {
     loadStats()
   }, [user, faseActiva, votaciones, getEstadisticasAPI])
 
-  // Artistas de fase activa
-  const artistasFaseActiva = faseActiva
-    ? artistas.filter(a => a.aprobado === true)
-    : []
+  // Artistas de fase activa (ya no filtramos por aprobado)
+  const artistasFaseActiva = faseActiva ? artistas : []
 
   // Show loading state
   if (isLoadingData) {

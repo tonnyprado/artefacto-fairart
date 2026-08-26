@@ -65,7 +65,8 @@ export default function ArtistasPorFase() {
         try {
           const result = await fetchArtistasByFase(fase.id)
           const artistas = result?.data || []
-          artistasData[fase.id] = artistas.filter(a => a.aprobado === true)
+          // Mostrar todos los artistas inscritos (ya no filtramos por aprobado)
+          artistasData[fase.id] = artistas
         } catch (error) {
           console.error(`Error cargando artistas de fase ${fase.id}:`, error)
           artistasData[fase.id] = []
