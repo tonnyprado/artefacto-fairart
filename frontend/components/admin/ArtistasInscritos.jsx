@@ -6,10 +6,12 @@ import Badge from '@/components/ui/Badge'
 import { artistasApi } from '@/lib/api'
 
 /**
- * ArtistasInscritos - Lista de artistas seleccionados para la Feria
+ * ArtistasInscritos - Lista de artistas ACEPTADOS para la Feria
  *
- * Muestra los artistas que han sido aprobados/seleccionados
- * para participar en la feria (pasaron las votaciones)
+ * Muestra solo los artistas que han pasado las votaciones
+ * y están oficialmente aceptados para participar en la feria.
+ *
+ * Criterio: estado_fase === 'aprobado' o seleccionado === true
  */
 
 const CATEGORIAS = [
@@ -28,7 +30,7 @@ const CATEGORIAS = [
 
 export default function ArtistasInscritos({ onVerDetalles }) {
   const { fases, fetchFases } = useFasesStore()
-  const [artistasSeleccionados, setArtistasSeleccionados] = useState([])
+  const [artistasAceptados, setArtistasAceptados] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [filtroFase, setFiltroFase] = useState('all')
 
@@ -37,32 +39,30 @@ export default function ArtistasInscritos({ onVerDetalles }) {
     fetchFases()
   }, [fetchFases])
 
-  // Cargar artistas seleccionados
+  // Cargar artistas aceptados
   useEffect(() => {
-    const loadSeleccionados = async () => {
+    const loadAceptados = async () => {
       setIsLoading(true)
       try {
-        // Obtener todos los artistas y filtrar los seleccionados/aprobados
         const response = await artistasApi.getAll()
         const artistas = response.data || []
 
-        // Filtrar artistas que tengan seleccionado=true o estado_fase='aprobado'
-        // Por ahora mostramos todos los que tienen paquete (significa que completaron registro)
-        const seleccionados = artistas.filter(a =>
-          a.seleccionado === true ||
-          a.estado_fase === 'aprobado' ||
-          (a.paquete && a.estado !== 'rechazado')
+        // Filtrar SOLO artistas que pasaron votaciones:
+        // - estado_fase === 'aprobado' (pasaron la votacion de la fase)
+        // - O seleccionado === true (marcados como seleccionados)
+        const aceptados = artistas.filter(a =>
+          a.estado_fase === 'aprobado' || a.seleccionado === true
         )
 
-        setArtistasSeleccionados(seleccionados)
+        setArtistasAceptados(aceptados)
       } catch (error) {
-        console.error('Error cargando artistas seleccionados:', error)
+        console.error('Error cargando artistas aceptados:', error)
       } finally {
         setIsLoading(false)
       }
     }
 
-    loadSeleccionados()
+    loadAceptados()
   }, [])
 
   const getCategoriaLabel = (categoria) => {
@@ -71,8 +71,8 @@ export default function ArtistasInscritos({ onVerDetalles }) {
 
   // Filtrar por fase
   const artistasFiltrados = filtroFase === 'all'
-    ? artistasSeleccionados
-    : artistasSeleccionados.filter(a => a.fase_inscripcion?.id === parseInt(filtroFase))
+    ? artistasAceptados
+    : artistasAceptados.filter(a => a.fase_inscripcion?.id === parseInt(filtroFase))
 
   // Agrupar por paquete para estadisticas
   const porPaquete = artistasFiltrados.reduce((acc, a) => {
@@ -85,7 +85,7 @@ export default function ArtistasInscritos({ onVerDetalles }) {
     return (
       <div className="text-center py-12">
         <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mb-4"></div>
-        <p className="text-gray-600">Cargando artistas inscritos a la feria...</p>
+        <p className="text-gray-600">Cargando artistas aceptados...</p>
       </div>
     )
   }
@@ -99,18 +99,18 @@ export default function ArtistasInscritos({ onVerDetalles }) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <h3 className="font-semibold text-green-900 text-xl">
-            Artistas Inscritos a la Feria
+            Artistas Aceptados
           </h3>
         </div>
         <p className="text-sm text-green-800 mb-4">
-          Artistas que han completado su registro y estan confirmados para participar.
+          Artistas que han pasado el proceso de votacion y estan oficialmente aceptados para participar en la feria.
         </p>
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white/50 rounded-lg p-3 text-center">
-            <p className="text-2xl font-bold text-green-600">{artistasSeleccionados.length}</p>
-            <p className="text-xs text-green-700">Total Inscritos</p>
+            <p className="text-2xl font-bold text-green-600">{artistasAceptados.length}</p>
+            <p className="text-xs text-green-700">Total Aceptados</p>
           </div>
           <div className="bg-white/50 rounded-lg p-3 text-center">
             <p className="text-2xl font-bold text-blue-600">{porPaquete['2D'] || 0}</p>
@@ -128,40 +128,51 @@ export default function ArtistasInscritos({ onVerDetalles }) {
       </div>
 
       {/* Filtro por fase */}
-      <div className="bg-white p-4 rounded-lg shadow">
-        <div className="flex items-center gap-4">
-          <label className="text-sm font-medium text-gray-700">Filtrar por fase:</label>
-          <select
-            value={filtroFase}
-            onChange={(e) => setFiltroFase(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-          >
-            <option value="all">Todas las fases ({artistasSeleccionados.length})</option>
-            {fases.filter(f => f.tipo === 'fase').map(fase => (
-              <option key={fase.id} value={fase.id}>
-                {fase.nombre}
-              </option>
-            ))}
-          </select>
+      {artistasAceptados.length > 0 && (
+        <div className="bg-white p-4 rounded-lg shadow">
+          <div className="flex items-center gap-4">
+            <label className="text-sm font-medium text-gray-700">Filtrar por fase de origen:</label>
+            <select
+              value={filtroFase}
+              onChange={(e) => setFiltroFase(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            >
+              <option value="all">Todas las fases ({artistasAceptados.length})</option>
+              {fases.filter(f => f.tipo === 'fase').map(fase => (
+                <option key={fase.id} value={fase.id}>
+                  {fase.nombre}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Lista de artistas */}
+      {/* Lista de artistas o mensaje vacio */}
       {artistasFiltrados.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-12 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
-            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-4">
+            <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            No hay artistas inscritos
+            No hay artistas aceptados aun
           </h3>
-          <p className="text-gray-600">
-            {filtroFase === 'all'
-              ? 'Aun no hay artistas confirmados para la feria.'
-              : 'No hay artistas de esta fase inscritos a la feria.'}
+          <p className="text-gray-600 max-w-md mx-auto">
+            Los artistas apareceran aqui una vez que pasen el proceso de votacion.
+            Cuando las votaciones de una fase se cierren y se determinen los resultados,
+            los artistas aprobados se mostraran en esta seccion.
           </p>
+          <div className="mt-6 p-4 bg-blue-50 rounded-lg text-left max-w-md mx-auto">
+            <h4 className="text-sm font-medium text-blue-900 mb-2">Flujo de aceptacion:</h4>
+            <ol className="text-sm text-blue-700 space-y-1 list-decimal list-inside">
+              <li>Artista se inscribe en una fase</li>
+              <li>Curadores votan durante la fase de votacion</li>
+              <li>Se cierran votaciones y se calculan resultados</li>
+              <li>Artistas con votos suficientes son <strong>aceptados</strong></li>
+            </ol>
+          </div>
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -219,14 +230,14 @@ export default function ArtistasInscritos({ onVerDetalles }) {
                   </div>
                 )}
 
-                {/* Fase de inscripcion */}
+                {/* Fase de origen */}
                 {artista.fase_inscripcion && (
                   <Badge variant="purple" size="sm">
                     {artista.fase_inscripcion.nombre}
                   </Badge>
                 )}
 
-                {/* Check de confirmado */}
+                {/* Check de aceptado */}
                 <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                   <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
