@@ -63,8 +63,9 @@ export default function ArtistasPorFase() {
 
       for (const fase of fasesConArtistas) {
         try {
-          const artistas = await fetchArtistasByFase(fase.id)
-          artistasData[fase.id] = artistas?.filter(a => a.aprobado === true) || []
+          const result = await fetchArtistasByFase(fase.id)
+          const artistas = result?.data || []
+          artistasData[fase.id] = artistas.filter(a => a.aprobado === true)
         } catch (error) {
           console.error(`Error cargando artistas de fase ${fase.id}:`, error)
           artistasData[fase.id] = []
