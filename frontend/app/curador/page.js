@@ -112,7 +112,6 @@ function CuradorDashboardContent() {
 
   const sidebarRef = useRef(null)
   const labelsRef = useRef([])
-  const logoTextRef = useRef(null)
 
   const { fetchArtistasByFase } = useArtistasStore()
   const { fetchFases, getFaseActiva } = useFasesStore()
@@ -158,14 +157,6 @@ function CuradorDashboardContent() {
         })
       }
     })
-    if (logoTextRef.current) {
-      gsap.to(logoTextRef.current, {
-        opacity: 1,
-        x: 0,
-        duration: 0.25,
-        ease: 'power2.out'
-      })
-    }
   }
 
   const handleMouseLeave = () => {
@@ -185,14 +176,6 @@ function CuradorDashboardContent() {
         })
       }
     })
-    if (logoTextRef.current) {
-      gsap.to(logoTextRef.current, {
-        opacity: 0,
-        x: -10,
-        duration: 0.15,
-        ease: 'power2.in'
-      })
-    }
   }
 
   const handleLogoutClick = () => {
@@ -233,23 +216,12 @@ function CuradorDashboardContent() {
         }}
       >
         {/* Logo */}
-        <div className="flex items-center h-16 px-4 overflow-hidden">
+        <div className="flex items-center justify-center h-16 px-3">
           <img
-            src="/assets/glyph-a-white.svg"
+            src="/assets/conocer-mas/logo-red.png"
             alt="ARTEFACTO"
-            className="w-10 h-10 flex-shrink-0"
+            className="h-10 w-auto"
           />
-          <span
-            ref={logoTextRef}
-            className="ml-3 text-sm font-semibold whitespace-nowrap"
-            style={{
-              color: COLORS.cream,
-              opacity: 0,
-              transform: 'translateX(-10px)'
-            }}
-          >
-            ARTEFACTO
-          </span>
         </div>
 
         {/* Separator */}
