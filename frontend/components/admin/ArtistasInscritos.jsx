@@ -92,38 +92,13 @@ export default function ArtistasInscritos({ onVerDetalles }) {
 
   return (
     <div className="space-y-6">
-      {/* Header con estadisticas */}
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-600 p-6 rounded-r-2xl">
-        <div className="flex items-center gap-3 mb-4">
-          <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <h3 className="font-semibold text-green-900 text-xl">
-            Artistas Aceptados
-          </h3>
-        </div>
-        <p className="text-sm text-green-800 mb-4">
-          Artistas que han pasado el proceso de votacion y estan oficialmente aceptados para participar en la feria.
-        </p>
-
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white/50 rounded-lg p-3 text-center">
-            <p className="text-2xl font-bold text-green-600">{artistasAceptados.length}</p>
-            <p className="text-xs text-green-700">Total Aceptados</p>
-          </div>
-          <div className="bg-white/50 rounded-lg p-3 text-center">
-            <p className="text-2xl font-bold text-blue-600">{porPaquete['2D'] || 0}</p>
-            <p className="text-xs text-blue-700">Paquetes 2D</p>
-          </div>
-          <div className="bg-white/50 rounded-lg p-3 text-center">
-            <p className="text-2xl font-bold text-purple-600">{porPaquete['3D'] || 0}</p>
-            <p className="text-xs text-purple-700">Paquetes 3D</p>
-          </div>
-          <div className="bg-white/50 rounded-lg p-3 text-center">
-            <p className="text-2xl font-bold text-gray-600">{porPaquete['Sin paquete'] || 0}</p>
-            <p className="text-xs text-gray-700">Sin paquete</p>
-          </div>
+      {/* Header simple */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900">Artistas Aceptados</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            {artistasAceptados.length} artistas · {porPaquete['2D'] || 0} 2D · {porPaquete['3D'] || 0} 3D
+          </p>
         </div>
       </div>
 

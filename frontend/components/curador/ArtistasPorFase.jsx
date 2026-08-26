@@ -144,21 +144,13 @@ export default function ArtistasPorFase() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-600 p-6 rounded-r-2xl">
-        <h3 className="font-semibold text-blue-900 mb-2">
-          Artistas Inscritos por Fase
-        </h3>
-        <p className="text-sm text-blue-800 mb-3">
-          Explora los artistas inscritos en cada fase. Marca tus favoritos para tenerlos destacados al momento de votar.
-        </p>
-        <div className="flex gap-4 text-sm text-blue-700">
-          <span className="flex items-center gap-1">
-            <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-            </svg>
+      {/* Header simple */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900">Artistas por Fase</h2>
+          <p className="text-sm text-gray-500 mt-1">
             {totalFavoritos} favoritos marcados
-          </span>
+          </p>
         </div>
       </div>
 

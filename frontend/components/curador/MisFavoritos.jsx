@@ -112,32 +112,13 @@ export default function MisFavoritos() {
 
   return (
     <div className="space-y-6">
-      {/* Header con estadisticas */}
-      <div className="bg-gradient-to-r from-red-50 to-pink-50 border-l-4 border-red-500 p-6 rounded-r-2xl">
-        <div className="flex items-center gap-3 mb-4">
-          <svg className="w-8 h-8 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-          </svg>
-          <h3 className="font-semibold text-red-900 text-xl">
-            Mis Artistas Favoritos
-          </h3>
-        </div>
-        <p className="text-sm text-red-800 mb-4">
-          Artistas que has marcado para tener destacados al momento de votar.
-        </p>
-
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white/50 rounded-lg p-3 text-center">
-            <p className="text-2xl font-bold text-red-600">{favoritos.length}</p>
-            <p className="text-xs text-red-700">Total Favoritos</p>
-          </div>
-          {fases.filter(f => f.tipo === 'fase').slice(0, 3).map(fase => (
-            <div key={fase.id} className="bg-white/50 rounded-lg p-3 text-center">
-              <p className="text-2xl font-bold text-red-600">{favoritosPorFase[fase.id] || 0}</p>
-              <p className="text-xs text-red-700 truncate">{fase.nombre}</p>
-            </div>
-          ))}
+      {/* Header simple */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900">Mis Favoritos</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            {favoritos.length} artistas marcados
+          </p>
         </div>
       </div>
 
