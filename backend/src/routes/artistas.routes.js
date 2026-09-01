@@ -12,7 +12,8 @@ import {
   aprobarArtista,
   rechazarArtista,
   deleteArtista,
-  getArtistasByFase
+  getArtistasByFase,
+  getArtistasForExport
 } from '../controllers/artistas.controller.js'
 import { verifyToken, isAdmin, isAdminOrCurador } from '../middleware/auth.middleware.js'
 
@@ -23,6 +24,7 @@ router.post('/', createArtista)
 
 // Rutas para admin y curadores
 router.get('/', verifyToken, isAdminOrCurador, getAllArtistas)
+router.get('/export', verifyToken, isAdmin, getArtistasForExport) // Exportación completa para Excel
 router.get('/fase/:fase_id', verifyToken, isAdminOrCurador, getArtistasByFase)
 router.get('/:id', verifyToken, isAdminOrCurador, getArtistaById)
 

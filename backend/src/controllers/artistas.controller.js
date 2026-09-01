@@ -1172,3 +1172,118 @@ export const getArtistasByFase = async (req, res) => {
     })
   }
 }
+
+/**
+ * GET /api/artistas/export
+ * Obtener todos los artistas con información completa para exportación a Excel
+ * Incluye: datos del artista, obras, paquete con precios por fase
+ */
+export const getArtistasForExport = async (req, res) => {
+  try {
+    const { fase_id } = req.query
+
+    if (useDatabase()) {
+      // Query principal con todos los datos del artista y paquete
+      let query = `
+        SELECT
+          a.*,
+          f.nombre as fase_nombre,
+          f.numero_fase,
+          p.nombre as paquete_nombre,
+          p.tipo as paquete_tipo,
+          p.metros_lineales as paquete_metros_lineales,
+          p.altura_pared as paquete_altura_pared,
+          p.metros_cuadrados as paquete_metros_cuadrados,
+          p.precio as paquete_precio,
+          p.precio_fase1 as paquete_precio_fase1,
+          p.precio_fase2 as paquete_precio_fase2,
+          p.precio_fase3 as paquete_precio_fase3,
+          p.obras_maximas as paquete_obras_maximas,
+          p.beneficios as paquete_beneficios,
+          COALESCE((SELECT COUNT(*) FROM votaciones v WHERE v.artista_id = a.id AND v.voto = true), 0) as votos_favor,
+          COALESCE((SELECT COUNT(*) FROM votaciones v WHERE v.artista_id = a.id AND v.voto = false), 0) as votos_contra
+        FROM artistas a
+        LEFT JOIN fases f ON f.id = a.fase_inscripcion_id
+        LEFT JOIN paquetes p ON p.id = a.paquete_id
+        WHERE 1=1
+      `
+      const params = []
+      let paramCount = 1
+
+      // Filtro opcional por fase
+      if (fase_id && fase_id !== 'all') {
+        query += ` AND a.fase_inscripcion_id = $${paramCount}`
+        params.push(parseInt(fase_id))
+        paramCount++
+      }
+
+      query += ' ORDER BY a.created_at DESC'
+
+      const artistasResult = await pool.query(query, params)
+
+      // Obtener todas las obras de todos los artistas
+      const artistaIds = artistasResult.rows.map(a => a.id)
+
+      let obrasResult = { rows: [] }
+      if (artistaIds.length > 0) {
+        obrasResult = await pool.query(
+          `SELECT * FROM obras WHERE artista_id = ANY($1) ORDER BY artista_id, created_at DESC`,
+          [artistaIds]
+        )
+      }
+
+      // Agrupar obras por artista
+      const obrasPorArtista = {}
+      obrasResult.rows.forEach(obra => {
+        if (!obrasPorArtista[obra.artista_id]) {
+          obrasPorArtista[obra.artista_id] = []
+        }
+        obrasPorArtista[obra.artista_id].push(obra)
+      })
+
+      // Combinar datos
+      const artistasConObras = artistasResult.rows.map(artista => ({
+        ...artista,
+        obras: obrasPorArtista[artista.id] || [],
+        paquete: artista.paquete_nombre ? {
+          nombre: artista.paquete_nombre,
+          tipo: artista.paquete_tipo,
+          metros_lineales: artista.paquete_metros_lineales,
+          altura_pared: artista.paquete_altura_pared,
+          metros_cuadrados: artista.paquete_metros_cuadrados,
+          precio: artista.paquete_precio,
+          precio_fase1: artista.paquete_precio_fase1,
+          precio_fase2: artista.paquete_precio_fase2,
+          precio_fase3: artista.paquete_precio_fase3,
+          obras_maximas: artista.paquete_obras_maximas,
+          beneficios: artista.paquete_beneficios
+        } : null,
+        fase_inscripcion: artista.fase_nombre ? {
+          nombre: artista.fase_nombre,
+          numero_fase: artista.numero_fase
+        } : null,
+        total_votos_favor: parseInt(artista.votos_favor) || 0,
+        total_votos_contra: parseInt(artista.votos_contra) || 0
+      }))
+
+      return res.json({
+        success: true,
+        data: artistasConObras,
+        total: artistasConObras.length
+      })
+    }
+
+    // Fallback a mockData (sin obras)
+    res.json({
+      success: true,
+      data: artistas,
+      total: artistas.length
+    })
+  } catch (error) {
+    console.error('Error al obtener artistas para exportación:', error)
+    res.status(500).json({
+      success: false,
+      error: 'Error al obtener datos para exportación'
+    })
+  }
+}

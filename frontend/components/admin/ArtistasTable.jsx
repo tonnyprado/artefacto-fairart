@@ -115,6 +115,7 @@ export default function ArtistasTable() {
   const [searchTerm, setSearchTerm] = useState('')
   const [estadoFilter, setEstadoFilter] = useState('all')
   const [categoriaFilter, setCategoriaFilter] = useState('all')
+  const [faseFilter, setFaseFilter] = useState('all')
   const [selectedArtista, setSelectedArtista] = useState(null)
   const [showDetailModal, setShowDetailModal] = useState(false)
   const [showEstadoModal, setShowEstadoModal] = useState(false)
@@ -135,6 +136,9 @@ export default function ArtistasTable() {
   const [inscribiendoArtista, setInscribiendoArtista] = useState(false)
   // Estado para modal de añadir artista
   const [showAddModal, setShowAddModal] = useState(false)
+  // Estado para modal de exportación
+  const [showExportModal, setShowExportModal] = useState(false)
+  const [exportFaseSeleccionada, setExportFaseSeleccionada] = useState('all')
   const [creandoArtista, setCreandoArtista] = useState(false)
   const [nuevoArtistaForm, setNuevoArtistaForm] = useState({
     nombre: '',
@@ -168,8 +172,11 @@ export default function ArtistasTable() {
 
     const matchesEstado = estadoFilter === 'all' || artista.estado === estadoFilter
     const matchesCategoria = categoriaFilter === 'all' || artista.categoria === categoriaFilter
+    const matchesFase = faseFilter === 'all' ||
+      (artista.fase_inscripcion?.id?.toString() === faseFilter) ||
+      (artista.fase_inscripcion_id?.toString() === faseFilter)
 
-    return matchesSearch && matchesEstado && matchesCategoria
+    return matchesSearch && matchesEstado && matchesCategoria && matchesFase
   })
 
   const handleVerDetalles = (artista) => {
@@ -413,79 +420,215 @@ export default function ArtistasTable() {
     }
   }
 
-  const handleExportarExcel = () => {
-    // Preparar datos para exportar
-    const datosExportar = artistasFiltrados.map(artista => ({
-      'ID': artista.id,
-      'Folio': artista.folio || '',
-      'Nombre': artista.nombre,
-      'Apellido': artista.apellido,
-      'Nombre Artístico': artista.nombre_artistico || '',
-      'Email': artista.email,
-      'Teléfono': artista.telefono || '',
-      'Fecha Nacimiento': artista.fecha_nacimiento ? new Date(artista.fecha_nacimiento).toLocaleDateString('es-MX') : '',
-      'País': artista.pais || '',
-      'Ciudad': artista.ciudad || '',
-      'Categoría': artista.categoria?.replace('_', ' ') || '',
-      'Estado': artista.estado,
-      'Paquete': artista.paquete?.nombre || '',
-      'Tipo Paquete': artista.paquete?.tipo || '',
-      'Dimensiones Paquete': artista.paquete ? (artista.paquete.tipo === '3D' ? `${artista.paquete.metros_cuadrados}m²` : `${artista.paquete.metros_lineales}m × ${artista.paquete.altura_pared}m`) : '',
-      'Precio Paquete': artista.paquete?.precio_mxn || '',
-      'Fase Registro': artista.fase_inscripcion?.nombre || '',
-      'Votos Favor': artista.total_votos_favor || 0,
-      'Votos Contra': artista.total_votos_contra || 0,
-      'Fecha Registro': artista.created_at ? new Date(artista.created_at).toLocaleDateString('es-MX') : '',
-      'Bio': artista.bio || '',
-      'Instagram': artista.redes_sociales?.instagram || '',
-      'Sitio Web': artista.redes_sociales?.sitio_web || '',
-      'Lienzo URL': artista.layout_canvas_url || '',
-      'Cantidad Obras': artista.layout_canvas_data?.obras?.length || 0,
-      'Notas Admin': artista.notas_admin || ''
-    }))
+  const [exportando, setExportando] = useState(false)
 
-    // Crear hoja de cálculo
-    const worksheet = XLSX.utils.json_to_sheet(datosExportar)
-    const workbook = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Artistas')
+  // Función para abrir modal de exportación
+  const handleAbrirExportModal = () => {
+    setExportFaseSeleccionada('all')
+    setShowExportModal(true)
+  }
 
-    // Ajustar ancho de columnas
-    const columnWidths = [
-      { wch: 8 },  // ID
-      { wch: 15 }, // Folio
-      { wch: 20 }, // Nombre
-      { wch: 20 }, // Apellido
-      { wch: 20 }, // Nombre Artístico
-      { wch: 30 }, // Email
-      { wch: 15 }, // Teléfono
-      { wch: 15 }, // Fecha Nacimiento
-      { wch: 15 }, // País
-      { wch: 20 }, // Ciudad
-      { wch: 20 }, // Categoría
-      { wch: 12 }, // Estado
-      { wch: 20 }, // Paquete
-      { wch: 10 }, // Tipo Paquete
-      { wch: 20 }, // Dimensiones Paquete
-      { wch: 15 }, // Precio Paquete
-      { wch: 15 }, // Fase Registro
-      { wch: 10 }, // Votos Favor
-      { wch: 10 }, // Votos Contra
-      { wch: 15 }, // Fecha Registro
-      { wch: 50 }, // Bio
-      { wch: 20 }, // Instagram
-      { wch: 30 }, // Sitio Web
-      { wch: 50 }, // Lienzo URL
-      { wch: 12 }, // Cantidad Obras
-      { wch: 40 }  // Notas Admin
-    ]
-    worksheet['!cols'] = columnWidths
+  const handleExportarExcel = async () => {
+    setExportando(true)
+    setShowExportModal(false)
 
-    // Generar nombre de archivo con fecha
-    const fecha = new Date().toISOString().split('T')[0]
-    const nombreArchivo = `artistas-artefact-${fecha}.xlsx`
+    try {
+      // Llamar al endpoint de exportación con filtro de fase seleccionada en el modal
+      const token = localStorage.getItem('token')
+      const params = new URLSearchParams()
+      if (exportFaseSeleccionada !== 'all') {
+        params.append('fase_id', exportFaseSeleccionada)
+      }
 
-    // Descargar archivo
-    XLSX.writeFile(workbook, nombreArchivo)
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/artistas/export?${params.toString()}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error('Error al obtener datos para exportación')
+      }
+
+      const { data: artistasCompletos } = await response.json()
+
+      // Crear workbook
+      const workbook = XLSX.utils.book_new()
+
+      // ========== HOJA 0: RESUMEN ==========
+      const faseInfo = exportFaseSeleccionada !== 'all'
+        ? fases.find(f => f.id.toString() === exportFaseSeleccionada)
+        : null
+
+      const resumenData = [
+        ['ARTEFACT - REPORTE DE ARTISTAS'],
+        [''],
+        ['Fecha de exportación:', new Date().toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })],
+        ['Hora:', new Date().toLocaleTimeString('es-MX')],
+        [''],
+        ['FILTROS APLICADOS'],
+        ['Fase:', faseInfo ? faseInfo.nombre : 'Todas las fases'],
+        [''],
+        ['RESUMEN'],
+        ['Total de artistas:', artistasCompletos.length],
+        ['Pendientes:', artistasCompletos.filter(a => a.estado === 'pendiente').length],
+        ['Aprobados:', artistasCompletos.filter(a => a.estado === 'aprobado').length],
+        ['Rechazados:', artistasCompletos.filter(a => a.estado === 'rechazado').length],
+        [''],
+        ['Total de obras:', artistasCompletos.reduce((sum, a) => sum + (a.obras?.length || 0), 0)],
+        [''],
+        ['INSTRUCCIONES'],
+        ['- Hoja "Artistas": Información completa de cada artista'],
+        ['- Hoja "Obras": Detalle de cada obra por artista'],
+        ['- Hoja "Paquetes": Resumen de paquetes y precios por fase'],
+      ]
+      const wsResumen = XLSX.utils.aoa_to_sheet(resumenData)
+      wsResumen['!cols'] = [{ wch: 25 }, { wch: 50 }]
+      // Merge para título
+      wsResumen['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }]
+      XLSX.utils.book_append_sheet(workbook, wsResumen, 'Resumen')
+
+      // ========== HOJA 1: ARTISTAS ==========
+      const datosArtistas = artistasCompletos.map((artista, idx) => ({
+        '#': idx + 1,
+        'Folio': artista.folio || '',
+        'Nombre Completo': `${artista.nombre} ${artista.apellido}`,
+        'Nombre Artístico': artista.nombre_artistico || '',
+        'Email': artista.email,
+        'Teléfono': artista.telefono || '',
+        'Fecha Nacimiento': artista.fecha_nacimiento ? new Date(artista.fecha_nacimiento).toLocaleDateString('es-MX') : '',
+        'País': artista.pais || '',
+        'Ciudad': artista.ciudad || '',
+        'Dirección': artista.direccion || '',
+        'Categoría/Formato': getFormatoDisplay(artista),
+        'Estado': artista.estado?.toUpperCase() || '',
+        // Paquete
+        'Paquete': artista.paquete?.nombre || '',
+        'Tipo (2D/3D)': artista.paquete?.tipo || '',
+        'Dimensiones': artista.paquete ? (artista.paquete.tipo === '3D' ? `${artista.paquete.metros_cuadrados} m²` : `${artista.paquete.metros_lineales}m × ${artista.paquete.altura_pared}m`) : '',
+        'Precio Base MXN': artista.paquete?.precio ? `$${Number(artista.paquete.precio).toLocaleString('es-MX')}` : '',
+        'Precio Fase I': artista.paquete?.precio_fase1 ? `$${Number(artista.paquete.precio_fase1).toLocaleString('es-MX')}` : '',
+        'Precio Fase II': artista.paquete?.precio_fase2 ? `$${Number(artista.paquete.precio_fase2).toLocaleString('es-MX')}` : '',
+        'Precio Fase III': artista.paquete?.precio_fase3 ? `$${Number(artista.paquete.precio_fase3).toLocaleString('es-MX')}` : '',
+        'Máx. Obras': artista.paquete?.obras_maximas || '',
+        // Fase y votos
+        'Fase Inscripción': artista.fase_inscripcion?.nombre || '',
+        'No. Fase': artista.fase_inscripcion?.numero_fase || '',
+        'Votos +': artista.total_votos_favor || 0,
+        'Votos -': artista.total_votos_contra || 0,
+        'Balance': (artista.total_votos_favor || 0) - (artista.total_votos_contra || 0),
+        // Datos adicionales
+        'Fecha Registro': artista.created_at ? new Date(artista.created_at).toLocaleDateString('es-MX') : '',
+        'Biografía': artista.bio || '',
+        'Instagram': artista.instagram || artista.redes_sociales?.instagram || '',
+        'Facebook': artista.facebook || artista.redes_sociales?.facebook || '',
+        'Sitio Web': artista.website || artista.redes_sociales?.sitio_web || '',
+        // Conteos
+        'Cant. Obras': artista.obras?.length || artista.layout_canvas_data?.obras?.length || 0,
+        'Notas Admin': artista.notas_admin || ''
+      }))
+
+      const wsArtistas = XLSX.utils.json_to_sheet(datosArtistas)
+      wsArtistas['!cols'] = [
+        { wch: 4 }, { wch: 14 }, { wch: 25 }, { wch: 18 }, { wch: 28 },
+        { wch: 14 }, { wch: 12 }, { wch: 10 }, { wch: 14 }, { wch: 25 },
+        { wch: 20 }, { wch: 12 }, { wch: 20 }, { wch: 10 }, { wch: 16 },
+        { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 10 },
+        { wch: 16 }, { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 8 },
+        { wch: 12 }, { wch: 40 }, { wch: 20 }, { wch: 20 }, { wch: 25 },
+        { wch: 10 }, { wch: 35 }
+      ]
+      XLSX.utils.book_append_sheet(workbook, wsArtistas, 'Artistas')
+
+      // ========== HOJA 2: OBRAS DETALLADAS ==========
+      const datosObras = []
+      artistasCompletos.forEach(artista => {
+        if (artista.obras && artista.obras.length > 0) {
+          artista.obras.forEach((obra, index) => {
+            datosObras.push({
+              'Folio Artista': artista.folio || '',
+              'Artista': `${artista.nombre} ${artista.apellido}`,
+              'Email': artista.email,
+              'No.': index + 1,
+              'Título de la Obra': obra.titulo || 'Sin título',
+              'Precio MXN': obra.precio_mxn || obra.precio ? `$${Number(obra.precio_mxn || obra.precio).toLocaleString('es-MX')}` : '',
+              'Alto (cm)': obra.alto_cm || '',
+              'Ancho (cm)': obra.ancho_cm || '',
+              'Largo (cm)': obra.largo_cm || '',
+              'Tipo': obra.tipo_obra || '2D',
+              'Técnica': obra.tecnica || '',
+              'Año': obra.anio || '',
+              'Notas de Montaje': obra.notas_montaje || '',
+              'En Lienzo': obra.en_lienzo ? 'Sí' : 'No',
+              'Orden': obra.orden_lienzo || ''
+            })
+          })
+        }
+      })
+
+      if (datosObras.length > 0) {
+        const wsObras = XLSX.utils.json_to_sheet(datosObras)
+        wsObras['!cols'] = [
+          { wch: 14 }, { wch: 25 }, { wch: 25 }, { wch: 5 }, { wch: 30 },
+          { wch: 14 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 8 },
+          { wch: 18 }, { wch: 8 }, { wch: 30 }, { wch: 10 }, { wch: 8 }
+        ]
+        XLSX.utils.book_append_sheet(workbook, wsObras, 'Obras')
+      }
+
+      // ========== HOJA 3: RESUMEN DE PAQUETES ==========
+      const paquetesMap = {}
+      artistasCompletos.forEach(artista => {
+        if (artista.paquete?.nombre) {
+          const key = artista.paquete.nombre
+          if (!paquetesMap[key]) {
+            paquetesMap[key] = {
+              nombre: artista.paquete.nombre,
+              tipo: artista.paquete.tipo,
+              precio: artista.paquete.precio,
+              precio_fase1: artista.paquete.precio_fase1,
+              precio_fase2: artista.paquete.precio_fase2,
+              precio_fase3: artista.paquete.precio_fase3,
+              cantidad: 0
+            }
+          }
+          paquetesMap[key].cantidad++
+        }
+      })
+
+      const datosPaquetes = Object.values(paquetesMap).map(p => ({
+        'Paquete': p.nombre,
+        'Tipo': p.tipo,
+        'Precio Base': p.precio ? `$${Number(p.precio).toLocaleString('es-MX')}` : '',
+        'Precio Fase I (-20%)': p.precio_fase1 ? `$${Number(p.precio_fase1).toLocaleString('es-MX')}` : '',
+        'Precio Fase II (-10%)': p.precio_fase2 ? `$${Number(p.precio_fase2).toLocaleString('es-MX')}` : '',
+        'Precio Fase III': p.precio_fase3 ? `$${Number(p.precio_fase3).toLocaleString('es-MX')}` : '',
+        'Artistas Inscritos': p.cantidad
+      }))
+
+      if (datosPaquetes.length > 0) {
+        const wsPaquetes = XLSX.utils.json_to_sheet(datosPaquetes)
+        wsPaquetes['!cols'] = [
+          { wch: 25 }, { wch: 8 }, { wch: 14 }, { wch: 18 }, { wch: 18 }, { wch: 14 }, { wch: 16 }
+        ]
+        XLSX.utils.book_append_sheet(workbook, wsPaquetes, 'Paquetes')
+      }
+
+      // Generar nombre de archivo con fecha
+      const fecha = new Date().toISOString().split('T')[0]
+      const faseNombre = exportFaseSeleccionada !== 'all'
+        ? fases.find(f => f.id.toString() === exportFaseSeleccionada)?.nombre?.replace(/\s+/g, '-')
+        : 'todas-fases'
+      const nombreArchivo = `ARTEFACT-Artistas-${faseNombre}-${fecha}.xlsx`
+
+      // Descargar archivo
+      XLSX.writeFile(workbook, nombreArchivo)
+    } catch (error) {
+      console.error('Error al exportar:', error)
+      alert('Error al exportar datos. Por favor intenta de nuevo.')
+    } finally {
+      setExportando(false)
+    }
   }
 
   // Handler para ver detalles desde otros componentes
@@ -533,7 +676,7 @@ export default function ArtistasTable() {
         <>
       {/* Filtros y búsqueda */}
       <div className="bg-white p-4 rounded-2xl shadow space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           {/* Búsqueda */}
           <div className="md:col-span-2">
             <input
@@ -580,6 +723,22 @@ export default function ArtistasTable() {
               <option value="otro">Otro</option>
             </select>
           </div>
+
+          {/* Filtro por fase */}
+          <div>
+            <select
+              value={faseFilter}
+              onChange={(e) => setFaseFilter(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            >
+              <option value="all">Todas las fases</option>
+              {fases.map(fase => (
+                <option key={fase.id} value={fase.id.toString()}>
+                  {fase.nombre}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* Resumen y Botones */}
@@ -594,12 +753,24 @@ export default function ArtistasTable() {
               Añadir Artista
             </button>
             <button
-              onClick={handleExportarExcel}
-              disabled={artistasFiltrados.length === 0}
+              onClick={handleAbrirExportModal}
+              disabled={artistas.length === 0 || exportando}
               className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed font-medium"
             >
-              <Download size={18} />
-              Exportar a Excel
+              {exportando ? (
+                <>
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Exportando...
+                </>
+              ) : (
+                <>
+                  <Download size={18} />
+                  Exportar a Excel
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -1901,6 +2072,103 @@ export default function ArtistasTable() {
                     Inscribir
                   </>
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Exportación a Excel */}
+      {showExportModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white/20 rounded-lg">
+                    <Download size={24} className="text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">Exportar a Excel</h3>
+                    <p className="text-green-100 text-sm">Selecciona qué datos exportar</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowExportModal(false)}
+                  className="p-1 hover:bg-white/20 rounded-full transition-colors"
+                >
+                  <X size={20} className="text-white" />
+                </button>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Selecciona la fase a exportar:
+                </label>
+                <select
+                  value={exportFaseSeleccionada}
+                  onChange={(e) => setExportFaseSeleccionada(e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all bg-gray-50"
+                >
+                  <option value="all">Todas las fases</option>
+                  {fases.map(fase => (
+                    <option key={fase.id} value={fase.id.toString()}>
+                      {fase.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Info de lo que se exportará */}
+              <div className="bg-gray-50 rounded-xl p-4 space-y-2">
+                <p className="text-sm font-medium text-gray-700">El archivo incluirá:</p>
+                <ul className="text-sm text-gray-600 space-y-1">
+                  <li className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Hoja de Resumen con estadísticas
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Datos completos de artistas
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Obras con precios y medidas
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Paquetes con precios por fase
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-end gap-3 px-6 py-4 bg-gray-50 border-t">
+              <button
+                onClick={() => setShowExportModal(false)}
+                className="px-5 py-2.5 text-gray-700 hover:bg-gray-200 rounded-xl transition-colors font-medium"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleExportarExcel}
+                className="inline-flex items-center gap-2 px-6 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-semibold shadow-lg shadow-green-600/30"
+              >
+                <Download size={18} />
+                Exportar
               </button>
             </div>
           </div>
