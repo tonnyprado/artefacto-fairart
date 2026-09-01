@@ -7,7 +7,7 @@ import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell } from '@
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
-import * as XLSX from 'xlsx'
+import ExcelJS from 'exceljs'
 import { Download, Mail, MessageCircle, Phone, X, UserPlus, Plus } from 'lucide-react'
 import AdminArtistasPorFase from './AdminArtistasPorFase'
 import ArtistasInscritos from './ArtistasInscritos'
@@ -452,177 +452,247 @@ export default function ArtistasTable() {
 
       const { data: artistasCompletos } = await response.json()
 
-      // Crear workbook
-      const workbook = XLSX.utils.book_new()
+      // Crear workbook con ExcelJS
+      const workbook = new ExcelJS.Workbook()
+      workbook.creator = 'ARTEFACTO'
+      workbook.created = new Date()
 
-      // ========== HOJA 0: RESUMEN ==========
       const faseInfo = exportFaseSeleccionada !== 'all'
         ? fases.find(f => f.id.toString() === exportFaseSeleccionada)
         : null
 
-      const resumenData = [
-        ['ARTEFACT - REPORTE DE ARTISTAS'],
-        [''],
-        ['Fecha de exportación:', new Date().toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })],
-        ['Hora:', new Date().toLocaleTimeString('es-MX')],
-        [''],
-        ['FILTROS APLICADOS'],
-        ['Fase:', faseInfo ? faseInfo.nombre : 'Todas las fases'],
-        [''],
-        ['RESUMEN'],
+      // Estilos comunes
+      const headerStyle = {
+        font: { bold: true, size: 12, color: { argb: 'FFFFFFFF' } },
+        fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1a1a1a' } },
+        alignment: { horizontal: 'center', vertical: 'middle', wrapText: true },
+        border: {
+          top: { style: 'thin', color: { argb: 'FF000000' } },
+          bottom: { style: 'thin', color: { argb: 'FF000000' } },
+          left: { style: 'thin', color: { argb: 'FF000000' } },
+          right: { style: 'thin', color: { argb: 'FF000000' } }
+        }
+      }
+
+      const cellStyle = {
+        font: { size: 11 },
+        alignment: { vertical: 'middle', wrapText: true },
+        border: {
+          top: { style: 'thin', color: { argb: 'FFcccccc' } },
+          bottom: { style: 'thin', color: { argb: 'FFcccccc' } },
+          left: { style: 'thin', color: { argb: 'FFcccccc' } },
+          right: { style: 'thin', color: { argb: 'FFcccccc' } }
+        }
+      }
+
+      // ========== HOJA 1: RESUMEN ==========
+      const wsResumen = workbook.addWorksheet('Resumen', {
+        properties: { tabColor: { argb: 'FF1a1a1a' } }
+      })
+
+      // Título principal
+      wsResumen.mergeCells('A1:D1')
+      const titleCell = wsResumen.getCell('A1')
+      titleCell.value = 'ARTEFACTO - REPORTE DE ARTISTAS'
+      titleCell.font = { bold: true, size: 24, color: { argb: 'FF1a1a1a' } }
+      titleCell.alignment = { horizontal: 'center', vertical: 'middle' }
+      wsResumen.getRow(1).height = 40
+
+      // Fecha y hora
+      wsResumen.getCell('A3').value = 'Fecha de exportación:'
+      wsResumen.getCell('B3').value = new Date().toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+      wsResumen.getCell('A4').value = 'Hora:'
+      wsResumen.getCell('B4').value = new Date().toLocaleTimeString('es-MX')
+
+      // Sección Filtros
+      wsResumen.mergeCells('A6:B6')
+      const filtrosCell = wsResumen.getCell('A6')
+      filtrosCell.value = 'FILTROS APLICADOS'
+      filtrosCell.font = { bold: true, size: 14, color: { argb: 'FFFFFFFF' } }
+      filtrosCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF666666' } }
+      filtrosCell.alignment = { horizontal: 'center' }
+
+      wsResumen.getCell('A7').value = 'Fase:'
+      wsResumen.getCell('B7').value = faseInfo ? faseInfo.nombre : 'Todas las fases'
+      wsResumen.getCell('B7').font = { bold: true }
+
+      // Sección Resumen
+      wsResumen.mergeCells('A9:B9')
+      const resumenCell = wsResumen.getCell('A9')
+      resumenCell.value = 'RESUMEN DE DATOS'
+      resumenCell.font = { bold: true, size: 14, color: { argb: 'FFFFFFFF' } }
+      resumenCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1a1a1a' } }
+      resumenCell.alignment = { horizontal: 'center' }
+
+      const stats = [
         ['Total de artistas:', artistasCompletos.length],
         ['Pendientes:', artistasCompletos.filter(a => a.estado === 'pendiente').length],
         ['Aprobados:', artistasCompletos.filter(a => a.estado === 'aprobado').length],
         ['Rechazados:', artistasCompletos.filter(a => a.estado === 'rechazado').length],
-        [''],
         ['Total de obras:', artistasCompletos.reduce((sum, a) => sum + (a.obras?.length || 0), 0)],
-        [''],
-        ['INSTRUCCIONES'],
-        ['- Hoja "Artistas": Información completa de cada artista'],
-        ['- Hoja "Obras": Detalle de cada obra por artista'],
-        ['- Hoja "Paquetes": Resumen de paquetes y precios por fase'],
       ]
-      const wsResumen = XLSX.utils.aoa_to_sheet(resumenData)
-      wsResumen['!cols'] = [{ wch: 25 }, { wch: 50 }]
-      // Merge para título
-      wsResumen['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }]
-      XLSX.utils.book_append_sheet(workbook, wsResumen, 'Resumen')
 
-      // ========== HOJA 1: ARTISTAS ==========
-      const datosArtistas = artistasCompletos.map((artista, idx) => ({
-        '#': idx + 1,
-        'Folio': artista.folio || '',
-        'Nombre Completo': `${artista.nombre} ${artista.apellido}`,
-        'Nombre Artístico': artista.nombre_artistico || '',
-        'Email': artista.email,
-        'Teléfono': artista.telefono || '',
-        'Fecha Nacimiento': artista.fecha_nacimiento ? new Date(artista.fecha_nacimiento).toLocaleDateString('es-MX') : '',
-        'País': artista.pais || '',
-        'Ciudad': artista.ciudad || '',
-        'Dirección': artista.direccion || '',
-        'Categoría/Formato': getFormatoDisplay(artista),
-        'Estado': artista.estado?.toUpperCase() || '',
-        // Paquete
-        'Paquete': artista.paquete?.nombre || '',
-        'Tipo (2D/3D)': artista.paquete?.tipo || '',
-        'Dimensiones': artista.paquete ? (artista.paquete.tipo === '3D' ? `${artista.paquete.metros_cuadrados} m²` : `${artista.paquete.metros_lineales}m × ${artista.paquete.altura_pared}m`) : '',
-        'Precio Base MXN': artista.paquete?.precio ? `$${Number(artista.paquete.precio).toLocaleString('es-MX')}` : '',
-        'Precio Fase I': artista.paquete?.precio_fase1 ? `$${Number(artista.paquete.precio_fase1).toLocaleString('es-MX')}` : '',
-        'Precio Fase II': artista.paquete?.precio_fase2 ? `$${Number(artista.paquete.precio_fase2).toLocaleString('es-MX')}` : '',
-        'Precio Fase III': artista.paquete?.precio_fase3 ? `$${Number(artista.paquete.precio_fase3).toLocaleString('es-MX')}` : '',
-        'Máx. Obras': artista.paquete?.obras_maximas || '',
-        // Fase y votos
-        'Fase Inscripción': artista.fase_inscripcion?.nombre || '',
-        'No. Fase': artista.fase_inscripcion?.numero_fase || '',
-        'Votos +': artista.total_votos_favor || 0,
-        'Votos -': artista.total_votos_contra || 0,
-        'Balance': (artista.total_votos_favor || 0) - (artista.total_votos_contra || 0),
-        // Datos adicionales
-        'Fecha Registro': artista.created_at ? new Date(artista.created_at).toLocaleDateString('es-MX') : '',
-        'Biografía': artista.bio || '',
-        'Instagram': artista.instagram || artista.redes_sociales?.instagram || '',
-        'Facebook': artista.facebook || artista.redes_sociales?.facebook || '',
-        'Sitio Web': artista.website || artista.redes_sociales?.sitio_web || '',
-        // Conteos
-        'Cant. Obras': artista.obras?.length || artista.layout_canvas_data?.obras?.length || 0,
-        'Notas Admin': artista.notas_admin || ''
-      }))
+      stats.forEach((stat, idx) => {
+        wsResumen.getCell(`A${10 + idx}`).value = stat[0]
+        wsResumen.getCell(`B${10 + idx}`).value = stat[1]
+        wsResumen.getCell(`B${10 + idx}`).font = { bold: true, size: 14 }
+      })
 
-      const wsArtistas = XLSX.utils.json_to_sheet(datosArtistas)
-      wsArtistas['!cols'] = [
-        { wch: 4 }, { wch: 14 }, { wch: 25 }, { wch: 18 }, { wch: 28 },
-        { wch: 14 }, { wch: 12 }, { wch: 10 }, { wch: 14 }, { wch: 25 },
-        { wch: 20 }, { wch: 12 }, { wch: 20 }, { wch: 10 }, { wch: 16 },
-        { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 10 },
-        { wch: 16 }, { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 8 },
-        { wch: 12 }, { wch: 40 }, { wch: 20 }, { wch: 20 }, { wch: 25 },
-        { wch: 10 }, { wch: 35 }
+      wsResumen.getColumn('A').width = 25
+      wsResumen.getColumn('B').width = 40
+
+      // ========== HOJA 2: ARTISTAS ==========
+      const wsArtistas = workbook.addWorksheet('Artistas', {
+        properties: { tabColor: { argb: 'FF2563eb' } }
+      })
+
+      // Headers de artistas (sin Dirección y Estado)
+      const artistasHeaders = [
+        '#', 'Folio', 'Nombre Completo', 'Nombre Artístico', 'Email', 'Teléfono',
+        'Fecha Nac.', 'País', 'Ciudad', 'Categoría', 'Paquete', 'Tipo',
+        'Dimensiones', 'Precio Base', 'Precio Fase I', 'Precio Fase II', 'Precio Fase III',
+        'Máx. Obras', 'Fase Inscripción', 'Votos +', 'Votos -', 'Balance',
+        'Fecha Registro', 'Instagram', 'Sitio Web', 'Cant. Obras', 'Notas Admin'
       ]
-      XLSX.utils.book_append_sheet(workbook, wsArtistas, 'Artistas')
 
-      // ========== HOJA 2: OBRAS DETALLADAS ==========
-      const datosObras = []
+      const headerRow = wsArtistas.addRow(artistasHeaders)
+      headerRow.height = 30
+      headerRow.eachCell(cell => {
+        cell.font = headerStyle.font
+        cell.fill = headerStyle.fill
+        cell.alignment = headerStyle.alignment
+        cell.border = headerStyle.border
+      })
+
+      // Datos de artistas
+      artistasCompletos.forEach((artista, idx) => {
+        const row = wsArtistas.addRow([
+          idx + 1,
+          artista.folio || '',
+          `${artista.nombre} ${artista.apellido}`,
+          artista.nombre_artistico || '',
+          artista.email,
+          artista.telefono || '',
+          artista.fecha_nacimiento ? new Date(artista.fecha_nacimiento).toLocaleDateString('es-MX') : '',
+          artista.pais || '',
+          artista.ciudad || '',
+          getFormatoDisplay(artista),
+          artista.paquete?.nombre || '',
+          artista.paquete?.tipo || '',
+          artista.paquete ? (artista.paquete.tipo === '3D' ? `${artista.paquete.metros_cuadrados} m²` : `${artista.paquete.metros_lineales}m × ${artista.paquete.altura_pared}m`) : '',
+          artista.paquete?.precio ? `$${Number(artista.paquete.precio).toLocaleString('es-MX')}` : '',
+          artista.paquete?.precio_fase1 ? `$${Number(artista.paquete.precio_fase1).toLocaleString('es-MX')}` : '',
+          artista.paquete?.precio_fase2 ? `$${Number(artista.paquete.precio_fase2).toLocaleString('es-MX')}` : '',
+          artista.paquete?.precio_fase3 ? `$${Number(artista.paquete.precio_fase3).toLocaleString('es-MX')}` : '',
+          artista.paquete?.obras_maximas || '',
+          artista.fase_inscripcion?.nombre || artista.fase_nombre || '',
+          artista.total_votos_favor || artista.votos_favor || 0,
+          artista.total_votos_contra || artista.votos_contra || 0,
+          (artista.total_votos_favor || artista.votos_favor || 0) - (artista.total_votos_contra || artista.votos_contra || 0),
+          artista.created_at ? new Date(artista.created_at).toLocaleDateString('es-MX') : '',
+          artista.instagram || artista.redes_sociales?.instagram || '',
+          artista.website || artista.redes_sociales?.sitio_web || '',
+          artista.obras?.length || 0,
+          artista.notas_admin || ''
+        ])
+
+        // Alternar colores de fila
+        const bgColor = idx % 2 === 0 ? 'FFFFFFFF' : 'FFF8F8F8'
+        row.eachCell(cell => {
+          cell.font = cellStyle.font
+          cell.alignment = cellStyle.alignment
+          cell.border = cellStyle.border
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bgColor } }
+        })
+        row.height = 22
+      })
+
+      // Anchos de columnas para artistas
+      const artistasWidths = [5, 14, 28, 20, 30, 14, 12, 12, 14, 22, 22, 8, 16, 14, 14, 14, 14, 10, 18, 10, 10, 10, 14, 22, 28, 12, 35]
+      artistasWidths.forEach((width, idx) => {
+        wsArtistas.getColumn(idx + 1).width = width
+      })
+
+      // Congelar primera fila
+      wsArtistas.views = [{ state: 'frozen', xSplit: 0, ySplit: 1 }]
+
+      // ========== HOJA 3: OBRAS ==========
+      const wsObras = workbook.addWorksheet('Obras', {
+        properties: { tabColor: { argb: 'FF16a34a' } }
+      })
+
+      const obrasHeaders = [
+        'Folio Artista', 'Artista', 'Email', 'No.', 'Título de la Obra',
+        'Precio MXN', 'Alto (cm)', 'Ancho (cm)', 'Largo (cm)', 'Tipo',
+        'Técnica', 'Año', 'Notas de Montaje'
+      ]
+
+      const obrasHeaderRow = wsObras.addRow(obrasHeaders)
+      obrasHeaderRow.height = 30
+      obrasHeaderRow.eachCell(cell => {
+        cell.font = headerStyle.font
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF16a34a' } }
+        cell.alignment = headerStyle.alignment
+        cell.border = headerStyle.border
+      })
+
+      let obraIdx = 0
       artistasCompletos.forEach(artista => {
         if (artista.obras && artista.obras.length > 0) {
           artista.obras.forEach((obra, index) => {
-            datosObras.push({
-              'Folio Artista': artista.folio || '',
-              'Artista': `${artista.nombre} ${artista.apellido}`,
-              'Email': artista.email,
-              'No.': index + 1,
-              'Título de la Obra': obra.titulo || 'Sin título',
-              'Precio MXN': obra.precio_mxn || obra.precio ? `$${Number(obra.precio_mxn || obra.precio).toLocaleString('es-MX')}` : '',
-              'Alto (cm)': obra.alto_cm || '',
-              'Ancho (cm)': obra.ancho_cm || '',
-              'Largo (cm)': obra.largo_cm || '',
-              'Tipo': obra.tipo_obra || '2D',
-              'Técnica': obra.tecnica || '',
-              'Año': obra.anio || '',
-              'Notas de Montaje': obra.notas_montaje || '',
-              'En Lienzo': obra.en_lienzo ? 'Sí' : 'No',
-              'Orden': obra.orden_lienzo || ''
+            const row = wsObras.addRow([
+              artista.folio || '',
+              `${artista.nombre} ${artista.apellido}`,
+              artista.email,
+              index + 1,
+              obra.titulo || 'Sin título',
+              obra.precio_mxn || obra.precio ? `$${Number(obra.precio_mxn || obra.precio).toLocaleString('es-MX')}` : '',
+              obra.alto_cm || '',
+              obra.ancho_cm || '',
+              obra.largo_cm || '',
+              obra.tipo_obra || '2D',
+              obra.tecnica || '',
+              obra.anio || '',
+              obra.notas_montaje || ''
+            ])
+
+            const bgColor = obraIdx % 2 === 0 ? 'FFFFFFFF' : 'FFF0FDF4'
+            row.eachCell(cell => {
+              cell.font = cellStyle.font
+              cell.alignment = cellStyle.alignment
+              cell.border = cellStyle.border
+              cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bgColor } }
             })
+            row.height = 22
+            obraIdx++
           })
         }
       })
 
-      if (datosObras.length > 0) {
-        const wsObras = XLSX.utils.json_to_sheet(datosObras)
-        wsObras['!cols'] = [
-          { wch: 14 }, { wch: 25 }, { wch: 25 }, { wch: 5 }, { wch: 30 },
-          { wch: 14 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 8 },
-          { wch: 18 }, { wch: 8 }, { wch: 30 }, { wch: 10 }, { wch: 8 }
-        ]
-        XLSX.utils.book_append_sheet(workbook, wsObras, 'Obras')
-      }
-
-      // ========== HOJA 3: RESUMEN DE PAQUETES ==========
-      const paquetesMap = {}
-      artistasCompletos.forEach(artista => {
-        if (artista.paquete?.nombre) {
-          const key = artista.paquete.nombre
-          if (!paquetesMap[key]) {
-            paquetesMap[key] = {
-              nombre: artista.paquete.nombre,
-              tipo: artista.paquete.tipo,
-              precio: artista.paquete.precio,
-              precio_fase1: artista.paquete.precio_fase1,
-              precio_fase2: artista.paquete.precio_fase2,
-              precio_fase3: artista.paquete.precio_fase3,
-              cantidad: 0
-            }
-          }
-          paquetesMap[key].cantidad++
-        }
+      // Anchos de columnas para obras
+      const obrasWidths = [14, 28, 28, 6, 35, 14, 10, 10, 10, 8, 20, 8, 35]
+      obrasWidths.forEach((width, idx) => {
+        wsObras.getColumn(idx + 1).width = width
       })
 
-      const datosPaquetes = Object.values(paquetesMap).map(p => ({
-        'Paquete': p.nombre,
-        'Tipo': p.tipo,
-        'Precio Base': p.precio ? `$${Number(p.precio).toLocaleString('es-MX')}` : '',
-        'Precio Fase I (-20%)': p.precio_fase1 ? `$${Number(p.precio_fase1).toLocaleString('es-MX')}` : '',
-        'Precio Fase II (-10%)': p.precio_fase2 ? `$${Number(p.precio_fase2).toLocaleString('es-MX')}` : '',
-        'Precio Fase III': p.precio_fase3 ? `$${Number(p.precio_fase3).toLocaleString('es-MX')}` : '',
-        'Artistas Inscritos': p.cantidad
-      }))
-
-      if (datosPaquetes.length > 0) {
-        const wsPaquetes = XLSX.utils.json_to_sheet(datosPaquetes)
-        wsPaquetes['!cols'] = [
-          { wch: 25 }, { wch: 8 }, { wch: 14 }, { wch: 18 }, { wch: 18 }, { wch: 14 }, { wch: 16 }
-        ]
-        XLSX.utils.book_append_sheet(workbook, wsPaquetes, 'Paquetes')
-      }
+      wsObras.views = [{ state: 'frozen', xSplit: 0, ySplit: 1 }]
 
       // Generar nombre de archivo con fecha
       const fecha = new Date().toISOString().split('T')[0]
       const faseNombre = exportFaseSeleccionada !== 'all'
         ? fases.find(f => f.id.toString() === exportFaseSeleccionada)?.nombre?.replace(/\s+/g, '-')
         : 'todas-fases'
-      const nombreArchivo = `ARTEFACT-Artistas-${faseNombre}-${fecha}.xlsx`
+      const nombreArchivo = `ARTEFACTO-Artistas-${faseNombre}-${fecha}.xlsx`
 
       // Descargar archivo
-      XLSX.writeFile(workbook, nombreArchivo)
+      const buffer = await workbook.xlsx.writeBuffer()
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = nombreArchivo
+      a.click()
+      window.URL.revokeObjectURL(url)
     } catch (error) {
       console.error('Error al exportar:', error)
       alert('Error al exportar datos. Por favor intenta de nuevo.')
@@ -2144,12 +2214,6 @@ export default function ArtistasTable() {
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                     Obras con precios y medidas
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    Paquetes con precios por fase
                   </li>
                 </ul>
               </div>
