@@ -440,7 +440,7 @@ export default function ArtistasTable() {
         params.append('fase_id', exportFaseSeleccionada)
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/artistas/export?${params.toString()}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/artistas/export?${params.toString()}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
