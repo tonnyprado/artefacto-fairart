@@ -1187,6 +1187,7 @@ export const getArtistasForExport = async (req, res) => {
       let query = `
         SELECT
           a.*,
+          af.fase_id,
           f.nombre as fase_nombre,
           f.numero_fase,
           p.nombre as paquete_nombre,
@@ -1203,7 +1204,8 @@ export const getArtistasForExport = async (req, res) => {
           COALESCE((SELECT COUNT(*) FROM votaciones v WHERE v.artista_id = a.id AND v.voto = true), 0) as votos_favor,
           COALESCE((SELECT COUNT(*) FROM votaciones v WHERE v.artista_id = a.id AND v.voto = false), 0) as votos_contra
         FROM artistas a
-        LEFT JOIN fases f ON f.id = a.fase_inscripcion_id
+        LEFT JOIN artistas_fases af ON af.artista_id = a.id
+        LEFT JOIN fases f ON f.id = af.fase_id
         LEFT JOIN paquetes p ON p.id = a.paquete_id
         WHERE 1=1
       `
@@ -1212,7 +1214,7 @@ export const getArtistasForExport = async (req, res) => {
 
       // Filtro opcional por fase
       if (fase_id && fase_id !== 'all') {
-        query += ` AND a.fase_inscripcion_id = $${paramCount}`
+        query += ` AND af.fase_id = $${paramCount}`
         params.push(parseInt(fase_id))
         paramCount++
       }
