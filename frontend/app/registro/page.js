@@ -328,9 +328,32 @@ export default function RegistroPage() {
         formDataToSend.append('layout_canvas_image', formData.layout_canvas_blob, 'lienzo.jpg')
       }
 
-      // Layout data (JSON)
+      // Layout data (JSON) - SIN data URLs para reducir tamaño
       if (formData.layout_canvas_data) {
-        formDataToSend.append('layout_canvas_data', JSON.stringify(formData.layout_canvas_data))
+        // Limpiar data URLs que pueden ser muy grandes (se envían como archivos separados)
+        const cleanLayoutData = {
+          ...formData.layout_canvas_data,
+          // Remover blobs y data URLs (se envían como archivos)
+          canvas_pdf_blob: undefined,
+          canvas_image_blob: undefined,
+          canvas_image_url: undefined,
+          canvas_preview_url: undefined,
+          // Limpiar previews de obras (ya se envían como archivos)
+          obras: formData.layout_canvas_data.obras?.map(obra => ({
+            ...obra,
+            preview: undefined // Remover data URL de preview
+          }))
+        }
+        const layoutJson = JSON.stringify(cleanLayoutData)
+        const layoutSizeKB = Math.round(layoutJson.length / 1024)
+        console.log('📊 Tamaño layout_canvas_data:', layoutSizeKB, 'KB')
+
+        // Warning si el JSON sigue siendo muy grande (más de 1MB)
+        if (layoutSizeKB > 1024) {
+          console.warn('⚠️ layout_canvas_data es muy grande:', layoutSizeKB, 'KB')
+        }
+
+        formDataToSend.append('layout_canvas_data', layoutJson)
       }
 
       // Obras del lienzo (las que participarán en el evento)

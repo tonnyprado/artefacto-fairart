@@ -41,7 +41,7 @@ const upload = multer({
   limits: {
     fileSize: 10 * 1024 * 1024, // 10MB máximo por archivo
     files: 20, // Máximo 20 archivos
-    fieldSize: 5 * 1024 * 1024 // 5MB para campos de texto
+    fieldSize: 50 * 1024 * 1024 // 50MB para campos de texto (layout_canvas_data puede ser grande)
   }
 })
 
@@ -105,18 +105,29 @@ export const handleMulterError = (err, req, res, next) => {
     if (err.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({
         success: false,
-        error: 'El archivo es demasiado grande. Máximo 10MB por archivo.'
+        error: 'El archivo es demasiado grande. Máximo 10MB por archivo.',
+        code: 'LIMIT_FILE_SIZE'
+      })
+    }
+    if (err.code === 'LIMIT_FIELD_VALUE') {
+      console.log('❌ Campo demasiado grande - probablemente layout_canvas_data')
+      return res.status(400).json({
+        success: false,
+        error: 'Los datos del lienzo son demasiado grandes. Intenta reducir el número de obras o la complejidad del diseño.',
+        code: 'LIMIT_FIELD_VALUE'
       })
     }
     if (err.code === 'LIMIT_UNEXPECTED_FILE') {
       return res.status(400).json({
         success: false,
-        error: 'Demasiados archivos o nombre de campo incorrecto.'
+        error: 'Demasiados archivos o nombre de campo incorrecto.',
+        code: 'LIMIT_UNEXPECTED_FILE'
       })
     }
     return res.status(400).json({
       success: false,
-      error: `Error al subir archivo: ${err.message}`
+      error: `Error al subir archivo: ${err.message}`,
+      code: err.code
     })
   }
 
