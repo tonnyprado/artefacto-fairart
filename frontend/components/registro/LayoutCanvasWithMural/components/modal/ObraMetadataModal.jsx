@@ -3,6 +3,7 @@
 import { useRef, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { gsap } from 'gsap'
+import { compressImage } from '@/lib/imageCompression'
 import styles from '../../styles/LayoutCanvas.module.css'
 
 // Configuración de precios (no hardcodeada)
@@ -43,10 +44,82 @@ function calcularPrecio(input, config = CONFIG_PRECIO) {
  * @param {Function} onUpdateMetadata - Callback para actualizar metadata
  * @param {Function} onClose - Callback al cerrar
  */
+// Configuración de compresión para fotos de detalles (muy ligeras)
+const DETALLE_COMPRESSION_OPTIONS = {
+  maxWidth: 800,
+  maxHeight: 800,
+  quality: 0.7,
+  maxSizeKB: 200 // Máximo 200KB por foto
+}
+
+const MAX_FOTOS_DETALLE = 5
+
 export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
   const modalContentRef = useRef(null)
+  const fotosDetalleInputRef = useRef(null)
   const [mounted, setMounted] = useState(false)
   const [showTooltip, setShowTooltip] = useState(false)
+  const [isCompressing, setIsCompressing] = useState(false)
+
+  // Manejar selección de fotos de detalle
+  const handleFotosDetalleChange = async (e) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
+
+    const currentFotos = obra.fotos_detalle || []
+    const espacioDisponible = MAX_FOTOS_DETALLE - currentFotos.length
+
+    if (espacioDisponible <= 0) {
+      alert(`Ya tienes ${MAX_FOTOS_DETALLE} fotos de detalle. Elimina alguna para agregar más.`)
+      return
+    }
+
+    const fotosAAgregar = files.slice(0, espacioDisponible)
+    setIsCompressing(true)
+
+    try {
+      const fotosComprimidas = await Promise.all(
+        fotosAAgregar.map(async (file) => {
+          const compressed = await compressImage(file, DETALLE_COMPRESSION_OPTIONS)
+          // Crear preview URL
+          const preview = URL.createObjectURL(compressed)
+          return {
+            id: `detalle_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            file: compressed,
+            preview,
+            name: compressed.name,
+            size: compressed.size
+          }
+        })
+      )
+
+      const nuevasFotos = [...currentFotos, ...fotosComprimidas]
+      onUpdateMetadata(obra.id, 'fotos_detalle', nuevasFotos)
+    } catch (error) {
+      console.error('Error comprimiendo fotos:', error)
+      alert('Error al procesar las imágenes. Intenta de nuevo.')
+    } finally {
+      setIsCompressing(false)
+      // Limpiar input
+      if (fotosDetalleInputRef.current) {
+        fotosDetalleInputRef.current.value = ''
+      }
+    }
+  }
+
+  // Eliminar una foto de detalle
+  const handleRemoveFotoDetalle = (fotoId) => {
+    const currentFotos = obra.fotos_detalle || []
+    const fotoToRemove = currentFotos.find(f => f.id === fotoId)
+
+    // Liberar URL del objeto
+    if (fotoToRemove?.preview) {
+      URL.revokeObjectURL(fotoToRemove.preview)
+    }
+
+    const nuevasFotos = currentFotos.filter(f => f.id !== fotoId)
+    onUpdateMetadata(obra.id, 'fotos_detalle', nuevasFotos)
+  }
 
   useEffect(() => {
     setMounted(true)
@@ -425,6 +498,89 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
                 </div>
               )
             })()}
+
+            {/* Fotos de detalle (opcional) */}
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>
+                Fotos de detalle (opcional)
+              </label>
+              <p style={{
+                fontSize: '12px',
+                color: '#6B6B6B',
+                margin: '0 0 12px 0',
+                lineHeight: '1.5'
+              }}>
+                Agrega hasta {MAX_FOTOS_DETALLE} fotos de detalles, texturas o acabados de tu obra.
+                Las imágenes se comprimen automáticamente.
+              </p>
+
+              {/* Input oculto para seleccionar archivos */}
+              <input
+                ref={fotosDetalleInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFotosDetalleChange}
+                style={{ display: 'none' }}
+              />
+
+              {/* Grid de fotos */}
+              <div className={styles.fotosDetalleGrid}>
+                {/* Fotos existentes */}
+                {(obra.fotos_detalle || []).map((foto) => (
+                  <div key={foto.id} className={styles.fotoDetalleItem}>
+                    <img
+                      src={foto.preview}
+                      alt="Detalle"
+                      className={styles.fotoDetalleImg}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveFotoDetalle(foto.id)}
+                      className={styles.fotoDetalleRemove}
+                      aria-label="Eliminar foto"
+                    >
+                      ×
+                    </button>
+                    <span className={styles.fotoDetalleSize}>
+                      {Math.round(foto.size / 1024)}KB
+                    </span>
+                  </div>
+                ))}
+
+                {/* Botón para agregar más fotos (si hay espacio) */}
+                {(obra.fotos_detalle || []).length < MAX_FOTOS_DETALLE && (
+                  <button
+                    type="button"
+                    onClick={() => fotosDetalleInputRef.current?.click()}
+                    className={styles.fotoDetalleAdd}
+                    disabled={isCompressing}
+                  >
+                    {isCompressing ? (
+                      <span className={styles.spinnerSmall}></span>
+                    ) : (
+                      <>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <line x1="12" y1="5" x2="12" y2="19"></line>
+                          <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span style={{ fontSize: '11px', marginTop: '4px' }}>Agregar</span>
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+
+              {/* Contador */}
+              <p style={{
+                fontSize: '11px',
+                color: '#6B6B6B',
+                margin: '8px 0 0 0',
+                textAlign: 'right'
+              }}>
+                {(obra.fotos_detalle || []).length} / {MAX_FOTOS_DETALLE} fotos
+              </p>
+            </div>
 
             {/* Notas de montaje */}
             <div className={styles.formGroup}>

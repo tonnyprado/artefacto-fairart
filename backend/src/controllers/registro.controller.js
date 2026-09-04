@@ -354,13 +354,30 @@ export const registrarArtista = async (req, res) => {
           // Aceptar ambos nombres: notas_montaje (frontend) o notas (legacy)
           const notas_montaje = req.body[`obra_lienzo_${i}_notas_montaje`] || req.body[`obra_lienzo_${i}_notas`] || null
 
-          console.log(`   📝 Obra ${i + 1}: ${titulo} (${ancho_cm}x${alto_cm}cm, $${precio_mxn || 'sin precio'})`)
+          // Procesar fotos de detalle de esta obra (hasta 5)
+          const fotosDetalleUrls = []
+          for (let j = 0; j < 5; j++) {
+            const detalleFieldName = `obra_lienzo_${i}_detalle_${j}`
+            if (req.files?.[detalleFieldName]?.[0]) {
+              console.log(`   📸 Subiendo foto de detalle ${j + 1} de obra ${i + 1}...`)
+              const detalleFile = req.files[detalleFieldName][0]
+              const detalleUrl = await uploadToS3(
+                detalleFile.buffer,
+                detalleFile.originalname,
+                detalleFile.mimetype,
+                'artistas/obras/detalles'
+              )
+              fotosDetalleUrls.push(detalleUrl)
+            }
+          }
+
+          console.log(`   📝 Obra ${i + 1}: ${titulo} (${ancho_cm}x${alto_cm}cm, $${precio_mxn || 'sin precio'}, ${fotosDetalleUrls.length} fotos detalle)`)
 
           const obraResult = await pool.query(
-            `INSERT INTO obras (artista_id, titulo, imagen_url, alto_cm, ancho_cm, tecnica, anio, precio_mxn, notas_montaje)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            `INSERT INTO obras (artista_id, titulo, imagen_url, alto_cm, ancho_cm, tecnica, anio, precio_mxn, notas_montaje, fotos_detalle_urls)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
              RETURNING *`,
-            [nuevoArtista.id, titulo, imagen_url, alto_cm, ancho_cm, tecnica, anio, precio_mxn, notas_montaje]
+            [nuevoArtista.id, titulo, imagen_url, alto_cm, ancho_cm, tecnica, anio, precio_mxn, notas_montaje, JSON.stringify(fotosDetalleUrls)]
           )
           obrasCreadas.push(obraResult.rows[0])
         }

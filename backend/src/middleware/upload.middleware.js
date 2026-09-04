@@ -40,7 +40,7 @@ const upload = multer({
   fileFilter: fileFilter,
   limits: {
     fileSize: 10 * 1024 * 1024, // 10MB máximo por archivo
-    files: 20, // Máximo 20 archivos
+    files: 70, // Máximo 70 archivos (10 obras + 50 fotos detalle + 6 docs + margen)
     fieldSize: 100 * 1024 * 1024 // 100MB para campos de texto (layout_canvas_data puede ser grande)
   }
 })
@@ -75,7 +75,23 @@ export const uploadArray = upload.array.bind(upload)
  * - layout_canvas_image: Preview del lienzo (JPG) - AUTO-GENERADO
  * - layout_canvas_pdf: PDF del lienzo (PDF) - AUTO-GENERADO
  * - obra_lienzo_0 a obra_lienzo_9: Imágenes de obras (JPG, PNG, WebP) - SEGÚN PAQUETE
+ * - obra_lienzo_X_detalle_Y: Fotos de detalle por obra (hasta 5 por obra)
  */
+
+// Generar campos dinámicamente para obras y sus detalles
+const generarCamposObras = () => {
+  const campos = []
+  for (let i = 0; i < 10; i++) {
+    // Imagen principal de la obra
+    campos.push({ name: `obra_lienzo_${i}`, maxCount: 1 })
+    // Fotos de detalle de cada obra (hasta 5)
+    for (let j = 0; j < 5; j++) {
+      campos.push({ name: `obra_lienzo_${i}_detalle_${j}`, maxCount: 1 })
+    }
+  }
+  return campos
+}
+
 export const uploadArtistaFiles = upload.fields([
   { name: 'foto', maxCount: 1 },                    // Foto de perfil (imagen)
   { name: 'cv', maxCount: 1 },                      // CV (PDF, DOC, DOCX)
@@ -83,17 +99,8 @@ export const uploadArtistaFiles = upload.fields([
   { name: 'identificacion', maxCount: 1 },          // Identificación (imagen o PDF)
   { name: 'layout_canvas_image', maxCount: 1 },     // Canvas preview (imagen)
   { name: 'layout_canvas_pdf', maxCount: 1 },       // Canvas completo (PDF)
-  // Obras del lienzo (hasta 10)
-  { name: 'obra_lienzo_0', maxCount: 1 },
-  { name: 'obra_lienzo_1', maxCount: 1 },
-  { name: 'obra_lienzo_2', maxCount: 1 },
-  { name: 'obra_lienzo_3', maxCount: 1 },
-  { name: 'obra_lienzo_4', maxCount: 1 },
-  { name: 'obra_lienzo_5', maxCount: 1 },
-  { name: 'obra_lienzo_6', maxCount: 1 },
-  { name: 'obra_lienzo_7', maxCount: 1 },
-  { name: 'obra_lienzo_8', maxCount: 1 },
-  { name: 'obra_lienzo_9', maxCount: 1 }
+  // Obras del lienzo (hasta 10) + fotos de detalle (hasta 5 por obra)
+  ...generarCamposObras()
 ])
 
 /**

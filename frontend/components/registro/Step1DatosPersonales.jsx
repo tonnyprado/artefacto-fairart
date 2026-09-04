@@ -2,7 +2,7 @@
 
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
-import { Info, Palette } from 'lucide-react'
+import { Info, Palette, Shield } from 'lucide-react'
 
 /**
  * Paso 1: Datos Personales del Artista
@@ -250,6 +250,39 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
             LLENA TUS DATOS PERSONALES PARA ARMAR TU MURAL
           </h3>
           <Palette size={32} color="#B83030" />
+        </div>
+      </div>
+
+      {/* Aviso de Privacidad destacado */}
+      <div style={{
+        background: 'linear-gradient(135deg, rgba(184, 48, 48, 0.12), rgba(184, 48, 48, 0.06))',
+        border: '2px solid rgba(184, 48, 48, 0.5)',
+        borderRadius: '16px',
+        padding: '16px 20px',
+        marginBottom: '16px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Shield size={24} color="#B83030" style={{ flexShrink: 0 }} />
+          <p style={{
+            color: '#F4EDE4',
+            fontSize: '14px',
+            lineHeight: '1.5',
+            margin: 0
+          }}>
+            Tus datos están protegidos. Consulta nuestro{' '}
+            <a
+              href="/privacy-policy"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: '#B83030',
+                fontWeight: '700',
+                textDecoration: 'underline'
+              }}
+            >
+              Aviso de Privacidad
+            </a>
+          </p>
         </div>
       </div>
 

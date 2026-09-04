@@ -371,6 +371,15 @@ export default function RegistroPage() {
           formDataToSend.append(`obra_lienzo_${index}_anio`, obra.anio)
           formDataToSend.append(`obra_lienzo_${index}_precio_mxn`, obra.precio_mxn)
           formDataToSend.append(`obra_lienzo_${index}_notas_montaje`, obra.notas_montaje || '')
+
+          // Fotos de detalle de la obra (hasta 5)
+          if (obra.fotos_detalle && obra.fotos_detalle.length > 0) {
+            obra.fotos_detalle.forEach((fotoDetalle, detalleIndex) => {
+              if (fotoDetalle.file) {
+                formDataToSend.append(`obra_lienzo_${index}_detalle_${detalleIndex}`, fotoDetalle.file)
+              }
+            })
+          }
         })
         formDataToSend.append('obras_lienzo_count', formData.obras_lienzo.length)
       }
@@ -409,6 +418,15 @@ export default function RegistroPage() {
             fileSizes[`obra_${i}`] = Math.round(obra.file.size / 1024)
             totalSize += obra.file.size
           }
+          // Fotos de detalle
+          if (obra.fotos_detalle) {
+            obra.fotos_detalle.forEach((detalle, j) => {
+              if (detalle.file) {
+                fileSizes[`obra_${i}_detalle_${j}`] = Math.round(detalle.file.size / 1024)
+                totalSize += detalle.file.size
+              }
+            })
+          }
         })
       }
 
@@ -419,9 +437,17 @@ export default function RegistroPage() {
       console.log('Identificación:', fileSizes.identificacion, 'KB')
       console.log('Canvas:', fileSizes.canvas, 'KB')
       console.log('Canvas PDF:', fileSizes.canvas_pdf, 'KB')
-      Object.keys(fileSizes).filter(k => k.startsWith('obra_')).forEach(k => {
+      Object.keys(fileSizes).filter(k => k.startsWith('obra_') && !k.includes('detalle')).forEach(k => {
         console.log(k + ':', fileSizes[k], 'KB')
       })
+      // Fotos de detalle
+      const detallesCount = Object.keys(fileSizes).filter(k => k.includes('detalle')).length
+      if (detallesCount > 0) {
+        console.log('Fotos de detalle:', detallesCount, 'archivos')
+        Object.keys(fileSizes).filter(k => k.includes('detalle')).forEach(k => {
+          console.log('  ' + k + ':', fileSizes[k], 'KB')
+        })
+      }
       const totalMB = (totalSize / (1024 * 1024)).toFixed(2)
       console.log('TOTAL:', Math.round(totalSize / 1024), 'KB (', totalMB, 'MB )')
 
