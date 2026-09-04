@@ -106,7 +106,7 @@ const getFormatoDisplay = (artista) => {
 }
 
 export default function ArtistasTable() {
-  const { artistas, fetchArtistas, deleteArtista, cambiarEstadoArtista } = useArtistasStore()
+  const { artistas, fetchArtistas, fetchArtistaById, deleteArtista, cambiarEstadoArtista } = useArtistasStore()
   const { fases, fetchFases, inscribirArtistas } = useFasesStore()
 
   // Estado para sub-tabs
@@ -179,9 +179,20 @@ export default function ArtistasTable() {
     return matchesSearch && matchesEstado && matchesCategoria && matchesFase
   })
 
-  const handleVerDetalles = (artista) => {
-    setSelectedArtista(artista)
+  const [loadingArtista, setLoadingArtista] = useState(false)
+
+  const handleVerDetalles = async (artista) => {
     setShowDetailModal(true)
+    setLoadingArtista(true)
+    // Cargar datos completos del artista (incluyendo obras con URLs de S3)
+    const result = await fetchArtistaById(artista.id)
+    if (result.success) {
+      setSelectedArtista(result.data)
+    } else {
+      // Fallback a los datos básicos si falla
+      setSelectedArtista(artista)
+    }
+    setLoadingArtista(false)
   }
 
   // Función para abrir el visor de documentos/imágenes
@@ -1026,10 +1037,15 @@ export default function ArtistasTable() {
       <Modal
         isOpen={showDetailModal}
         onClose={() => setShowDetailModal(false)}
-        title={selectedArtista ? `${selectedArtista.nombre} ${selectedArtista.apellido}` : ''}
+        title={selectedArtista ? `${selectedArtista.nombre} ${selectedArtista.apellido}` : 'Cargando...'}
         size="lg"
       >
-        {selectedArtista && (
+        {loadingArtista ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-3 text-gray-600">Cargando información...</span>
+          </div>
+        ) : selectedArtista && (
           <div className="space-y-6">
             {/* Foto, datos básicos, biografía y redes sociales */}
             <div className="flex items-start gap-6">

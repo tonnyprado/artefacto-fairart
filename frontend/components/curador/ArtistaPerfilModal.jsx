@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useVotacionesStore } from '@/stores/votacionesStore'
 import { useFavoritosStore } from '@/stores/favoritosStore'
+import { useArtistasStore } from '@/stores/artistasStore'
 import Modal from '@/components/ui/Modal'
 import Button from '@/components/ui/Button'
 import Badge from '@/components/ui/Badge'
@@ -42,10 +43,30 @@ const CATEGORIAS = {
   otro: 'Otro'
 }
 
-export default function ArtistaPerfilModal({ artista, faseActiva, onClose, modoLectura = false }) {
+export default function ArtistaPerfilModal({ artista: artistaProp, faseActiva, onClose, modoLectura = false }) {
   const { user } = useAuth()
   const { hasVotado, getVotacion, createVotacion, updateVotacion } = useVotacionesStore()
   const { isFavorito, toggleFavorito } = useFavoritosStore()
+  const { fetchArtistaById } = useArtistasStore()
+
+  // Estado para el artista con datos completos (incluyendo obras con URLs)
+  const [artista, setArtista] = useState(artistaProp)
+  const [loadingArtista, setLoadingArtista] = useState(false)
+
+  // Cargar datos completos del artista al montar
+  useEffect(() => {
+    const cargarDatosCompletos = async () => {
+      if (artistaProp?.id) {
+        setLoadingArtista(true)
+        const result = await fetchArtistaById(artistaProp.id)
+        if (result.success) {
+          setArtista(result.data)
+        }
+        setLoadingArtista(false)
+      }
+    }
+    cargarDatosCompletos()
+  }, [artistaProp?.id, fetchArtistaById])
 
   const [votoSeleccionado, setVotoSeleccionado] = useState(null) // true = favor, false = contra, null = no seleccionado
   const [comentario, setComentario] = useState('')
@@ -366,6 +387,19 @@ export default function ArtistaPerfilModal({ artista, faseActiva, onClose, modoL
 
         {/* Obras para Exhibición */}
         {(() => {
+          // Mostrar indicador de carga mientras se obtienen las obras
+          if (loadingArtista) {
+            return (
+              <div className="bg-green-50 p-4 rounded-lg">
+                <h3 className="text-sm font-semibold text-gray-900 mb-3">Obras para Exhibición</h3>
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
+                  <span className="ml-2 text-sm text-gray-500">Cargando obras...</span>
+                </div>
+              </div>
+            )
+          }
+
           // Combinar datos: metadata de layout_canvas_data + URLs de documentos.portfolio_images
           const obrasCanvas = artista.layout_canvas_data?.obras || []
           const obrasDB = artista.documentos?.portfolio_images || artista.obras || []
