@@ -365,44 +365,70 @@ export default function ArtistaPerfilModal({ artista, faseActiva, onClose, modoL
         )}
 
         {/* Obras para Exhibición */}
-        {artista.layout_canvas_data?.obras && artista.layout_canvas_data.obras.length > 0 && (
-          <div className="bg-green-50 p-4 rounded-lg">
-            <h3 className="text-sm font-semibold text-gray-900 mb-3">
-              Obras para Exhibición ({artista.layout_canvas_data.obras.length})
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-              {artista.layout_canvas_data.obras.map((obra, index) => (
-                <div
-                  key={index}
-                  onClick={() => setObraModal({ open: true, obra })}
-                  className="bg-white p-3 rounded-lg border border-gray-200 hover:border-green-400 hover:shadow-md transition-all cursor-pointer group"
-                >
-                  {obra.preview && (
-                    <div className="aspect-square rounded-lg overflow-hidden mb-2 bg-gray-100 relative">
-                      <img
-                        src={obra.preview}
-                        alt={obra.titulo}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                      />
-                      {obra.tipo_obra && (
-                        <span className={`absolute top-1 right-1 px-1.5 py-0.5 text-[10px] font-semibold rounded ${
-                          obra.tipo_obra === '3D' ? 'bg-purple-600 text-white' : 'bg-blue-600 text-white'
-                        }`}>
-                          {obra.tipo_obra}
-                        </span>
+        {(() => {
+          // Combinar datos: metadata de layout_canvas_data + URLs de documentos.portfolio_images
+          const obrasCanvas = artista.layout_canvas_data?.obras || []
+          const obrasDB = artista.documentos?.portfolio_images || artista.obras || []
+
+          // Enriquecer obras del canvas con URLs de la DB
+          const obrasEnriquecidas = obrasCanvas.map((obraCanvas, index) => {
+            // Buscar la obra correspondiente en la DB por título o por índice
+            const obraDB = obrasDB.find(o => o.titulo === obraCanvas.titulo) || obrasDB[index]
+            return {
+              ...obraCanvas,
+              preview: obraCanvas.preview || obraDB?.imagen_url || null,
+              imagen_url: obraDB?.imagen_url || null
+            }
+          })
+
+          if (obrasEnriquecidas.length === 0) return null
+
+          return (
+            <div className="bg-green-50 p-4 rounded-lg">
+              <h3 className="text-sm font-semibold text-gray-900 mb-3">
+                Obras para Exhibición ({obrasEnriquecidas.length})
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {obrasEnriquecidas.map((obra, index) => {
+                  const imagenUrl = obra.preview || obra.imagen_url
+                  return (
+                    <div
+                      key={index}
+                      onClick={() => setObraModal({ open: true, obra: { ...obra, preview: imagenUrl } })}
+                      className="bg-white p-3 rounded-lg border border-gray-200 hover:border-green-400 hover:shadow-md transition-all cursor-pointer group"
+                    >
+                      {imagenUrl ? (
+                        <div className="aspect-square rounded-lg overflow-hidden mb-2 bg-gray-100 relative">
+                          <img
+                            src={imagenUrl}
+                            alt={obra.titulo}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          />
+                          {obra.tipo_obra && (
+                            <span className={`absolute top-1 right-1 px-1.5 py-0.5 text-[10px] font-semibold rounded ${
+                              obra.tipo_obra === '3D' ? 'bg-purple-600 text-white' : 'bg-blue-600 text-white'
+                            }`}>
+                              {obra.tipo_obra}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="aspect-square rounded-lg overflow-hidden mb-2 bg-gray-200 flex items-center justify-center">
+                          <span className="text-gray-400 text-xs">Sin imagen</span>
+                        </div>
                       )}
+                      <p className="font-medium text-gray-900 text-sm truncate">{obra.titulo || `Obra ${index + 1}`}</p>
+                      <p className="text-xs text-gray-500">
+                        {obra.ancho_cm} × {obra.alto_cm}{obra.largo_cm ? ` × ${obra.largo_cm}` : ''} cm
+                      </p>
+                      <p className="text-xs text-green-600 font-medium mt-1">${obra.precio_mxn?.toLocaleString('es-MX')} MXN</p>
                     </div>
-                  )}
-                  <p className="font-medium text-gray-900 text-sm truncate">{obra.titulo || `Obra ${index + 1}`}</p>
-                  <p className="text-xs text-gray-500">
-                    {obra.ancho_cm} × {obra.alto_cm}{obra.largo_cm ? ` × ${obra.largo_cm}` : ''} cm
-                  </p>
-                  <p className="text-xs text-green-600 font-medium mt-1">${obra.precio_mxn?.toLocaleString('es-MX')} MXN</p>
-                </div>
-              ))}
+                  )
+                })}
+              </div>
             </div>
-          </div>
-        )}
+          )
+        })()}
 
         {/* Documentos */}
         {artista.documentos && Object.keys(artista.documentos).filter(k => k !== 'portfolio_images' && artista.documentos[k]).length > 0 && (
