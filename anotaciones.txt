@@ -1,0 +1,5 @@
+- Cambiar -%20 texto añadirle de que "aplicado" + otra casilla que diga "Todos los precios incluyen IVA"
+- Hypervinculo del cuadro en el svg
+- Corregir que no muestra detalle la obra cuando le damos click en la pagina de CONFIRMAR
+- CONFIRMAR section cambiar font a inter tight los que son titulos
+- Cambiar CONOCE MÁS

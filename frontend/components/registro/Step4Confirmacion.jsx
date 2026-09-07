@@ -23,6 +23,8 @@ const FONTS = {
   display: 'ivypresto-display, Georgia, serif',
   displayWeight: 600,
   displayStyle: 'italic',
+  heading: '"Inter Tight", Inter, sans-serif', // Para títulos en mayúsculas
+  headingWeight: 700,
   body: 'acumin-pro, sans-serif',
   bodyWeight: 400,
 }
@@ -132,9 +134,8 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
         style={{ textAlign: 'center', paddingTop: '20px' }}
       >
         <h2 style={{
-          fontFamily: FONTS.display,
-          fontWeight: FONTS.displayWeight,
-          fontStyle: FONTS.displayStyle,
+          fontFamily: FONTS.heading,
+          fontWeight: FONTS.headingWeight,
           fontSize: 'clamp(32px, 5vw, 52px)',
           letterSpacing: '0.04em',
           textTransform: 'uppercase',
@@ -165,9 +166,8 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
           marginBottom: '24px'
         }}>
           <h3 style={{
-            fontFamily: FONTS.display,
-            fontWeight: FONTS.displayWeight,
-            fontStyle: FONTS.displayStyle,
+            fontFamily: FONTS.heading,
+            fontWeight: FONTS.headingWeight,
             fontSize: 'clamp(24px, 3vw, 32px)',
             color: COLORS.cream,
             margin: 0,
@@ -232,9 +232,8 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
             gap: '16px'
           }}>
             <h3 style={{
-              fontFamily: FONTS.display,
-              fontWeight: FONTS.displayWeight,
-              fontStyle: FONTS.displayStyle,
+              fontFamily: FONTS.heading,
+              fontWeight: FONTS.headingWeight,
               fontSize: 'clamp(24px, 3vw, 32px)',
               color: COLORS.cream,
               margin: 0,
@@ -399,9 +398,8 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
           marginBottom: '24px'
         }}>
           <h3 style={{
-            fontFamily: FONTS.display,
-            fontWeight: FONTS.displayWeight,
-            fontStyle: FONTS.displayStyle,
+            fontFamily: FONTS.heading,
+            fontWeight: FONTS.headingWeight,
             fontSize: 'clamp(24px, 3vw, 32px)',
             color: COLORS.cream,
             margin: 0,
@@ -507,9 +505,8 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
           marginBottom: '24px'
         }}>
           <h3 style={{
-            fontFamily: FONTS.display,
-            fontWeight: FONTS.displayWeight,
-            fontStyle: FONTS.displayStyle,
+            fontFamily: FONTS.heading,
+            fontWeight: FONTS.headingWeight,
             fontSize: 'clamp(24px, 3vw, 32px)',
             color: COLORS.cream,
             margin: 0,
@@ -686,9 +683,8 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
         border: `1px solid rgba(244, 237, 228, 0.2)`
       }}>
         <h3 style={{
-          fontFamily: FONTS.display,
-          fontWeight: FONTS.displayWeight,
-          fontStyle: FONTS.displayStyle,
+          fontFamily: FONTS.heading,
+          fontWeight: FONTS.headingWeight,
           fontSize: 'clamp(20px, 3vw, 28px)',
           color: COLORS.cream,
           marginBottom: '24px',
