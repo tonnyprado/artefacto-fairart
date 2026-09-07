@@ -1204,10 +1204,14 @@ function CanvasPlaceholder() {
   )
 }
 
+const MAX_FOTOS_DETALLE = 5
+
 function ObraModal({ obra, es3D, onSave, onClose }) {
   const modalRef = useRef(null)
   const contentRef = useRef(null)
+  const fotosInputRef = useRef(null)
   const [mounted, setMounted] = useState(false)
+  const [isCompressing, setIsCompressing] = useState(false)
 
   const [form, setForm] = useState({
     titulo: obra.titulo || '',
@@ -1218,7 +1222,57 @@ function ObraModal({ obra, es3D, onSave, onClose }) {
     anio: obra.anio || new Date().getFullYear(),
     precio_mxn: obra.precio_mxn || '',
     notas_montaje: obra.notas_montaje || '',
+    fotos_detalle: obra.fotos_detalle || [],
   })
+
+  // Manejar selección de fotos de detalle
+  const handleFotosChange = async (e) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
+
+    const espacioDisponible = MAX_FOTOS_DETALLE - form.fotos_detalle.length
+    if (espacioDisponible <= 0) {
+      alert(`Ya tienes ${MAX_FOTOS_DETALLE} fotos. Elimina alguna para agregar más.`)
+      return
+    }
+
+    const fotosAAgregar = files.slice(0, espacioDisponible)
+    setIsCompressing(true)
+
+    try {
+      const { compressImage } = await import('@/lib/imageCompression')
+      const fotosComprimidas = await Promise.all(
+        fotosAAgregar.map(async (file) => {
+          const compressed = await compressImage(file, {
+            maxWidth: 800,
+            maxHeight: 800,
+            quality: 0.7,
+            maxSizeKB: 200
+          })
+          return {
+            id: `detalle_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            file: compressed,
+            preview: URL.createObjectURL(compressed),
+            name: compressed.name,
+            size: compressed.size
+          }
+        })
+      )
+      setForm(p => ({ ...p, fotos_detalle: [...p.fotos_detalle, ...fotosComprimidas] }))
+    } catch (error) {
+      console.error('Error comprimiendo fotos:', error)
+      alert('Error al procesar las imágenes.')
+    } finally {
+      setIsCompressing(false)
+      if (fotosInputRef.current) fotosInputRef.current.value = ''
+    }
+  }
+
+  const handleRemoveFoto = (fotoId) => {
+    const foto = form.fotos_detalle.find(f => f.id === fotoId)
+    if (foto?.preview) URL.revokeObjectURL(foto.preview)
+    setForm(p => ({ ...p, fotos_detalle: p.fotos_detalle.filter(f => f.id !== fotoId) }))
+  }
 
   useEffect(() => {
     setMounted(true)
@@ -1401,6 +1455,77 @@ function ObraModal({ obra, es3D, onSave, onClose }) {
               value={form.precio_mxn}
               onChange={(value) => setForm(p => ({ ...p, precio_mxn: value }))}
             />
+
+            {/* Fotos de detalle (opcional) */}
+            <div>
+              <label style={{ display: 'block', fontFamily: FONTS.body, fontSize: '13px', fontWeight: 600, color: COLORS.black, marginBottom: '6px' }}>
+                Fotos de detalle (opcional)
+              </label>
+              <p style={{ fontFamily: FONTS.body, fontSize: '11px', color: COLORS.gray, margin: '0 0 12px 0', lineHeight: '1.5' }}>
+                Agrega hasta {MAX_FOTOS_DETALLE} fotos de close-ups, texturas o acabados de tu obra.
+              </p>
+
+              <input
+                ref={fotosInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFotosChange}
+                style={{ display: 'none' }}
+              />
+
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {form.fotos_detalle.map((foto) => (
+                  <div key={foto.id} style={{ position: 'relative', width: '64px', height: '64px' }}>
+                    <img
+                      src={foto.preview}
+                      alt="Detalle"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px', border: `1px solid ${COLORS.creamDark}` }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveFoto(foto.id)}
+                      style={{
+                        position: 'absolute', top: '-6px', right: '-6px',
+                        width: '20px', height: '20px', borderRadius: '50%',
+                        background: COLORS.red, border: 'none', color: 'white',
+                        fontSize: '14px', cursor: 'pointer', display: 'flex',
+                        alignItems: 'center', justifyContent: 'center', lineHeight: 1
+                      }}
+                    >×</button>
+                  </div>
+                ))}
+
+                {form.fotos_detalle.length < MAX_FOTOS_DETALLE && (
+                  <button
+                    type="button"
+                    onClick={() => fotosInputRef.current?.click()}
+                    disabled={isCompressing}
+                    style={{
+                      width: '64px', height: '64px', borderRadius: '8px',
+                      border: `2px dashed ${COLORS.creamDark}`, background: 'transparent',
+                      cursor: isCompressing ? 'wait' : 'pointer', display: 'flex',
+                      flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                      color: COLORS.gray, fontSize: '11px', fontFamily: FONTS.body,
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    {isCompressing ? (
+                      <span style={{ fontSize: '10px' }}>...</span>
+                    ) : (
+                      <>
+                        <span style={{ fontSize: '20px', lineHeight: 1 }}>+</span>
+                        <span>Añadir</span>
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+
+              <p style={{ fontFamily: FONTS.body, fontSize: '10px', color: COLORS.gray, margin: '8px 0 0 0', textAlign: 'right' }}>
+                {form.fotos_detalle.length} / {MAX_FOTOS_DETALLE}
+              </p>
+            </div>
 
             {/* Notas complementarias */}
             <div>
