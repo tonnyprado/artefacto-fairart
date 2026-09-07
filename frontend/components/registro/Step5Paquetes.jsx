@@ -907,6 +907,12 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
                     REGISTRO GRATUITO. SE PAGA SOLO AL SER SELECCIONADO
                   </span>
                 </div>
+                <div style={{ padding: '6px 16px', background: 'rgba(107, 107, 107, 0.1)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Info size={12} color={COLORS.gray} />
+                  <span style={{ fontFamily: FONTS.body, fontSize: '10px', color: COLORS.gray, fontWeight: 500 }}>
+                    Todos los precios incluyen IVA
+                  </span>
+                </div>
 
                 <div style={{ maxHeight: '420px', overflow: 'auto', padding: '12px' }}>
                   {isLoading ? (
@@ -958,7 +964,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
                                   ${(paquete.precio_fase1 || paquete.precio).toLocaleString('es-MX')} MXN
                                 </span>
                                 <span style={{ background: 'rgba(34, 197, 94, 0.2)', padding: '4px 8px', borderRadius: '6px', fontFamily: FONTS.body, fontSize: '9px', color: 'rgba(34, 197, 94, 0.95)', fontWeight: 700, textTransform: 'uppercase' }}>
-                                  −20% Fase I
+                                  −20% ya aplicado
                                 </span>
                               </div>
                               {!isConfirmed ? (

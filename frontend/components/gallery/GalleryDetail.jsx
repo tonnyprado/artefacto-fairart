@@ -19,9 +19,8 @@ const GalleryDetail = forwardRef(function GalleryDetail({
   if (!obra) return null
 
   const imageSrc = obra.imagen_url || obra.preview
-  // Verificar que la URL no sea de blob (ya que expiran y causan errores)
-  const isValidUrl = imageSrc && !imageSrc.startsWith('blob:')
-  const hasImage = isValidUrl && !imageError
+  // Permitir blob URLs (son válidas mientras la sesión esté activa)
+  const hasImage = imageSrc && !imageError
 
   return (
     <div
