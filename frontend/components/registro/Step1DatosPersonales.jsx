@@ -255,17 +255,17 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
 
       {/* Aviso de Privacidad destacado */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(184, 48, 48, 0.12), rgba(184, 48, 48, 0.06))',
-        border: '2px solid rgba(184, 48, 48, 0.5)',
-        borderRadius: '16px',
-        padding: '16px 20px',
+        background: 'rgba(244, 237, 228, 0.1)',
+        border: '1px solid rgba(244, 237, 228, 0.3)',
+        borderRadius: '12px',
+        padding: '14px 18px',
         marginBottom: '16px'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <Shield size={24} color="#B83030" style={{ flexShrink: 0 }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Shield size={20} color="#F4EDE4" style={{ flexShrink: 0, opacity: 0.8 }} />
           <p style={{
-            color: '#F4EDE4',
-            fontSize: '14px',
+            color: 'rgba(244, 237, 228, 0.85)',
+            fontSize: '13px',
             lineHeight: '1.5',
             margin: 0
           }}>
@@ -275,8 +275,8 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
               target="_blank"
               rel="noopener noreferrer"
               style={{
-                color: '#B83030',
-                fontWeight: '700',
+                color: '#F4EDE4',
+                fontWeight: '600',
                 textDecoration: 'underline'
               }}
             >
