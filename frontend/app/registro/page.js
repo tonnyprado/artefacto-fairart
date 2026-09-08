@@ -188,6 +188,8 @@ export default function RegistroPage() {
           newErrors.fecha_nacimiento = 'Fecha de nacimiento es requerida'
         if (!formData.pais) newErrors.pais = 'País es requerido'
         if (!formData.ciudad) newErrors.ciudad = 'Ciudad es requerida'
+        if (!formData.aceptaPrivacidad)
+          newErrors.aceptaPrivacidad = 'Debes aceptar el Aviso de Privacidad para continuar'
         break
 
       case 2:

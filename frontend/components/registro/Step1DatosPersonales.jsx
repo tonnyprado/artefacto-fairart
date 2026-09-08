@@ -382,23 +382,39 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
         placeholder="Ciudad de México"
       />
 
-      {/* Aviso de Privacidad - al final del formulario */}
+      {/* Aviso de Privacidad con checkbox */}
       <div style={{
         background: 'rgba(244, 237, 228, 0.1)',
         border: '1px solid rgba(244, 237, 228, 0.3)',
         borderRadius: '12px',
-        padding: '14px 18px',
-        marginTop: '8px'
+        padding: '18px 20px',
+        marginTop: '16px'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Shield size={20} color="#F4EDE4" style={{ flexShrink: 0, opacity: 0.8 }} />
-          <p style={{
-            color: 'rgba(244, 237, 228, 0.85)',
-            fontSize: '13px',
-            lineHeight: '1.5',
-            margin: 0
+        <label style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '12px',
+          cursor: 'pointer'
+        }}>
+          <input
+            type="checkbox"
+            checked={formData.aceptaPrivacidad || false}
+            onChange={(e) => updateFormData({ aceptaPrivacidad: e.target.checked })}
+            style={{
+              width: '20px',
+              height: '20px',
+              marginTop: '2px',
+              cursor: 'pointer',
+              accentColor: '#B83030',
+              flexShrink: 0
+            }}
+          />
+          <span style={{
+            color: 'rgba(244, 237, 228, 0.9)',
+            fontSize: '14px',
+            lineHeight: '1.6'
           }}>
-            Tus datos están protegidos. Consulta nuestro{' '}
+            He leído y acepto el{' '}
             <a
               href="/privacy-policy"
               target="_blank"
@@ -408,11 +424,22 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
                 fontWeight: '600',
                 textDecoration: 'underline'
               }}
+              onClick={(e) => e.stopPropagation()}
             >
               Aviso de Privacidad
             </a>
+          </span>
+        </label>
+        {errors?.aceptaPrivacidad && (
+          <p style={{
+            color: '#FEE2E2',
+            fontSize: '13px',
+            marginTop: '8px',
+            marginLeft: '32px'
+          }}>
+            {errors.aceptaPrivacidad}
           </p>
-        </div>
+        )}
       </div>
     </div>
   )
