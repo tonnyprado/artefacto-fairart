@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Propuesta Módulo Estadísticas</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Propuesta Módulo Estadísticas</h1>
+</header>
+<h1
+id="propuesta-módulo-de-estadísticas-para-panel-de-administración">Propuesta:
+Módulo de Estadísticas para Panel de Administración</h1>
+<p><strong>Fecha:</strong> Septiembre 2026 <strong>Proyecto:</strong>
+ARTEFACTO - Plataforma de Feria de Arte <strong>Versión:</strong>
+1.0</p>
+<hr />
+<h2 id="resumen-ejecutivo">Resumen Ejecutivo</h2>
+<p>Se propone desarrollar un <strong>módulo de estadísticas y
+analytics</strong> integrado al panel de administración existente. Este
+módulo permitirá visualizar métricas clave sobre el comportamiento de
+los visitantes en la plataforma, específicamente enfocado en entender el
+proceso de registro de artistas y la efectividad de las acciones de
+marketing.</p>
+<hr />
+<h2 id="qué-problema-resuelve">¿Qué problema resuelve?</h2>
+<p>Actualmente no existe forma de saber:</p>
+<ul>
+<li>¿Cuántas personas visitan la página?</li>
+<li>¿Cuántas personas inician el proceso de registro pero no lo
+terminan?</li>
+<li>¿En qué paso del registro se “pierden” los artistas?</li>
+<li>¿Cuántas personas descargan la convocatoria?</li>
+<li>¿Qué tan efectivas son las campañas de marketing?</li>
+</ul>
+<p><strong>Sin datos, es imposible mejorar.</strong></p>
+<hr />
+<h2 id="qué-incluye-esta-solución">¿Qué incluye esta solución?</h2>
+<h3 id="panel-de-estadísticas-en-tiempo-real">1. Panel de Estadísticas
+en Tiempo Real</h3>
+<p>Una nueva sección en el panel de administración que muestra:</p>
+<table>
+<colgroup>
+<col style="width: 40%" />
+<col style="width: 59%" />
+</colgroup>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Visitantes Activos</strong></td>
+<td>Cuántas personas están en el sitio en este momento</td>
+</tr>
+<tr>
+<td><strong>Visitas del Día</strong></td>
+<td>Total de visitas hoy vs. ayer</td>
+</tr>
+<tr>
+<td><strong>Registros Completados</strong></td>
+<td>Artistas que terminaron su inscripción</td>
+</tr>
+<tr>
+<td><strong>Tasa de Conversión</strong></td>
+<td>% de visitantes que se convierten en registros</td>
+</tr>
+</tbody>
+</table>
+<h3 id="embudo-de-registro-visual">2. Embudo de Registro Visual</h3>
+<p>Visualización clara de cuántas personas llegan a cada paso:</p>
+<pre><code>Visitan la página        → 1,000 personas (100%)
+Hacen clic en Registro   →   450 personas (45%)
+Llenan datos personales  →   380 personas (38%)
+Seleccionan paquete      →   250 personas (25%)
+Suben documentos         →   180 personas (18%)
+Completan registro       →   140 personas (14%)</code></pre>
+<p>Esto permite identificar exactamente <strong>dónde se pierden los
+artistas potenciales</strong>.</p>
+<h3 id="seguimiento-de-acciones-clave">3. Seguimiento de Acciones
+Clave</h3>
+<p>Se registrará automáticamente cuando alguien:</p>
+<ul>
+<li>Visite cualquier página del sitio</li>
+<li>Haga clic en el botón de “Inscríbete”</li>
+<li>Descargue la convocatoria (PDF)</li>
+<li>Avance en cada paso del formulario de registro</li>
+<li>Complete su inscripción exitosamente</li>
+</ul>
+<h3 id="historial-y-tendencias">4. Historial y Tendencias</h3>
+<ul>
+<li>Gráfica de visitas de los últimos 30 días</li>
+<li>Comparativas: esta semana vs. semana anterior</li>
+<li>Identificación de días/horarios con más actividad</li>
+</ul>
+<hr />
+<h2 id="beneficios-para-el-negocio">Beneficios para el Negocio</h2>
+<table>
+<colgroup>
+<col style="width: 55%" />
+<col style="width: 45%" />
+</colgroup>
+<thead>
+<tr>
+<th>Beneficio</th>
+<th>Impacto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Medir efectividad de campañas</strong></td>
+<td>Saber si la publicidad está funcionando</td>
+</tr>
+<tr>
+<td><strong>Optimizar el registro</strong></td>
+<td>Identificar y arreglar los pasos donde se pierden artistas</td>
+</tr>
+<tr>
+<td><strong>Tomar decisiones informadas</strong></td>
+<td>Datos reales en lugar de suposiciones</td>
+</tr>
+<tr>
+<td><strong>Reportes para patrocinadores</strong></td>
+<td>Demostrar el alcance de la plataforma</td>
+</tr>
+<tr>
+<td><strong>Mejorar conversión</strong></td>
+<td>Más artistas inscritos con el mismo tráfico</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="entregables">Entregables</h2>
+<ol type="1">
+<li><strong>Base de datos</strong> configurada para almacenar
+eventos</li>
+<li><strong>Sistema de tracking</strong> invisible para los
+visitantes</li>
+<li><strong>Panel de estadísticas</strong> integrado al admin
+existente</li>
+<li><strong>4 visualizaciones principales:</strong>
+<ul>
+<li>Métricas en tiempo real</li>
+<li>Embudo de registro</li>
+<li>Gráfica de tendencias</li>
+<li>Lista de actividad reciente</li>
+</ul></li>
+</ol>
+<hr />
+<h2 id="inversión">Inversión</h2>
+<table>
+<thead>
+<tr>
+<th>Concepto</th>
+<th>Monto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Desarrollo del módulo de estadísticas</td>
+<td>$2,500.00 MXN</td>
+</tr>
+<tr>
+<td>IVA (16%)</td>
+<td>$400.00 MXN</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>$2,900.00 MXN</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="tiempo-de-entrega">Tiempo de Entrega</h2>
+<p>El módulo estará completamente funcional en aproximadamente <strong>1
+semana</strong> después de la aprobación.</p>
+<hr />
+<h2 id="notas-importantes">Notas Importantes</h2>
+<ul>
+<li>Los datos se almacenan en la misma base de datos del proyecto
+(PostgreSQL), no en servicios externos</li>
+<li>No se recopila información personal de los visitantes, solo
+estadísticas anónimas</li>
+<li>El sistema es ligero y no afecta el rendimiento del sitio</li>
+<li>Compatible con el diseño actual del panel de administración</li>
+</ul>
+<hr />
+<h2 id="siguiente-paso">Siguiente Paso</h2>
+<p>Para proceder con el desarrollo, se requiere:</p>
+<ol type="1">
+<li>Aprobación de esta propuesta</li>
+<li>Anticipo del 50% ($1,450 MXN)</li>
+<li>Liquidación del 50% restante al entregar</li>
+</ol>
+<hr />
+<p><strong>¿Preguntas?</strong> Estoy disponible para aclarar cualquier
+duda sobre esta propuesta.</p>
+</body>
+</html>

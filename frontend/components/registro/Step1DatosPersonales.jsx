@@ -253,39 +253,6 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
         </div>
       </div>
 
-      {/* Aviso de Privacidad destacado */}
-      <div style={{
-        background: 'rgba(244, 237, 228, 0.1)',
-        border: '1px solid rgba(244, 237, 228, 0.3)',
-        borderRadius: '12px',
-        padding: '14px 18px',
-        marginBottom: '16px'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Shield size={20} color="#F4EDE4" style={{ flexShrink: 0, opacity: 0.8 }} />
-          <p style={{
-            color: 'rgba(244, 237, 228, 0.85)',
-            fontSize: '13px',
-            lineHeight: '1.5',
-            margin: 0
-          }}>
-            Tus datos están protegidos. Consulta nuestro{' '}
-            <a
-              href="/privacy-policy"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                color: '#F4EDE4',
-                fontWeight: '600',
-                textDecoration: 'underline'
-              }}
-            >
-              Aviso de Privacidad
-            </a>
-          </p>
-        </div>
-      </div>
-
       {/* Disclaimer inicial */}
       <div style={{
         background: 'rgba(244, 237, 228, 0.15)',
@@ -316,6 +283,38 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
               <strong>No se te cobrará nada en este momento.</strong> Este es un proceso de selección para participar en ARTEFACTO 2027. Una vez que seas seleccionado, recibirás un correo electrónico con los detalles del paquete y las instrucciones de pago.
             </p>
           </div>
+        </div>
+      </div>
+
+      {/* Aviso de Privacidad */}
+      <div style={{
+        background: 'rgba(244, 237, 228, 0.1)',
+        border: '1px solid rgba(244, 237, 228, 0.3)',
+        borderRadius: '12px',
+        padding: '14px 18px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Shield size={20} color="#F4EDE4" style={{ flexShrink: 0, opacity: 0.8 }} />
+          <p style={{
+            color: 'rgba(244, 237, 228, 0.85)',
+            fontSize: '13px',
+            lineHeight: '1.5',
+            margin: 0
+          }}>
+            Tus datos están protegidos. Consulta nuestro{' '}
+            <a
+              href="/privacy-policy"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: '#F4EDE4',
+                fontWeight: '600',
+                textDecoration: 'underline'
+              }}
+            >
+              Aviso de Privacidad
+            </a>
+          </p>
         </div>
       </div>
 
@@ -414,35 +413,6 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
         required
         placeholder="Ciudad de México"
       />
-
-      <div style={{
-        background: 'rgba(244, 237, 228, 0.12)',
-        borderRadius: '16px',
-        padding: '16px 20px',
-        marginTop: '8px',
-        display: 'flex',
-        gap: '16px',
-        alignItems: 'flex-start'
-      }}>
-        <svg
-          style={{ width: '24px', height: '24px', flexShrink: 0, marginTop: '2px' }}
-          fill="none"
-          stroke="rgba(244, 237, 228, 0.85)"
-          viewBox="0 0 24 24"
-        >
-          <circle cx="12" cy="12" r="10" strokeWidth="2" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 16v-4M12 8h.01" />
-        </svg>
-        <p style={{
-          fontSize: '13px',
-          color: 'rgba(244, 237, 228, 0.85)',
-          lineHeight: '1.6',
-          margin: 0,
-          flex: 1
-        }}>
-          Toda tu información personal será tratada de forma confidencial y únicamente será utilizada para el proceso de selección.
-        </p>
-      </div>
     </div>
   )
 }
