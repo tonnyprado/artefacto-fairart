@@ -286,38 +286,6 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
         </div>
       </div>
 
-      {/* Aviso de Privacidad */}
-      <div style={{
-        background: 'rgba(244, 237, 228, 0.1)',
-        border: '1px solid rgba(244, 237, 228, 0.3)',
-        borderRadius: '12px',
-        padding: '14px 18px'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Shield size={20} color="#F4EDE4" style={{ flexShrink: 0, opacity: 0.8 }} />
-          <p style={{
-            color: 'rgba(244, 237, 228, 0.85)',
-            fontSize: '13px',
-            lineHeight: '1.5',
-            margin: 0
-          }}>
-            Tus datos están protegidos. Consulta nuestro{' '}
-            <a
-              href="/privacy-policy"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                color: '#F4EDE4',
-                fontWeight: '600',
-                textDecoration: 'underline'
-              }}
-            >
-              Aviso de Privacidad
-            </a>
-          </p>
-        </div>
-      </div>
-
       <div>
         <h2 className="text-2xl font-bold mb-2" style={{ color: '#141210' }}>Datos Personales</h2>
         <p style={{ color: '#F4EDE4', fontSize: '15px' }}>
@@ -413,6 +381,39 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
         required
         placeholder="Ciudad de México"
       />
+
+      {/* Aviso de Privacidad - al final del formulario */}
+      <div style={{
+        background: 'rgba(244, 237, 228, 0.1)',
+        border: '1px solid rgba(244, 237, 228, 0.3)',
+        borderRadius: '12px',
+        padding: '14px 18px',
+        marginTop: '8px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Shield size={20} color="#F4EDE4" style={{ flexShrink: 0, opacity: 0.8 }} />
+          <p style={{
+            color: 'rgba(244, 237, 228, 0.85)',
+            fontSize: '13px',
+            lineHeight: '1.5',
+            margin: 0
+          }}>
+            Tus datos están protegidos. Consulta nuestro{' '}
+            <a
+              href="/privacy-policy"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: '#F4EDE4',
+                fontWeight: '600',
+                textDecoration: 'underline'
+              }}
+            >
+              Aviso de Privacidad
+            </a>
+          </p>
+        </div>
+      </div>
     </div>
   )
 }
