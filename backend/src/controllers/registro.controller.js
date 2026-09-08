@@ -133,14 +133,32 @@ export const registrarArtista = async (req, res) => {
     }
 
     // Verificar si el email ya existe
+    let existingArtista = null
+    let isPreRegistrado = false
+
     if (pool) {
-      const emailCheck = await pool.query('SELECT id FROM artistas WHERE email = $1', [email])
+      const emailCheck = await pool.query(
+        'SELECT id, estado_registro FROM artistas WHERE email = $1',
+        [email.toLowerCase().trim()]
+      )
+
       if (emailCheck.rows.length > 0) {
-        console.log('❌ ERROR 400: Email duplicado -', email)
-        return res.status(400).json({
-          success: false,
-          error: 'El email ya está registrado'
-        })
+        const existing = emailCheck.rows[0]
+
+        // Si es pre_registrado, permitir completar el registro
+        if (existing.estado_registro === 'pre_registrado') {
+          console.log('📝 Pre-registro encontrado para:', email)
+          console.log('   Continuando con registro completo (UPDATE)...')
+          existingArtista = existing
+          isPreRegistrado = true
+        } else {
+          // Ya tiene un registro completo
+          console.log('❌ ERROR 400: Email ya registrado con estado:', existing.estado_registro)
+          return res.status(400).json({
+            success: false,
+            error: 'El email ya está registrado'
+          })
+        }
       }
     }
 
@@ -240,41 +258,102 @@ export const registrarArtista = async (req, res) => {
     parsedLayoutData.formatos = formatosArray
     parsedLayoutData.formato_otro_texto = formato_otro_texto || null
 
-    const artistaResult = await pool.query(
-      `INSERT INTO artistas (
-        nombre, apellido, nombre_artistico, email, telefono, fecha_nacimiento,
-        ciudad, pais, categoria, bio, foto,
-        instagram, facebook, website,
-        cv_url, portfolio_url, identificacion_url,
-        paquete_id, layout_canvas_url, layout_canvas_data,
-        aprobado, estado_registro
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
-      RETURNING *`,
-      [
-        nombre,
-        apellido,
-        nombre_artistico || null,
-        email,
-        telefono || null,
-        fecha_nacimiento,
-        ciudad,
-        pais,
-        categoriaFinal, // Usar categoría final calculada
-        bio || null,
-        foto_url,
-        instagram || null,
-        facebook || null,
-        website || null,
-        cv_url,
-        portfolio_url,
-        identificacion_url,
-        paquete_id ? parseInt(paquete_id) : null,
-        layout_canvas_url,
-        parsedLayoutData, // Ahora incluye datos de formato
-        false, // aprobado
-        'pendiente' // estado_registro
-      ]
-    )
+    let artistaResult
+
+    if (isPreRegistrado && existingArtista) {
+      // UPDATE: Completar registro de pre-registrado existente
+      console.log('📝 Actualizando pre-registro existente (ID:', existingArtista.id, ')...')
+
+      artistaResult = await pool.query(
+        `UPDATE artistas SET
+          nombre = $1,
+          apellido = $2,
+          nombre_artistico = $3,
+          telefono = $4,
+          fecha_nacimiento = $5,
+          ciudad = $6,
+          pais = $7,
+          categoria = $8,
+          bio = $9,
+          foto = $10,
+          instagram = $11,
+          facebook = $12,
+          website = $13,
+          cv_url = $14,
+          portfolio_url = $15,
+          identificacion_url = $16,
+          paquete_id = $17,
+          layout_canvas_url = $18,
+          layout_canvas_data = $19,
+          aprobado = false,
+          estado_registro = 'pendiente',
+          fecha_registro_completo = NOW(),
+          updated_at = NOW()
+        WHERE id = $20
+        RETURNING *`,
+        [
+          nombre,
+          apellido,
+          nombre_artistico || null,
+          telefono || null,
+          fecha_nacimiento,
+          ciudad,
+          pais,
+          categoriaFinal,
+          bio || null,
+          foto_url,
+          instagram || null,
+          facebook || null,
+          website || null,
+          cv_url,
+          portfolio_url,
+          identificacion_url,
+          paquete_id ? parseInt(paquete_id) : null,
+          layout_canvas_url,
+          parsedLayoutData,
+          existingArtista.id
+        ]
+      )
+
+      console.log('✅ Pre-registro convertido a registro completo')
+    } else {
+      // INSERT: Nuevo registro desde cero
+      artistaResult = await pool.query(
+        `INSERT INTO artistas (
+          nombre, apellido, nombre_artistico, email, telefono, fecha_nacimiento,
+          ciudad, pais, categoria, bio, foto,
+          instagram, facebook, website,
+          cv_url, portfolio_url, identificacion_url,
+          paquete_id, layout_canvas_url, layout_canvas_data,
+          aprobado, estado_registro
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
+        RETURNING *`,
+        [
+          nombre,
+          apellido,
+          nombre_artistico || null,
+          email,
+          telefono || null,
+          fecha_nacimiento,
+          ciudad,
+          pais,
+          categoriaFinal,
+          bio || null,
+          foto_url,
+          instagram || null,
+          facebook || null,
+          website || null,
+          cv_url,
+          portfolio_url,
+          identificacion_url,
+          paquete_id ? parseInt(paquete_id) : null,
+          layout_canvas_url,
+          parsedLayoutData,
+          false, // aprobado
+          'pendiente' // estado_registro
+        ]
+      )
+    }
 
     const nuevoArtista = artistaResult.rows[0]
 

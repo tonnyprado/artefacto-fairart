@@ -70,6 +70,10 @@ import uploadRoutes from './routes/upload.routes.js'
 import registroRoutes from './routes/registro.routes.js'
 import opinionesRoutes from './routes/opiniones.routes.js'
 import favoritosRoutes from './routes/favoritos.routes.js'
+import preregistroRoutes from './routes/preregistro.routes.js'
+
+// Importar cron job de recordatorios
+import { iniciarCronRecordatorios } from './jobs/recordatorios.job.js'
 
 // Configuración de __dirname para ES modules
 const __filename = fileURLToPath(import.meta.url)
@@ -184,6 +188,7 @@ app.use('/api/upload', uploadRoutes)
 app.use('/api/registro', createLimiter, registroRoutes) // Rate limit para registro
 app.use('/api/opiniones', createLimiter, opinionesRoutes) // Rate limit para opiniones
 app.use('/api/favoritos', favoritosRoutes)
+app.use('/api/preregistro', createLimiter, preregistroRoutes) // Rate limit para pre-registro
 
 // Ruta 404
 app.use('*', (req, res) => {
@@ -207,6 +212,9 @@ if (process.env.VERCEL !== '1') {
   const server = app.listen(PORT, () => {
     console.log(`🚀 Servidor corriendo en puerto ${PORT}`)
     console.log(`📍 Entorno: ${process.env.NODE_ENV}`)
+
+    // Iniciar cron job de recordatorios
+    iniciarCronRecordatorios()
   })
 
   // Configurar timeouts más largos para uploads de archivos grandes

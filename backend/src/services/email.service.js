@@ -18,6 +18,9 @@ const TEMPLATES = {
   NUEVO_ARTISTA_ADMIN: process.env.BREVO_TEMPLATE_NUEVO_ARTISTA_ADMIN,
   NUEVO_MENSAJE_ADMIN: process.env.BREVO_TEMPLATE_NUEVO_MENSAJE_ADMIN,
   RESPUESTA_MENSAJE: process.env.BREVO_TEMPLATE_RESPUESTA_MENSAJE,
+  // Pre-registro
+  PRE_REGISTRO_BIENVENIDA: process.env.BREVO_TEMPLATE_PRE_REGISTRO_BIENVENIDA,
+  PRE_REGISTRO_RECORDATORIO: process.env.BREVO_TEMPLATE_PRE_REGISTRO_RECORDATORIO,
 }
 
 /**
@@ -531,6 +534,149 @@ export const notificarNuevoArtista = async (artista) => {
   })
 }
 
+/**
+ * Enviar email de confirmación de pre-registro
+ * Se envía cuando un usuario completa Step1 pero no el registro completo
+ */
+export const enviarConfirmacionPreRegistro = async (artista) => {
+  const { nombre, apellido, email } = artista
+
+  console.log(`📧 Enviando confirmación de pre-registro a ${email}...`)
+
+  // Si hay plantilla de Brevo configurada, usarla
+  if (TEMPLATES.PRE_REGISTRO_BIENVENIDA) {
+    return sendEmailWithTemplate({
+      to: email,
+      toName: `${nombre} ${apellido}`,
+      templateId: TEMPLATES.PRE_REGISTRO_BIENVENIDA,
+      params: {
+        nombre,
+        apellido,
+        nombreCompleto: `${nombre} ${apellido}`,
+        linkCompletar: `${process.env.FRONTEND_URL || 'https://arte-facto.mx'}/registro?email=${encodeURIComponent(email)}`,
+        fecha: new Date().toLocaleDateString('es-MX'),
+        anio: '2027'
+      }
+    })
+  }
+
+  // HTML fallback si no hay plantilla
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+    <body style="margin:0;padding:0;background-color:#141210;font-family:Arial,sans-serif;">
+      <div style="max-width:600px;margin:0 auto;background-color:#1a1816;border-radius:12px;overflow:hidden;margin-top:20px;margin-bottom:20px;">
+        <div style="background-color:#B83030;padding:30px;text-align:center;">
+          <h1 style="color:#F4EDE4;margin:0;font-size:28px;">ARTE FACTO</h1>
+          <p style="color:#F4EDE4;margin:10px 0 0;opacity:0.9;">Feria de Arte Contemporáneo</p>
+        </div>
+        <div style="padding:40px 30px;color:#F4EDE4;">
+          <h2 style="margin:0 0 20px;font-size:24px;">¡Hola ${nombre}!</h2>
+          <p style="margin:0 0 20px;line-height:1.6;">Hemos guardado tus datos personales. Para completar tu registro como artista en ARTE FACTO 2027, solo falta que termines de llenar el formulario.</p>
+          <p style="margin:0 0 30px;line-height:1.6;">Tu registro incluirá: selección de paquete, información artística y documentos.</p>
+          <center>
+            <a href="${process.env.FRONTEND_URL || 'https://arte-facto.mx'}/registro?email=${encodeURIComponent(email)}"
+               style="display:inline-block;background-color:#B83030;color:#F4EDE4;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:bold;font-size:16px;">
+              COMPLETAR MI REGISTRO
+            </a>
+          </center>
+          <p style="margin:30px 0 0;font-size:14px;opacity:0.7;text-align:center;">
+            Si tienes dudas, escríbenos a curatorial@arte-facto.mx
+          </p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+
+  return sendEmail({
+    to: email,
+    toName: `${nombre} ${apellido}`,
+    subject: '¡Completa tu registro en ARTE FACTO!',
+    htmlContent
+  })
+}
+
+/**
+ * Enviar recordatorio de completar registro
+ * Se envía automáticamente o manualmente a pre-registros pendientes
+ */
+export const enviarRecordatorioPreRegistro = async (artista, numeroRecordatorio = 1) => {
+  const { nombre, apellido, email, fecha_pre_registro } = artista
+
+  console.log(`📧 Enviando recordatorio #${numeroRecordatorio} a ${email}...`)
+
+  // Calcular días desde pre-registro
+  const diasDesdeRegistro = fecha_pre_registro
+    ? Math.floor((Date.now() - new Date(fecha_pre_registro)) / (1000 * 60 * 60 * 24))
+    : 0
+
+  // Si hay plantilla de Brevo configurada, usarla
+  if (TEMPLATES.PRE_REGISTRO_RECORDATORIO) {
+    return sendEmailWithTemplate({
+      to: email,
+      toName: `${nombre} ${apellido}`,
+      templateId: TEMPLATES.PRE_REGISTRO_RECORDATORIO,
+      params: {
+        nombre,
+        apellido,
+        nombreCompleto: `${nombre} ${apellido}`,
+        diasDesdeRegistro,
+        numeroRecordatorio,
+        linkCompletar: `${process.env.FRONTEND_URL || 'https://arte-facto.mx'}/registro?email=${encodeURIComponent(email)}`,
+        fecha: new Date().toLocaleDateString('es-MX'),
+        esUltimo: numeroRecordatorio >= 5
+      }
+    })
+  }
+
+  // HTML fallback si no hay plantilla
+  const esUltimo = numeroRecordatorio >= 5
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+    <body style="margin:0;padding:0;background-color:#141210;font-family:Arial,sans-serif;">
+      <div style="max-width:600px;margin:0 auto;background-color:#1a1816;border-radius:12px;overflow:hidden;margin-top:20px;margin-bottom:20px;">
+        <div style="background-color:#B83030;padding:30px;text-align:center;">
+          <h1 style="color:#F4EDE4;margin:0;font-size:28px;">ARTE FACTO</h1>
+          <p style="color:#F4EDE4;margin:10px 0 0;opacity:0.9;">Feria de Arte Contemporáneo</p>
+        </div>
+        <div style="padding:40px 30px;color:#F4EDE4;">
+          <h2 style="margin:0 0 20px;font-size:24px;">¡${nombre}, te estamos esperando!</h2>
+          <p style="margin:0 0 20px;line-height:1.6;">
+            ${esUltimo
+              ? 'Este es nuestro último recordatorio. No pierdas la oportunidad de ser parte de ARTE FACTO 2027.'
+              : `Hace ${diasDesdeRegistro} días iniciaste tu registro pero aún no lo has completado. ¡No te quedes fuera!`
+            }
+          </p>
+          <p style="margin:0 0 30px;line-height:1.6;">Completa tu registro en menos de 5 minutos y asegura tu lugar.</p>
+          <center>
+            <a href="${process.env.FRONTEND_URL || 'https://arte-facto.mx'}/registro?email=${encodeURIComponent(email)}"
+               style="display:inline-block;background-color:#B83030;color:#F4EDE4;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:bold;font-size:16px;">
+              COMPLETAR MI REGISTRO
+            </a>
+          </center>
+          <p style="margin:30px 0 0;font-size:14px;opacity:0.7;text-align:center;">
+            ¿Tienes dudas? Escríbenos a curatorial@arte-facto.mx
+          </p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+
+  return sendEmail({
+    to: email,
+    toName: `${nombre} ${apellido}`,
+    subject: esUltimo
+      ? '⏰ Último recordatorio: Completa tu registro en ARTE FACTO'
+      : `📌 Recordatorio: Tu registro en ARTE FACTO está incompleto`,
+    htmlContent
+  })
+}
+
 export default {
   isBrevoConfigured,
   sendEmail,
@@ -538,5 +684,7 @@ export default {
   notificarNuevoMensaje,
   enviarRespuestaMensaje,
   enviarConfirmacionRegistro,
-  notificarNuevoArtista
+  notificarNuevoArtista,
+  enviarConfirmacionPreRegistro,
+  enviarRecordatorioPreRegistro
 }

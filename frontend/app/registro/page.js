@@ -239,9 +239,51 @@ export default function RegistroPage() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleNext = (skipValidation = false) => {
+  // Función para guardar pre-registro (silenciosa, no bloquea)
+  const guardarPreRegistro = async () => {
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
+
+      const response = await fetch(`${backendUrl}/preregistro`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          nombre: formData.nombre,
+          apellido: formData.apellido,
+          email: formData.email,
+          telefono: formData.telefono,
+          fecha_nacimiento: formData.fecha_nacimiento,
+          ciudad: formData.ciudad,
+          pais: formData.pais
+        })
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        console.log('✅ Pre-registro guardado:', result.isNew ? 'nuevo' : 'actualizado')
+      } else if (result.code === 'EMAIL_ALREADY_REGISTERED') {
+        console.log('📝 Email ya tiene registro completo')
+      } else {
+        console.warn('⚠️ Error en pre-registro:', result.error)
+      }
+    } catch (error) {
+      // Silenciar errores de pre-registro - no bloquear el flujo
+      console.warn('⚠️ Error guardando pre-registro (silenciado):', error.message)
+    }
+  }
+
+  const handleNext = async (skipValidation = false) => {
     console.log('handleNext llamado con skipValidation:', skipValidation)
     if (skipValidation || validateStep(currentStep)) {
+      // Si completó Step 1 (Datos Personales), guardar pre-registro
+      if (currentStep === 1) {
+        // Guardar pre-registro en background (no bloquea navegación)
+        guardarPreRegistro()
+      }
+
       console.log('Avanzando al siguiente paso...')
       const nextStep = Math.min(currentStep + 1, steps.length)
       setCurrentStep(nextStep)
@@ -609,6 +651,48 @@ export default function RegistroPage() {
     } catch (error) {
       console.warn('Error cargando desde localStorage:', error)
     }
+  }, [])
+
+  // Auto-llenar datos desde pre-registro si viene con email en URL
+  useEffect(() => {
+    const cargarPreRegistro = async () => {
+      try {
+        // Obtener email de la URL
+        const urlParams = new URLSearchParams(window.location.search)
+        const emailParam = urlParams.get('email')
+
+        if (!emailParam) return
+
+        console.log('📧 Email desde URL:', emailParam)
+
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
+        const response = await fetch(`${backendUrl}/preregistro/datos?email=${encodeURIComponent(emailParam)}`)
+        const result = await response.json()
+
+        if (result.success && result.artista) {
+          console.log('✅ Datos de pre-registro cargados:', result.artista)
+
+          // Auto-llenar datos personales
+          setFormData(prev => ({
+            ...prev,
+            nombre: result.artista.nombre || prev.nombre,
+            apellido: result.artista.apellido || prev.apellido,
+            email: result.artista.email || prev.email,
+            telefono: result.artista.telefono || prev.telefono,
+            fecha_nacimiento: result.artista.fecha_nacimiento?.split('T')[0] || prev.fecha_nacimiento,
+            ciudad: result.artista.ciudad || prev.ciudad,
+            pais: result.artista.pais || prev.pais
+          }))
+
+          // Limpiar URL sin recargar
+          window.history.replaceState({}, '', '/registro')
+        }
+      } catch (error) {
+        console.warn('⚠️ Error cargando pre-registro:', error.message)
+      }
+    }
+
+    cargarPreRegistro()
   }, [])
 
   // Guardar highestStepReached en localStorage cuando cambie
