@@ -23,22 +23,48 @@ const s3Client = new S3Client({
 const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME
 
 // Tipos de archivos soportados
-const IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+const IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/heif']
 const PDF_TYPES = ['application/pdf']
+
+/**
+ * Detectar si un buffer es un archivo HEIC/HEIF por magic bytes
+ * HEIC files start with: 00 00 00 XX 66 74 79 70 68 65 69 63 (ftyp heic)
+ * @param {Buffer} buffer - Buffer del archivo
+ * @returns {boolean}
+ */
+const isHeicBuffer = (buffer) => {
+  if (buffer.length < 12) return false
+
+  // Check for 'ftyp' at position 4
+  const ftyp = buffer.slice(4, 8).toString('ascii')
+  if (ftyp !== 'ftyp') return false
+
+  // Check for heic/heif/mif1/msf1 variants
+  const brand = buffer.slice(8, 12).toString('ascii')
+  return ['heic', 'heif', 'mif1', 'msf1', 'heix', 'avif'].includes(brand)
+}
 
 /**
  * Comprimir imagen con Sharp
  * Reduce el tamaño de la imagen manteniendo buena calidad
+ * Detecta y convierte automáticamente archivos HEIC a JPEG
  * @param {Buffer} buffer - Buffer de la imagen original
  * @param {string} mimetype - Tipo MIME del archivo
  * @returns {Promise<{buffer: Buffer, mimetype: string}>}
  */
 const compressImage = async (buffer, mimetype) => {
   try {
+    // Detectar HEIC por magic bytes (iPhone a veces envía HEIC con mimetype image/jpeg)
+    const isHeic = isHeicBuffer(buffer)
+    if (isHeic) {
+      console.log('📱 Detectado archivo HEIC/HEIF - convirtiendo a JPEG...')
+      mimetype = 'image/heic' // Forzar mimetype correcto para el switch
+    }
+
     const image = sharp(buffer)
     const metadata = await image.metadata()
 
-    console.log(`📸 Imagen original: ${(buffer.length / 1024 / 1024).toFixed(2)}MB, ${metadata.width}x${metadata.height}`)
+    console.log(`📸 Imagen original: ${(buffer.length / 1024 / 1024).toFixed(2)}MB, ${metadata.width}x${metadata.height}${isHeic ? ' (HEIC)' : ''}`)
 
     // Redimensionar si es muy grande (máx 2000px en el lado más largo)
     const maxDimension = 2000
@@ -70,8 +96,16 @@ const compressImage = async (buffer, mimetype) => {
         .resize(resizeOptions)
         .webp({ quality: 85 })
         .toBuffer()
+    } else if (mimetype === 'image/heic' || mimetype === 'image/heif') {
+      // HEIC/HEIF (iPhone): convertir a JPEG
+      console.log('🔄 Convirtiendo HEIC/HEIF a JPEG...')
+      compressedBuffer = await image
+        .resize(resizeOptions)
+        .jpeg({ quality: 85, progressive: true })
+        .toBuffer()
+      outputMimetype = 'image/jpeg'
     } else {
-      // JPEG: comprimir con calidad 85%
+      // JPEG y otros: comprimir con calidad 85%
       compressedBuffer = await image
         .resize(resizeOptions)
         .jpeg({ quality: 85, progressive: true })
@@ -107,8 +141,15 @@ export const uploadToS3 = async (fileBuffer, originalname, mimetype, folder = 'u
     let bufferToUpload = fileBuffer
     let finalMimetype = mimetype
 
-    // Comprimir si es imagen
-    if (IMAGE_TYPES.includes(mimetype)) {
+    // Detectar HEIC incluso si el mimetype reportado es incorrecto
+    const isHiddenHeic = isHeicBuffer(fileBuffer)
+    if (isHiddenHeic && !['image/heic', 'image/heif'].includes(mimetype)) {
+      console.log(`⚠️ Archivo reportado como ${mimetype} pero detectado como HEIC - corrigiendo...`)
+      mimetype = 'image/heic'
+    }
+
+    // Comprimir si es imagen (incluyendo HEIC detectado)
+    if (IMAGE_TYPES.includes(mimetype) || isHiddenHeic) {
       const compressed = await compressImage(fileBuffer, mimetype)
       bufferToUpload = compressed.buffer
       finalMimetype = compressed.mimetype
@@ -119,7 +160,13 @@ export const uploadToS3 = async (fileBuffer, originalname, mimetype, folder = 'u
     // Generar nombre único
     const timestamp = Date.now()
     const randomString = Math.random().toString(36).substring(2, 8)
-    const ext = path.extname(originalname) || (finalMimetype === 'image/jpeg' ? '.jpg' : '.pdf')
+    // Si convertimos a JPEG (incluyendo desde HEIC), usar extensión .jpg
+    let ext = path.extname(originalname)
+    if (finalMimetype === 'image/jpeg' || isHiddenHeic) {
+      ext = '.jpg'
+    } else if (!ext) {
+      ext = finalMimetype === 'application/pdf' ? '.pdf' : ''
+    }
     const fileName = `${folder}/${timestamp}-${randomString}${ext}`
 
     // Subir a S3

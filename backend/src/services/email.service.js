@@ -537,11 +537,18 @@ export const notificarNuevoArtista = async (artista) => {
 /**
  * Enviar email de confirmación de pre-registro
  * Se envía cuando un usuario completa Step1 pero no el registro completo
+ * Incluye Magic Link con token para continuar registro de forma segura
  */
 export const enviarConfirmacionPreRegistro = async (artista) => {
-  const { nombre, apellido, email } = artista
+  const { nombre, apellido, email, token } = artista
 
   console.log(`📧 Enviando confirmación de pre-registro a ${email}...`)
+
+  // Construir Magic Link con token
+  const baseUrl = process.env.FRONTEND_URL || 'https://arte-facto.mx'
+  const magicLink = token
+    ? `${baseUrl}/registro?token=${token}`
+    : `${baseUrl}/registro?email=${encodeURIComponent(email)}`
 
   // Si hay plantilla de Brevo configurada, usarla
   if (TEMPLATES.PRE_REGISTRO_BIENVENIDA) {
@@ -553,7 +560,7 @@ export const enviarConfirmacionPreRegistro = async (artista) => {
         nombre,
         apellido,
         nombreCompleto: `${nombre} ${apellido}`,
-        linkCompletar: `${process.env.FRONTEND_URL || 'https://arte-facto.mx'}/registro?email=${encodeURIComponent(email)}`,
+        linkCompletar: magicLink,
         fecha: new Date().toLocaleDateString('es-MX'),
         anio: '2027'
       }
@@ -576,7 +583,7 @@ export const enviarConfirmacionPreRegistro = async (artista) => {
           <p style="margin:0 0 20px;line-height:1.6;">Hemos guardado tus datos personales. Para completar tu registro como artista en ARTE FACTO 2027, solo falta que termines de llenar el formulario.</p>
           <p style="margin:0 0 30px;line-height:1.6;">Tu registro incluirá: selección de paquete, información artística y documentos.</p>
           <center>
-            <a href="${process.env.FRONTEND_URL || 'https://arte-facto.mx'}/registro?email=${encodeURIComponent(email)}"
+            <a href="${magicLink}"
                style="display:inline-block;background-color:#B83030;color:#F4EDE4;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:bold;font-size:16px;">
               COMPLETAR MI REGISTRO
             </a>
@@ -601,9 +608,10 @@ export const enviarConfirmacionPreRegistro = async (artista) => {
 /**
  * Enviar recordatorio de completar registro
  * Se envía automáticamente o manualmente a pre-registros pendientes
+ * Incluye Magic Link con token para continuar registro de forma segura
  */
 export const enviarRecordatorioPreRegistro = async (artista, numeroRecordatorio = 1) => {
-  const { nombre, apellido, email, fecha_pre_registro } = artista
+  const { nombre, apellido, email, fecha_pre_registro, token_acceso } = artista
 
   console.log(`📧 Enviando recordatorio #${numeroRecordatorio} a ${email}...`)
 
@@ -611,6 +619,12 @@ export const enviarRecordatorioPreRegistro = async (artista, numeroRecordatorio 
   const diasDesdeRegistro = fecha_pre_registro
     ? Math.floor((Date.now() - new Date(fecha_pre_registro)) / (1000 * 60 * 60 * 24))
     : 0
+
+  // Construir Magic Link con token
+  const baseUrl = process.env.FRONTEND_URL || 'https://arte-facto.mx'
+  const magicLink = token_acceso
+    ? `${baseUrl}/registro?token=${token_acceso}`
+    : `${baseUrl}/registro?email=${encodeURIComponent(email)}`
 
   // Si hay plantilla de Brevo configurada, usarla
   if (TEMPLATES.PRE_REGISTRO_RECORDATORIO) {
@@ -624,7 +638,7 @@ export const enviarRecordatorioPreRegistro = async (artista, numeroRecordatorio 
         nombreCompleto: `${nombre} ${apellido}`,
         diasDesdeRegistro,
         numeroRecordatorio,
-        linkCompletar: `${process.env.FRONTEND_URL || 'https://arte-facto.mx'}/registro?email=${encodeURIComponent(email)}`,
+        linkCompletar: magicLink,
         fecha: new Date().toLocaleDateString('es-MX'),
         esUltimo: numeroRecordatorio >= 5
       }
@@ -653,7 +667,7 @@ export const enviarRecordatorioPreRegistro = async (artista, numeroRecordatorio 
           </p>
           <p style="margin:0 0 30px;line-height:1.6;">Completa tu registro en menos de 5 minutos y asegura tu lugar.</p>
           <center>
-            <a href="${process.env.FRONTEND_URL || 'https://arte-facto.mx'}/registro?email=${encodeURIComponent(email)}"
+            <a href="${magicLink}"
                style="display:inline-block;background-color:#B83030;color:#F4EDE4;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:bold;font-size:16px;">
               COMPLETAR MI REGISTRO
             </a>

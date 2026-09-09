@@ -73,10 +73,14 @@ export const getAllArtistas = async (req, res) => {
         paramCount++
       }
 
+      // Por defecto, excluir pre_registrado a menos que se solicite específicamente
       if (estado_registro) {
         query += ` AND a.estado_registro = $${paramCount}`
         params.push(estado_registro)
         paramCount++
+      } else {
+        // Excluir pre_registrado por defecto (estos van en su propia tabla)
+        query += ` AND a.estado_registro != 'pre_registrado'`
       }
 
       if (search) {
@@ -100,10 +104,14 @@ export const getAllArtistas = async (req, res) => {
         countParams.push(aprobado === 'true')
         countParamCount++
       }
+      // Por defecto, excluir pre_registrado a menos que se solicite específicamente
       if (estado_registro) {
         countQuery += ` AND a.estado_registro = $${countParamCount}`
         countParams.push(estado_registro)
         countParamCount++
+      } else {
+        // Excluir pre_registrado por defecto (estos van en su propia tabla)
+        countQuery += ` AND a.estado_registro != 'pre_registrado'`
       }
       if (search) {
         countQuery += ` AND (a.nombre ILIKE $${countParamCount} OR a.apellido ILIKE $${countParamCount} OR a.email ILIKE $${countParamCount} OR a.bio ILIKE $${countParamCount})`
@@ -185,8 +193,12 @@ export const getAllArtistas = async (req, res) => {
       filteredArtistas = filteredArtistas.filter(a => a.aprobado === isAprobado)
     }
 
+    // Por defecto, excluir pre_registrado a menos que se solicite específicamente
     if (estado_registro) {
       filteredArtistas = filteredArtistas.filter(a => a.estado_registro === estado_registro)
+    } else {
+      // Excluir pre_registrado por defecto (estos van en su propia tabla)
+      filteredArtistas = filteredArtistas.filter(a => a.estado_registro !== 'pre_registrado')
     }
 
     if (search) {
@@ -1207,7 +1219,7 @@ export const getArtistasForExport = async (req, res) => {
         LEFT JOIN artistas_fases af ON af.artista_id = a.id
         LEFT JOIN fases f ON f.id = af.fase_id
         LEFT JOIN paquetes p ON p.id = a.paquete_id
-        WHERE 1=1
+        WHERE a.estado_registro != 'pre_registrado'
       `
       const params = []
       let paramCount = 1

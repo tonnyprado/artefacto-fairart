@@ -6,6 +6,7 @@ import express from 'express'
 import {
   crearPreRegistro,
   obtenerDatosPreRegistro,
+  obtenerDatosPorToken,
   getPreRegistros,
   getPreRegistroStats,
   enviarRecordatorioManual,
@@ -22,8 +23,11 @@ const router = express.Router()
 // POST /api/preregistro - Crear o actualizar pre-registro
 router.post('/', crearPreRegistro)
 
-// GET /api/preregistro/datos?email=xxx - Obtener datos para auto-llenar
+// GET /api/preregistro/datos?email=xxx - Obtener datos para auto-llenar (deprecado)
 router.get('/datos', obtenerDatosPreRegistro)
+
+// GET /api/preregistro/token/:token - Magic Link para continuar registro
+router.get('/token/:token', obtenerDatosPorToken)
 
 // ============================================
 // RUTAS ADMIN (requieren autenticación)

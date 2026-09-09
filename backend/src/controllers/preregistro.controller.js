@@ -4,8 +4,14 @@
  * para capturar leads y enviar recordatorios
  */
 
+import crypto from 'crypto'
 import pool from '../config/database.js'
 import { enviarConfirmacionPreRegistro, enviarRecordatorioPreRegistro, isBrevoConfigured } from '../services/email.service.js'
+
+// Generar token único para magic link
+const generarTokenAcceso = () => {
+  return crypto.randomBytes(32).toString('hex') // 64 caracteres hex
+}
 
 // Funciones de validación
 const isValidEmail = (email) => {
@@ -83,9 +89,11 @@ export const crearPreRegistro = async (req, res) => {
         })
       }
 
-      // Si es pre_registrado, actualizar datos
+      // Si es pre_registrado, actualizar datos y regenerar token
       if (existing.estado_registro === 'pre_registrado') {
         console.log('📝 Actualizando pre-registro existente...')
+
+        const nuevoToken = generarTokenAcceso()
 
         await pool.query(`
           UPDATE artistas SET
@@ -95,34 +103,39 @@ export const crearPreRegistro = async (req, res) => {
             fecha_nacimiento = $4,
             ciudad = $5,
             pais = $6,
+            token_acceso = $7,
             updated_at = NOW()
-          WHERE id = $7
-        `, [nombre, apellido, telefono, fecha_nacimiento, ciudad, pais, existing.id])
+          WHERE id = $8
+        `, [nombre, apellido, telefono, fecha_nacimiento, ciudad, pais, nuevoToken, existing.id])
 
-        console.log('✅ Pre-registro actualizado')
+        console.log('✅ Pre-registro actualizado con nuevo token')
 
         return res.status(200).json({
           success: true,
           message: 'Pre-registro actualizado',
           artista_id: existing.id,
+          token: nuevoToken,
           isUpdate: true
         })
       }
     }
 
-    // Crear nuevo pre-registro
+    // Crear nuevo pre-registro con token
     console.log('📝 Creando nuevo pre-registro...')
+
+    const tokenAcceso = generarTokenAcceso()
 
     const insertResult = await pool.query(`
       INSERT INTO artistas (
         nombre, apellido, email, telefono,
         fecha_nacimiento, ciudad, pais,
         estado_registro, fecha_pre_registro,
-        recordatorios_enviados, created_at, updated_at
+        recordatorios_enviados, token_acceso,
+        created_at, updated_at
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7,
         'pre_registrado', NOW(),
-        0, NOW(), NOW()
+        0, $8, NOW(), NOW()
       )
       RETURNING id
     `, [
@@ -132,18 +145,20 @@ export const crearPreRegistro = async (req, res) => {
       telefono,
       fecha_nacimiento,
       ciudad,
-      pais
+      pais,
+      tokenAcceso
     ])
 
     const artistaId = insertResult.rows[0].id
-    console.log('✅ Pre-registro creado con ID:', artistaId)
+    console.log('✅ Pre-registro creado con ID:', artistaId, 'Token generado')
 
-    // Enviar email de bienvenida (async, no bloquea)
+    // Enviar email de bienvenida con token (async, no bloquea)
     if (isBrevoConfigured()) {
       enviarConfirmacionPreRegistro({
         nombre,
         apellido,
-        email: email.toLowerCase().trim()
+        email: email.toLowerCase().trim(),
+        token: tokenAcceso
       }).catch(err => {
         console.error('❌ Error enviando email de pre-registro:', err.message)
       })
@@ -153,6 +168,7 @@ export const crearPreRegistro = async (req, res) => {
       success: true,
       message: 'Pre-registro creado exitosamente',
       artista_id: artistaId,
+      token: tokenAcceso,
       isNew: true
     })
 
@@ -169,6 +185,7 @@ export const crearPreRegistro = async (req, res) => {
 /**
  * GET /api/preregistro/datos
  * Obtener datos de pre-registro por email (para auto-llenar formulario)
+ * DEPRECADO: Usar /api/preregistro/token/:token en su lugar
  */
 export const obtenerDatosPreRegistro = async (req, res) => {
   try {
@@ -203,6 +220,53 @@ export const obtenerDatosPreRegistro = async (req, res) => {
 
   } catch (error) {
     console.error('❌ Error obteniendo datos pre-registro:', error)
+    return res.status(500).json({
+      success: false,
+      error: 'Error interno del servidor'
+    })
+  }
+}
+
+/**
+ * GET /api/preregistro/token/:token
+ * Obtener datos de pre-registro por Magic Link token
+ * Este es el método seguro para que usuarios regresen a completar registro
+ */
+export const obtenerDatosPorToken = async (req, res) => {
+  try {
+    const { token } = req.params
+
+    if (!token || token.length !== 64) {
+      return res.status(400).json({
+        success: false,
+        error: 'Token inválido'
+      })
+    }
+
+    const result = await pool.query(`
+      SELECT
+        id, nombre, apellido, email, telefono,
+        fecha_nacimiento, ciudad, pais
+      FROM artistas
+      WHERE token_acceso = $1 AND estado_registro = 'pre_registrado'
+    `, [token])
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Enlace inválido o expirado. Es posible que ya hayas completado tu registro.'
+      })
+    }
+
+    console.log('✅ Token válido para:', result.rows[0].email)
+
+    return res.json({
+      success: true,
+      artista: result.rows[0]
+    })
+
+  } catch (error) {
+    console.error('❌ Error validando token:', error)
     return res.status(500).json({
       success: false,
       error: 'Error interno del servidor'
@@ -321,9 +385,9 @@ export const enviarRecordatorioManual = async (req, res) => {
   try {
     const { id } = req.params
 
-    // Obtener datos del artista
+    // Obtener datos del artista incluyendo token
     const artistaResult = await pool.query(`
-      SELECT id, nombre, apellido, email, fecha_pre_registro, recordatorios_enviados
+      SELECT id, nombre, apellido, email, fecha_pre_registro, recordatorios_enviados, token_acceso
       FROM artistas
       WHERE id = $1 AND estado_registro = 'pre_registrado'
     `, [id])
@@ -399,9 +463,9 @@ export const enviarRecordatorioMasivo = async (req, res) => {
 
     const maxRecordatorios = parseInt(process.env.MAX_RECORDATORIOS_PREREGISTRO) || 5
 
-    // Obtener pre-registros elegibles
+    // Obtener pre-registros elegibles incluyendo token
     const result = await pool.query(`
-      SELECT id, nombre, apellido, email, fecha_pre_registro, recordatorios_enviados
+      SELECT id, nombre, apellido, email, fecha_pre_registro, recordatorios_enviados, token_acceso
       FROM artistas
       WHERE estado_registro = 'pre_registrado'
         AND recordatorios_enviados < $1

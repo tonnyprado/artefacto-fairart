@@ -38,7 +38,7 @@ async function procesarRecordatorios() {
       SELECT
         id, nombre, apellido, email,
         fecha_pre_registro, recordatorios_enviados,
-        ultimo_recordatorio_enviado
+        ultimo_recordatorio_enviado, token_acceso
       FROM artistas
       WHERE estado_registro = 'pre_registrado'
         AND recordatorios_enviados < $1
