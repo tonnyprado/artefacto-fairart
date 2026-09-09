@@ -37,7 +37,7 @@ export default function PreRegistrosTable() {
 
   // Obtener token de autenticación
   const getAuthHeaders = () => {
-    const token = localStorage.getItem('artefacto_token')
+    const token = localStorage.getItem('token')
     return {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
