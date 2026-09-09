@@ -238,45 +238,6 @@ export default function PreRegistrosTable() {
             </p>
           </div>
 
-          <div style={{
-            backgroundColor: 'white',
-            padding: '1.25rem',
-            borderRadius: '16px',
-            border: `2px solid ${COLORS.creamDark}`
-          }}>
-            <p style={{ fontSize: '0.75rem', color: COLORS.gray, fontFamily: FONTS.body, marginBottom: '0.25rem' }}>
-              Convertidos
-            </p>
-            <p style={{
-              fontSize: '2rem',
-              fontFamily: FONTS.display,
-              fontWeight: FONTS.displayWeight,
-              fontStyle: FONTS.displayStyle,
-              color: '#10b981'
-            }}>
-              {stats.convertidos}
-            </p>
-          </div>
-
-          <div style={{
-            backgroundColor: 'white',
-            padding: '1.25rem',
-            borderRadius: '16px',
-            border: `2px solid ${COLORS.creamDark}`
-          }}>
-            <p style={{ fontSize: '0.75rem', color: COLORS.gray, fontFamily: FONTS.body, marginBottom: '0.25rem' }}>
-              Tasa Conversión
-            </p>
-            <p style={{
-              fontSize: '2rem',
-              fontFamily: FONTS.display,
-              fontWeight: FONTS.displayWeight,
-              fontStyle: FONTS.displayStyle,
-              color: COLORS.black
-            }}>
-              {stats.tasaConversion}%
-            </p>
-          </div>
         </div>
       )}
 
