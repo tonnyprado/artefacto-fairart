@@ -71,6 +71,7 @@ export default function RegistroPage() {
   }
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
+  const [savingPreRegistro, setSavingPreRegistro] = useState(false)
   const [errors, setErrors] = useState({})
 
   const [formData, setFormData] = useState({
@@ -241,8 +242,9 @@ export default function RegistroPage() {
     return Object.keys(newErrors).length === 0
   }
 
-  // Función para guardar pre-registro (silenciosa, no bloquea)
+  // Función para guardar pre-registro (con animación de carga)
   const guardarPreRegistro = async () => {
+    setSavingPreRegistro(true)
     try {
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
 
@@ -274,16 +276,17 @@ export default function RegistroPage() {
     } catch (error) {
       // Silenciar errores de pre-registro - no bloquear el flujo
       console.warn('⚠️ Error guardando pre-registro (silenciado):', error.message)
+    } finally {
+      setSavingPreRegistro(false)
     }
   }
 
   const handleNext = async (skipValidation = false) => {
     console.log('handleNext llamado con skipValidation:', skipValidation)
     if (skipValidation || validateStep(currentStep)) {
-      // Si completó Step 1 (Datos Personales), guardar pre-registro
+      // Si completó Step 1 (Datos Personales), guardar pre-registro con loading
       if (currentStep === 1) {
-        // Guardar pre-registro en background (no bloquea navegación)
-        guardarPreRegistro()
+        await guardarPreRegistro()
       }
 
       console.log('Avanzando al siguiente paso...')
@@ -1224,50 +1227,80 @@ export default function RegistroPage() {
               </button>
             )}
             {/* Botón Siguiente - visible en pasos 1, 3, 4 (paso 2 y 5 tienen su propia navegación) */}
-            <button
-              onClick={handleNext}
-              style={{
-                marginLeft: 'auto',
-                background: COLORS.black,
-                color: COLORS.cream,
-                border: 'none',
-                padding: '16px 32px',
-                fontFamily: FONTS.body,
-                fontWeight: 700,
-                fontSize: 14,
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                transition: 'all 0.2s ease',
-                borderRadius: '16px',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.background = COLORS.cream
-                e.target.style.color = COLORS.black
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = COLORS.black
-                e.target.style.color = COLORS.cream
-              }}
-            >
-              Siguiente
-              <svg
-                style={{ width: 20, height: 20 }}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
+            {(() => {
+              const isStep1Disabled = currentStep === 1 && !formData.aceptaPrivacidad
+              const isDisabled = isStep1Disabled || savingPreRegistro
+
+              return (
+                <button
+                  onClick={handleNext}
+                  disabled={isDisabled}
+                  style={{
+                    marginLeft: 'auto',
+                    background: isDisabled ? '#6B6B6B' : COLORS.black,
+                    color: COLORS.cream,
+                    border: 'none',
+                    padding: '16px 32px',
+                    fontFamily: FONTS.body,
+                    fontWeight: 700,
+                    fontSize: 14,
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                    cursor: isDisabled ? 'not-allowed' : 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    transition: 'all 0.2s ease',
+                    borderRadius: '16px',
+                    opacity: isDisabled ? 0.6 : 1,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isDisabled) {
+                      e.target.style.background = COLORS.cream
+                      e.target.style.color = COLORS.black
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isDisabled) {
+                      e.target.style.background = COLORS.black
+                      e.target.style.color = COLORS.cream
+                    }
+                  }}
+                >
+                  {savingPreRegistro ? (
+                    <>
+                      <span style={{
+                        display: 'inline-block',
+                        width: 16,
+                        height: 16,
+                        border: '2px solid rgba(244, 237, 228, 0.3)',
+                        borderTopColor: COLORS.cream,
+                        borderRadius: '50%',
+                        animation: 'spin 0.8s linear infinite'
+                      }} />
+                      Guardando...
+                    </>
+                  ) : (
+                    <>
+                      Siguiente
+                      <svg
+                        style={{ width: 20, height: 20 }}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
+                    </>
+                  )}
+                </button>
+              )
+            })()}
           </div>
           )}
 
