@@ -1,6 +1,8 @@
 import './globals.css'
 import '@/components/artefacto/artefacto.css'
 import FloatingRegistrationButton from '@/components/shared/FloatingRegistrationButton'
+import I18nProvider from '@/components/shared/I18nProvider'
+import DynamicLang from '@/components/shared/DynamicLang'
 import { Inter_Tight, EB_Garamond } from 'next/font/google'
 
 const interTight = Inter_Tight({
@@ -213,8 +215,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es" className={`${interTight.variable} ${ebGaramond.variable}`}>
       <body className="antialiased">
-        {children}
-        <FloatingRegistrationButton />
+        <I18nProvider>
+          <DynamicLang />
+          {children}
+          <FloatingRegistrationButton />
+        </I18nProvider>
       </body>
     </html>
   )

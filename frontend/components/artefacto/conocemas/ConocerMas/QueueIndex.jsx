@@ -1,6 +1,5 @@
 'use client';
 
-import { SUBTEMAS } from './content';
 import { cls, NAVBAR_HEIGHT } from './classes';
 
 /**
@@ -13,8 +12,8 @@ import { cls, NAVBAR_HEIGHT } from './classes';
  * IMPORTANTE: El JS en index.jsx controla opacity y visibility de estos elementos
  * para coordinar con los sticky labels de SubtemaSection
  */
-export default function QueueIndex({ labelsRef, navbarHeight = NAVBAR_HEIGHT }) {
-  const totalLabels = SUBTEMAS.length;
+export default function QueueIndex({ labelsRef, navbarHeight = NAVBAR_HEIGHT, subtemas }) {
+  const totalLabels = subtemas.length;
 
   const handleLabelClick = (sectionId) => {
     const section = document.getElementById(sectionId);
@@ -31,7 +30,7 @@ export default function QueueIndex({ labelsRef, navbarHeight = NAVBAR_HEIGHT }) 
 
   return (
     <>
-      {SUBTEMAS.map((s, i) => {
+      {subtemas.map((s, i) => {
         // Invertir el orden visual: el primero (ARTIS FACTUM) arriba, el último (ÉTICAS CREATIVAS) abajo
         const visualIndex = totalLabels - 1 - i;
 

@@ -1,6 +1,5 @@
 'use client';
 
-import { INTRO } from './content';
 import { cls, CSS, NAVBAR_HEIGHT } from './classes';
 
 /**
@@ -14,7 +13,7 @@ import { cls, CSS, NAVBAR_HEIGHT } from './classes';
  * NOTA: El left y width se asignan dinámicamente via JavaScript
  * para que coincida exactamente con la posición del texto en flow
  */
-export default function PinnedIntro({ pinRef, navbarHeight = NAVBAR_HEIGHT }) {
+export default function PinnedIntro({ pinRef, navbarHeight = NAVBAR_HEIGHT, introText }) {
   // Altura = posición del borde inferior del sticky label
   const pinHeight = CSS.stickyLabelBottom(navbarHeight);
 
@@ -29,7 +28,7 @@ export default function PinnedIntro({ pinRef, navbarHeight = NAVBAR_HEIGHT }) {
         overflow: 'hidden',
       }}
     >
-      <p className={`m-0 ${cls.body}`}>{INTRO}</p>
+      <p className={`m-0 ${cls.body}`}>{introText}</p>
     </div>
   );
 }

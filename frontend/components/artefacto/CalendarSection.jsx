@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Calendar Section - Calendario Visual Interactivo
@@ -23,96 +24,98 @@ import { useState, useEffect } from 'react'
  */
 
 export default function CalendarSection({ isActive = true }) {
-  // HARDCODED: Eventos del calendario con fechas específicas
+  const { t } = useTranslation()
+
+  // Eventos del calendario con traducciones
   const calendarEvents = [
     {
       day: 24,
-      month: 'Agosto',
+      month: t('calendar.months.august'),
       year: 2026,
       time: '00:00',
-      title: 'Apertura de convocatoria',
-      description: 'Lanzamiento oficial de la convocatoria ARTEFACTO 2027',
+      title: t('calendar.events.callOpening'),
+      description: t('calendar.events.callOpeningDesc'),
       type: 'milestone'
     },
     {
       day: 24,
-      month: 'Agosto',
+      month: t('calendar.months.august'),
       year: 2026,
       time: '00:00',
-      title: 'Fase 1 — Apertura',
-      description: 'Comienza el periodo de inscripción - Primera fase',
+      title: t('calendar.events.phase1Opening'),
+      description: t('calendar.events.phase1OpeningDesc'),
       type: 'phase'
     },
     {
       day: 14,
-      month: 'Septiembre',
+      month: t('calendar.months.september'),
       year: 2026,
       time: '23:59',
-      title: 'Fase 1 — Cierre',
-      description: 'Fin del periodo de inscripción - Primera fase',
+      title: t('calendar.events.phase1Closing'),
+      description: t('calendar.events.phase1ClosingDesc'),
       type: 'phase'
     },
     {
       day: 22,
-      month: 'Septiembre',
+      month: t('calendar.months.september'),
       year: 2026,
       time: '12:00',
-      title: 'Publicación de resultados (Fase 1)',
-      description: 'Curadores votan por artistas de la Fase 1',
+      title: t('calendar.events.results1'),
+      description: t('calendar.events.results1Desc'),
       type: 'voting'
     },
     {
       day: 23,
-      month: 'Septiembre',
+      month: t('calendar.months.september'),
       year: 2026,
       time: '00:00',
-      title: 'Fase 2 — Apertura',
-      description: 'Comienza el periodo de inscripción - Segunda fase',
+      title: t('calendar.events.phase2Opening'),
+      description: t('calendar.events.phase2OpeningDesc'),
       type: 'phase'
     },
     {
       day: 14,
-      month: 'Octubre',
+      month: t('calendar.months.october'),
       year: 2026,
       time: '23:59',
-      title: 'Fase 2 — Cierre',
-      description: 'Fin del periodo de inscripción - Segunda fase',
+      title: t('calendar.events.phase2Closing'),
+      description: t('calendar.events.phase2ClosingDesc'),
       type: 'phase'
     },
     {
       day: 22,
-      month: 'Octubre',
+      month: t('calendar.months.october'),
       year: 2026,
       time: '12:00',
-      title: 'Publicación de resultados (Fase 2)',
-      description: 'Curadores votan por artistas de la Fase 2',
+      title: t('calendar.events.results2'),
+      description: t('calendar.events.results2Desc'),
       type: 'voting'
     },
     {
       day: 23,
-      month: 'Octubre',
+      month: t('calendar.months.october'),
       year: 2026,
       time: '00:00',
-      title: 'Fase 3 — Apertura',
-      description: 'Comienza el periodo de inscripción - Tercera fase',
+      title: t('calendar.events.phase3Opening'),
+      description: t('calendar.events.phase3OpeningDesc'),
       type: 'phase'
     },
     {
       day: 13,
-      month: 'Noviembre',
+      month: t('calendar.months.november'),
       year: 2026,
       time: '23:59',
-      title: 'Fase 3 — Cierre',
-      description: 'Fin del periodo de inscripción - Tercera fase',
+      title: t('calendar.events.phase3Closing'),
+      description: t('calendar.events.phase3ClosingDesc'),
       type: 'phase'
     },
     {
       day: 20,
-      month: 'Noviembre',
+      month: t('calendar.months.november'),
       year: 2026,
       time: '12:00',
-      title: 'Publicación de resultados (Fase 3)',
-      description: 'Curadores votan por artistas de la Fase 3',
+      title: t('calendar.events.results3'),
+      description: t('calendar.events.results3Desc'),
       type: 'voting'
     },
     {
@@ -126,11 +129,11 @@ export default function CalendarSection({ isActive = true }) {
     },
     {
       day: 4,
-      month: 'Febrero',
+      month: t('calendar.months.february'),
       year: 2027,
       time: '10:00',
-      title: 'ARTEFACTO 2027 - La Feria',
-      description: 'Feria de Arte (4 – 7 feb)',
+      title: t('calendar.events.fairEvent'),
+      description: t('calendar.events.fairEventDesc'),
       type: 'main-event'
     },
     {

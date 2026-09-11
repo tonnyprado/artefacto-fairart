@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { usePathname } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 import { useFasesStore } from '@/stores/fasesStore'
 import { COLORS } from '../artefacto/theme'
 
@@ -19,6 +20,7 @@ const DEFAULT_POSITION = { x: null, y: null } // null = usar posición por defec
  * - Guarda la posición en localStorage para persistencia
  */
 export default function FloatingRegistrationButton() {
+  const { t } = useTranslation()
   const pathname = usePathname()
   const { fases, fetchFases, getFaseConInscripcionesAbiertas } = useFasesStore()
   const [isVisible, setIsVisible] = useState(false)
@@ -248,9 +250,9 @@ export default function FloatingRegistrationButton() {
             }}
           >
             <div className="whitespace-nowrap" style={{ color: COLORS.cream }}>
-              <p className="font-bold text-lg leading-tight">¡Regístrate!</p>
+              <p className="font-bold text-lg leading-tight">{t('floating.register')}</p>
               <p className="text-xs font-medium opacity-90">
-                {faseActiva?.nombre || 'Inscripciones abiertas'}
+                {faseActiva?.nombre || t('floating.registrationOpen')}
               </p>
             </div>
           </div>

@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import { Info, Palette, Shield } from 'lucide-react'
@@ -22,6 +23,8 @@ import { Info, Palette, Shield } from 'lucide-react'
  */
 
 export default function Step1DatosPersonales({ formData, updateFormData, errors }) {
+  const { t } = useTranslation()
+
   const handleChange = (e) => {
     const { name, value } = e.target
     updateFormData({ [name]: value })
@@ -247,7 +250,7 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
             letterSpacing: '0.04em',
             textTransform: 'uppercase'
           }}>
-            LLENA TUS DATOS PERSONALES PARA ARMAR TU MURAL
+            {t('registro.step1.headerTitle')}
           </h3>
           <Palette size={32} color="#B83030" />
         </div>
@@ -272,7 +275,7 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
               fontSize: '16px',
               marginBottom: '8px'
             }}>
-              Importante: Proceso de Selección
+              {t('registro.step1.disclaimerTitle')}
             </h3>
             <p style={{
               color: 'rgba(244, 237, 228, 0.85)',
@@ -280,78 +283,78 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
               lineHeight: '1.6',
               margin: 0
             }}>
-              <strong>No se te cobrará nada en este momento.</strong> Este es un proceso de selección para participar en ARTEFACTO 2027. Una vez que seas seleccionado, recibirás un correo electrónico con los detalles del paquete y las instrucciones de pago.
+              <strong>{t('registro.step1.disclaimerBold')}</strong> {t('registro.step1.disclaimerText')}
             </p>
           </div>
         </div>
       </div>
 
       <div>
-        <h2 className="text-2xl font-bold mb-2" style={{ color: '#141210' }}>Datos Personales</h2>
+        <h2 className="text-2xl font-bold mb-2" style={{ color: '#141210' }}>{t('registro.step1.title')}</h2>
         <p style={{ color: '#F4EDE4', fontSize: '15px' }}>
-          Información básica sobre ti como artista
+          {t('registro.step1.subtitle')}
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Input
-          label="Nombre"
+          label={t('registro.step1.firstName')}
           name="nombre"
           value={formData.nombre || ''}
           onChange={handleChange}
           error={errors?.nombre}
           required
-          placeholder="Tu nombre"
+          placeholder={t('registro.step1.firstNamePlaceholder')}
         />
 
         <Input
-          label="Apellido"
+          label={t('registro.step1.lastName')}
           name="apellido"
           value={formData.apellido || ''}
           onChange={handleChange}
           error={errors?.apellido}
           required
-          placeholder="Tu apellido"
+          placeholder={t('registro.step1.lastNamePlaceholder')}
         />
       </div>
 
       {/* Nombre Artístico - NUEVO */}
       <Input
-        label="Nombre Artístico"
+        label={t('registro.step1.artisticName')}
         name="nombre_artistico"
         value={formData.nombre_artistico || ''}
         onChange={handleChange}
-        placeholder='Ej: "El Maestro del Color" (Opcional)'
-        helper="Si usas un nombre artístico diferente a tu nombre legal"
+        placeholder={t('registro.step1.artisticNamePlaceholder')}
+        helper={t('registro.step1.artisticNameHelper')}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Input
-          label="Email"
+          label={t('registro.step1.email')}
           type="email"
           name="email"
           value={formData.email || ''}
           onChange={handleChange}
           error={errors?.email}
           required
-          placeholder="tu@email.com"
+          placeholder={t('registro.step1.emailPlaceholder')}
         />
 
         <Input
-          label="Teléfono"
+          label={t('registro.step1.phone')}
           type="tel"
           name="telefono"
           value={formData.telefono || ''}
           onChange={handleChange}
           error={errors?.telefono}
           required
-          placeholder="55 1234 5678"
+          placeholder={t('registro.step1.phonePlaceholder')}
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Input
-          label="Fecha de Nacimiento"
+          label={t('registro.step1.birthdate')}
           type="date"
           name="fecha_nacimiento"
           value={formData.fecha_nacimiento || ''}
@@ -361,25 +364,25 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
         />
 
         <Select
-          label="País"
+          label={t('registro.step1.country')}
           name="pais"
           value={formData.pais || ''}
           onChange={handleChange}
           error={errors?.pais}
           required
           options={paises}
-          placeholder="Selecciona tu país"
+          placeholder={t('registro.step1.countryPlaceholder')}
         />
       </div>
 
       <Input
-        label="Ciudad"
+        label={t('registro.step1.city')}
         name="ciudad"
         value={formData.ciudad || ''}
         onChange={handleChange}
         error={errors?.ciudad}
         required
-        placeholder="Ciudad de México"
+        placeholder={t('registro.step1.cityPlaceholder')}
       />
 
       {/* Aviso de Privacidad con checkbox */}
@@ -414,7 +417,7 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
             fontSize: '14px',
             lineHeight: '1.6'
           }}>
-            He leído y acepto el{' '}
+            {t('registro.step1.privacyText')}{' '}
             <a
               href="/privacy-policy"
               target="_blank"
@@ -426,7 +429,7 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              Aviso de Privacidad
+              {t('registro.step1.privacyLink')}
             </a>
           </span>
         </label>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/hooks/useAuth'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
@@ -30,6 +31,7 @@ import { COLORS, FONTS } from '@/components/artefacto/theme'
  */
 
 export default function LoginPage() {
+  const { t } = useTranslation()
   const router = useRouter()
   const { login, isAuthenticated, error, clearError, isLoading: authLoading, user } = useAuth()
 
@@ -72,15 +74,15 @@ export default function LoginPage() {
     const errors = {}
 
     if (!formData.email) {
-      errors.email = 'Email es requerido'
+      errors.email = t('login.errors.emailRequired')
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = 'Email inválido'
+      errors.email = t('login.errors.emailInvalid')
     }
 
     if (!formData.password) {
-      errors.password = 'Contraseña es requerida'
+      errors.password = t('login.errors.passwordRequired')
     } else if (formData.password.length < 6) {
-      errors.password = 'La contraseña debe tener al menos 6 caracteres'
+      errors.password = t('login.errors.passwordTooShort')
     }
 
     setValidationErrors(errors)
@@ -175,7 +177,7 @@ export default function LoginPage() {
             letterSpacing: '0.15em',
             textTransform: 'uppercase'
           }}>
-            Panel de Administración
+            {t('login.adminPanel')}
           </p>
         </div>
 
@@ -197,7 +199,7 @@ export default function LoginPage() {
               textTransform: 'uppercase',
               marginBottom: '0.5rem'
             }}>
-              Iniciar Sesión
+              {t('login.title')}
             </h3>
             <p style={{
               fontFamily: FONTS.body,
@@ -205,31 +207,31 @@ export default function LoginPage() {
               fontSize: '0.875rem',
               color: COLORS.gray
             }}>
-              Solo para administradores y curadores
+              {t('login.subtitle')}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <Input
-              label="Email"
+              label={t('login.email')}
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
               error={validationErrors.email}
-              placeholder="tu@email.com"
+              placeholder={t('login.emailPlaceholder')}
               required
               autoComplete="email"
             />
 
             <Input
-              label="Contraseña"
+              label={t('login.password')}
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
               error={validationErrors.password}
-              placeholder="••••••••"
+              placeholder={t('login.passwordPlaceholder')}
               required
               autoComplete="current-password"
             />
@@ -290,11 +292,11 @@ export default function LoginPage() {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  Iniciando sesión...
+                  {t('login.submitting')}
                 </>
               ) : (
                 <>
-                  Iniciar Sesión
+                  {t('login.submit')}
                   <svg
                     className="w-5 h-5 ml-2"
                     fill="none"
@@ -349,7 +351,7 @@ export default function LoginPage() {
                     marginBottom: '0.5rem',
                     fontFamily: FONTS.subtitle
                   }}>
-                    Credenciales de Prueba:
+                    {t('login.testCredentials')}
                   </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.75rem' }}>
                     <div style={{
@@ -376,7 +378,7 @@ export default function LoginPage() {
                           fontFamily: FONTS.body
                         }}
                       >
-                        → Login rápido
+                        {t('login.quickLogin')}
                       </button>
                     </div>
                     <div style={{
@@ -403,7 +405,7 @@ export default function LoginPage() {
                           fontFamily: FONTS.body
                         }}
                       >
-                        → Login rápido
+                        {t('login.quickLogin')}
                       </button>
                     </div>
                   </div>
@@ -444,7 +446,7 @@ export default function LoginPage() {
               onMouseEnter={(e) => e.target.style.color = COLORS.red}
               onMouseLeave={(e) => e.target.style.color = COLORS.gray}
             >
-              ← Volver al inicio
+              {t('login.backToHome')}
             </Link>
           </div>
         </div>
@@ -458,7 +460,7 @@ export default function LoginPage() {
           opacity: 0.7,
           fontFamily: FONTS.body
         }}>
-          Acceso restringido solo para personal autorizado
+          {t('login.restrictedAccess')}
         </p>
       </div>
     </div>

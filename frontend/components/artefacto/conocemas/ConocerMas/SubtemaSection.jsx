@@ -1,16 +1,15 @@
 'use client';
 
-import { INTRO } from './content';
 import { cls, CSS, NAVBAR_HEIGHT } from './classes';
 
 /**
  * Block - Renderiza un bloque de contenido según su tipo
  */
-function Block({ b, introRef }) {
+function Block({ b, introRef, introText }) {
   if (b.type === 'intro') {
     return (
       <p ref={introRef} className={`m-0 ${cls.body}`}>
-        {INTRO}
+        {introText}
       </p>
     );
   }
@@ -68,6 +67,7 @@ export default function SubtemaSection({
   labelRef = undefined,
   contentRef = undefined,
   introRef,
+  introText,
   minH = 'min-h-[110vh]',
   navbarHeight = NAVBAR_HEIGHT,
 }) {
@@ -120,6 +120,7 @@ export default function SubtemaSection({
             key={i}
             b={b}
             introRef={b.type === 'intro' ? introRef : undefined}
+            introText={introText}
           />
         ))}
       </div>

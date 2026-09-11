@@ -429,5 +429,125 @@
   "mobileMenu": {
     "close": "Close",
     "menu": "Menu"
+  },
+  "conoceMas": {
+    "intro": "We are an independent art fair that works directly with the artist, without galleries in between. We bring together about 50 national and international creators under a curatorship that weighs technique and concept equally. We function as a salon and not as a fair of stands: a single visual narrative, built by a curatorial committee that seeks dialogues between the works. We set up during Mexico City Art Week.",
+    "cierre": "FORGING CULTURE — FEBRUARY 4 · 7, 2027",
+    "scrollIndicator": "scroll",
+    "artisFactum": {
+      "words": ["ARTIS", "FACTUM"],
+      "etim": {
+        "ars": {
+          "word": "ars/artis",
+          "def": "(lat.) skill, craft or technique learned through practice."
+        },
+        "factum": {
+          "word": "factum/factus",
+          "def": "(lat.) the made, the manufactured."
+        },
+        "extra": {
+          "word": "arte factum",
+          "def": "(lat.) Crafted with technique and made with art."
+        }
+      }
+    },
+    "proPositum": {
+      "words": ["PRO", "PÓSITUM"],
+      "etim": {
+        "pro": {
+          "word": "pro",
+          "def": "(lat.) forward, in front, in view of all."
+        },
+        "positum": {
+          "word": "pósitum",
+          "def": "(lat.) the placed, the positioned."
+        }
+      },
+      "forjarCultura": {
+        "title": "FORGING CULTURE",
+        "p1": "Forging is giving shape with heat and strike: where someone insists and someone learns. Heat is the concept and strike is the technique. Culture is red-hot matter, in constant transformation, that takes the shape of those who make and teach.",
+        "p2Lead": "ARTE FACTO",
+        "p2": " is for artists whose concept and technique develop with the same rigor — where one doesn't exist without the other. Here, the conceptual and the technical weigh equally, whether you come from figuration, abstraction, or any intermediate territory, with studies or years of trial and error. We value the path your practice has followed: it's the construction of art you've reached through work, attention, and conviction."
+      }
+    },
+    "diaGnosis": {
+      "words": ["DIÁ", "GNŌSIS"],
+      "etim": {
+        "dia": {
+          "word": "diá",
+          "def": "(gr.) through, by means of."
+        },
+        "gnosis": {
+          "word": "gnōsis",
+          "def": "(gr.) knowledge."
+        }
+      },
+      "saberHacer": {
+        "title": "i. knowing how to do",
+        "text": "In a context where we are increasingly more artists, the tools and technical knowledge with which we produce are of utmost importance to communicate and express our creative and artistic intentions."
+      },
+      "quererHacer": {
+        "title": "ii. wanting to do",
+        "text": "The internal impulse that feeds each artist's passion, the substance that seeks every way to physically manifest as art. The want to do reveals something fundamental: the emotional still governs in the artist."
+      },
+      "elegirHacer": {
+        "title": "iii. choosing to do",
+        "text": "The magic of liberating the internal and manifesting it physically. Transforming matter with hands is an irreplaceable experience. The cultural baggage of techniques and materialities is shared knowledge: a physical, universal, and material language that is built with time and practice."
+      },
+      "poderHacer": {
+        "title": "iv. being able to do",
+        "text": "The network that sustains artistic production at its different scales reveals a vital reality: the system is built with the individual and collective effort of art agents, and in that sum lies its sustainability. Being able to do speaks of a practice sustained over time."
+      },
+      "indianilla": {
+        "kicker": "ARTE FACTO at the Cultural Center",
+        "title": "ESTACIÓN INDIANILLA",
+        "text": "Estación Indianilla doesn't hide what it was. Its beams, machinery, and century are in plain sight: the venue is, itself, an object that shows how it's made: the materialization of concept and technique."
+      }
+    },
+    "eticasCreativas": {
+      "words": ["CREATIVE", "ETHICS"],
+      "etim": {
+        "ethos": {
+          "word": "ethos",
+          "def": "(gr.) character, way of being."
+        },
+        "creare": {
+          "word": "creare",
+          "def": "(lat.) to produce, to generate, to bring into existence."
+        }
+      },
+      "rigor": {
+        "title": "01. rigor",
+        "text": "Technique and concept weigh equally: they are mutually inseparable. The artist's expression is the conscious result of attention to both elements."
+      },
+      "apertura": {
+        "title": "02. openness",
+        "text": "The work speaks for itself: from emerging to established, with or without formal studies or years of trial and error, with or without gallery and/or institution representation."
+      },
+      "alineacion": {
+        "title": "03. alignment",
+        "text": "It's an ecosystem that promotes synergy between the creative, the operator, the promoter, the investor, through profit calibrated to maximum common benefit."
+      },
+      "transparencia": {
+        "title": "04. transparency",
+        "text": "Establishing open dialogues about: processes, relationships, convictions, strengths, difficulties as common values. We are humans in constant evolution."
+      },
+      "transmision": {
+        "title": "05. transmission",
+        "text": "What one knows how to do, one teaches. Culture is inherited by sharing or it is not inherited. Creative knowledge is transferred and guarantees its prolongation over time."
+      },
+      "convivencia": {
+        "title": "06. coexistence",
+        "text": "Everyone forges their part. In a city and country with an immense cultural offering: we unite to contribute, to enable perspectives, open dialogues about creativity and coexist."
+      },
+      "sistema": {
+        "title": "07. system",
+        "text": "Understanding that cultural projects happen as a team. The collective recognizes the challenges, the effort, connects with agents who activate spaces and embraces areas of opportunity."
+      },
+      "autenticidad": {
+        "title": "08. authenticity",
+        "text": "We know that the authentic is born from what has already been done and is enriched by individual and collective perspectives. The construction of ideas honors its creative roots."
+      }
+    }
   }
 }

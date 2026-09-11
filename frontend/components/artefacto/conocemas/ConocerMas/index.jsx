@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import gsap from 'gsap';
-import { SUBTEMAS, HERO, CIERRE, INTRO, LOGO, PHOTOS } from './content';
+import { getSubtemas, getIntro, getCierre, getScrollIndicator, HERO, LOGO, PHOTOS } from './content';
 import { cls } from './classes';
 import PhotoRail from './PhotoRail';
 import LogoMask from './LogoMask';
@@ -49,6 +50,14 @@ const isTouchDevice = () => {
  * MÓVIL (<1024px): Layout de 1 columna con animaciones de empuje adaptadas
  */
 export default function ConocerMas() {
+  const { t } = useTranslation();
+
+  // Obtener contenido traducido
+  const SUBTEMAS = getSubtemas(t);
+  const INTRO = getIntro(t);
+  const CIERRE = getCierre(t);
+  const scrollIndicator = getScrollIndicator(t);
+
   // Inicializar como null para evitar flash de contenido incorrecto
   const [isDesktop, setIsDesktop] = useState(null);
   const [isMounted, setIsMounted] = useState(false);
@@ -585,7 +594,7 @@ export default function ConocerMas() {
           />
           {/* Indicador sutil de scroll */}
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-white/70 animate-bounce">
-            <span className="text-[10px] tracking-widest uppercase font-light">desliza</span>
+            <span className="text-[10px] tracking-widest uppercase font-light">{scrollIndicator}</span>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
             </svg>
@@ -750,8 +759,8 @@ export default function ConocerMas() {
   return (
     <div className="bg-crema font-sans text-tinta">
       <PhotoRail trackRef={trackRef} navbarHeight={NAVBAR_HEIGHT} />
-      <PinnedIntro pinRef={pinRef} navbarHeight={NAVBAR_HEIGHT} />
-      <QueueIndex labelsRef={labelsRef} navbarHeight={NAVBAR_HEIGHT} />
+      <PinnedIntro pinRef={pinRef} navbarHeight={NAVBAR_HEIGHT} introText={INTRO} />
+      <QueueIndex labelsRef={labelsRef} navbarHeight={NAVBAR_HEIGHT} subtemas={SUBTEMAS} />
       <LogoMask maskRef={maskRef} ghostRef={ghostRef} navbarHeight={NAVBAR_HEIGHT} />
 
       <main className="relative z-[2]">
@@ -764,7 +773,7 @@ export default function ConocerMas() {
           />
           {/* Indicador sutil de scroll */}
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/70 animate-bounce">
-            <span className="text-xs tracking-widest uppercase font-light">desliza</span>
+            <span className="text-xs tracking-widest uppercase font-light">{scrollIndicator}</span>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
             </svg>
@@ -786,6 +795,7 @@ export default function ConocerMas() {
               if (el) stickyLabelsRef.current[i] = el;
             }}
             introRef={i === 0 ? introRef : undefined}
+            introText={INTRO}
             minH={i === 2 ? 'min-h-[130vh]' : i === 3 ? '' : 'min-h-[110vh]'}
             navbarHeight={NAVBAR_HEIGHT}
           />
