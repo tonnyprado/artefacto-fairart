@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import FileUpload from '@/components/ui/FileUpload'
 import { compressImage } from '@/lib/imageCompression'
 
@@ -20,6 +21,8 @@ import { compressImage } from '@/lib/imageCompression'
  */
 
 export default function Step3Documentos({ formData, updateFormData, errors }) {
+  const { t } = useTranslation()
+
   // Estados de carga para cada campo
   const [loadingStates, setLoadingStates] = useState({
     foto: false,
@@ -42,18 +45,19 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
 
     // Límites según tipo de archivo
     if (isPDF || isDoc) {
-      // PDFs y documentos: máximo 10MB
-      if (fileSizeMB > 10) {
+      // PDFs y documentos: máximo 100MB
+      if (fileSizeMB > 100) {
         const compressUrl = isPDF
           ? 'https://www.ilovepdf.com/compress_pdf'
           : 'https://www.wecompress.com'
-        alert(`Tu ${isPDF ? 'PDF' : 'documento'} es muy grande (${fileSizeMB.toFixed(1)}MB).\n\nEl límite es 10MB.\n\nPuedes comprimirlo gratis en:\n${compressUrl}`)
+        const fileType = isPDF ? 'PDF' : 'documento'
+        alert(`${fileType} ${t('registro.step3.fileTooBig')} (${fileSizeMB.toFixed(1)}MB).\n\n${t('registro.step3.limit')}\n\n${t('registro.step3.compressPDF')}\n${compressUrl}`)
         return
       }
     } else if (isImage) {
-      // Imágenes: máximo 10MB entrada, se comprime a 2MB
-      if (fileSizeMB > 10) {
-        alert(`La imagen es muy grande (${fileSizeMB.toFixed(1)}MB). El máximo es 10MB.`)
+      // Imágenes: máximo 100MB entrada, se comprime a 2MB
+      if (fileSizeMB > 100) {
+        alert(`${t('registro.step3.imageTooBig')} (${fileSizeMB.toFixed(1)}MB). ${t('registro.step3.imageMaxSize')}`)
         return
       }
     }
@@ -74,7 +78,7 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
       } catch (error) {
         console.error('Error al comprimir imagen:', error)
         setFieldLoading(fieldName, false)
-        alert('Error al procesar la imagen. Por favor, intenta con otra.')
+        alert(t('registro.step3.imageError'))
         return
       }
       setFieldLoading(fieldName, false)
@@ -93,9 +97,9 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
 
     const fileSizeMB = file.size / (1024 * 1024)
 
-    // Rechazar fotos mayores a 10MB
-    if (fileSizeMB > 10) {
-      alert(`La foto es muy grande (${fileSizeMB.toFixed(1)}MB). El máximo es 10MB.`)
+    // Rechazar fotos mayores a 100MB
+    if (fileSizeMB > 100) {
+      alert(`${t('registro.step3.photoTooBig')} (${fileSizeMB.toFixed(1)}MB). ${t('registro.step3.photoMaxSize')}`)
       return
     }
 
@@ -115,7 +119,7 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
       } catch (error) {
         console.error('Error al comprimir foto:', error)
         setFieldLoading('foto', false)
-        alert('Error al procesar la foto. Por favor, intenta con otra imagen.')
+        alert(t('registro.step3.photoError'))
       }
     } else {
       updateFormData({ foto: file })
@@ -126,67 +130,67 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold mb-2" style={{ color: '#141210' }}>
-          Documentos Requeridos
+          {t('registro.step3.title')}
         </h2>
         <p style={{ color: '#F4EDE4', fontSize: '15px' }}>
-          Sube los documentos necesarios para completar tu inscripción
+          {t('registro.step3.subtitle')}
         </p>
       </div>
 
       {/* Foto de Perfil */}
       <FileUpload
-        label="Foto de perfil"
+        label={t('registro.step3.photo')}
         accept="image/jpeg,image/png,image/webp"
         maxSize={10}
         required
         value={formData.foto}
         onChange={handleFotoChange}
         error={errors?.foto}
-        helperText="Nombre: nombre_apellido_foto.jpg | Formatos: JPG, PNG, WebP | Peso: máx 10MB (se comprime automáticamente)"
+        helperText={t('registro.step3.photoHelper')}
         isLoading={loadingStates.foto}
-        loadingText="Comprimiendo foto..."
+        loadingText={t('registro.step3.photoLoading')}
       />
 
       {/* CV Artístico */}
       <FileUpload
-        label="CV Artístico"
+        label={t('registro.step3.cv')}
         accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         maxSize={10}
         required
         value={formData.documentos?.cv}
         onChange={(file) => handleFileChange('cv', file)}
         error={errors?.cv}
-        helperText="Nombre: nombre_apellido_cv.pdf | Formatos: PDF, DOC, DOCX | Peso: máx 10MB"
+        helperText={t('registro.step3.cvHelper')}
         isLoading={loadingStates.cv}
-        loadingText="Procesando CV..."
+        loadingText={t('registro.step3.cvLoading')}
       />
 
       {/* Portafolio */}
       <FileUpload
-        label="Portafolio"
+        label={t('registro.step3.portfolio')}
         accept=".pdf,application/pdf"
         maxSize={10}
         required
         value={formData.documentos?.portfolio}
         onChange={(file) => handleFileChange('portfolio', file)}
         error={errors?.portfolio}
-        helperText="Nombre: nombre_apellido_portafolio.pdf | Formato: PDF | Peso: máx 10MB (si pesa más, comprímelo en ilovepdf.com)"
+        helperText={t('registro.step3.portfolioHelper')}
         isLoading={loadingStates.portfolio}
-        loadingText="Procesando portafolio..."
+        loadingText={t('registro.step3.portfolioLoading')}
       />
 
       {/* Identificación Oficial */}
       <FileUpload
-        label="Identificación Oficial (INE o pasaporte)"
+        label={t('registro.step3.id')}
         accept="image/jpeg,image/png,image/webp,.pdf,application/pdf"
         maxSize={10}
         required
         value={formData.documentos?.identificacion}
         onChange={(file) => handleFileChange('identificacion', file)}
         error={errors?.identificacion}
-        helperText="Nombre: nombre_apellido_id.jpg | Formatos: JPG, PNG, PDF | Peso: máx 10MB (imágenes se comprimen)"
+        helperText={t('registro.step3.idHelper')}
         isLoading={loadingStates.identificacion}
-        loadingText="Comprimiendo..."
+        loadingText={t('registro.step3.idLoading')}
       />
 
       <div style={{
@@ -214,7 +218,7 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
           margin: 0,
           flex: 1
         }}>
-          Todos los documentos son obligatorios. Los archivos deben ser legibles y de buena calidad. Tu portafolio debe mostrar obra reciente (preferiblemente de los últimos 2-4 años). Los documentos serán revisados por el Comité Curatorial.
+          {t('registro.step3.infoText')}
         </p>
       </div>
 
@@ -242,7 +246,7 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
             color: 'rgba(34, 197, 94, 0.95)',
             marginBottom: '4px'
           }}>
-            Compresión Automática
+            {t('registro.step3.compressionTitle')}
           </p>
           <p style={{
             fontSize: '13px',
@@ -250,7 +254,7 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
             lineHeight: '1.7',
             margin: 0
           }}>
-            Las imágenes se comprimen automáticamente. Límite: 10MB por archivo. PDFs grandes: comprime gratis en ilovepdf.com
+            {t('registro.step3.compressionText')}
           </p>
         </div>
       </div>
@@ -280,7 +284,7 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
           margin: 0,
           flex: 1
         }}>
-          Sobre tu portafolio: Incluye variedad de obras que muestren tu estilo. Fotografías de alta calidad con buena iluminación. Incluye ficha técnica de cada pieza: título, técnica o materiales, dimensiones y año. Las piezas de tu portafolio no son necesariamente con las que te postularás a ARTE FACTO.
+          {t('registro.step3.portfolioInfoText')}
         </p>
       </div>
     </div>

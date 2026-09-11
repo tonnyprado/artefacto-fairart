@@ -39,7 +39,7 @@ const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB máximo por archivo
+    fileSize: 100 * 1024 * 1024, // 100MB máximo por archivo individual
     files: 70, // Máximo 70 archivos (10 obras + 50 fotos detalle + 6 docs + margen)
     fieldSize: 100 * 1024 * 1024 // 100MB para campos de texto (layout_canvas_data puede ser grande)
   }
@@ -112,7 +112,7 @@ export const handleMulterError = (err, req, res, next) => {
     if (err.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({
         success: false,
-        error: 'El archivo es demasiado grande. Máximo 10MB por archivo.',
+        error: 'El archivo es demasiado grande. Máximo 100MB por archivo.',
         code: 'LIMIT_FILE_SIZE'
       })
     }

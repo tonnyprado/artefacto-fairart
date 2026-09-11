@@ -4,7 +4,7 @@
 
 Cuando el usuario sube una imagen en el formulario de registro:
 
-1. ✅ **Comprime automáticamente** la imagen en el navegador (de 10MB → 1-2MB)
+1. ✅ **Comprime automáticamente** la imagen en el navegador (de 100MB → 1-2MB)
 2. ✅ **Guarda en localStorage** el archivo comprimido
 3. ✅ **Muestra preview** de la imagen comprimida
 4. ✅ **Envía al backend** cuando el usuario confirma el registro
@@ -70,9 +70,9 @@ const handleFileChange = async (e) => {
   if (!file) return
 
   try {
-    // Validar tamaño (máx 10MB antes de comprimir)
-    if (!validateFileSize(file, 10)) {
-      alert('El archivo es demasiado grande (máximo 10MB)')
+    // Validar tamaño (máx 100MB antes de comprimir)
+    if (!validateFileSize(file, 25)) {
+      alert('El archivo es demasiado grande (máximo 100MB)')
       return
     }
 
@@ -315,7 +315,7 @@ Si necesitas más espacio, puedes usar **IndexedDB** en lugar de localStorage.
 
 1. ✅ Implementar handlers con compresión en todos los inputs de archivo
 2. ✅ Agregar UI feedback (loading, tamaño, progreso)
-3. ✅ Probar subir imágenes grandes (5-10MB) y ver la compresión
+3. ✅ Probar subir imágenes grandes (5-100MB) y ver la compresión
 4. ✅ Verificar que los artistas aparezcan en el admin panel (sin archivos)
 5. ⏳ Configurar AWS S3 (cuando esté listo)
 6. ⏳ Migrar archivos de localStorage a S3

@@ -177,7 +177,7 @@ export const compressMultipleImages = async (files) => {
  * @param {number} maxSizeMB - Tamaño máximo en MB
  * @returns {boolean}
  */
-export const validateFileSize = (file, maxSizeMB = 10) => {
+export const validateFileSize = (file, maxSizeMB = 100) => {
   const sizeMB = file.size / 1024 / 1024
   return sizeMB <= maxSizeMB
 }
