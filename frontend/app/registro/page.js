@@ -14,7 +14,6 @@ import Step5Paquetes from '@/components/registro/Step5Paquetes'
 import { usePageTransition } from '@/components/artefacto/TransitionLink'
 import CustomCursor from '@/components/artefacto/CustomCursor'
 import MobileBlocker from '@/components/registro/MobileBlocker'
-import LanguageSwitcher from '@/components/shared/LanguageSwitcher'
 
 const COLORS = {
   red: '#B83030',
@@ -1108,10 +1107,8 @@ export default function RegistroPage() {
             </span>
           </div>
 
-          {/* Selector de idioma - DESACTIVADO temporalmente */}
-          <div style={{ width: 120, flexShrink: 0, display: 'flex', justifyContent: 'flex-end' }}>
-            {/* <LanguageSwitcher dark={false} /> */}
-          </div>
+          {/* Espacio vacío - derecha (para balance) */}
+          <div style={{ width: 120, flexShrink: 0 }} />
         </div>
 
         {/* Progress Bar */}
