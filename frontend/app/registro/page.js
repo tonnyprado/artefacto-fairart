@@ -1108,9 +1108,9 @@ export default function RegistroPage() {
             </span>
           </div>
 
-          {/* Selector de idioma - derecha */}
+          {/* Selector de idioma - DESACTIVADO temporalmente */}
           <div style={{ width: 120, flexShrink: 0, display: 'flex', justifyContent: 'flex-end' }}>
-            <LanguageSwitcher dark={false} />
+            {/* <LanguageSwitcher dark={false} /> */}
           </div>
         </div>
 
