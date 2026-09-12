@@ -1,9 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { COLORS } from './theme';
 import { useTextScrambleMultiple } from './useTextScramble';
-import LanguageSwitcher from '../shared/LanguageSwitcher';
 
 /*
   Navbar transparente (no se muestra en el hero).
@@ -16,7 +14,6 @@ import LanguageSwitcher from '../shared/LanguageSwitcher';
 const SECCIONES_FONDO_ROJO = ['convocatoria', 'contacto'];
 
 export default function Navbar({ screen, onOpenMenu }) {
-  const { t } = useTranslation();
   const fondoRojo = SECCIONES_FONDO_ROJO.includes(screen);
   const suf = fondoRojo ? 'white' : 'red';
   const labelCol = fondoRojo ? COLORS.cream : COLORS.black;
@@ -24,12 +21,12 @@ export default function Navbar({ screen, onOpenMenu }) {
   const [logoVisible, setLogoVisible] = useState(false);
 
   const left = [
-    { src: `/assets/glyph-a-${suf}.svg`, label: t('nav.knowMore'), href: '#about' },
-    { src: `/assets/glyph-r-${suf}.svg`, label: t('nav.callForArtists'), href: '#convocatoria' },
+    { src: `/assets/glyph-a-${suf}.svg`, label: 'Conoce más', href: '#about' },
+    { src: `/assets/glyph-r-${suf}.svg`, label: 'Convocatoria', href: '#convocatoria' },
   ];
   const right = [
-    { src: `/assets/glyph-t-${suf}.svg`, label: t('nav.calendar'), href: '#calendario' },
-    { src: `/assets/glyph-e-${suf}.svg`, label: t('nav.contact'), href: '#contacto' },
+    { src: `/assets/glyph-t-${suf}.svg`, label: 'Calendario', href: '#calendario' },
+    { src: `/assets/glyph-e-${suf}.svg`, label: 'Contacto', href: '#contacto' },
   ];
 
   // Aplicar scramble a todos los labels
@@ -106,7 +103,6 @@ export default function Navbar({ screen, onOpenMenu }) {
         </div>
         <div style={{ display: 'flex', gap: 26, justifyContent: 'flex-end', alignItems: 'center' }}>
           {right.map((n, i) => item(n, i + left.length))}
-          <LanguageSwitcher dark={fondoRojo} style={{ pointerEvents: 'auto', marginLeft: 6 }} />
         </div>
       </div>
       {/* Versión móvil: botón en esquina superior derecha */}
@@ -132,17 +128,6 @@ export default function Navbar({ screen, onOpenMenu }) {
         >
           <img src={fondoRojo ? '/assets/star-cream.svg' : '/assets/star-black.svg'} alt="" style={{ width: 50, height: 50, display: 'block' }} />
         </button>
-      </div>
-      {/* Selector de idioma móvil: esquina superior izquierda */}
-      <div className="arte-nav-mob" style={{
-        pointerEvents: 'auto',
-        position: 'absolute',
-        top: 26,
-        left: 20,
-        display: 'none',
-        zIndex: 2
-      }}>
-        <LanguageSwitcher dark={fondoRojo} style={{ pointerEvents: 'auto' }} />
       </div>
     </nav>
   );
