@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { COLORS, FONTS, container } from './theme';
 import { useTextScramble } from './useTextScramble';
 import TransitionLink from './TransitionLink';
@@ -97,8 +96,7 @@ function HoverButton({ href, bg, color, hoverBg, hoverColor, children, download,
 }
 
 export default function ConvocatoriaSection({ edicion = '2027', abierta = true, urlRegistro = '/registro' }) {
-  const { t } = useTranslation();
-  const titleScramble = useTextScramble(t('convocatoria.title'), {
+  const titleScramble = useTextScramble('Convocatoria', {
     duration: 1200,
     delay: 400,
   });
@@ -164,7 +162,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
               lineHeight: 1,
             }}
           >
-            {t('convocatoria.title')}
+            Convocatoria
           </h1>
           <span
             style={{
@@ -179,7 +177,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
               opacity: 0.85,
             }}
           >
-            {t('convocatoria.edition')}
+            Edición 2027
           </span>
         </div>
 
@@ -196,7 +194,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
             fontFamily: FONTS.body,
             fontWeight: 500,
           }}>
-            {t('convocatoria.subtitle1')}
+            Una oportunidad para exponer y comercializar tu obra
           </p>
           <p style={{
             margin: '0 0 16px',
@@ -206,7 +204,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
             fontFamily: FONTS.body,
             fontStyle: 'italic',
           }}>
-            {t('convocatoria.subtitle2')}
+            en un espacio dedicado al arte y diseño contemporáneo
           </p>
           <p style={{
             margin: 0,
@@ -216,7 +214,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
             fontFamily: FONTS.body,
             letterSpacing: '0.02em',
           }}>
-            {t('convocatoria.subtitle3')}
+            del 8 al 11 de mayo de 2027 en Centro Citibanamex, CDMX
           </p>
         </div>
 
@@ -229,7 +227,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
             fontFamily: FONTS.body,
             letterSpacing: '0.04em',
           }}>
-            {t('convocatoria.downloadInfo')}
+            Descarga la convocatoria completa o regístrate directamente
           </p>
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
             <HoverButton
@@ -241,7 +239,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
               download
               external
             >
-              {t('convocatoria.downloadPdf')}
+              Descargar PDF
             </HoverButton>
             {abierta && (
               <HoverButton
@@ -252,7 +250,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
                 hoverColor={COLORS.black}
                 isTransitionLink
               >
-                {t('convocatoria.register')}
+                Registrarse
               </HoverButton>
             )}
           </div>
@@ -278,7 +276,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
             color: 'rgba(244,237,228,0.6)',
             fontFamily: FONTS.body
           }}>
-            {t('convocatoria.scrollDown')}
+            Desliza hacia abajo
           </span>
           <svg
             width="20"
@@ -315,10 +313,15 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
               textTransform: 'uppercase',
               color: COLORS.cream,
             }}>
-              {t('convocatoria.theFair')}
+              La Feria
             </h2>
             <ul style={{ margin: 0, padding: 0, listStyle: 'none', maxWidth: 800 }}>
-              {t('convocatoria.content.theFair', { returnObjects: true }).map((item, i) => (
+              {[
+                'ARTEFACTO es una feria de arte y diseño contemporáneo que reúne a artistas, diseñadores, galerías, coleccionistas y público en general.',
+                'Nuestro objetivo es crear un espacio de encuentro, exposición y comercialización de obra de artistas emergentes y consolidados.',
+                'La feria incluye stands de artistas, galerías, talleres, charlas, performances y actividades especiales.',
+                'Buscamos proyectos que exploren las fronteras entre arte, diseño, artesanía y nuevos medios.'
+              ].map((item, i) => (
                 <li key={i} style={{
                   display: 'flex',
                   gap: 14,
@@ -343,7 +346,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
             fontFamily: FONTS.body,
             textAlign: 'center',
           }}>
-            <strong>{t('convocatoria.commissionText')}</strong> {t('convocatoria.commissionDetail')} <strong>{t('convocatoria.artistPercentage')}</strong>, {t('convocatoria.artefactoPercentage')}
+            <strong>COMISIONES:</strong> Sobre cada venta realizada en la feria se aplicará una comisión del <strong>70% para el artista</strong>, 30% para ARTEFACTO
           </p>
 
           {/* INFORMACIÓN DE REGISTRO - Grid organizado */}
@@ -359,9 +362,15 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
 
             {/* ¿Cómo postular? */}
             <HoverCard>
-              <h3 style={sectionHeader}>▸ {t('convocatoria.howToApply')}</h3>
+              <h3 style={sectionHeader}>▸ ¿Cómo postular?</h3>
               <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                {t('convocatoria.content.howToApply', { returnObjects: true }).map((item, i) => (
+                {[
+                  'Completa el formulario de registro en línea',
+                  'Adjunta portafolio digital (máx. 10 imágenes)',
+                  'Incluye descripción de tu proyecto y propuesta de stand',
+                  'Especifica dimensiones y requerimientos técnicos',
+                  'Espera la confirmación del comité curatorial'
+                ].map((item, i) => (
                   <li key={i} style={listItem}>
                     <span style={bullet}>·</span>
                     <span>{item}</span>
@@ -372,9 +381,15 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
 
             {/* Requisitos generales */}
             <HoverCard>
-              <h3 style={sectionHeader}>▸ {t('convocatoria.requirements')}</h3>
+              <h3 style={sectionHeader}>▸ Requisitos generales</h3>
               <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                {t('convocatoria.content.requirements', { returnObjects: true }).map((item, i) => (
+                {[
+                  'Ser mayor de 18 años',
+                  'Obra original y de autoría propia',
+                  'Disponibilidad para montaje (6-7 mayo) y desmontaje (11-12 mayo)',
+                  'Compromiso de atención del stand durante toda la feria',
+                  'Seguro de obra bajo responsabilidad del artista'
+                ].map((item, i) => (
                   <li key={i} style={listItem}>
                     <span style={bullet}>·</span>
                     <span>{item}</span>
@@ -385,9 +400,15 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
 
             {/* Selección y exhibición */}
             <HoverCard>
-              <h3 style={sectionHeader}>▸ {t('convocatoria.selection')}</h3>
+              <h3 style={sectionHeader}>▸ Selección y exhibición</h3>
               <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                {t('convocatoria.content.selection', { returnObjects: true }).map((item, i) => (
+                {[
+                  'El comité curatorial revisará todas las postulaciones',
+                  'Notificación de aceptación: 15 de febrero de 2027',
+                  'Stand básico incluido (2x2m, iluminación, muro)',
+                  'Posibilidad de adquirir espacio adicional',
+                  'Difusión en redes y medios de ARTEFACTO'
+                ].map((item, i) => (
                   <li key={i} style={listItem}>
                     <span style={bullet}>·</span>
                     <span>{item}</span>
@@ -413,7 +434,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
               textTransform: 'uppercase',
               color: COLORS.cream,
             }}>
-              {t('convocatoria.keyDates')}
+              Fechas clave
             </h3>
             <div style={{
               display: 'flex',
@@ -421,7 +442,14 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
               alignItems: 'center',
               gap: 12,
             }}>
-              {t('convocatoria.content.keyDates', { returnObjects: true }).map((item, i) => (
+              {[
+                { title: 'Apertura de convocatoria', text: '1 de diciembre de 2026' },
+                { title: 'Cierre de postulaciones', text: '31 de enero de 2027' },
+                { title: 'Resultados', text: '15 de febrero de 2027' },
+                { title: 'Montaje', text: '6 y 7 de mayo de 2027' },
+                { title: 'Feria', text: '8 al 11 de mayo de 2027' },
+                { title: 'Desmontaje', text: '11 y 12 de mayo de 2027' }
+              ].map((item, i) => (
                 <p key={i} style={{
                   margin: 0,
                   fontSize: 14,
@@ -459,7 +487,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
                 download
                 external
               >
-                {t('convocatoria.downloadConvocatoria')}
+                Descargar convocatoria
               </HoverButton>
               <HoverButton
                 href={urlRegistro}
@@ -469,7 +497,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
                 hoverColor={COLORS.black}
                 isTransitionLink
               >
-                {abierta ? t('convocatoria.startRegistration') : t('convocatoria.registrationClosed')}
+                {abierta ? 'Iniciar registro' : 'Registro cerrado'}
               </HoverButton>
             </div>
             <a

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
 
 /**
  * Calendar Section - Calendario Visual Interactivo
@@ -24,98 +23,96 @@ import { useTranslation } from 'react-i18next'
  */
 
 export default function CalendarSection({ isActive = true }) {
-  const { t } = useTranslation()
-
-  // Eventos del calendario con traducciones
+  // Eventos del calendario
   const calendarEvents = [
     {
       day: 24,
-      month: t('calendar.months.august'),
+      month: 'Agosto',
       year: 2026,
       time: '00:00',
-      title: t('calendar.events.callOpening'),
-      description: t('calendar.events.callOpeningDesc'),
+      title: 'Apertura de Convocatoria',
+      description: 'Inicio oficial de la convocatoria',
       type: 'milestone'
     },
     {
       day: 24,
-      month: t('calendar.months.august'),
+      month: 'Agosto',
       year: 2026,
       time: '00:00',
-      title: t('calendar.events.phase1Opening'),
-      description: t('calendar.events.phase1OpeningDesc'),
+      title: 'Apertura de Fase 1',
+      description: 'Inicio de inscripciones Fase 1',
       type: 'phase'
     },
     {
       day: 14,
-      month: t('calendar.months.september'),
+      month: 'Septiembre',
       year: 2026,
       time: '23:59',
-      title: t('calendar.events.phase1Closing'),
-      description: t('calendar.events.phase1ClosingDesc'),
+      title: 'Cierre de Fase 1',
+      description: 'Fin de inscripciones Fase 1',
       type: 'phase'
     },
     {
       day: 22,
-      month: t('calendar.months.september'),
+      month: 'Septiembre',
       year: 2026,
       time: '12:00',
-      title: t('calendar.events.results1'),
-      description: t('calendar.events.results1Desc'),
+      title: 'Resultados Fase 1',
+      description: 'Publicación de resultados Fase 1',
       type: 'voting'
     },
     {
       day: 23,
-      month: t('calendar.months.september'),
+      month: 'Septiembre',
       year: 2026,
       time: '00:00',
-      title: t('calendar.events.phase2Opening'),
-      description: t('calendar.events.phase2OpeningDesc'),
+      title: 'Apertura de Fase 2',
+      description: 'Inicio de inscripciones Fase 2',
       type: 'phase'
     },
     {
       day: 14,
-      month: t('calendar.months.october'),
+      month: 'Octubre',
       year: 2026,
       time: '23:59',
-      title: t('calendar.events.phase2Closing'),
-      description: t('calendar.events.phase2ClosingDesc'),
+      title: 'Cierre de Fase 2',
+      description: 'Fin de inscripciones Fase 2',
       type: 'phase'
     },
     {
       day: 22,
-      month: t('calendar.months.october'),
+      month: 'Octubre',
       year: 2026,
       time: '12:00',
-      title: t('calendar.events.results2'),
-      description: t('calendar.events.results2Desc'),
+      title: 'Resultados Fase 2',
+      description: 'Publicación de resultados Fase 2',
       type: 'voting'
     },
     {
       day: 23,
-      month: t('calendar.months.october'),
+      month: 'Octubre',
       year: 2026,
       time: '00:00',
-      title: t('calendar.events.phase3Opening'),
-      description: t('calendar.events.phase3OpeningDesc'),
+      title: 'Apertura de Fase 3',
+      description: 'Inicio de inscripciones Fase 3',
       type: 'phase'
     },
     {
       day: 13,
-      month: t('calendar.months.november'),
+      month: 'Noviembre',
       year: 2026,
       time: '23:59',
-      title: t('calendar.events.phase3Closing'),
-      description: t('calendar.events.phase3ClosingDesc'),
+      title: 'Cierre de Fase 3',
+      description: 'Fin de inscripciones Fase 3',
       type: 'phase'
     },
     {
       day: 20,
-      month: t('calendar.months.november'),
+      month: 'Noviembre',
       year: 2026,
       time: '12:00',
-      title: t('calendar.events.results3'),
-      description: t('calendar.events.results3Desc'),
+      title: 'Resultados Fase 3',
+      description: 'Publicación de resultados Fase 3',
       type: 'voting'
     },
     {
@@ -129,11 +126,11 @@ export default function CalendarSection({ isActive = true }) {
     },
     {
       day: 4,
-      month: t('calendar.months.february'),
+      month: 'Febrero',
       year: 2027,
       time: '10:00',
-      title: t('calendar.events.fairEvent'),
-      description: t('calendar.events.fairEventDesc'),
+      title: 'Feria de Arte',
+      description: 'Evento principal de la feria (4-7 feb)',
       type: 'main-event'
     },
     {

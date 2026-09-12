@@ -1,6 +1,5 @@
 'use client'
 
-import { useTranslation } from 'react-i18next'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import { Info, Palette, Shield } from 'lucide-react'
@@ -23,8 +22,6 @@ import { Info, Palette, Shield } from 'lucide-react'
  */
 
 export default function Step1DatosPersonales({ formData, updateFormData, errors }) {
-  const { t } = useTranslation()
-
   const handleChange = (e) => {
     const { name, value } = e.target
     updateFormData({ [name]: value })
@@ -250,7 +247,7 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
             letterSpacing: '0.04em',
             textTransform: 'uppercase'
           }}>
-            {t('registro.step1.headerTitle')}
+            ¡Bienvenido a Artefacto!
           </h3>
           <Palette size={32} color="#B83030" />
         </div>
@@ -275,7 +272,7 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
               fontSize: '16px',
               marginBottom: '8px'
             }}>
-              {t('registro.step1.disclaimerTitle')}
+              Información Importante
             </h3>
             <p style={{
               color: 'rgba(244, 237, 228, 0.85)',
@@ -283,78 +280,78 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
               lineHeight: '1.6',
               margin: 0
             }}>
-              <strong>{t('registro.step1.disclaimerBold')}</strong> {t('registro.step1.disclaimerText')}
+              <strong>El registro es completamente gratuito.</strong> Solo pagarás la tarifa de participación si eres seleccionado para la exposición.
             </p>
           </div>
         </div>
       </div>
 
       <div>
-        <h2 className="text-2xl font-bold mb-2" style={{ color: '#141210' }}>{t('registro.step1.title')}</h2>
+        <h2 className="text-2xl font-bold mb-2" style={{ color: '#141210' }}>Datos Personales</h2>
         <p style={{ color: '#F4EDE4', fontSize: '15px' }}>
-          {t('registro.step1.subtitle')}
+          Comencemos con tu información básica
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Input
-          label={t('registro.step1.firstName')}
+          label="Nombre(s)"
           name="nombre"
           value={formData.nombre || ''}
           onChange={handleChange}
           error={errors?.nombre}
           required
-          placeholder={t('registro.step1.firstNamePlaceholder')}
+          placeholder="Ej: María"
         />
 
         <Input
-          label={t('registro.step1.lastName')}
+          label="Apellido(s)"
           name="apellido"
           value={formData.apellido || ''}
           onChange={handleChange}
           error={errors?.apellido}
           required
-          placeholder={t('registro.step1.lastNamePlaceholder')}
+          placeholder="Ej: García López"
         />
       </div>
 
       {/* Nombre Artístico - NUEVO */}
       <Input
-        label={t('registro.step1.artisticName')}
+        label="Nombre Artístico"
         name="nombre_artistico"
         value={formData.nombre_artistico || ''}
         onChange={handleChange}
-        placeholder={t('registro.step1.artisticNamePlaceholder')}
-        helper={t('registro.step1.artisticNameHelper')}
+        placeholder="Ej: Frida, Banksy, etc."
+        helper="Opcional. Si tienes un seudónimo o nombre artístico, ingrésalo aquí"
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Input
-          label={t('registro.step1.email')}
+          label="Correo Electrónico"
           type="email"
           name="email"
           value={formData.email || ''}
           onChange={handleChange}
           error={errors?.email}
           required
-          placeholder={t('registro.step1.emailPlaceholder')}
+          placeholder="tu@email.com"
         />
 
         <Input
-          label={t('registro.step1.phone')}
+          label="Teléfono"
           type="tel"
           name="telefono"
           value={formData.telefono || ''}
           onChange={handleChange}
           error={errors?.telefono}
           required
-          placeholder={t('registro.step1.phonePlaceholder')}
+          placeholder="+52 55 1234 5678"
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Input
-          label={t('registro.step1.birthdate')}
+          label="Fecha de Nacimiento"
           type="date"
           name="fecha_nacimiento"
           value={formData.fecha_nacimiento || ''}
@@ -364,25 +361,25 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
         />
 
         <Select
-          label={t('registro.step1.country')}
+          label="País"
           name="pais"
           value={formData.pais || ''}
           onChange={handleChange}
           error={errors?.pais}
           required
           options={paises}
-          placeholder={t('registro.step1.countryPlaceholder')}
+          placeholder="Selecciona tu país"
         />
       </div>
 
       <Input
-        label={t('registro.step1.city')}
+        label="Ciudad"
         name="ciudad"
         value={formData.ciudad || ''}
         onChange={handleChange}
         error={errors?.ciudad}
         required
-        placeholder={t('registro.step1.cityPlaceholder')}
+        placeholder="Ej: Ciudad de México"
       />
 
       {/* Aviso de Privacidad con checkbox */}
@@ -417,7 +414,7 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
             fontSize: '14px',
             lineHeight: '1.6'
           }}>
-            {t('registro.step1.privacyText')}{' '}
+            He leído y acepto el{' '}
             <a
               href="/privacy-policy"
               target="_blank"
@@ -429,7 +426,7 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              {t('registro.step1.privacyLink')}
+              Aviso de Privacidad
             </a>
           </span>
         </label>

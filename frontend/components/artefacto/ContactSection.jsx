@@ -1,17 +1,15 @@
 'use client';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { COLORS, FONTS, container } from './theme';
 
 const inputStyle = { border: 'none', background: COLORS.creamDark, padding: 14, fontFamily: FONTS.body, fontSize: 15, fontWeight: 400, borderRadius: 16 };
 const labelStyle = { display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' };
 
 export default function ContactSection({ onSubmit }) {
-  const { t } = useTranslation();
   const [status, setStatus] = useState('idle'); // idle | sending | sent
 
   const DATOS = [
-    { label: t('contact.email'), value: 'curatorial@arte-facto.mx', href: 'mailto:curatorial@arte-facto.mx' },
+    { label: 'Email', value: 'curatorial@arte-facto.mx', href: 'mailto:curatorial@arte-facto.mx' },
   ];
 
   const REDES = [
@@ -62,8 +60,8 @@ export default function ContactSection({ onSubmit }) {
             textTransform: 'uppercase',
             color: COLORS.cream,
             textAlign: 'center'
-          }}>{t('contact.title')}</h2>
-          <p style={{ margin: '0 auto 56px', maxWidth: 640, fontSize: 20, lineHeight: 1.6, textAlign: 'center' }}>{t('contact.subtitle')}</p>
+          }}>Contacto</h2>
+          <p style={{ margin: '0 auto 56px', maxWidth: 640, fontSize: 20, lineHeight: 1.6, textAlign: 'center' }}>¿Tienes alguna pregunta? Envíanos un mensaje y nos pondremos en contacto contigo.</p>
 
           <div className="contact-grid" style={{ display: 'grid', gridTemplateColumns: '0.9fr 1.1fr', gap: 48, alignItems: 'start' }}>
           <div>
@@ -76,7 +74,7 @@ export default function ContactSection({ onSubmit }) {
               </div>
             ))}
             <div className="contact-data-grid" style={{ borderTop: `2px solid ${COLORS.black}`, borderBottom: `2px solid ${COLORS.black}`, padding: '22px 0', display: 'grid', gridTemplateColumns: '130px 1fr', gap: 16, alignItems: 'baseline' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: COLORS.cream }}>{t('contact.followUs')}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: COLORS.cream }}>Síguenos</div>
               <div style={{ display: 'flex', gap: 20, fontSize: 15, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
                 {REDES.map((r) => <a key={r.label} href={r.href} target="_blank" rel="noopener noreferrer" style={{ color: COLORS.black, textDecoration: 'none' }}>{r.label}</a>)}
               </div>
@@ -93,25 +91,25 @@ export default function ContactSection({ onSubmit }) {
               fontSize: 26,
               letterSpacing: '0.04em',
               textTransform: 'uppercase'
-            }}>{t('contact.sendMessage')}</h3>
+            }}>Enviar mensaje</h3>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
               <div className="contact-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
-                <label style={labelStyle}>{t('contact.fullName')}<input name="nombre" required placeholder={t('contact.namePlaceholder')} style={inputStyle} /></label>
-                <label style={labelStyle}>{t('contact.emailLabel')}<input name="email" type="email" required placeholder={t('contact.emailPlaceholder')} style={inputStyle} /></label>
+                <label style={labelStyle}>Nombre completo<input name="nombre" required placeholder="Juan Pérez" style={inputStyle} /></label>
+                <label style={labelStyle}>Email<input name="email" type="email" required placeholder="nombre@ejemplo.com" style={inputStyle} /></label>
               </div>
               <div className="contact-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
-                <label style={labelStyle}>{t('contact.phone')}<input name="telefono" type="tel" placeholder={t('contact.phonePlaceholder')} style={inputStyle} /></label>
-                <label style={labelStyle}>{t('contact.subject')}<input name="asunto" required placeholder={t('contact.subjectPlaceholder')} style={inputStyle} /></label>
+                <label style={labelStyle}>Teléfono<input name="telefono" type="tel" placeholder="+52 123 456 7890" style={inputStyle} /></label>
+                <label style={labelStyle}>Asunto<input name="asunto" required placeholder="Solicitud de información" style={inputStyle} /></label>
               </div>
-              <label style={labelStyle}>{t('contact.message')}<textarea name="mensaje" required rows={5} placeholder={t('contact.messagePlaceholder')} style={{ ...inputStyle, resize: 'vertical' }} /></label>
+              <label style={labelStyle}>Mensaje<textarea name="mensaje" required rows={5} placeholder="Escribe tu mensaje aquí..." style={{ ...inputStyle, resize: 'vertical' }} /></label>
               <button type="submit" disabled={status === 'sending'}
                 style={{ background: COLORS.red, color: COLORS.cream, border: 'none', padding: 18, fontFamily: FONTS.body, fontWeight: 700, fontSize: 14, letterSpacing: '0.12em', textTransform: 'uppercase', cursor: 'pointer', borderRadius: 16 }}>
-                {status === 'sending' ? t('contact.sending') : t('contact.sendButton')}
+                {status === 'sending' ? 'Enviando...' : 'Enviar mensaje'}
               </button>
             </form>
             {status === 'sent' && (
               <div style={{ marginTop: 18, background: COLORS.creamDark, padding: '16px 20px', fontSize: 15, fontWeight: 600, borderRadius: 16 }}>
-                {t('contact.successMessage')}
+                ¡Mensaje enviado! Nos pondremos en contacto pronto.
               </div>
             )}
           </div>

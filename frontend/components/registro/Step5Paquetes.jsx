@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, useLayoutEffect, forwardRef } from 'react'
 import { createPortal } from 'react-dom'
 import dynamic from 'next/dynamic'
-import { useTranslation } from 'react-i18next'
 import { usePaquetesStore } from '@/stores/paquetesStore'
 import { ChevronDown, ChevronUp, Check, Plus, Edit2, Trash2, GripVertical, AlertCircle, Palette, Box, Download, ArrowRight, X, MousePointer2, Move, Save, FileText, ExternalLink, Info, Loader2, Layers, Frame, Boxes } from 'lucide-react'
 import gsap from 'gsap'
@@ -57,24 +56,22 @@ const CATEGORIAS = [
 ]
 
 export default function Step5Paquetes({ formData, updateFormData, errors, onContinue }) {
-  const { t } = useTranslation()
-
   // Formatos traducidos
   const FORMATOS_2D_I18N = [
-    { value: 'pintura', label: t('registro.step5.formats2D.pintura') },
-    { value: 'dibujo', label: t('registro.step5.formats2D.dibujo') },
-    { value: 'grafica', label: t('registro.step5.formats2D.grafica') },
-    { value: 'fotografia', label: t('registro.step5.formats2D.fotografia') },
-    { value: 'collage_mixta', label: t('registro.step5.formats2D.collage_mixta') },
-    { value: 'textil', label: t('registro.step5.formats2D.textil') },
-    { value: 'otro_2d', label: t('registro.step5.formats2D.otro_2d') },
+    { value: 'pintura', label: 'Pintura (técnicas húmedas)' },
+    { value: 'dibujo', label: 'Dibujo (técnicas secas)' },
+    { value: 'grafica', label: 'Gráfica' },
+    { value: 'fotografia', label: 'Fotografía' },
+    { value: 'collage_mixta', label: 'Collage & Mixta' },
+    { value: 'textil', label: 'Textil' },
+    { value: 'otro_2d', label: 'Otro' },
   ]
 
   const FORMATOS_3D_I18N = [
-    { value: 'escultura', label: t('registro.step5.formats3D.escultura') },
-    { value: 'ceramica', label: t('registro.step5.formats3D.ceramica') },
-    { value: 'textil_3d', label: t('registro.step5.formats3D.textil_3d') },
-    { value: 'otro_3d', label: t('registro.step5.formats3D.otro_3d') },
+    { value: 'escultura', label: 'Escultura' },
+    { value: 'ceramica', label: 'Cerámica' },
+    { value: 'textil_3d', label: 'Textil' },
+    { value: 'otro_3d', label: 'Otro' },
   ]
 
   const [confirmedPaquete, setConfirmedPaquete] = useState(
@@ -344,7 +341,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
       if (processedObras.length > 0) setEditingObra(processedObras[0])
     } catch (error) {
       console.error('Error procesando imágenes:', error)
-      alert(t('registro.step5.errorProcessingImages'))
+      alert('Error al procesar las imágenes. Por favor, intenta de nuevo.')
     } finally {
       setIsProcessingImages(false)
     }
@@ -394,7 +391,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
           }}
         >
           <FileText size={16} />
-          {t('registro.step5.instructionsButton')}
+          Ver Instrucciones
         </button>
         <button
           type="button"
@@ -416,7 +413,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
           }}
         >
           <ExternalLink size={16} />
-          {t('registro.step5.referencesButton')}
+          Ver Referencias de Paquetes
         </button>
       </div>
 
@@ -508,7 +505,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
               color: COLORS.gray,
               margin: '0 0 10px',
             }}>
-              {t('registro.step5.selectOneOrMore')}
+              Selecciona uno o más formatos
             </p>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               {FORMATOS_2D_I18N.map((formato) => (
@@ -551,7 +548,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
               color: COLORS.gray,
               margin: '0 0 10px',
             }}>
-              {t('registro.step5.selectOneOrMore')}
+              Selecciona uno o más formatos
             </p>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               {FORMATOS_3D_I18N.map((formato) => (
@@ -597,7 +594,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
               display: 'block',
               marginBottom: '8px',
             }}>
-              {t('registro.step5.describeYourFormat')} *
+              Describe tu formato de trabajo *
             </label>
             <input
               type="text"
@@ -647,7 +644,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
               fontSize: '13px',
               color: COLORS.black,
             }}>
-              <strong>{selectedFormatos.length}</strong> {t('registro.step5.formatsSelected')}
+              <strong>{selectedFormatos.length}</strong> formato(s) seleccionado(s)
               {tipoFormato && ` (${tipoFormato})`}
             </span>
           </div>
@@ -697,7 +694,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
             color: COLORS.black,
             margin: '0 0 8px',
           }}>
-            {t('registro.step5.selectYourFormat')}
+            Selecciona tu formato de trabajo
           </h3>
           <p style={{
             fontFamily: FONTS.body,
@@ -705,7 +702,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
             color: COLORS.gray,
             margin: 0,
           }}>
-            {t('registro.step5.chooseFormatPrompt')}
+            Por favor, elige si trabajas con formatos 2D, 3D u otros para continuar
           </p>
         </div>
       )}
@@ -750,7 +747,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
               }}
             >
               <Palette size={16} />
-              {t('registro.step5.myWorks')}
+              Mis Obras
               {leftPanelOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </button>
 
@@ -773,7 +770,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
               >
                 <div style={{ padding: '12px 16px', borderBottom: `1px solid ${COLORS.creamDark}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.gray }}>
-                    {isProcessingImages ? t('registro.step5.processing') : `${todasLasObras.length} ${todasLasObras.length !== 1 ? t('registro.step5.works') : t('registro.step5.work')}`}
+                    {isProcessingImages ? 'Procesando...' : `${todasLasObras.length} ${todasLasObras.length !== 1 ? 'obras' : 'obra'}`}
                   </span>
                   <label style={{
                     display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 10px',
@@ -785,11 +782,11 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
                   }}>
                     {isProcessingImages ? (
                       <>
-                        <Loader2 size={12} className="animate-spin" /> {t('registro.step5.compressing')}
+                        <Loader2 size={12} className="animate-spin" /> Comprimiendo...
                       </>
                     ) : (
                       <>
-                        <Plus size={12} /> {t('registro.step5.addWork')}
+                        <Plus size={12} /> Agregar Obra
                       </>
                     )}
                     <input
@@ -808,7 +805,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
                     <div style={{ background: 'rgba(184,48,48,0.08)', borderRadius: '8px', padding: '8px 10px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <AlertCircle size={14} color={COLORS.red} />
                       <span style={{ fontFamily: FONTS.body, fontSize: '11px', color: COLORS.black }}>
-                        {t('registro.step5.selectPackageFirst')}
+                        Selecciona un paquete primero para agregar obras al lienzo
                       </span>
                     </div>
                   )}
@@ -837,10 +834,10 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontFamily: FONTS.body, fontSize: '12px', fontWeight: 600, color: COLORS.black, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {obra.titulo || t('registro.step5.noTitle')}
+                            {obra.titulo || 'Sin título'}
                           </div>
                           <div style={{ fontFamily: FONTS.body, fontSize: '10px', color: COLORS.gray }}>
-                            {obra.ancho_cm && obra.alto_cm ? `${obra.ancho_cm} × ${obra.alto_cm} cm` : t('registro.step5.noMeasurements')}
+                            {obra.ancho_cm && obra.alto_cm ? `${obra.ancho_cm} × ${obra.alto_cm} cm` : 'Sin medidas'}
                           </div>
                         </div>
                         {isInCanvas && <Check size={14} color={COLORS.red} />}
@@ -860,7 +857,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
                   {todasLasObras.length === 0 && (
                     <div style={{ textAlign: 'center', padding: '24px 12px', background: 'white', borderRadius: '8px', border: `2px dashed ${COLORS.creamDark}` }}>
                       <p style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.gray, margin: 0 }}>
-                        {t('registro.step5.noWorks')}<br />{t('registro.step5.clickToAdd')}
+                        No tienes obras agregadas<br />Haz clic en "Agregar Obra" para comenzar
                       </p>
                     </div>
                   )}
@@ -895,7 +892,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
               }}
             >
               <Box size={16} />
-              {t('registro.step5.packages')}
+              Paquetes
               {rightPanelOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </button>
 
@@ -919,7 +916,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
                 <div style={{ padding: '10px 16px', background: 'rgba(184,48,48,0.05)', borderBottom: `1px solid ${COLORS.creamDark}`, display: 'flex', alignItems: 'center', gap: '8px' }}>
                   {mostrarTodosPaquetes ? <Box size={14} color={COLORS.red} /> : (esArtista3D ? <Box size={14} color={COLORS.red} /> : <Palette size={14} color={COLORS.red} />)}
                   <span style={{ fontFamily: FONTS.body, fontSize: '11px', color: COLORS.black, fontWeight: 600 }}>
-                    {mostrarTodosPaquetes ? t('registro.step5.allPackages') : (esArtista3D ? t('registro.step5.packages3D') : t('registro.step5.packages2D'))}
+                    {mostrarTodosPaquetes ? 'Todos los Paquetes' : (esArtista3D ? 'Paquetes 3D' : 'Paquetes 2D')}
                   </span>
                 </div>
                 <div style={{ padding: '8px 16px', background: 'rgba(34, 197, 94, 0.15)', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -997,7 +994,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
                                     fontSize: '12px', textTransform: 'uppercase', cursor: 'pointer',
                                   }}
                                 >
-                                  {t('registro.step5.selectPackage')}
+                                  Seleccionar Paquete
                                 </button>
                               ) : (
                                 <div style={{
@@ -1005,7 +1002,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
                                   padding: '10px', background: COLORS.red, color: COLORS.cream, borderRadius: '8px',
                                   fontFamily: FONTS.body, fontWeight: 600, fontSize: '12px',
                                 }}>
-                                  <Check size={14} /> {t('registro.step5.packageSelected')}
+                                  <Check size={14} /> Paquete Seleccionado
                                 </div>
                               )}
                             </div>
@@ -1123,7 +1120,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
               transition: 'all 0.2s ease',
             }}
           >
-            {canvasState.isSaving ? t('registro.step5.saving') : t('registro.step5.saveAndContinue')}
+            {canvasState.isSaving ? 'Guardando...' : 'Guardar y Continuar'}
             <ArrowRight size={16} />
           </button>
         </div>
@@ -1215,10 +1212,10 @@ function CanvasPlaceholder() {
         boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
       }}>
         <h3 style={{ fontFamily: FONTS.display, fontWeight: 600, fontStyle: 'italic', fontSize: '24px', color: COLORS.black, marginBottom: '12px' }}>
-          {t('registro.step5.selectAPackage')}
+          Selecciona un Paquete
         </h3>
         <p style={{ fontFamily: FONTS.body, fontSize: '15px', color: COLORS.gray, maxWidth: '300px', lineHeight: 1.6, margin: 0 }}>
-          {t('registro.step5.clickPackagesAbove')}
+          Haz clic en "Paquetes" arriba para ver las opciones disponibles y empezar a diseñar tu lienzo
         </p>
       </div>
     </div>
@@ -1228,7 +1225,6 @@ function CanvasPlaceholder() {
 const MAX_FOTOS_DETALLE = 5
 
 function ObraModal({ obra, es3D, onSave, onClose }) {
-  const { t } = useTranslation()
   const modalRef = useRef(null)
   const contentRef = useRef(null)
   const fotosInputRef = useRef(null)
@@ -1448,14 +1444,14 @@ function ObraModal({ obra, es3D, onSave, onClose }) {
             </div>
           )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <Field label={`${t('registro.step5.workTitle')} *`} value={form.titulo} onChange={(e) => setForm(p => ({ ...p, titulo: e.target.value }))} required />
+            <Field label="Título de la Obra *" value={form.titulo} onChange={(e) => setForm(p => ({ ...p, titulo: e.target.value }))} required />
 
             {/* Dimensiones */}
             <div style={{ display: 'grid', gridTemplateColumns: es3D ? '1fr 1fr 1fr' : '1fr 1fr', gap: '12px' }}>
-              <Field label={`${t('registro.step5.width')} *`} type="number" value={form.ancho_cm} onChange={(e) => setForm(p => ({ ...p, ancho_cm: e.target.value }))} required />
-              <Field label={`${t('registro.step5.height')} *`} type="number" value={form.alto_cm} onChange={(e) => setForm(p => ({ ...p, alto_cm: e.target.value }))} required />
+              <Field label="Ancho (cm) *" type="number" value={form.ancho_cm} onChange={(e) => setForm(p => ({ ...p, ancho_cm: e.target.value }))} required />
+              <Field label="Alto (cm) *" type="number" value={form.alto_cm} onChange={(e) => setForm(p => ({ ...p, alto_cm: e.target.value }))} required />
               {es3D && (
-                <Field label={`${t('registro.step5.depth')} *`} type="number" value={form.largo_cm} onChange={(e) => setForm(p => ({ ...p, largo_cm: e.target.value }))} required />
+                <Field label="Profundidad (cm) *" type="number" value={form.largo_cm} onChange={(e) => setForm(p => ({ ...p, largo_cm: e.target.value }))} required />
               )}
             </div>
             <p style={{
@@ -1465,12 +1461,12 @@ function ObraModal({ obra, es3D, onSave, onClose }) {
               margin: '-6px 0 0 0',
               fontStyle: 'italic',
             }}>
-              {t('registro.step5.includeFrameNote')}
+              *Incluye el marco o base en las medidas si tu obra lo requiere
             </p>
 
-            <Field label={`${t('registro.step5.technique')} *`} value={form.tecnica} onChange={(e) => setForm(p => ({ ...p, tecnica: e.target.value }))} required />
+            <Field label="Técnica *" value={form.tecnica} onChange={(e) => setForm(p => ({ ...p, tecnica: e.target.value }))} required />
 
-            <Field label={t('registro.step5.yearLabel')} type="number" value={form.anio} onChange={(e) => setForm(p => ({ ...p, anio: e.target.value }))} />
+            <Field label="Año de Creación" type="number" value={form.anio} onChange={(e) => setForm(p => ({ ...p, anio: e.target.value }))} />
 
             {/* Campo de precio con calculadora */}
             <PrecioCalculadora
@@ -1551,11 +1547,11 @@ function ObraModal({ obra, es3D, onSave, onClose }) {
 
             {/* Notas complementarias */}
             <div>
-              <label style={{ display: 'block', fontFamily: FONTS.body, fontSize: '13px', fontWeight: 600, color: COLORS.black, marginBottom: '6px' }}>{t('registro.step5.complementaryNotes')}</label>
+              <label style={{ display: 'block', fontFamily: FONTS.body, fontSize: '13px', fontWeight: 600, color: COLORS.black, marginBottom: '6px' }}>Notas Complementarias</label>
               <textarea
                 value={form.notas_montaje}
                 onChange={(e) => setForm(p => ({ ...p, notas_montaje: e.target.value }))}
-                placeholder={t('registro.step5.mountingInstructionsPlaceholder')}
+                placeholder="Ej: Requiere colgadores especiales, debe estar en vitrina, necesita base de mármol, etc."
                 rows={3}
                 style={{
                   width: '100%',
@@ -1574,8 +1570,8 @@ function ObraModal({ obra, es3D, onSave, onClose }) {
             </div>
           </div>
           <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-            <button type="button" onClick={handleClose} style={{ flex: 1, padding: '14px', background: 'transparent', border: `2px solid ${COLORS.gray}`, borderRadius: '12px', fontFamily: FONTS.body, fontWeight: 600, color: COLORS.gray, cursor: 'pointer' }}>{t('registro.step5.cancel')}</button>
-            <button type="submit" style={{ flex: 1, padding: '14px', background: COLORS.red, border: 'none', borderRadius: '12px', fontFamily: FONTS.body, fontWeight: 600, color: COLORS.cream, cursor: 'pointer' }}>{t('registro.step5.save')}</button>
+            <button type="button" onClick={handleClose} style={{ flex: 1, padding: '14px', background: 'transparent', border: `2px solid ${COLORS.gray}`, borderRadius: '12px', fontFamily: FONTS.body, fontWeight: 600, color: COLORS.gray, cursor: 'pointer' }}>Cancelar</button>
+            <button type="submit" style={{ flex: 1, padding: '14px', background: COLORS.red, border: 'none', borderRadius: '12px', fontFamily: FONTS.body, fontWeight: 600, color: COLORS.cream, cursor: 'pointer' }}>Guardar</button>
           </div>
         </form>
       </div>
@@ -1588,7 +1584,6 @@ function ObraModal({ obra, es3D, onSave, onClose }) {
 
 // Componente de precio con calculadora de comisiones
 function PrecioCalculadora({ value, onChange }) {
-  const { t } = useTranslation()
 
   // Formatear número con comas (sin decimales para el input)
   const formatInputNumber = (num) => {
@@ -1624,7 +1619,7 @@ function PrecioCalculadora({ value, onChange }) {
         color: COLORS.black,
         marginBottom: '6px'
       }}>
-        {t('registro.step5.yourPrice')} *
+        Tu Precio (lo que recibirás) *
       </label>
       <div style={{ position: 'relative' }}>
         <span style={{
@@ -1666,7 +1661,7 @@ function PrecioCalculadora({ value, onChange }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid ${COLORS.creamDark}` }}>
               <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.gray }}>
-                {t('registro.step5.yourProfit')}
+                Tu ganancia (75%)
               </span>
               <span style={{ fontFamily: FONTS.body, fontSize: '12px', fontWeight: 600, color: COLORS.black }}>
                 ${formatNumber(gananciaArtista)}
@@ -1675,7 +1670,7 @@ function PrecioCalculadora({ value, onChange }) {
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid ${COLORS.creamDark}` }}>
               <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.gray }}>
-                {t('registro.step5.commission')}
+                Comisión Artefacto (25%)
               </span>
               <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.black }}>
                 ${formatNumber(comisionArtefacto)}
@@ -1684,7 +1679,7 @@ function PrecioCalculadora({ value, onChange }) {
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid ${COLORS.creamDark}` }}>
               <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.gray }}>
-                {t('registro.step5.publicPrice')}
+                Precio al público
               </span>
               <span style={{ fontFamily: FONTS.body, fontSize: '12px', color: COLORS.black }}>
                 ${formatNumber(precioPublico)}
@@ -1693,8 +1688,8 @@ function PrecioCalculadora({ value, onChange }) {
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0' }}>
               <span style={{ fontFamily: FONTS.body, fontSize: '13px', fontWeight: 600, color: COLORS.black, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                {t('registro.step5.suggestedPrice')}
-                <TooltipIcon text={t('registro.step5.priceReferenceNote')} />
+                Precio sugerido (redondeado)
+                <TooltipIcon text="El precio sugerido redondea el precio público a la centena más cercana para mayor claridad" />
               </span>
               <span style={{ fontFamily: FONTS.body, fontSize: '15px', fontWeight: 700, color: COLORS.red }}>
                 ${formatNumber(precioSugerido)}
@@ -1776,7 +1771,6 @@ function Field({ label, value, onChange, type = 'text', required }) {
 }
 
 const InstructionsModal = forwardRef(function InstructionsModal({ onClose }, ref) {
-  const { t } = useTranslation()
   const contentRef = useRef(null)
   const [mounted, setMounted] = useState(false)
 
@@ -1800,43 +1794,43 @@ const InstructionsModal = forwardRef(function InstructionsModal({ onClose }, ref
   const steps = [
     {
       icon: Layers,
-      title: t('registro.step5.instructions.step1.title'),
-      description: t('registro.step5.instructions.step1.description')
+      title: 'Elige tu Formato',
+      description: 'Selecciona si trabajas con formatos 2D (pintura, fotografía), 3D (escultura, cerámica) u otros'
     },
     {
       icon: Box,
-      title: t('registro.step5.instructions.step2.title'),
-      description: t('registro.step5.instructions.step2.description')
+      title: 'Selecciona un Paquete',
+      description: 'Elige el paquete que mejor se adapte al tamaño de tu obra. Cada paquete tiene metros lineales o cuadrados específicos'
     },
     {
       icon: Plus,
-      title: t('registro.step5.instructions.step3.title'),
-      description: t('registro.step5.instructions.step3.description')
+      title: 'Agrega tus Obras',
+      description: 'Haz clic en "Mis Obras" para subir imágenes de tus obras. Puedes agregar varias'
     },
     {
       icon: Edit2,
-      title: t('registro.step5.instructions.step4.title'),
-      description: t('registro.step5.instructions.step4.description')
+      title: 'Completa la Ficha Técnica',
+      description: 'Para cada obra, ingresa título, medidas, técnica, año y precio. Esta información es obligatoria'
     },
     {
       icon: Move,
-      title: t('registro.step5.instructions.step5.title'),
-      description: t('registro.step5.instructions.step5.description')
+      title: 'Diseña tu Lienzo',
+      description: 'Arrastra tus obras desde "Mis Obras" al canvas. Organízalas como quieras que se vean en el mural'
     },
     {
       icon: Save,
-      title: t('registro.step5.instructions.step6.title'),
-      description: t('registro.step5.instructions.step6.description')
+      title: 'Guarda tu Diseño',
+      description: 'Una vez que estés satisfecho con tu lienzo, haz clic en "Guardar y Continuar"'
     },
     {
       icon: Frame,
-      title: t('registro.step5.instructions.step7.title'),
-      description: t('registro.step5.instructions.step7.description')
+      title: 'Dimensiones Importantes',
+      description: 'Asegúrate de incluir el marco o base en las medidas si tu obra lo requiere'
     },
     {
       icon: Boxes,
-      title: t('registro.step5.instructions.step8.title'),
-      description: t('registro.step5.instructions.step8.description')
+      title: 'Múltiples Obras',
+      description: 'Puedes incluir varias obras en un mismo paquete si el espacio lo permite. El sistema te avisará si excedes el límite'
     }
   ]
 
@@ -1920,7 +1914,7 @@ const InstructionsModal = forwardRef(function InstructionsModal({ onClose }, ref
             margin: '0 0 8px',
             letterSpacing: '0.02em',
           }}>
-            {t('registro.step5.yourCanvas')}
+            Tu Lienzo Digital
           </h2>
           <p style={{
             fontFamily: FONTS.body,
@@ -1929,7 +1923,7 @@ const InstructionsModal = forwardRef(function InstructionsModal({ onClose }, ref
             margin: 0,
             lineHeight: 1.5,
           }}>
-            {t('registro.step5.canvasDescription')}
+            Sigue estos pasos para crear tu espacio en el mural de Artefacto
           </p>
         </div>
 
@@ -2009,7 +2003,7 @@ const InstructionsModal = forwardRef(function InstructionsModal({ onClose }, ref
             }}
           >
             <MousePointer2 size={18} />
-            {t('registro.step5.gotIt')}
+            ¡Entendido!
           </button>
         </div>
         </div>

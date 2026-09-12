@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { COLORS, container } from './theme';
 
 const colTitle = { margin: '0 0 12px', fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: COLORS.red };
@@ -8,15 +7,14 @@ const link = { color: 'rgba(244,237,228,0.75)', textDecoration: 'none', fontSize
 const col = { display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13 };
 
 export default function Footer() {
-  const { t } = useTranslation();
   const [isMobile, setIsMobile] = useState(false);
 
   const NAV = [
-    { label: t('nav.home'), href: '#hero' },
-    { label: t('nav.knowMore'), href: '#about' },
-    { label: t('nav.callForArtists'), href: '#convocatoria' },
-    { label: t('nav.calendar'), href: '#calendario' },
-    { label: t('nav.contact'), href: '#contacto' },
+    { label: 'Inicio', href: '#hero' },
+    { label: 'Conoce más', href: '#about' },
+    { label: 'Convocatoria', href: '#convocatoria' },
+    { label: 'Calendario', href: '#calendario' },
+    { label: 'Contacto', href: '#contacto' },
   ];
 
   useEffect(() => {
@@ -46,22 +44,22 @@ export default function Footer() {
           <div style={logoSectionStyle}>
             <img src="/assets/footer-logo.svg" alt="ARTEFACTO" style={{ width: isMobile ? 140 : 160, display: 'block', marginBottom: 16 }} />
             <p style={{ margin: 0, fontSize: isMobile ? 12 : 13, lineHeight: 1.6, color: 'rgba(244,237,228,0.6)', maxWidth: 260 }}>
-              {t('footer.description')}
+              Plataforma de artistas emergentes y espacios independientes.
             </p>
           </div>
           <div style={isMobile ? { textAlign: 'center' } : {}}>
-            <h4 style={colTitle}>{t('footer.navigation')}</h4>
+            <h4 style={colTitle}>Navegación</h4>
             <div style={{ ...col, alignItems: isMobile ? 'center' : 'flex-start' }}>
               {NAV.map((n) => <a key={n.label} href={n.href} style={link}>{n.label}</a>)}
             </div>
           </div>
           <div style={isMobile ? { textAlign: 'center' } : {}}>
-            <h4 style={colTitle}>{t('footer.contact')}</h4>
+            <h4 style={colTitle}>Contacto</h4>
             <div style={{ ...col, alignItems: isMobile ? 'center' : 'flex-start' }}>
               <a href="mailto:convocatoria@artefacto.mx" style={{ ...link, fontSize: isMobile ? 12 : 13 }}>convocatoria@artefacto.mx</a>
               <a href="mailto:artefacto.curatorial@gmail.com" style={{ ...link, fontSize: isMobile ? 12 : 13 }}>artefacto.curatorial@gmail.com</a>
               <span style={{ ...link, fontSize: isMobile ? 11 : 12, lineHeight: 1.5, display: 'block', marginTop: 4, whiteSpace: 'pre-line' }}>
-                {t('footer.address')}
+                CDMX, México
               </span>
               <div style={{ display: 'flex', gap: 12, marginTop: 12, fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', justifyContent: isMobile ? 'center' : 'flex-start' }}>
                 <a href="https://www.instagram.com/artefacto.feria?igsh=MTNrcWwwajIycjh6dg%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" style={{ color: COLORS.cream, textDecoration: 'none' }}>IG</a>
@@ -71,12 +69,12 @@ export default function Footer() {
           </div>
         </div>
         <div style={footerBarStyle}>
-          <span>© {new Date().getFullYear()} {t('footer.rights')}</span>
+          <span>© {new Date().getFullYear()} Todos los derechos reservados</span>
           <div style={{ display: 'flex', gap: 16 }}>
-            <a href="/terms" style={{ color: 'rgba(244,237,228,0.6)', textDecoration: 'none', fontSize: 11 }}>{t('footer.terms')}</a>
-            <a href="/privacy-policy" style={{ color: 'rgba(244,237,228,0.6)', textDecoration: 'none', fontSize: 11 }}>{t('footer.privacy')}</a>
+            <a href="/terms" style={{ color: 'rgba(244,237,228,0.6)', textDecoration: 'none', fontSize: 11 }}>Términos y condiciones</a>
+            <a href="/privacy-policy" style={{ color: 'rgba(244,237,228,0.6)', textDecoration: 'none', fontSize: 11 }}>Política de privacidad</a>
           </div>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{t('footer.madeIn')} <img src="/assets/star-red.svg" alt="" style={{ width: 10, height: 10 }} /></span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>Hecho en México <img src="/assets/star-red.svg" alt="" style={{ width: 10, height: 10 }} /></span>
         </div>
       </div>
     </footer>

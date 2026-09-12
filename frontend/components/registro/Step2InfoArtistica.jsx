@@ -1,6 +1,5 @@
 'use client'
 
-import { useTranslation } from 'react-i18next'
 import Input, { Textarea } from '@/components/ui/Input'
 
 /**
@@ -15,8 +14,6 @@ import Input, { Textarea } from '@/components/ui/Input'
  */
 
 export default function Step2InfoArtistica({ formData, updateFormData, errors }) {
-  const { t } = useTranslation()
-
   const handleChange = (e) => {
     const { name, value } = e.target
     updateFormData({ [name]: value })
@@ -36,52 +33,52 @@ export default function Step2InfoArtistica({ formData, updateFormData, errors })
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold mb-2" style={{ color: '#141210' }}>
-          {t('registro.step2.title')}
+          Información Artística
         </h2>
-        <p style={{ color: '#F4EDE4', fontSize: '15px' }}>{t('registro.step2.subtitle')}</p>
+        <p style={{ color: '#F4EDE4', fontSize: '15px' }}>Cuéntanos sobre tu práctica artística</p>
       </div>
 
       <Textarea
-        label={t('registro.step2.bio')}
+        label="Biografía / Declaración Artística"
         name="bio"
         value={formData.bio || ''}
         onChange={handleChange}
         error={errors?.bio}
         required
         rows={6}
-        placeholder={t('registro.step2.bioPlaceholder')}
+        placeholder="Describe tu trayectoria, enfoque artístico y lo que te inspira..."
       />
 
       <div className="text-sm flex items-center justify-between" style={{ color: 'rgba(244, 237, 228, 0.7)' }}>
-        <span>{t('registro.step2.charactersLabel')} {(formData.bio || '').length} / 950</span>
+        <span>Caracteres: {(formData.bio || '').length} / 950</span>
         {(formData.bio || '').length > 950 && (
           <span style={{ color: '#FEE2E2' }}>
-            {t('registro.step2.maxCharactersExceeded')} {(formData.bio || '').length - 950})
+            Excede el límite por {(formData.bio || '').length - 950})
           </span>
         )}
       </div>
 
       <div className="pt-6" style={{ borderTop: '1px solid rgba(244, 237, 228, 0.2)' }}>
         <h3 className="text-lg font-semibold mb-4" style={{ color: '#141210' }}>
-          {t('registro.step2.socialMediaTitle')}
+          Redes Sociales
         </h3>
 
         <div className="space-y-4">
           <Input
-            label={t('registro.step2.instagram')}
+            label="Instagram"
             name="instagram"
             value={formData.redes_sociales?.instagram || ''}
             onChange={handleRedesChange}
-            placeholder={t('registro.step2.instagramPlaceholder')}
+            placeholder="tu_usuario (sin @)"
             required
           />
 
           <Input
-            label={t('registro.step2.website')}
+            label="Sitio Web"
             name="website"
             value={formData.redes_sociales?.website || ''}
             onChange={handleRedesChange}
-            placeholder={t('registro.step2.websitePlaceholder')}
+            placeholder="https://tusitio.com"
           />
         </div>
       </div>
@@ -111,7 +108,7 @@ export default function Step2InfoArtistica({ formData, updateFormData, errors })
           margin: 0,
           flex: 1
         }}>
-          {t('registro.step2.helpText')}
+          Esta información será visible en tu perfil público y ayudará al público a conocer tu trabajo.
         </p>
       </div>
     </div>

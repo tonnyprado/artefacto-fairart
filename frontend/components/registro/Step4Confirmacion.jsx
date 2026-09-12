@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
 import { gsap } from 'gsap'
 import { FlipGallery } from '@/components/gallery'
 
@@ -31,7 +30,6 @@ const FONTS = {
 }
 
 export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, isSubmitting }) {
-  const { t } = useTranslation()
   const [aceptaTerminos, setAceptaTerminos] = useState(false)
   const [aceptaPrivacidad, setAceptaPrivacidad] = useState(false)
   const [errorTerminos, setErrorTerminos] = useState('')
@@ -88,7 +86,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
 
   const handleSubmitClick = () => {
     if (!aceptaTerminos || !aceptaPrivacidad) {
-      setErrorTerminos(t('registro.step4.termsError'))
+      setErrorTerminos('Debes aceptar los términos y condiciones y el aviso de privacidad para continuar')
       return
     }
     if (onSubmit) {
@@ -124,7 +122,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
         e.target.style.color = COLORS.red
       }}
     >
-      {t('registro.step4.edit')}
+      Editar
     </button>
   )
 
@@ -145,7 +143,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
           marginBottom: '12px',
           lineHeight: 1.2
         }}>
-          {t('registro.step4.title')}
+          Confirmar y Enviar
         </h2>
         <p style={{
           color: COLORS.cream,
@@ -155,7 +153,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
           maxWidth: '600px',
           margin: '0 auto'
         }}>
-          {t('registro.step4.subtitle')}
+          Revisa tu información antes de enviar
         </p>
       </div>
 
@@ -176,7 +174,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
             textTransform: 'uppercase',
             letterSpacing: '0.03em'
           }}>
-            {t('registro.step4.personalData')}
+            Datos Personales
           </h3>
           <EditButton onClick={() => onEdit(1)} /> {/* Paso 1: Datos Personales */}
         </div>
@@ -195,25 +193,25 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
             fontSize: '15px'
           }}>
             <div>
-              <span style={{ color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '4px', fontSize: '13px' }}>{t('registro.step4.fullName')}</span>
+              <span style={{ color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '4px', fontSize: '13px' }}>Nombre Completo</span>
               <span style={{ fontWeight: '600', color: COLORS.cream, fontSize: '16px' }}>
                 {formData.nombre} {formData.apellido}
               </span>
             </div>
             <div>
-              <span style={{ color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '4px', fontSize: '13px' }}>{t('registro.step4.email')}</span>
+              <span style={{ color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '4px', fontSize: '13px' }}>Correo Electrónico</span>
               <span style={{ fontWeight: '600', color: COLORS.cream, fontSize: '16px' }}>{formData.email}</span>
             </div>
             <div>
-              <span style={{ color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '4px', fontSize: '13px' }}>{t('registro.step4.phone')}</span>
+              <span style={{ color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '4px', fontSize: '13px' }}>Teléfono</span>
               <span style={{ fontWeight: '600', color: COLORS.cream, fontSize: '16px' }}>{formData.telefono}</span>
             </div>
             <div>
-              <span style={{ color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '4px', fontSize: '13px' }}>{t('registro.step4.birthdate')}</span>
+              <span style={{ color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '4px', fontSize: '13px' }}>Fecha de Nacimiento</span>
               <span style={{ fontWeight: '600', color: COLORS.cream, fontSize: '16px' }}>{formData.fecha_nacimiento}</span>
             </div>
             <div>
-              <span style={{ color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '4px', fontSize: '13px' }}>{t('registro.step4.location')}</span>
+              <span style={{ color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '4px', fontSize: '13px' }}>Ubicación</span>
               <span style={{ fontWeight: '600', color: COLORS.cream, fontSize: '16px' }}>
                 {formData.ciudad}, {formData.pais}
               </span>
@@ -242,7 +240,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
               textTransform: 'uppercase',
               letterSpacing: '0.03em'
             }}>
-              {t('registro.step4.yourCanvas')}
+              Tu Lienzo
             </h3>
             <div style={{ display: 'flex', gap: '12px' }}>
               <button
@@ -269,7 +267,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                   e.target.style.background = COLORS.cream
                 }}
               >
-                {t('registro.step4.download')}
+                Descargar
               </button>
               <EditButton onClick={() => onEdit(2)} /> {/* Paso 2: Tu Lienzo */}
             </div>
@@ -285,7 +283,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
           }}>
             <img
               src={formData.layout_canvas_url}
-              alt={t('registro.step4.canvasPreview')}
+              alt="Vista previa del lienzo"
               style={{
                 width: '100%',
                 height: 'auto',
@@ -314,7 +312,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                   minWidth: '200px'
                 }}>
                   <span style={{ fontSize: '13px', color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '4px' }}>
-                    {t('registro.step4.selectedPackage')}
+                    Paquete Seleccionado
                   </span>
                   <span style={{
                     fontSize: '20px',
@@ -332,7 +330,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                   minWidth: '200px'
                 }}>
                   <span style={{ fontSize: '13px', color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '4px' }}>
-                    {t('registro.step4.linearMeters')}
+                    Metros Lineales
                   </span>
                   <span style={{
                     fontSize: '20px',
@@ -351,7 +349,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                   minWidth: '200px'
                 }}>
                   <span style={{ fontSize: '13px', color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '4px' }}>
-                    {t('registro.step4.registeredWorks')}
+                    Obras Registradas
                   </span>
                   <span style={{
                     fontSize: '20px',
@@ -376,7 +374,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                     marginBottom: '16px',
                     fontFamily: FONTS.body
                   }}>
-                    {t('registro.step4.worksInCanvas')}
+                    Obras en el Lienzo
                   </span>
                   <FlipGallery
                     obras={formData.layout_canvas_data.obras}
@@ -408,7 +406,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
             textTransform: 'uppercase',
             letterSpacing: '0.03em'
           }}>
-            {t('registro.step4.artisticInfo')}
+            Información Artística
           </h3>
           <EditButton onClick={() => onEdit(3)} /> {/* Paso 3: Info Artística */}
         </div>
@@ -427,13 +425,13 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
             gap: '20px'
           }}>
             <div>
-              <span style={{ color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '4px', fontSize: '13px' }}>{t('registro.step4.category')}</span>
+              <span style={{ color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '4px', fontSize: '13px' }}>Categoría</span>
               <span style={{ fontWeight: '600', color: COLORS.cream, textTransform: 'capitalize', fontSize: '16px' }}>
                 {formData.categoria?.replace('_', ' ')}
               </span>
             </div>
             <div>
-              <span style={{ color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '12px', fontSize: '13px' }}>{t('registro.step4.biography')}</span>
+              <span style={{ color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '12px', fontSize: '13px' }}>Biografía</span>
               <p style={{
                 color: COLORS.cream,
                 lineHeight: '1.8',
@@ -449,7 +447,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
             </div>
             {formData.redes_sociales && (
               <div>
-                <span style={{ color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '12px', fontSize: '13px' }}>{t('registro.step4.socialMedia')}</span>
+                <span style={{ color: COLORS.cream, opacity: 0.7, display: 'block', marginBottom: '12px', fontSize: '13px' }}>Redes Sociales</span>
                 <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                   {formData.redes_sociales.instagram && (
                     <span style={{
@@ -515,7 +513,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
             textTransform: 'uppercase',
             letterSpacing: '0.03em'
           }}>
-            {t('registro.step4.documents')}
+            Documentos
           </h3>
           <EditButton onClick={() => onEdit(4)} /> {/* Paso 4: Documentos */}
         </div>
@@ -558,12 +556,12 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                   )}
                 </div>
                 <span style={{ color: COLORS.cream, fontWeight: '600', fontSize: '14px' }}>
-                  {t('registro.step4.photo')}
+                  Foto de Perfil
                 </span>
               </div>
               {formData.foto && (
                 <span style={{ color: COLORS.cream, opacity: 0.7, fontSize: '13px', display: 'block', paddingLeft: '36px' }}>
-                  {typeof formData.foto === 'string' ? t('registro.step4.fileLoaded') : formData.foto.name || 'foto-perfil.jpg'}
+                  {typeof formData.foto === 'string' ? 'Archivo cargado' : formData.foto.name || 'foto-perfil.jpg'}
                 </span>
               )}
             </div>
@@ -593,12 +591,12 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                   )}
                 </div>
                 <span style={{ color: COLORS.cream, fontWeight: '600', fontSize: '14px' }}>
-                  {t('registro.step4.cv')}
+                  CV Artístico
                 </span>
               </div>
               {formData.documentos?.cv && (
                 <span style={{ color: COLORS.cream, opacity: 0.7, fontSize: '13px', display: 'block', paddingLeft: '36px' }}>
-                  {typeof formData.documentos.cv === 'string' ? t('registro.step4.fileLoaded') : formData.documentos.cv.name || 'cv.pdf'}
+                  {typeof formData.documentos.cv === 'string' ? 'Archivo cargado' : formData.documentos.cv.name || 'cv.pdf'}
                 </span>
               )}
             </div>
@@ -628,12 +626,12 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                   )}
                 </div>
                 <span style={{ color: COLORS.cream, fontWeight: '600', fontSize: '14px' }}>
-                  {t('registro.step4.portfolio')}
+                  Portafolio
                 </span>
               </div>
               {formData.documentos?.portfolio && (
                 <span style={{ color: COLORS.cream, opacity: 0.7, fontSize: '13px', display: 'block', paddingLeft: '36px' }}>
-                  {typeof formData.documentos.portfolio === 'string' ? t('registro.step4.fileLoaded') : formData.documentos.portfolio.name || 'portafolio.pdf'}
+                  {typeof formData.documentos.portfolio === 'string' ? 'Archivo cargado' : formData.documentos.portfolio.name || 'portafolio.pdf'}
                 </span>
               )}
             </div>
@@ -663,12 +661,12 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                   )}
                 </div>
                 <span style={{ color: COLORS.cream, fontWeight: '600', fontSize: '14px' }}>
-                  {t('registro.step4.id')}
+                  Identificación Oficial
                 </span>
               </div>
               {formData.documentos?.identificacion && (
                 <span style={{ color: COLORS.cream, opacity: 0.7, fontSize: '13px', display: 'block', paddingLeft: '36px' }}>
-                  {typeof formData.documentos.identificacion === 'string' ? t('registro.step4.fileLoaded') : formData.documentos.identificacion.name || 'identificacion.pdf'}
+                  {typeof formData.documentos.identificacion === 'string' ? 'Archivo cargado' : formData.documentos.identificacion.name || 'identificacion.pdf'}
                 </span>
               )}
             </div>
@@ -693,7 +691,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
           textTransform: 'uppercase',
           letterSpacing: '0.03em'
         }}>
-          {t('registro.step4.termsTitle')}
+          Términos y Condiciones
         </h3>
 
         <div style={{
@@ -724,7 +722,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
               }}
             />
             <span style={{ flex: 1, lineHeight: '1.6' }}>
-              {t('registro.step4.acceptTermsText')}{' '}
+              Acepto los{' '}
               <a
                 href="/terms"
                 target="_blank"
@@ -735,9 +733,9 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                   textDecoration: 'underline'
                 }}
               >
-                {t('registro.step4.termsLink')}
+                Términos y Condiciones
               </a>{' '}
-              {t('registro.step4.termsOf')}
+              de Artefacto
             </span>
           </label>
 
@@ -763,7 +761,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
               }}
             />
             <span style={{ flex: 1, lineHeight: '1.6' }}>
-              {t('registro.step4.acceptPrivacyText')}{' '}
+              Acepto el{' '}
               <a
                 href="/privacy-policy"
                 target="_blank"
@@ -774,7 +772,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                   textDecoration: 'underline'
                 }}
               >
-                {t('registro.step4.privacyLink')}
+                Aviso de Privacidad
               </a>
             </span>
           </label>
@@ -845,10 +843,10 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                 borderRadius: '50%',
                 animation: 'spin 0.8s linear infinite'
               }}></span>
-              {t('registro.step4.submitting')}
+              Enviando...
             </span>
           ) : (
-            t('registro.step4.submitButton')
+            'Enviar Inscripción'
           )}
         </button>
 
