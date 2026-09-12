@@ -1,10 +1,8 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { gsap } from 'gsap';
 import { COLORS, FONTS } from './theme';
 import { useTextScrambleMultiple } from './useTextScramble';
-import LanguageSwitcher from '../shared/LanguageSwitcher';
 
 // Helper para detectar dispositivos táctiles
 const isTouchDevice = () => {
@@ -25,7 +23,6 @@ const isTabletDevice = () => {
 };
 
 export default function HeroArtefacto({ startAnimation = true, exitAnimation = false, onOpenMenu }) {
-  const { t } = useTranslation();
   const heroRef = useRef(null);
   const svgContainerRef = useRef(null);
   const [svgData, setSvgData] = useState(null);
@@ -205,10 +202,10 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
 
   // Botones de navegación
   const navButtons = [
-    { label: t('nav.knowMore'), href: '#about' },
-    { label: t('nav.calendar'), href: '#calendario' },
-    { label: t('nav.callForArtists'), href: '#convocatoria' },
-    { label: t('nav.contact'), href: '#contacto' },
+    { label: 'Conoce más', href: '#about' },
+    { label: 'Calendario', href: '#calendario' },
+    { label: 'Convocatoria', href: '#convocatoria' },
+    { label: 'Contacto', href: '#contacto' },
   ];
 
   const navScrambleRefs = useTextScrambleMultiple(navButtons.map(b => b.label), {
@@ -218,14 +215,14 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
     trigger: startAnimation && !exitAnimation,
   });
 
-  const convocatoriaScrambleRef = useTextScrambleMultiple([t('hero.openCall')], {
+  const convocatoriaScrambleRef = useTextScrambleMultiple(['Convocatoria Abierta'], {
     duration: 700,
     staggerDelay: 150,
     initialDelay: 2800,
     trigger: startAnimation && !exitAnimation,
   });
 
-  const logoTextScrambleRefs = useTextScrambleMultiple([t('hero.month'), t('hero.year')], {
+  const logoTextScrambleRefs = useTextScrambleMultiple(['Mayo', '2027'], {
     duration: 600,
     staggerDelay: 120,
     initialDelay: 3700,
@@ -305,13 +302,6 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
         .hero-mobile-menu-button {
           display: none;
         }
-        .hero-language-switcher {
-          position: absolute;
-          top: clamp(24px, 3vh, 40px);
-          right: clamp(24px, 4vw, 64px);
-          z-index: 100;
-          pointer-events: auto;
-        }
         .hero-svg-container {
           position: absolute;
           inset: 0;
@@ -354,9 +344,6 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
             bottom: 20px !important;
             font-size: clamp(10px, 2.5vw, 14px) !important;
           }
-          .hero-language-switcher {
-            display: none !important;
-          }
         }
       `}</style>
       <header id="hero" className="artefacto-hero" ref={heroRef}
@@ -367,18 +354,6 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
           backgroundColor: COLORS.red,
           overflow: 'hidden'
         }}>
-
-        {/* Language Switcher - Solo visible en desktop/iPad */}
-        <div
-          className="hero-language-switcher"
-          style={{
-            opacity: (!startAnimation && !exitAnimation) ? 1 : undefined,
-            animation: getAnimation(3.5),
-            transformOrigin: 'center'
-          }}
-        >
-          <LanguageSwitcher dark={true} />
-        </div>
 
         {/* SVG Background con paths individuales */}
         <div
@@ -415,7 +390,7 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
             animation: getAnimation(2.0),
             transformOrigin: 'center'
           }}>
-            <span ref={convocatoriaScrambleRef[0]?.ref}>{t('hero.openCall')}</span>
+            <span ref={convocatoriaScrambleRef[0]?.ref}>Convocatoria Abierta</span>
           </div>
 
           <div style={{
@@ -435,7 +410,7 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
             alignItems: 'center',
             gap: '4px'
           }}>
-            <span>{t('hero.scroll')}</span>
+            <span>desliza</span>
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M6 2L6 10M6 10L3 7M6 10L9 7" stroke={COLORS.cream} strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -465,8 +440,8 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
                 paddingLeft: '4px',
                 paddingRight: '4px'
               }}>
-                <span ref={logoTextScrambleRefs[0]?.ref}>{t('hero.month')}</span>
-                <span ref={logoTextScrambleRefs[1]?.ref}>{t('hero.year')}</span>
+                <span ref={logoTextScrambleRefs[0]?.ref}>Mayo</span>
+                <span ref={logoTextScrambleRefs[1]?.ref}>2027</span>
               </div>
 
               <div className="hero-mobile-menu-button">

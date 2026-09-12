@@ -1,9 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { gsap } from 'gsap';
 import { COLORS } from './theme';
-import LanguageSwitcher from '../shared/LanguageSwitcher';
 
 /*
   MobileMenu — Menú móvil fullscreen con animaciones elegantes tipo "Bold Full Screen Navigation"
@@ -14,20 +12,17 @@ import LanguageSwitcher from '../shared/LanguageSwitcher';
 */
 
 export default function MobileMenu({ isOpen, onClose }) {
-  const { t } = useTranslation();
-
   const menuItems = [
-    { label: t('nav.knowMore'), href: '#about' },
-    { label: t('nav.calendar'), href: '#calendario' },
-    { label: t('nav.callForArtists'), href: '#convocatoria' },
-    { label: t('nav.contact'), href: '#contacto' },
+    { label: 'Conoce más', href: '#about' },
+    { label: 'Calendario', href: '#calendario' },
+    { label: 'Convocatoria', href: '#convocatoria' },
+    { label: 'Contacto', href: '#contacto' },
   ];
   const menuRef = useRef(null);
   const bgRef = useRef(null);
   const logoRef = useRef(null);
   const itemsRef = useRef([]);
   const closeRef = useRef(null);
-  const langSwitcherRef = useRef(null);
   const [shouldRender, setShouldRender] = useState(false);
 
   useEffect(() => {
@@ -75,15 +70,6 @@ export default function MobileMenu({ isOpen, onClose }) {
         ease: 'power3.out',
       }, '-=0.4');
 
-      // Language Switcher
-      gsap.set(langSwitcherRef.current, { opacity: 0, y: 20 });
-      tl.to(langSwitcherRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 0.5,
-        ease: 'power3.out',
-      }, '-=0.3');
-
       // Botón cerrar
       gsap.set(closeRef.current, { opacity: 0, rotate: -90, scale: 0.5 });
       tl.to(closeRef.current, {
@@ -112,13 +98,6 @@ export default function MobileMenu({ isOpen, onClose }) {
         stagger: 0.04,
         ease: 'power2.in',
       });
-
-      tl.to(langSwitcherRef.current, {
-        opacity: 0,
-        y: -20,
-        duration: 0.3,
-        ease: 'power2.in',
-      }, '-=0.2');
 
       tl.to([logoRef.current, closeRef.current], {
         opacity: 0,
@@ -228,23 +207,13 @@ export default function MobileMenu({ isOpen, onClose }) {
             {label}
           </a>
         ))}
-
-        {/* Language Switcher */}
-        <div
-          ref={langSwitcherRef}
-          style={{
-            marginTop: '2vh',
-          }}
-        >
-          <LanguageSwitcher dark={true} />
-        </div>
       </div>
 
       {/* Botón cerrar */}
       <button
         ref={closeRef}
         onClick={onClose}
-        aria-label={t('mobileMenu.close')}
+        aria-label="Cerrar"
         style={{
           position: 'absolute',
           top: 20,
