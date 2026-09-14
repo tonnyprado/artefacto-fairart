@@ -15,9 +15,8 @@ import {
   FolderOpen,
   CreditCard,
   Palette,
-  Instagram,
+  Share2,
   Globe,
-  Facebook,
   Loader2,
   Download,
   Eye
@@ -376,7 +375,7 @@ export default function ArtistaDetalle() {
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-pink-600 hover:underline"
                     >
-                      <Instagram className="h-4 w-4" /> {artista.instagram || artista.redes_sociales?.instagram}
+                      <Share2 className="h-4 w-4" /> {artista.instagram || artista.redes_sociales?.instagram}
                     </a>
                   )}
                   {(artista.facebook || artista.redes_sociales?.facebook) && (
@@ -386,7 +385,7 @@ export default function ArtistaDetalle() {
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-blue-600 hover:underline"
                     >
-                      <Facebook className="h-4 w-4" /> Facebook
+                      <Share2 className="h-4 w-4" /> Facebook
                     </a>
                   )}
                   {(artista.website || artista.redes_sociales?.website) && (

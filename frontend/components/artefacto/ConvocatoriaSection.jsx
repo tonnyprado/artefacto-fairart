@@ -148,6 +148,18 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
       >
         {/* Título principal en dos líneas */}
         <div style={{ marginBottom: 32 }}>
+          <p style={{
+            margin: '0 0 12px',
+            fontFamily: FONTS.subtitle,
+            fontWeight: 700,
+            fontSize: 'clamp(14px, 2vw, 18px)',
+            letterSpacing: '0.15em',
+            textTransform: 'uppercase',
+            color: COLORS.cream,
+            opacity: 0.95,
+          }}>
+            CONVOCATORIA ABIERTA
+          </p>
           <h1
             ref={titleScramble.ref}
             style={{
@@ -177,7 +189,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
               opacity: 0.85,
             }}
           >
-            Edición 2027
+            Edición 2026
           </span>
         </div>
 
@@ -214,7 +226,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
             fontFamily: FONTS.body,
             letterSpacing: '0.02em',
           }}>
-            del 8 al 11 de mayo de 2027 en Centro Citibanamex, CDMX
+            del 4 al 7 de febrero de 2027 en el Centro Cultural Estación Indianilla
           </p>
         </div>
 
@@ -386,7 +398,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
                 {[
                   'Ser mayor de 18 años',
                   'Obra original y de autoría propia',
-                  'Disponibilidad para montaje (6-7 mayo) y desmontaje (11-12 mayo)',
+                  'Disponibilidad para montaje (2-3 febrero) y desmontaje (7-8 febrero)',
                   'Compromiso de atención del stand durante toda la feria',
                   'Seguro de obra bajo responsabilidad del artista'
                 ].map((item, i) => (
@@ -446,9 +458,9 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
                 { title: 'Apertura de convocatoria', text: '1 de diciembre de 2026' },
                 { title: 'Cierre de postulaciones', text: '31 de enero de 2027' },
                 { title: 'Resultados', text: '15 de febrero de 2027' },
-                { title: 'Montaje', text: '6 y 7 de mayo de 2027' },
-                { title: 'Feria', text: '8 al 11 de mayo de 2027' },
-                { title: 'Desmontaje', text: '11 y 12 de mayo de 2027' }
+                { title: 'Montaje', text: '2 y 3 de febrero de 2027' },
+                { title: 'Feria', text: '4 al 7 de febrero de 2027' },
+                { title: 'Desmontaje', text: '7 y 8 de febrero de 2027' }
               ].map((item, i) => (
                 <p key={i} style={{
                   margin: 0,
