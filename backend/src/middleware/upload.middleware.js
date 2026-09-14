@@ -15,7 +15,12 @@ const fileFilter = (req, file, cb) => {
     'image/jpg',
     'image/png',
     'image/webp',
-    'image/gif'
+    'image/gif',
+    // Formatos HEIC/HEIF (iPhone moderno)
+    'image/heic',
+    'image/heif',
+    'image/heic-sequence',
+    'image/heif-sequence'
   ]
   const allowedDocTypes = [
     'application/pdf',
@@ -30,7 +35,7 @@ const fileFilter = (req, file, cb) => {
     cb(null, true)
   } else {
     console.error(`❌ Tipo de archivo no permitido: ${file.mimetype}`)
-    cb(new Error(`Tipo de archivo no permitido: ${file.mimetype}. Solo se permiten imágenes (JPG, PNG, WebP, GIF) y documentos (PDF, DOC, DOCX).`), false)
+    cb(new Error(`Tipo de archivo no permitido: ${file.mimetype}. Solo se permiten imágenes (JPG, PNG, WebP, GIF, HEIC) y documentos (PDF, DOC, DOCX).`), false)
   }
 }
 
