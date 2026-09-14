@@ -96,7 +96,7 @@ function HoverButton({ href, bg, color, hoverBg, hoverColor, children, download,
 }
 
 export default function ConvocatoriaSection({ edicion = '2027', abierta = true, urlRegistro = '/registro' }) {
-  const titleScramble = useTextScramble('Convocatoria', {
+  const titleScramble = useTextScramble('Convocatoria Abierta', {
     duration: 1200,
     delay: 400,
   });
@@ -148,18 +148,6 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
       >
         {/* Título principal en dos líneas */}
         <div style={{ marginBottom: 32 }}>
-          <p style={{
-            margin: '0 0 12px',
-            fontFamily: FONTS.subtitle,
-            fontWeight: 700,
-            fontSize: 'clamp(14px, 2vw, 18px)',
-            letterSpacing: '0.15em',
-            textTransform: 'uppercase',
-            color: COLORS.cream,
-            opacity: 0.95,
-          }}>
-            CONVOCATORIA ABIERTA
-          </p>
           <h1
             ref={titleScramble.ref}
             style={{
@@ -174,7 +162,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
               lineHeight: 1,
             }}
           >
-            Convocatoria
+            Convocatoria Abierta
           </h1>
           <span
             style={{
