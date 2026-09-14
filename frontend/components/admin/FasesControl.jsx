@@ -1,9 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import { useFasesStore } from '@/stores/fasesStore'
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
+import Modal from '@/components/ui/Modal'
 
 /**
  * FasesControl - Panel de control de fases
@@ -28,13 +30,62 @@ export default function FasesControl() {
     fases,
     toggleInscripciones,
     toggleVotaciones,
-    finalizarFase
+    finalizarFase,
+    updateFase
   } = useFasesStore()
+
+  const [editingFase, setEditingFase] = useState(null)
+  const [fechasFormData, setFechasFormData] = useState({
+    fecha_inicio_inscripciones: '',
+    fecha_fin_inscripciones: '',
+    fecha_inicio_votaciones: '',
+    fecha_fin_votaciones: ''
+  })
+  const [isUpdating, setIsUpdating] = useState(false)
 
   const handleToggleInscripciones = async (faseId, currentState) => {
     const accion = currentState ? 'cerrar' : 'abrir'
     if (window.confirm(`¿Estás seguro de ${accion} las inscripciones?`)) {
       await toggleInscripciones(faseId, !currentState)
+    }
+  }
+
+  const handleOpenEditModal = (fase) => {
+    setEditingFase(fase)
+    setFechasFormData({
+      fecha_inicio_inscripciones: fase.fecha_inicio_inscripciones?.split('T')[0] || '',
+      fecha_fin_inscripciones: fase.fecha_fin_inscripciones?.split('T')[0] || '',
+      fecha_inicio_votaciones: fase.fecha_inicio_votaciones?.split('T')[0] || '',
+      fecha_fin_votaciones: fase.fecha_fin_votaciones?.split('T')[0] || ''
+    })
+  }
+
+  const handleCloseEditModal = () => {
+    setEditingFase(null)
+    setFechasFormData({
+      fecha_inicio_inscripciones: '',
+      fecha_fin_inscripciones: '',
+      fecha_inicio_votaciones: '',
+      fecha_fin_votaciones: ''
+    })
+  }
+
+  const handleSaveFechas = async () => {
+    if (!editingFase) return
+
+    setIsUpdating(true)
+    try {
+      const result = await updateFase(editingFase.id, fechasFormData)
+      if (result.success) {
+        alert('Fechas actualizadas correctamente')
+        handleCloseEditModal()
+      } else {
+        alert(`Error al actualizar fechas: ${result.error}`)
+      }
+    } catch (error) {
+      alert(`Error al actualizar fechas: ${error.message}`)
+    } finally {
+      setIsUpdating(false)
     }
   }
 
@@ -206,6 +257,19 @@ export default function FasesControl() {
                 {/* Acciones */}
                 {!fase.finalizada && (
                   <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200">
+                    {/* Editar fechas */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleOpenEditModal(fase)}
+                      className="text-blue-600 hover:bg-blue-50"
+                    >
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      Editar Fechas
+                    </Button>
+
                     {/* Control de inscripciones (solo fases, no concurso) */}
                     {fase.tipo === 'fase' && fase.numero_fase === 1 && (
                       <Button
@@ -286,6 +350,130 @@ export default function FasesControl() {
           )
         })}
       </div>
+
+      {/* Modal de edición de fechas */}
+      <Modal
+        isOpen={!!editingFase}
+        onClose={handleCloseEditModal}
+        title={`Editar Fechas - ${editingFase?.nombre || ''}`}
+        size="md"
+      >
+        <div className="p-6">
+          <div className="space-y-4">
+            {/* Inscripciones */}
+            {editingFase?.tipo === 'fase' && editingFase?.numero_fase === 1 && (
+              <div className="space-y-3">
+                <h4 className="font-semibold text-gray-900 text-sm">Inscripciones</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                      Fecha Inicio
+                    </label>
+                    <input
+                      type="date"
+                      value={fechasFormData.fecha_inicio_inscripciones}
+                      onChange={(e) => setFechasFormData({
+                        ...fechasFormData,
+                        fecha_inicio_inscripciones: e.target.value
+                      })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                      Fecha Fin
+                    </label>
+                    <input
+                      type="date"
+                      value={fechasFormData.fecha_fin_inscripciones}
+                      onChange={(e) => setFechasFormData({
+                        ...fechasFormData,
+                        fecha_fin_inscripciones: e.target.value
+                      })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Votaciones */}
+            <div className="space-y-3">
+              <h4 className="font-semibold text-gray-900 text-sm">Votaciones</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Fecha Inicio
+                  </label>
+                  <input
+                    type="date"
+                    value={fechasFormData.fecha_inicio_votaciones}
+                    onChange={(e) => setFechasFormData({
+                      ...fechasFormData,
+                      fecha_inicio_votaciones: e.target.value
+                    })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Fecha Fin
+                  </label>
+                  <input
+                    type="date"
+                    value={fechasFormData.fecha_fin_votaciones}
+                    onChange={(e) => setFechasFormData({
+                      ...fechasFormData,
+                      fecha_fin_votaciones: e.target.value
+                    })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Advertencia */}
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+              <div className="flex items-start">
+                <svg className="h-5 w-5 text-yellow-600 mt-0.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <p className="text-xs text-yellow-800">
+                  Los cambios en las fechas afectarán el calendario de la fase. Asegúrate de que las fechas sean correctas antes de guardar.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Botones */}
+          <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
+            <Button
+              variant="ghost"
+              onClick={handleCloseEditModal}
+              disabled={isUpdating}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleSaveFechas}
+              disabled={isUpdating}
+            >
+              {isUpdating ? (
+                <>
+                  <svg className="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Guardando...
+                </>
+              ) : (
+                'Guardar Cambios'
+              )}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }
