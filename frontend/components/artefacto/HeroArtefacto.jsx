@@ -222,7 +222,7 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
     trigger: startAnimation && !exitAnimation,
   });
 
-  const logoTextScrambleRefs = useTextScrambleMultiple(['Mayo', '2027'], {
+  const logoTextScrambleRefs = useTextScrambleMultiple(['Febrero', '2027'], {
     duration: 600,
     staggerDelay: 120,
     initialDelay: 3700,
@@ -440,7 +440,7 @@ export default function HeroArtefacto({ startAnimation = true, exitAnimation = f
                 paddingLeft: '4px',
                 paddingRight: '4px'
               }}>
-                <span ref={logoTextScrambleRefs[0]?.ref}>Mayo</span>
+                <span ref={logoTextScrambleRefs[0]?.ref}>Febrero</span>
                 <span ref={logoTextScrambleRefs[1]?.ref}>2027</span>
               </div>
 
