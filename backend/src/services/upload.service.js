@@ -122,7 +122,20 @@ const compressImage = async (buffer, mimetype) => {
     }
   } catch (error) {
     console.error('❌ Error comprimiendo imagen:', error)
-    // Si falla la compresión, devolver el original
+
+    // Si el error es buffer vacío, NO devolver el buffer - lanzar error
+    if (error.message && error.message.includes('Input Buffer is empty')) {
+      console.error('❌ BUFFER VACÍO detectado por Sharp - NO se puede procesar')
+      throw new Error('El archivo está vacío o corrupto. Por favor, verifica el archivo y vuelve a intentar.')
+    }
+
+    // Para otros errores de Sharp, devolver el original solo si NO está vacío
+    if (!buffer || buffer.length === 0) {
+      console.error('❌ Buffer original está vacío - NO se puede usar como fallback')
+      throw new Error('El archivo está vacío. Por favor, intenta subir otro archivo.')
+    }
+
+    console.log('⚠️ Usando imagen original sin comprimir debido a error en Sharp')
     return { buffer, mimetype }
   }
 }
