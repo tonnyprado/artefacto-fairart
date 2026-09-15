@@ -138,6 +138,14 @@ const compressImage = async (buffer, mimetype) => {
  */
 export const uploadToS3 = async (fileBuffer, originalname, mimetype, folder = 'uploads') => {
   try {
+    // VALIDACIÓN CRÍTICA: Verificar que el buffer no esté vacío
+    if (!fileBuffer || fileBuffer.length === 0) {
+      console.error(`❌ BUFFER VACÍO detectado para archivo: ${originalname}`)
+      throw new Error(`El archivo ${originalname} está vacío o corrupto. Por favor, intenta subirlo nuevamente.`)
+    }
+
+    console.log(`📤 Iniciando upload: ${originalname} (${(fileBuffer.length / 1024 / 1024).toFixed(2)}MB)`)
+
     let bufferToUpload = fileBuffer
     let finalMimetype = mimetype
 
@@ -153,6 +161,12 @@ export const uploadToS3 = async (fileBuffer, originalname, mimetype, folder = 'u
       const compressed = await compressImage(fileBuffer, mimetype)
       bufferToUpload = compressed.buffer
       finalMimetype = compressed.mimetype
+
+      // VALIDACIÓN CRÍTICA: Verificar que la compresión no devolvió buffer vacío
+      if (!bufferToUpload || bufferToUpload.length === 0) {
+        console.error(`❌ La compresión devolvió un buffer VACÍO para: ${originalname}`)
+        throw new Error(`Error al procesar la imagen ${originalname}. El archivo puede estar corrupto. Por favor, intenta con otro archivo.`)
+      }
     } else {
       console.log(`📄 Archivo sin comprimir: ${originalname} (${(fileBuffer.length / 1024 / 1024).toFixed(2)}MB)`)
     }
@@ -168,6 +182,14 @@ export const uploadToS3 = async (fileBuffer, originalname, mimetype, folder = 'u
       ext = finalMimetype === 'application/pdf' ? '.pdf' : ''
     }
     const fileName = `${folder}/${timestamp}-${randomString}${ext}`
+
+    // VALIDACIÓN FINAL: Verificar buffer antes de S3
+    if (!bufferToUpload || bufferToUpload.length === 0) {
+      console.error(`❌ Buffer final VACÍO antes de subir a S3: ${originalname}`)
+      throw new Error(`Error crítico: No se puede subir un archivo vacío a S3. Archivo: ${originalname}`)
+    }
+
+    console.log(`☁️  Subiendo a S3: ${fileName} (${(bufferToUpload.length / 1024).toFixed(2)}KB)`)
 
     // Subir a S3
     const upload = new Upload({
