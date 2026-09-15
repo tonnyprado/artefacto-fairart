@@ -39,8 +39,14 @@ const isS3Configured = () => {
  * Maneja FormData con archivos + campos de texto
  */
 export const registrarArtista = async (req, res) => {
+  const timestamp = new Date().toISOString()
+  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+
   console.log('='.repeat(60))
-  console.log('📝 CONTROLADOR REGISTRO: Iniciando...')
+  console.log('🎨 REGISTRO COMPLETO INICIADO')
+  console.log(`⏰ Timestamp: ${timestamp}`)
+  console.log(`🌐 IP: ${ip}`)
+  console.log(`🔗 Origin: ${req.headers.origin || 'N/A'}`)
   console.log('='.repeat(60))
 
   try {
@@ -465,12 +471,19 @@ export const registrarArtista = async (req, res) => {
       console.log('⚠️  Obras del lienzo pendientes de subir (S3 no configurado)')
     }
 
-    console.log('✅ Artista registrado exitosamente')
-    console.log('   ID:', nuevoArtista.id)
-    console.log('   FOLIO:', nuevoArtista.folio)
-    console.log('   Nombre:', nuevoArtista.nombre, nuevoArtista.apellido)
-    console.log('   Formato:', formato_tipo, '|', formatosArray.join(', ') || 'ninguno')
-    if (formato_otro_texto) console.log('   Formato otro:', formato_otro_texto)
+    console.log('='.repeat(60))
+    console.log('✅ REGISTRO COMPLETO EXITOSO')
+    console.log(`⏰ Completado: ${new Date().toISOString()}`)
+    console.log(`🆔 ID: ${nuevoArtista.id}`)
+    console.log(`📋 FOLIO: ${nuevoArtista.folio}`)
+    console.log(`📧 Email: ${nuevoArtista.email}`)
+    console.log(`👤 Nombre: ${nuevoArtista.nombre} ${nuevoArtista.apellido}`)
+    console.log(`🎨 Formato: ${formato_tipo} | ${formatosArray.join(', ') || 'ninguno'}`)
+    if (formato_otro_texto) console.log(`🎨 Formato otro: ${formato_otro_texto}`)
+    console.log(`📦 Paquete: ${nuevoArtista.paquete?.nombre || 'Sin paquete'}`)
+    console.log(`🖼️  Obras subidas: ${obrasCreadas.length}`)
+    console.log(`📁 Archivos: ${req.files ? Object.keys(req.files).length : 0} archivos procesados`)
+    console.log('='.repeat(60))
 
     // ========================================
     // 6. ENVIAR EMAILS (async, no bloquea respuesta)
@@ -554,7 +567,16 @@ export const registrarArtista = async (req, res) => {
       message: mensaje
     })
   } catch (error) {
-    console.error('❌ Error en registro de artista:', error)
+    console.log('='.repeat(60))
+    console.error('❌ ERROR EN REGISTRO COMPLETO')
+    console.error(`⏰ Timestamp: ${new Date().toISOString()}`)
+    console.error(`🌐 IP: ${ip}`)
+    console.error(`📧 Email intentado: ${req.body.email || 'N/A'}`)
+    console.error(`👤 Nombre intentado: ${req.body.nombre || 'N/A'} ${req.body.apellido || 'N/A'}`)
+    console.error(`❌ Error: ${error.message}`)
+    console.error(`📚 Stack:`, error.stack)
+    console.log('='.repeat(60))
+
     res.status(500).json({
       success: false,
       error: 'Error al registrar artista: ' + error.message

@@ -64,6 +64,26 @@ export default function RegistroPage() {
   const [currentStep, setCurrentStep] = useState(1)
   const [highestStepReached, setHighestStepReached] = useState(1) // Trackea el paso más alto alcanzado
 
+  // Registrar pageview en el backend para analytics
+  useEffect(() => {
+    const registrarPageview = async () => {
+      try {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/registro/pageview`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        console.log('📊 Pageview de registro registrada')
+      } catch (error) {
+        // Silenciar errores de pageview para no afectar UX
+        console.debug('Error registrando pageview:', error)
+      }
+    }
+
+    registrarPageview()
+  }, []) // Solo ejecutar una vez al montar
+
   const handleVolver = () => {
     transition.navigateTo('/#convocatoria', {
       color: '#B83030', // COLORS.red

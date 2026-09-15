@@ -31,8 +31,14 @@ const isValidPhone = (phone) => {
  * Solo guarda datos básicos de Step1 (sin archivos)
  */
 export const crearPreRegistro = async (req, res) => {
+  const timestamp = new Date().toISOString()
+  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+
   console.log('='.repeat(60))
-  console.log('📝 PRE-REGISTRO: Iniciando...')
+  console.log('📝 PRE-REGISTRO INICIADO')
+  console.log(`⏰ Timestamp: ${timestamp}`)
+  console.log(`🌐 IP: ${ip}`)
+  console.log(`🔗 Origin: ${req.headers.origin || 'N/A'}`)
   console.log('='.repeat(60))
 
   try {
@@ -48,6 +54,7 @@ export const crearPreRegistro = async (req, res) => {
 
     console.log('📧 Email:', email)
     console.log('👤 Nombre:', nombre, apellido)
+    console.log('📍 Ubicación:', ciudad, pais)
 
     // Validaciones básicas
     if (!nombre || !apellido || !email) {
@@ -150,7 +157,14 @@ export const crearPreRegistro = async (req, res) => {
     ])
 
     const artistaId = insertResult.rows[0].id
-    console.log('✅ Pre-registro creado con ID:', artistaId, 'Token generado')
+    console.log('='.repeat(60))
+    console.log('✅ PRE-REGISTRO EXITOSO')
+    console.log(`⏰ Completado: ${new Date().toISOString()}`)
+    console.log(`🆔 Artista ID: ${artistaId}`)
+    console.log(`📧 Email: ${email}`)
+    console.log(`👤 Nombre: ${nombre} ${apellido}`)
+    console.log(`🔑 Token generado: ${tokenAcceso.substring(0, 10)}...`)
+    console.log('='.repeat(60))
 
     // Enviar email de bienvenida con token (async, no bloquea)
     if (isBrevoConfigured()) {
@@ -173,7 +187,15 @@ export const crearPreRegistro = async (req, res) => {
     })
 
   } catch (error) {
-    console.error('❌ Error en pre-registro:', error)
+    console.log('='.repeat(60))
+    console.error('❌ ERROR EN PRE-REGISTRO')
+    console.error(`⏰ Timestamp: ${new Date().toISOString()}`)
+    console.error(`🌐 IP: ${ip}`)
+    console.error(`📧 Email intentado: ${req.body.email || 'N/A'}`)
+    console.error(`❌ Error: ${error.message}`)
+    console.error(`📚 Stack:`, error.stack)
+    console.log('='.repeat(60))
+
     return res.status(500).json({
       success: false,
       error: 'Error interno del servidor',
