@@ -44,7 +44,7 @@ export default function CalendarSection({ isActive = true }) {
       type: 'phase'
     },
     {
-      day: 14,
+      day: 19,
       month: 'Septiembre',
       year: 2026,
       time: '23:59',
@@ -53,7 +53,7 @@ export default function CalendarSection({ isActive = true }) {
       type: 'phase'
     },
     {
-      day: 22,
+      day: 27,
       month: 'Septiembre',
       year: 2026,
       time: '12:00',
@@ -62,7 +62,7 @@ export default function CalendarSection({ isActive = true }) {
       type: 'voting'
     },
     {
-      day: 23,
+      day: 28,
       month: 'Septiembre',
       year: 2026,
       time: '00:00',
@@ -71,7 +71,7 @@ export default function CalendarSection({ isActive = true }) {
       type: 'phase'
     },
     {
-      day: 14,
+      day: 17,
       month: 'Octubre',
       year: 2026,
       time: '23:59',
@@ -80,7 +80,7 @@ export default function CalendarSection({ isActive = true }) {
       type: 'phase'
     },
     {
-      day: 22,
+      day: 24,
       month: 'Octubre',
       year: 2026,
       time: '12:00',
@@ -89,7 +89,7 @@ export default function CalendarSection({ isActive = true }) {
       type: 'voting'
     },
     {
-      day: 23,
+      day: 25,
       month: 'Octubre',
       year: 2026,
       time: '00:00',

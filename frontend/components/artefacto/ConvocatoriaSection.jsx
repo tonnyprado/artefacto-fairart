@@ -443,12 +443,14 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
               gap: 12,
             }}>
               {[
-                { title: 'Apertura de convocatoria', text: '1 de diciembre de 2026' },
-                { title: 'Cierre de postulaciones', text: '31 de enero de 2027' },
-                { title: 'Resultados', text: '15 de febrero de 2027' },
-                { title: 'Montaje', text: '2 y 3 de febrero de 2027' },
-                { title: 'Feria', text: '4 al 7 de febrero de 2027' },
-                { title: 'Desmontaje', text: '7 y 8 de febrero de 2027' }
+                { title: 'Apertura de convocatoria', text: '24 de agosto de 2026' },
+                { title: 'Fase I', text: '24 de agosto a 19 de septiembre' },
+                { title: 'Resultados Fase I', text: '27 de septiembre' },
+                { title: 'Fase II', text: '28 de septiembre a 17 de octubre' },
+                { title: 'Resultados Fase II', text: '24 de octubre' },
+                { title: 'Fase III', text: '25 de octubre a 13 de noviembre' },
+                { title: 'Resultados Fase III', text: '20 de noviembre' },
+                { title: 'Feria', text: '4 al 7 de febrero de 2027' }
               ].map((item, i) => (
                 <p key={i} style={{
                   margin: 0,
