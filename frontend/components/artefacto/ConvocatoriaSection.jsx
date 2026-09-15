@@ -346,7 +346,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
             fontFamily: FONTS.body,
             textAlign: 'center',
           }}>
-            <strong>COMISIONES:</strong> Sobre cada venta realizada en la feria se aplicará una comisión del <strong>70% para el artista</strong>, 30% para ARTEFACTO
+            <strong>COMISIONES:</strong> Sobre cada venta realizada en la feria se aplicará una comisión del <strong>75% para el artista</strong>, 25% para ARTEFACTO
           </p>
 
           {/* INFORMACIÓN DE REGISTRO - Grid organizado */}
