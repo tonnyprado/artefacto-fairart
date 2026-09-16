@@ -68,7 +68,7 @@ export default function RegistroPage() {
   useEffect(() => {
     const registrarPageview = async () => {
       try {
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/registro/pageview`, {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/registro/pageview`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
