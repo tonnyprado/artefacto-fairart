@@ -56,8 +56,7 @@ export default function Footer() {
           <div style={isMobile ? { textAlign: 'center' } : {}}>
             <h4 style={colTitle}>Contacto</h4>
             <div style={{ ...col, alignItems: isMobile ? 'center' : 'flex-start' }}>
-              <a href="mailto:convocatoria@artefacto.mx" style={{ ...link, fontSize: isMobile ? 12 : 13 }}>convocatoria@artefacto.mx</a>
-              <a href="mailto:artefacto.curatorial@gmail.com" style={{ ...link, fontSize: isMobile ? 12 : 13 }}>artefacto.curatorial@gmail.com</a>
+              <a href="mailto:convocatoria@arte-facto.mx" style={{ ...link, fontSize: isMobile ? 12 : 13 }}>convocatoria@arte-facto.mx</a>
               <span style={{ ...link, fontSize: isMobile ? 11 : 12, lineHeight: 1.5, display: 'block', marginTop: 4, whiteSpace: 'pre-line' }}>
                 CDMX, México
               </span>
