@@ -420,8 +420,14 @@ export const registrarArtista = async (req, res) => {
     // ========================================
     const obrasCreadas = []
 
+    // Si es un pre-registro que se está completando, limpiar obras previas (evitar duplicados)
+    if (isPreRegistrado && pool) {
+      console.log('🧹 Limpiando obras previas para evitar duplicados...')
+      await pool.query('DELETE FROM obras WHERE artista_id = $1', [nuevoArtista.id])
+    }
+
     if (s3Available) {
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 15; i++) { // Aumentado de 10 a 15 para coincidir con Multer
         const fieldName = `obra_lienzo_${i}`
         if (req.files?.[fieldName]?.[0]) {
           console.log(`🖼️ Subiendo obra ${i + 1}...`)
