@@ -45,7 +45,7 @@ const upload = multer({
   fileFilter: fileFilter,
   limits: {
     fileSize: 100 * 1024 * 1024, // 100MB máximo por archivo individual
-    files: 100, // Máximo 100 archivos (15 obras + 75 fotos detalle + 6 docs + margen)
+    files: 300, // Máximo 300 archivos (50 obras + 250 fotos detalle máximo)
     fieldSize: 100 * 1024 * 1024 // 100MB para campos de texto (layout_canvas_data puede ser grande)
   }
 })
@@ -79,19 +79,26 @@ export const uploadArray = upload.array.bind(upload)
  * - identificacion: INE o Pasaporte (JPG, PNG, PDF) - REQUERIDO
  * - layout_canvas_image: Preview del lienzo (JPG) - AUTO-GENERADO
  * - layout_canvas_pdf: PDF del lienzo (PDF) - AUTO-GENERADO
- * - obra_lienzo_0 a obra_lienzo_9: Imágenes de obras (JPG, PNG, WebP) - SEGÚN PAQUETE
- * - obra_lienzo_X_detalle_Y: Fotos de detalle por obra (hasta 5 por obra)
+ * - obra_lienzo_0 a obra_lienzo_49: Imágenes de obras (JPG, PNG, WebP) - HASTA 50 OBRAS
+ * - obra_lienzo_X_detalle_Y: Fotos de detalle por obra (hasta 10 por obra)
+ *
+ * CAPACIDAD TOTAL:
+ * - 50 obras principales
+ * - 500 fotos de detalle máximo (50 obras × 10 fotos)
+ * - 6 documentos básicos
+ * - Total: hasta 300 archivos simultáneos
  */
 
 // Generar campos dinámicamente para obras y sus detalles
 const generarCamposObras = () => {
   const campos = []
-  // AUMENTADO A 15 obras para dar margen (algunos artistas intentan subir más)
-  for (let i = 0; i < 15; i++) {
+  // AUMENTADO A 50 obras para soportar muchas fotografías
+  // Artistas de fotografía pueden querer subir muchas obras
+  for (let i = 0; i < 50; i++) {
     // Imagen principal de la obra
     campos.push({ name: `obra_lienzo_${i}`, maxCount: 1 })
-    // Fotos de detalle de cada obra (hasta 5)
-    for (let j = 0; j < 5; j++) {
+    // Fotos de detalle de cada obra (hasta 10 por obra para esculturas y obras complejas)
+    for (let j = 0; j < 10; j++) {
       campos.push({ name: `obra_lienzo_${i}_detalle_${j}`, maxCount: 1 })
     }
   }
@@ -135,10 +142,10 @@ export const handleMulterError = (err, req, res, next) => {
     }
     if (err.code === 'LIMIT_UNEXPECTED_FILE') {
       console.log('❌ Campo inesperado:', err.field)
-      console.log('📋 Campos configurados:', ['foto', 'cv', 'portfolio', 'identificacion', 'layout_canvas_image', 'layout_canvas_pdf', 'obra_lienzo_0 a 9', 'obra_lienzo_X_detalle_Y'])
+      console.log('📋 Campos configurados:', ['foto', 'cv', 'portfolio', 'identificacion', 'layout_canvas_image', 'layout_canvas_pdf', 'obra_lienzo_0 a 49', 'obra_lienzo_X_detalle_Y (10 por obra)'])
       return res.status(400).json({
         success: false,
-        error: `Campo inesperado: "${err.field || 'desconocido'}". Verifica que todos los archivos sean necesarios.`,
+        error: `Campo inesperado: "${err.field || 'desconocido'}". Límites: 50 obras + 10 fotos detalle por obra = 300 archivos máximo.`,
         code: 'LIMIT_UNEXPECTED_FILE',
         field: err.field
       })

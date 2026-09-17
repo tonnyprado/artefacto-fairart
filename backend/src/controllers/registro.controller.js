@@ -427,7 +427,7 @@ export const registrarArtista = async (req, res) => {
     }
 
     if (s3Available) {
-      for (let i = 0; i < 15; i++) { // Aumentado de 10 a 15 para coincidir con Multer
+      for (let i = 0; i < 50; i++) { // Aumentado a 50 obras para soportar artistas con muchas fotografías
         const fieldName = `obra_lienzo_${i}`
         if (req.files?.[fieldName]?.[0]) {
           console.log(`🖼️ Subiendo obra ${i + 1}...`)
@@ -445,9 +445,9 @@ export const registrarArtista = async (req, res) => {
           // Aceptar ambos nombres: notas_montaje (frontend) o notas (legacy)
           const notas_montaje = req.body[`obra_lienzo_${i}_notas_montaje`] || req.body[`obra_lienzo_${i}_notas`] || null
 
-          // Procesar fotos de detalle de esta obra (hasta 5)
+          // Procesar fotos de detalle de esta obra (hasta 10 para esculturas y obras complejas)
           const fotosDetalleUrls = []
-          for (let j = 0; j < 5; j++) {
+          for (let j = 0; j < 10; j++) {
             const detalleFieldName = `obra_lienzo_${i}_detalle_${j}`
             if (req.files?.[detalleFieldName]?.[0]) {
               console.log(`   📸 Subiendo foto de detalle ${j + 1} de obra ${i + 1}...`)
