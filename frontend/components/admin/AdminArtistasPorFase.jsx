@@ -220,9 +220,13 @@ export default function AdminArtistasPorFase({ onVerDetalles }) {
 
                               {/* Foto */}
                               <img
-                                src={artista.foto || '/placeholder-avatar.png'}
+                                src={artista.foto || '/placeholder-avatar.svg'}
                                 alt={artista.nombre}
                                 className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.src = '/placeholder-avatar.svg';
+                                }}
                               />
 
                               {/* Info */}
