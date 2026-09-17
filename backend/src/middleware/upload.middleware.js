@@ -45,7 +45,7 @@ const upload = multer({
   fileFilter: fileFilter,
   limits: {
     fileSize: 100 * 1024 * 1024, // 100MB máximo por archivo individual
-    files: 70, // Máximo 70 archivos (10 obras + 50 fotos detalle + 6 docs + margen)
+    files: 100, // Máximo 100 archivos (15 obras + 75 fotos detalle + 6 docs + margen)
     fieldSize: 100 * 1024 * 1024 // 100MB para campos de texto (layout_canvas_data puede ser grande)
   }
 })
@@ -86,7 +86,8 @@ export const uploadArray = upload.array.bind(upload)
 // Generar campos dinámicamente para obras y sus detalles
 const generarCamposObras = () => {
   const campos = []
-  for (let i = 0; i < 10; i++) {
+  // AUMENTADO A 15 obras para dar margen (algunos artistas intentan subir más)
+  for (let i = 0; i < 15; i++) {
     // Imagen principal de la obra
     campos.push({ name: `obra_lienzo_${i}`, maxCount: 1 })
     // Fotos de detalle de cada obra (hasta 5)
@@ -104,7 +105,7 @@ export const uploadArtistaFiles = upload.fields([
   { name: 'identificacion', maxCount: 1 },          // Identificación (imagen o PDF)
   { name: 'layout_canvas_image', maxCount: 1 },     // Canvas preview (imagen)
   { name: 'layout_canvas_pdf', maxCount: 1 },       // Canvas completo (PDF)
-  // Obras del lienzo (hasta 10) + fotos de detalle (hasta 5 por obra)
+  // Obras del lienzo (hasta 15 para dar margen) + fotos de detalle (hasta 5 por obra)
   ...generarCamposObras()
 ])
 
@@ -114,6 +115,9 @@ export const uploadArtistaFiles = upload.fields([
 export const handleMulterError = (err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     console.log('❌ MULTER ERROR:', err.code, '-', err.message)
+    console.log('📊 Error completo:', JSON.stringify(err, null, 2))
+    console.log('📝 Archivos recibidos antes del error:', req.files ? Object.keys(req.files) : 'ninguno')
+
     if (err.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({
         success: false,
@@ -130,10 +134,13 @@ export const handleMulterError = (err, req, res, next) => {
       })
     }
     if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+      console.log('❌ Campo inesperado:', err.field)
+      console.log('📋 Campos configurados:', ['foto', 'cv', 'portfolio', 'identificacion', 'layout_canvas_image', 'layout_canvas_pdf', 'obra_lienzo_0 a 9', 'obra_lienzo_X_detalle_Y'])
       return res.status(400).json({
         success: false,
-        error: 'Demasiados archivos o nombre de campo incorrecto.',
-        code: 'LIMIT_UNEXPECTED_FILE'
+        error: `Campo inesperado: "${err.field || 'desconocido'}". Verifica que todos los archivos sean necesarios.`,
+        code: 'LIMIT_UNEXPECTED_FILE',
+        field: err.field
       })
     }
     return res.status(400).json({
