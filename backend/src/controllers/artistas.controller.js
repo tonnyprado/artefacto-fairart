@@ -348,43 +348,34 @@ export const getArtistaById = async (req, res) => {
         [id]
       )
 
-      // Generar URLs prefirmadas para documentos (válidas por 1 hora)
-      const [fotoUrl, cvUrl, portfolioUrl, identificacionUrl, layoutCanvasUrl] = await Promise.all([
-        artista.foto ? getPresignedUrl(artista.foto) : null,
-        artista.cv_url ? getPresignedUrl(artista.cv_url) : null,
-        artista.portfolio_url ? getPresignedUrl(artista.portfolio_url) : null,
-        artista.identificacion_url ? getPresignedUrl(artista.identificacion_url) : null,
-        artista.layout_canvas_url ? getPresignedUrl(artista.layout_canvas_url) : null
-      ])
+      // URLs directas (públicas) - no usar presigned URLs para archivos públicos
+      // Los archivos se suben con ACL: 'public-read', así que son accesibles directamente
+      const fotoUrl = artista.foto || null
+      const cvUrl = artista.cv_url || null
+      const portfolioUrl = artista.portfolio_url || null
+      const identificacionUrl = artista.identificacion_url || null
+      const layoutCanvasUrl = artista.layout_canvas_url || null
 
-      // Generar URLs prefirmadas para las imágenes de las obras
-      const obrasConUrls = await Promise.all(
-        obrasResult.rows.map(async (obra) => {
-          let imagenUrl = null
+      // Usar URLs directas para las imágenes de las obras
+      const obrasConUrls = obrasResult.rows.map((obra) => {
+        let imagenUrl = null
 
-          if (obra.imagen_url) {
-            // Verificar si es una URL de blob (no debería estar en DB)
-            if (obra.imagen_url.startsWith('blob:')) {
-              console.warn(`⚠️ Obra ${obra.id} tiene URL de blob inválida:`, obra.imagen_url)
-              imagenUrl = null
-            } else {
-              try {
-                imagenUrl = await getPresignedUrl(obra.imagen_url)
-              } catch (err) {
-                console.error(`❌ Error generando URL prefirmada para obra ${obra.id}:`, err.message)
-                imagenUrl = null
-              }
-            }
+        if (obra.imagen_url) {
+          // Verificar si es una URL de blob (no debería estar en DB)
+          if (obra.imagen_url.startsWith('blob:')) {
+            console.warn(`⚠️ Obra ${obra.id} tiene URL de blob inválida:`, obra.imagen_url)
+            imagenUrl = null
+          } else {
+            // Usar URL directa (pública)
+            imagenUrl = obra.imagen_url
           }
+        }
 
-          return {
-            ...obra,
-            imagen_url: imagenUrl,
-            // Incluir URL original para debugging si falla
-            _original_url: obra.imagen_url
-          }
-        })
-      )
+        return {
+          ...obra,
+          imagen_url: imagenUrl
+        }
+      })
 
       return res.json({
         success: true,
