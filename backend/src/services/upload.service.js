@@ -129,6 +129,16 @@ const compressImage = async (buffer, mimetype) => {
       throw new Error('El archivo está vacío o corrupto. Por favor, verifica el archivo y vuelve a intentar.')
     }
 
+    // Si es un error de límite de seguridad de HEIC/HEIF
+    if (error.message && error.message.includes('Security limit exceeded') &&
+        (mimetype === 'image/heic' || mimetype === 'image/heif')) {
+      console.error('❌ Archivo HEIC demasiado complejo - excede límites de seguridad de libheif')
+      console.error('💡 Sugerencia: El archivo tiene estructuras internas complejas que no pueden procesarse')
+      // Intentar subir el original sin conversión (puede funcionar en navegadores modernos)
+      console.log('⚠️ Subiendo archivo HEIC original sin conversión (el navegador lo mostrará si lo soporta)')
+      return { buffer, mimetype: 'image/jpeg' } // Forzar mimetype JPEG para compatibilidad
+    }
+
     // Para otros errores de Sharp, devolver el original solo si NO está vacío
     if (!buffer || buffer.length === 0) {
       console.error('❌ Buffer original está vacío - NO se puede usar como fallback')
