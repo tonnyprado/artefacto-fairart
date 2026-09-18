@@ -371,9 +371,25 @@ export const getArtistaById = async (req, res) => {
           }
         }
 
+        // Parsear fotos_detalle_urls si es un string JSON
+        let fotosDetalleUrls = obra.fotos_detalle_urls
+        if (typeof fotosDetalleUrls === 'string') {
+          try {
+            fotosDetalleUrls = JSON.parse(fotosDetalleUrls)
+          } catch (e) {
+            console.warn(`⚠️ Error parseando fotos_detalle_urls para obra ${obra.id}:`, e)
+            fotosDetalleUrls = []
+          }
+        }
+        // Asegurar que sea un array
+        if (!Array.isArray(fotosDetalleUrls)) {
+          fotosDetalleUrls = []
+        }
+
         return {
           ...obra,
-          imagen_url: imagenUrl
+          imagen_url: imagenUrl,
+          fotos_detalle_urls: fotosDetalleUrls
         }
       })
 

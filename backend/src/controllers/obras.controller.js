@@ -9,6 +9,31 @@ import { obras, getNextId, now } from '../data/mockData.js'
 // Helper para determinar si usamos DB o mockData
 const useDatabase = () => !!pool
 
+// Helper para parsear fotos_detalle_urls de JSONB a array
+const parseFotosDetalle = (obra) => {
+  let fotosDetalleUrls = obra.fotos_detalle_urls
+
+  // Si es un string JSON, parsearlo
+  if (typeof fotosDetalleUrls === 'string') {
+    try {
+      fotosDetalleUrls = JSON.parse(fotosDetalleUrls)
+    } catch (e) {
+      console.warn(`⚠️ Error parseando fotos_detalle_urls para obra ${obra.id}:`, e)
+      fotosDetalleUrls = []
+    }
+  }
+
+  // Asegurar que sea un array
+  if (!Array.isArray(fotosDetalleUrls)) {
+    fotosDetalleUrls = []
+  }
+
+  return {
+    ...obra,
+    fotos_detalle_urls: fotosDetalleUrls
+  }
+}
+
 export const getObras = async (req, res) => {
   try {
     if (useDatabase()) {
@@ -17,7 +42,7 @@ export const getObras = async (req, res) => {
       )
       return res.json({
         success: true,
-        obras: result.rows
+        obras: result.rows.map(parseFotosDetalle)
       })
     }
 
@@ -51,7 +76,7 @@ export const getObraById = async (req, res) => {
 
       return res.json({
         success: true,
-        obra: result.rows[0]
+        obra: parseFotosDetalle(result.rows[0])
       })
     }
 
@@ -84,7 +109,7 @@ export const getObrasByArtista = async (req, res) => {
 
       return res.json({
         success: true,
-        obras: result.rows
+        obras: result.rows.map(parseFotosDetalle)
       })
     }
 
@@ -130,7 +155,7 @@ export const createObra = async (req, res) => {
       return res.status(201).json({
         success: true,
         message: 'Obra creada',
-        obra: result.rows[0]
+        obra: parseFotosDetalle(result.rows[0])
       })
     }
 
@@ -230,7 +255,7 @@ export const updateObra = async (req, res) => {
       return res.json({
         success: true,
         message: 'Obra actualizada',
-        obra: result.rows[0]
+        obra: parseFotosDetalle(result.rows[0])
       })
     }
 
