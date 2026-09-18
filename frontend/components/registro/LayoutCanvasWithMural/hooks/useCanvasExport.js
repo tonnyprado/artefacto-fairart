@@ -4,6 +4,7 @@
 
 import { useCallback } from 'react'
 import jsPDF from 'jspdf'
+import heic2any from 'heic2any'
 import { RULER_SIZE, EXPORT_CONFIG } from '../constants/canvas.constants'
 
 /**
@@ -20,6 +21,7 @@ export function useCanvasExport(stageRef, config, obrasEnCanvas, paquete) {
   /**
    * Convierte una URL de imagen (blob o normal) a base64
    * Necesario porque las URLs de blob expiran y jsPDF no puede cargarlas
+   * Detecta y convierte automáticamente archivos HEIC a JPEG
    */
   const imageUrlToBase64 = useCallback(async (url) => {
     if (!url) return null
@@ -31,7 +33,32 @@ export function useCanvasExport(stageRef, config, obrasEnCanvas, paquete) {
 
     try {
       const response = await fetch(url)
-      const blob = await response.blob()
+      let blob = await response.blob()
+
+      // Detectar HEIC/HEIF y convertir a JPEG
+      const isHeic = blob.type === 'image/heic' ||
+                     blob.type === 'image/heif' ||
+                     blob.type === 'image/heic-sequence' ||
+                     blob.type === 'image/heif-sequence'
+
+      if (isHeic) {
+        console.log('📱 Detectado archivo HEIC - convirtiendo a JPEG para PDF...')
+        try {
+          // heic2any convierte HEIC a JPEG
+          const convertedBlob = await heic2any({
+            blob: blob,
+            toType: 'image/jpeg',
+            quality: 0.9
+          })
+          // heic2any puede devolver un array si hay múltiples imágenes
+          blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob
+          console.log('✅ HEIC convertido exitosamente a JPEG')
+        } catch (heicError) {
+          console.error('❌ Error convirtiendo HEIC:', heicError)
+          // Si falla la conversión, intentar continuar con el blob original
+          // (puede que no funcione en el PDF pero es mejor que fallar completamente)
+        }
+      }
 
       return new Promise((resolve, reject) => {
         const reader = new FileReader()
