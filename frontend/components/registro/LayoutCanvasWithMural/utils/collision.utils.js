@@ -86,16 +86,22 @@ export function isObraWithinBounds(obra, area) {
 }
 
 /**
- * Verifica si una obra 2D está dentro de los límites laterales (solo valida X, no Y)
- * Para obras 2D, solo importan los límites de los lados (izquierda/derecha),
- * NO los límites verticales (arriba/abajo)
+ * Verifica si una obra 2D está dentro de los límites correctos
+ * Para obras 2D:
+ * - Límites en X (lados): área delimitada del paquete
+ * - Límites en Y (arriba/abajo): área libre del canvas (para no ir sobre las reglas)
  * @param {Object} obra - Obra con x, y, width, height
- * @param {Object} area - Área delimitada con x, y, width, height
- * @returns {boolean} - true si está dentro de los límites laterales
+ * @param {Object} areaDelimitada - Área delimitada del paquete (para validar X)
+ * @param {Object} freeArea - Área libre del canvas (para validar Y)
+ * @returns {boolean} - true si está dentro de los límites correctos
  */
-export function isObraWithinBounds2D(obra, area) {
+export function isObraWithinBounds2D(obra, areaDelimitada, freeArea) {
   return (
-    obra.x >= area.x &&
-    obra.x + obra.width <= area.x + area.width
+    // Validar X dentro del área delimitada del paquete
+    obra.x >= areaDelimitada.x &&
+    obra.x + obra.width <= areaDelimitada.x + areaDelimitada.width &&
+    // Validar Y dentro del área libre (no sobre las reglas)
+    obra.y >= freeArea.y &&
+    obra.y + obra.height <= freeArea.y + freeArea.height
   )
 }

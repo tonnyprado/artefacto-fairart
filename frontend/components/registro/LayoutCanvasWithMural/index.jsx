@@ -116,7 +116,8 @@ export default function LayoutCanvasWithMural({
     obrasEnCanvas,
     areaDelimitada,
     paquete?.obras_maximas,
-    es3D
+    es3D,
+    freeArea
   )
 
   // Handler para touch drop
@@ -135,14 +136,14 @@ export default function LayoutCanvasWithMural({
       Math.min(adjustedX - dimensions.width / 2, areaDelimitada.x + areaDelimitada.width - dimensions.width)
     )
 
-    // Limitar Y (arriba/abajo) - SOLO para 3D, NO para 2D
-    let boundedY = adjustedY - dimensions.height / 2
-    if (es3D) {
-      boundedY = Math.max(
-        areaDelimitada.y,
-        Math.min(boundedY, areaDelimitada.y + areaDelimitada.height - dimensions.height)
-      )
-    }
+    // Limitar Y (arriba/abajo):
+    // - Para 3D: usar área delimitada
+    // - Para 2D: usar área libre (evitar ir sobre las reglas)
+    const yArea = es3D ? areaDelimitada : freeArea
+    const boundedY = Math.max(
+      yArea.y,
+      Math.min(adjustedY - dimensions.height / 2, yArea.y + yArea.height - dimensions.height)
+    )
 
     // Verificar colisión
     const hasCollision = checkPositionCollision(
@@ -175,7 +176,7 @@ export default function LayoutCanvasWithMural({
     }
 
     setObrasEnCanvas([...obrasEnCanvas, newObra])
-  }, [areaDelimitada, obrasEnCanvas, es3D, getObraDimensions])
+  }, [areaDelimitada, obrasEnCanvas, es3D, freeArea, getObraDimensions])
 
   // Hook para touch drag
   const {
@@ -279,14 +280,14 @@ export default function LayoutCanvasWithMural({
       Math.min(x, areaDelimitada.x + areaDelimitada.width - dimensions.width)
     )
 
-    // Limitar Y (arriba/abajo) - SOLO para 3D, NO para 2D
-    let boundedY = y
-    if (es3D) {
-      boundedY = Math.max(
-        areaDelimitada.y,
-        Math.min(y, areaDelimitada.y + areaDelimitada.height - dimensions.height)
-      )
-    }
+    // Limitar Y (arriba/abajo):
+    // - Para 3D: usar área delimitada
+    // - Para 2D: usar área libre (evitar ir sobre las reglas)
+    const yArea = es3D ? areaDelimitada : freeArea
+    const boundedY = Math.max(
+      yArea.y,
+      Math.min(y, yArea.y + yArea.height - dimensions.height)
+    )
 
     const hasCollision = checkPositionCollision(
       { id: 'preview', x: boundedX, y: boundedY, ...dimensions },

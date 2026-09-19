@@ -45,9 +45,10 @@ export function validateObraMetadata(obra, es3D) {
  * @param {Object} areaDelimitada - Área delimitada del paquete
  * @param {number} limiteObras - Número máximo de obras permitidas
  * @param {boolean} es3D - Si el paquete es 3D (afecta validación de límites)
+ * @param {Object} freeArea - Área libre del canvas (para obras 2D, evitar ir sobre reglas)
  * @returns {Object} - { isValid, errors }
  */
-export function validateLayout(obrasEnCanvas, areaDelimitada, limiteObras, es3D = false) {
+export function validateLayout(obrasEnCanvas, areaDelimitada, limiteObras, es3D = false, freeArea = null) {
   const errors = []
 
   // Validar número de obras
@@ -60,15 +61,17 @@ export function validateLayout(obrasEnCanvas, areaDelimitada, limiteObras, es3D 
   }
 
   // Validar que todas las obras estén dentro del área delimitada
-  // Para 2D: solo validar límites laterales (X), NO arriba/abajo (Y)
-  // Para 3D: validar todos los límites (X e Y)
-  const checkBounds = es3D ? isObraWithinBounds : isObraWithinBounds2D
-
+  // Para 2D: X dentro de área delimitada, Y dentro de área libre (no sobre reglas)
+  // Para 3D: validar todos los límites dentro del área delimitada
   obrasEnCanvas.forEach((obra, index) => {
-    if (!checkBounds(obra, areaDelimitada)) {
+    const withinBounds = es3D
+      ? isObraWithinBounds(obra, areaDelimitada)
+      : isObraWithinBounds2D(obra, areaDelimitada, freeArea || areaDelimitada)
+
+    if (!withinBounds) {
       const boundaryMsg = es3D
         ? 'está fuera del área delimitada'
-        : 'está fuera de los límites laterales del paquete'
+        : 'está fuera de los límites del paquete o sobre las reglas'
       errors.push(`La obra "${obra.titulo || `#${index + 1}`}" ${boundaryMsg}`)
     }
   })
