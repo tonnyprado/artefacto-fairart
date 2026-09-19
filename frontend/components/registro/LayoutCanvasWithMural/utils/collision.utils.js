@@ -84,3 +84,18 @@ export function isObraWithinBounds(obra, area) {
     obra.y + obra.height <= area.y + area.height
   )
 }
+
+/**
+ * Verifica si una obra 2D está dentro de los límites laterales (solo valida X, no Y)
+ * Para obras 2D, solo importan los límites de los lados (izquierda/derecha),
+ * NO los límites verticales (arriba/abajo)
+ * @param {Object} obra - Obra con x, y, width, height
+ * @param {Object} area - Área delimitada con x, y, width, height
+ * @returns {boolean} - true si está dentro de los límites laterales
+ */
+export function isObraWithinBounds2D(obra, area) {
+  return (
+    obra.x >= area.x &&
+    obra.x + obra.width <= area.x + area.width
+  )
+}

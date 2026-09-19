@@ -115,7 +115,8 @@ export default function LayoutCanvasWithMural({
   const { validationErrors, isSaving, setIsSaving, validate } = useLayoutValidation(
     obrasEnCanvas,
     areaDelimitada,
-    paquete?.obras_maximas
+    paquete?.obras_maximas,
+    es3D
   )
 
   // Handler para touch drop
@@ -128,15 +129,20 @@ export default function LayoutCanvasWithMural({
     const adjustedX = relativeX - RULER_SIZE
     const adjustedY = relativeY - RULER_SIZE
 
-    // Limitar a los bounds del área delimitada
+    // Limitar X (lados del paquete) - aplica para 2D y 3D
     const boundedX = Math.max(
       areaDelimitada.x,
       Math.min(adjustedX - dimensions.width / 2, areaDelimitada.x + areaDelimitada.width - dimensions.width)
     )
-    const boundedY = Math.max(
-      areaDelimitada.y,
-      Math.min(adjustedY - dimensions.height / 2, areaDelimitada.y + areaDelimitada.height - dimensions.height)
-    )
+
+    // Limitar Y (arriba/abajo) - SOLO para 3D, NO para 2D
+    let boundedY = adjustedY - dimensions.height / 2
+    if (es3D) {
+      boundedY = Math.max(
+        areaDelimitada.y,
+        Math.min(boundedY, areaDelimitada.y + areaDelimitada.height - dimensions.height)
+      )
+    }
 
     // Verificar colisión
     const hasCollision = checkPositionCollision(
@@ -266,14 +272,21 @@ export default function LayoutCanvasWithMural({
     const y = e.clientY - rect.top - RULER_SIZE
 
     const dimensions = getObraDimensions(draggedFromRow)
+
+    // Limitar X (lados del paquete) - aplica para 2D y 3D
     const boundedX = Math.max(
       areaDelimitada.x,
       Math.min(x, areaDelimitada.x + areaDelimitada.width - dimensions.width)
     )
-    const boundedY = Math.max(
-      areaDelimitada.y,
-      Math.min(y, areaDelimitada.y + areaDelimitada.height - dimensions.height)
-    )
+
+    // Limitar Y (arriba/abajo) - SOLO para 3D, NO para 2D
+    let boundedY = y
+    if (es3D) {
+      boundedY = Math.max(
+        areaDelimitada.y,
+        Math.min(y, areaDelimitada.y + areaDelimitada.height - dimensions.height)
+      )
+    }
 
     const hasCollision = checkPositionCollision(
       { id: 'preview', x: boundedX, y: boundedY, ...dimensions },

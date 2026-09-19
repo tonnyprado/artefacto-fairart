@@ -3,7 +3,7 @@
  */
 
 import { checkCollision } from './collision.utils'
-import { isObraWithinBounds } from './collision.utils'
+import { isObraWithinBounds, isObraWithinBounds2D } from './collision.utils'
 
 /**
  * Valida que una obra tenga todos los campos de metadata requeridos
@@ -44,9 +44,10 @@ export function validateObraMetadata(obra, es3D) {
  * @param {Array} obrasEnCanvas - Obras colocadas en el canvas
  * @param {Object} areaDelimitada - Área delimitada del paquete
  * @param {number} limiteObras - Número máximo de obras permitidas
+ * @param {boolean} es3D - Si el paquete es 3D (afecta validación de límites)
  * @returns {Object} - { isValid, errors }
  */
-export function validateLayout(obrasEnCanvas, areaDelimitada, limiteObras) {
+export function validateLayout(obrasEnCanvas, areaDelimitada, limiteObras, es3D = false) {
   const errors = []
 
   // Validar número de obras
@@ -59,9 +60,16 @@ export function validateLayout(obrasEnCanvas, areaDelimitada, limiteObras) {
   }
 
   // Validar que todas las obras estén dentro del área delimitada
+  // Para 2D: solo validar límites laterales (X), NO arriba/abajo (Y)
+  // Para 3D: validar todos los límites (X e Y)
+  const checkBounds = es3D ? isObraWithinBounds : isObraWithinBounds2D
+
   obrasEnCanvas.forEach((obra, index) => {
-    if (!isObraWithinBounds(obra, areaDelimitada)) {
-      errors.push(`La obra "${obra.titulo || `#${index + 1}`}" está fuera del área delimitada`)
+    if (!checkBounds(obra, areaDelimitada)) {
+      const boundaryMsg = es3D
+        ? 'está fuera del área delimitada'
+        : 'está fuera de los límites laterales del paquete'
+      errors.push(`La obra "${obra.titulo || `#${index + 1}`}" ${boundaryMsg}`)
     }
   })
 

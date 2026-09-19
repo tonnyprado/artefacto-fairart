@@ -10,9 +10,10 @@ import { validateLayout } from '../utils/validation.utils'
  * @param {Array} obrasEnCanvas - Obras en el canvas
  * @param {Object} areaDelimitada - Área delimitada del paquete
  * @param {number} limiteObras - Número máximo de obras
+ * @param {boolean} es3D - Si el paquete es 3D
  * @returns {Object} - Funciones y estado de validación
  */
-export function useLayoutValidation(obrasEnCanvas, areaDelimitada, limiteObras) {
+export function useLayoutValidation(obrasEnCanvas, areaDelimitada, limiteObras, es3D = false) {
   const [validationErrors, setValidationErrors] = useState([])
   const [isSaving, setIsSaving] = useState(false)
 
@@ -20,10 +21,10 @@ export function useLayoutValidation(obrasEnCanvas, areaDelimitada, limiteObras) 
    * Valida el layout actual
    */
   const validate = useCallback(() => {
-    const { isValid, errors } = validateLayout(obrasEnCanvas, areaDelimitada, limiteObras)
+    const { isValid, errors } = validateLayout(obrasEnCanvas, areaDelimitada, limiteObras, es3D)
     setValidationErrors(errors)
     return isValid
-  }, [obrasEnCanvas, areaDelimitada, limiteObras])
+  }, [obrasEnCanvas, areaDelimitada, limiteObras, es3D])
 
   /**
    * Limpia los errores de validación
@@ -36,9 +37,9 @@ export function useLayoutValidation(obrasEnCanvas, areaDelimitada, limiteObras) 
    * Verifica si el layout es válido sin setear errores
    */
   const isValid = useCallback(() => {
-    const { isValid } = validateLayout(obrasEnCanvas, areaDelimitada, limiteObras)
+    const { isValid } = validateLayout(obrasEnCanvas, areaDelimitada, limiteObras, es3D)
     return isValid
-  }, [obrasEnCanvas, areaDelimitada, limiteObras])
+  }, [obrasEnCanvas, areaDelimitada, limiteObras, es3D])
 
   return {
     validationErrors,
