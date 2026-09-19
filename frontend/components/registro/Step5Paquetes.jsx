@@ -135,6 +135,14 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
     }
   }, [paquetes, formData.paquete_id])
 
+  // Inicializar todasLasObras desde formData.portfolio_obras al montar
+  useEffect(() => {
+    if (formData.portfolio_obras && formData.portfolio_obras.length > 0 && todasLasObras.length === 0) {
+      console.log('Inicializando obras desde formData.portfolio_obras:', formData.portfolio_obras.length)
+      setTodasLasObras(formData.portfolio_obras)
+    }
+  }, [])
+
   // Animación de paneles
   useLayoutEffect(() => {
     if (leftPanelRef.current) {
@@ -275,6 +283,34 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
   }
 
   const handleSaveAndContinue = (layoutData, layoutUrl, obrasCompletas) => {
+    // Validar que haya seleccionado un paquete
+    if (!confirmedPaquete) {
+      alert('⚠️ Debes seleccionar un paquete antes de continuar')
+      return
+    }
+
+    // Validar que haya agregado al menos una obra al canvas
+    if (!obrasCompletas || obrasCompletas.length === 0) {
+      alert('⚠️ Debes agregar al menos una obra al lienzo antes de continuar.\n\nPor favor:\n1. Agrega obras usando el botón "Agregar Obra"\n2. Completa la información de cada obra (clic en editar)\n3. Arrastra las obras al lienzo')
+      return
+    }
+
+    // CRÍTICO: Reconstruir obras con archivos desde portfolio_obras (formData.portfolio_obras)
+    // obrasCompletas viene sin archivos porque se filtra desde layoutData que solo tiene metadata
+    // Necesitamos obtener los archivos originales de portfolio_obras
+    const portfolioObras = formData.portfolio_obras || todasLasObras
+    const obrasConArchivos = obrasCompletas.map(obraCanvas => {
+      // Buscar la obra original que tiene el archivo
+      const obraOriginal = portfolioObras.find(o => o.id === obraCanvas.id)
+      return {
+        ...obraCanvas,
+        file: obraOriginal?.file, // Preservar el archivo original
+        preview: obraOriginal?.preview // Preservar el preview original
+      }
+    })
+
+    console.log('Obras guardadas en lienzo con archivos:', obrasConArchivos.length)
+
     // Guardar datos del canvas y continuar
     // La validación de tamaño total se hace en Step3Documentos (paso 4)
     // porque los documentos se suben después del lienzo
@@ -284,7 +320,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
       layout_canvas_blob: layoutData.canvas_image_blob,
       layout_canvas_pdf_blob: layoutData.canvas_pdf_blob,
       layout_canvas_preview_url: layoutData.canvas_preview_url,
-      obras_lienzo: obrasCompletas || []
+      obras_lienzo: obrasConArchivos
     })
     if (onContinue) setTimeout(() => onContinue(true), 150)
   }
@@ -337,7 +373,14 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
         })
       )
 
-      setTodasLasObras(prev => [...prev, ...processedObras])
+      setTodasLasObras(prev => {
+        const updated = [...prev, ...processedObras]
+        // CRÍTICO: Actualizar formData.portfolio_obras (TODAS las obras del usuario)
+        // Esto preserva los archivos incluso si se recarga la página
+        // obras_lienzo se actualizará solo con las obras que están en el canvas
+        updateFormData({ portfolio_obras: updated })
+        return updated
+      })
       if (processedObras.length > 0) setEditingObra(processedObras[0])
     } catch (error) {
       console.error('Error procesando imágenes:', error)
@@ -846,7 +889,11 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
                           <Edit2 size={12} color={COLORS.gray} />
                         </button>
                         {!isInCanvas && (
-                          <button onClick={() => setTodasLasObras(prev => prev.filter(o => o.id !== obra.id))} style={{ padding: '4px', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                          <button onClick={() => setTodasLasObras(prev => {
+                            const updated = prev.filter(o => o.id !== obra.id)
+                            updateFormData({ portfolio_obras: updated })
+                            return updated
+                          })} style={{ padding: '4px', background: 'transparent', border: 'none', cursor: 'pointer' }}>
                             <Trash2 size={12} color={COLORS.red} />
                           </button>
                         )}
@@ -1159,7 +1206,14 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
         <ObraModal
           obra={editingObra}
           es3D={mostrarTodosPaquetes ? confirmedPaquete?.tipo === '3D' : esArtista3D}
-          onSave={(updated) => { setTodasLasObras(prev => prev.map(o => o.id === updated.id ? updated : o)); setEditingObra(null) }}
+          onSave={(updated) => {
+            setTodasLasObras(prev => {
+              const updatedObras = prev.map(o => o.id === updated.id ? updated : o)
+              updateFormData({ portfolio_obras: updatedObras })
+              return updatedObras
+            })
+            setEditingObra(null)
+          }}
           onClose={() => setEditingObra(null)}
         />
       )}

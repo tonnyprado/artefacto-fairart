@@ -128,7 +128,9 @@ export default function RegistroPage() {
 
     // Paso 4: Tu Lienzo
     paquete_id: null,
-    portfolio_images: [], // Array de imágenes con metadata (cargadas en Tu Lienzo)
+    portfolio_images: [], // Array de imágenes con metadata (cargadas en Tu Lienzo) - LEGACY
+    portfolio_obras: [], // TODAS las obras del usuario (con archivos)
+    obras_lienzo: [], // Solo obras que están en el canvas (filtradas de portfolio_obras)
     layout_canvas_url: null,
     layout_canvas_data: {}
   })
@@ -154,13 +156,21 @@ export default function RegistroPage() {
             identificacion: null
           },
           layout_canvas_blob: null,
+          layout_canvas_pdf_blob: null,
+          // Guardar metadata de obras sin archivos
+          portfolio_obras: updated.portfolio_obras?.map(obra => ({
+            ...obra,
+            file: null, // No guardar archivos
+            preview: null // No guardar previews (blobs)
+          })) || [],
           obras_lienzo: updated.obras_lienzo?.map(obra => ({
             ...obra,
-            file: null // No guardar archivos
+            file: null, // No guardar archivos
+            preview: null // No guardar previews (blobs)
           })) || []
         }
         localStorage.setItem('artefacto_registro_draft', JSON.stringify(dataToSave))
-        console.log('FormData guardado en localStorage')
+        console.log('FormData guardado en localStorage (archivos excluidos)')
       } catch (error) {
         console.warn('Error guardando en localStorage:', error)
       }
@@ -232,6 +242,10 @@ export default function RegistroPage() {
         if (!formData.paquete_id) newErrors.paquete_id = 'Debes seleccionar un paquete'
         if (!formData.layout_canvas_url)
           newErrors.layout = 'Debes guardar el layout del canvas'
+        // CRÍTICO: Validar que haya agregado al menos una obra
+        if (!formData.obras_lienzo || formData.obras_lienzo.length === 0) {
+          newErrors.obras = 'Debes agregar al menos una obra al lienzo'
+        }
         break
 
       case 3:
@@ -651,11 +665,14 @@ export default function RegistroPage() {
           ...parsedData,
           // No cargar portfolio_images desde localStorage (pueden tener blobs revocados)
           portfolio_images: [],
-          // No cargar layout canvas (puede tener datos obsoletos)
-          layout_canvas_url: null,
-          layout_canvas_data: {},
+          // No cargar layout canvas blob (puede tener datos obsoletos)
           layout_canvas_blob: null,
-          obras_lienzo: []
+          layout_canvas_pdf_blob: null,
+          // MANTENER portfolio_obras y obras_lienzo con metadata, aunque file sea null
+          // Los archivos se reconstruirán cuando el usuario vuelva a Step5Paquetes
+          // si vuelve a agregar obras o si existen en portfolio_obras
+          portfolio_obras: parsedData.portfolio_obras || [],
+          obras_lienzo: parsedData.obras_lienzo || []
         }
 
         setFormData(prev => ({
