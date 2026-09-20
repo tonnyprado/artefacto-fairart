@@ -137,11 +137,42 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
     }
   }, [paquetes, formData.paquete_id])
 
+  // Convierte Data URL a File object
+  const dataURLtoFile = (dataURL, filename) => {
+    const arr = dataURL.split(',')
+    const mime = arr[0].match(/:(.*?);/)[1]
+    const bstr = atob(arr[1])
+    let n = bstr.length
+    const u8arr = new Uint8Array(n)
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n)
+    }
+    return new File([u8arr], filename, { type: mime })
+  }
+
   // Inicializar todasLasObras desde formData.portfolio_obras al montar
   useEffect(() => {
     if (formData.portfolio_obras && formData.portfolio_obras.length > 0 && todasLasObras.length === 0) {
       console.log('Inicializando obras desde formData.portfolio_obras:', formData.portfolio_obras.length)
-      setTodasLasObras(formData.portfolio_obras)
+
+      // CRÍTICO: Recrear File objects desde Data URLs si no existen
+      const obrasReconstruidas = formData.portfolio_obras.map(obra => {
+        if (!obra.file && obra.preview && obra.preview.startsWith('data:')) {
+          // Recrear File desde Data URL
+          const fileName = obra.titulo ? `${obra.titulo}.jpg` : `obra-${obra.id}.jpg`
+          const file = dataURLtoFile(obra.preview, fileName)
+          console.log(`✅ File reconstruido para obra: ${obra.titulo || obra.id}`)
+          return { ...obra, file }
+        }
+        return obra
+      })
+
+      setTodasLasObras(obrasReconstruidas)
+
+      // Actualizar formData con los files reconstruidos
+      if (obrasReconstruidas.some(o => o.file !== formData.portfolio_obras.find(fo => fo.id === o.id)?.file)) {
+        updateFormData({ portfolio_obras: obrasReconstruidas })
+      }
     }
   }, [])
 
@@ -337,6 +368,16 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
     })
   }
 
+  // Convierte un archivo a base64 data URL (persistente entre navegaciones)
+  const fileToDataURL = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result)
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+  }
+
   const handleAddNewObra = async (files) => {
     const filesArray = Array.from(files)
     setIsProcessingImages(true)
@@ -372,10 +413,13 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
           }
         }
 
+        // CRÍTICO: Usar Data URL en lugar de Blob URL para que persista entre navegaciones
+        const previewDataURL = await fileToDataURL(processedFile)
+
         processedObras.push({
           id: `obra-${Date.now()}-${index}`,
           file: processedFile,
-          preview: URL.createObjectURL(processedFile),
+          preview: previewDataURL, // ✅ Data URL persistente (no Blob URL temporal)
           titulo: '', ancho_cm: '', alto_cm: '', tecnica: '',
           anio: new Date().getFullYear(), precio_mxn: '', notas_montaje: ''
         })

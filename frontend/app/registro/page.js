@@ -160,13 +160,13 @@ export default function RegistroPage() {
           // Guardar metadata de obras sin archivos
           portfolio_obras: updated.portfolio_obras?.map(obra => ({
             ...obra,
-            file: null, // No guardar archivos
-            preview: null // No guardar previews (blobs)
+            file: null // No guardar archivos File (no se pueden serializar)
+            // preview SÍ se guarda (Data URL persistente)
           })) || [],
           obras_lienzo: updated.obras_lienzo?.map(obra => ({
             ...obra,
-            file: null, // No guardar archivos
-            preview: null // No guardar previews (blobs)
+            file: null // No guardar archivos File (no se pueden serializar)
+            // preview SÍ se guarda (Data URL persistente)
           })) || []
         }
         localStorage.setItem('artefacto_registro_draft', JSON.stringify(dataToSave))
