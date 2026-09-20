@@ -7,6 +7,7 @@ import { usePaquetesStore } from '@/stores/paquetesStore'
 import { ChevronDown, ChevronUp, Check, Plus, Edit2, Trash2, GripVertical, AlertCircle, Palette, Box, Download, ArrowRight, X, MousePointer2, Move, Save, FileText, ExternalLink, Info, Loader2, Layers, Frame, Boxes } from 'lucide-react'
 import gsap from 'gsap'
 import { compressImage } from '@/lib/imageCompression'
+import CompressingOverlay from '@/components/ui/CompressingOverlay'
 
 const LayoutCanvas = dynamic(() => import('./LayoutCanvasWithMural'), {
   ssr: false,
@@ -97,6 +98,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
   const [todasLasObras, setTodasLasObras] = useState([])
   const [editingObra, setEditingObra] = useState(null)
   const [isProcessingImages, setIsProcessingImages] = useState(false)
+  const [compressionProgress, setCompressionProgress] = useState({ current: 0, total: 0 })
 
   // Modal de instrucciones
   const [showInstructions, setShowInstructions] = useState(true)
@@ -338,40 +340,46 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
   const handleAddNewObra = async (files) => {
     const filesArray = Array.from(files)
     setIsProcessingImages(true)
+    setCompressionProgress({ current: 0, total: filesArray.length })
 
     try {
-      const processedObras = await Promise.all(
-        filesArray.map(async (file, index) => {
-          const fileSizeMB = file.size / (1024 * 1024)
-          let processedFile = file
+      const processedObras = []
 
-          // Si es mayor a 5MB, comprimir
-          if (fileSizeMB > 5) {
-            console.log(`🖼️ Comprimiendo obra ${index + 1}: ${fileSizeMB.toFixed(2)}MB...`)
-            try {
-              processedFile = await compressImage(file, {
-                maxWidth: 3000, // Aumentado de 2400 a 3000 para mejor calidad
-                maxHeight: 3000,
-                quality: 0.92, // Aumentado de 0.85 a 0.92 para mejor calidad
-                maxSizeKB: 8000 // Aumentado de 4.5MB a 8MB para preservar calidad
-              })
-              const newSizeMB = processedFile.size / (1024 * 1024)
-              console.log(`✅ Obra ${index + 1} comprimida: ${fileSizeMB.toFixed(2)}MB → ${newSizeMB.toFixed(2)}MB`)
-            } catch (error) {
-              console.error('Error comprimiendo imagen:', error)
-              // Si falla la compresión, usar archivo original
-            }
-          }
+      // Procesar archivos secuencialmente para mostrar progreso
+      for (let index = 0; index < filesArray.length; index++) {
+        const file = filesArray[index]
+        setCompressionProgress({ current: index + 1, total: filesArray.length })
 
-          return {
-            id: `obra-${Date.now()}-${index}`,
-            file: processedFile,
-            preview: URL.createObjectURL(processedFile),
-            titulo: '', ancho_cm: '', alto_cm: '', tecnica: '',
-            anio: new Date().getFullYear(), precio_mxn: '', notas_montaje: ''
+        const fileSizeMB = file.size / (1024 * 1024)
+        let processedFile = file
+
+        // Comprimir automáticamente archivos grandes (>5MB)
+        // Acepta hasta 100MB, comprime a ~8-10MB preservando alta calidad
+        if (fileSizeMB > 5) {
+          console.log(`🖼️ Comprimiendo obra ${index + 1}: ${fileSizeMB.toFixed(2)}MB...`)
+          try {
+            processedFile = await compressImage(file, {
+              maxWidth: 3500,     // Alta resolución para obras de arte
+              maxHeight: 3500,
+              quality: 0.94,      // Calidad 94% - preserva detalles
+              maxSizeKB: 10240    // ~10MB target (excelente calidad)
+            })
+            const newSizeMB = processedFile.size / (1024 * 1024)
+            console.log(`✅ Obra ${index + 1} comprimida: ${fileSizeMB.toFixed(2)}MB → ${newSizeMB.toFixed(2)}MB`)
+          } catch (error) {
+            console.error('Error comprimiendo imagen:', error)
+            // Si falla la compresión, usar archivo original
           }
+        }
+
+        processedObras.push({
+          id: `obra-${Date.now()}-${index}`,
+          file: processedFile,
+          preview: URL.createObjectURL(processedFile),
+          titulo: '', ancho_cm: '', alto_cm: '', tecnica: '',
+          anio: new Date().getFullYear(), precio_mxn: '', notas_montaje: ''
         })
-      )
+      }
 
       setTodasLasObras(prev => {
         const updated = [...prev, ...processedObras]
@@ -387,6 +395,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
       alert('Error al procesar las imágenes. Por favor, intenta de nuevo.')
     } finally {
       setIsProcessingImages(false)
+      setCompressionProgress({ current: 0, total: 0 })
     }
   }
 
@@ -407,6 +416,13 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
 
   return (
     <div style={{ position: 'relative', minHeight: '75vh' }}>
+      {/* Overlay de compresión */}
+      <CompressingOverlay
+        isCompressing={isProcessingImages}
+        filesCount={compressionProgress.total}
+        currentFile={compressionProgress.current}
+        message="Comprimiendo obras de arte..."
+      />
 
       {/* Botones de Instrucciones y Referencias */}
       <div style={{
@@ -1284,6 +1300,7 @@ function ObraModal({ obra, es3D, onSave, onClose }) {
   const fotosInputRef = useRef(null)
   const [mounted, setMounted] = useState(false)
   const [isCompressing, setIsCompressing] = useState(false)
+  const [compressionProgress, setCompressionProgress] = useState({ current: 0, total: 0 })
 
   const [form, setForm] = useState({
     titulo: obra.titulo || '',
@@ -1310,32 +1327,40 @@ function ObraModal({ obra, es3D, onSave, onClose }) {
 
     const fotosAAgregar = files.slice(0, espacioDisponible)
     setIsCompressing(true)
+    setCompressionProgress({ current: 0, total: fotosAAgregar.length })
 
     try {
       const { compressImage } = await import('@/lib/imageCompression')
-      const fotosComprimidas = await Promise.all(
-        fotosAAgregar.map(async (file) => {
-          const compressed = await compressImage(file, {
-            maxWidth: 1600, // Aumentado de 800 a 1600 para mejor calidad de detalles
-            maxHeight: 1600,
-            quality: 0.88, // Aumentado de 0.7 a 0.88 para mejor calidad
-            maxSizeKB: 1200 // Aumentado de 200KB a 1.2MB para preservar detalles
-          })
-          return {
-            id: `detalle_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            file: compressed,
-            preview: URL.createObjectURL(compressed),
-            name: compressed.name,
-            size: compressed.size
-          }
+      const fotosComprimidas = []
+
+      // Procesar secuencialmente para mostrar progreso
+      for (let i = 0; i < fotosAAgregar.length; i++) {
+        const file = fotosAAgregar[i]
+        setCompressionProgress({ current: i + 1, total: fotosAAgregar.length })
+
+        const compressed = await compressImage(file, {
+          maxWidth: 1400,      // Suficiente resolución para zoom en detalles
+          maxHeight: 1400,
+          quality: 0.88,       // Calidad 88% para ver detalles de cerca
+          maxSizeKB: 1536      // ~1.5MB por foto detalle
         })
-      )
+
+        fotosComprimidas.push({
+          id: `detalle_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          file: compressed,
+          preview: URL.createObjectURL(compressed),
+          name: compressed.name,
+          size: compressed.size
+        })
+      }
+
       setForm(p => ({ ...p, fotos_detalle: [...p.fotos_detalle, ...fotosComprimidas] }))
     } catch (error) {
       console.error('Error comprimiendo fotos:', error)
       alert('Error al procesar las imágenes.')
     } finally {
       setIsCompressing(false)
+      setCompressionProgress({ current: 0, total: 0 })
       if (fotosInputRef.current) fotosInputRef.current.value = ''
     }
   }
@@ -1378,6 +1403,14 @@ function ObraModal({ obra, es3D, onSave, onClose }) {
 
   const modalContent = (
     <>
+      {/* Overlay de compresión */}
+      <CompressingOverlay
+        isCompressing={isCompressing}
+        filesCount={compressionProgress.total}
+        currentFile={compressionProgress.current}
+        message="Comprimiendo fotos de detalle..."
+      />
+
       {/* Overlay fijo que cubre toda la pantalla */}
       <div
         onClick={handleClose}
@@ -1859,7 +1892,7 @@ const InstructionsModal = forwardRef(function InstructionsModal({ onClose }, ref
     {
       icon: Plus,
       title: 'Agrega tus Obras',
-      description: 'Haz clic en "Mis Obras" para subir imágenes de tus obras. Puedes agregar varias'
+      description: 'Haz clic en "Mis Obras" para subir imágenes (hasta 100MB cada una). Se comprimen automáticamente preservando alta calidad. PNG con transparencia → PNG, otros formatos → JPEG'
     },
     {
       icon: Edit2,

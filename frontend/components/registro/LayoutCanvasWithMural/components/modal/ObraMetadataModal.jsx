@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { gsap } from 'gsap'
 import { compressImage } from '@/lib/imageCompression'
+import CompressingOverlay from '@/components/ui/CompressingOverlay'
 import styles from '../../styles/LayoutCanvas.module.css'
 
 // Configuración de precios (no hardcodeada)
@@ -44,12 +45,14 @@ function calcularPrecio(input, config = CONFIG_PRECIO) {
  * @param {Function} onUpdateMetadata - Callback para actualizar metadata
  * @param {Function} onClose - Callback al cerrar
  */
-// Configuración de compresión para fotos de detalles (muy ligeras)
+// Configuración de compresión para fotos de detalles
+// Balanceada: preserva detalles importantes mientras reduce tamaño
+// 80MB → ~1.5MB (reducción ~98%, calidad 88%)
 const DETALLE_COMPRESSION_OPTIONS = {
-  maxWidth: 800,
-  maxHeight: 800,
-  quality: 0.7,
-  maxSizeKB: 200 // Máximo 200KB por foto
+  maxWidth: 1400,      // Suficiente resolución para zoom en detalles
+  maxHeight: 1400,
+  quality: 0.88,       // Buena calidad (88%) para ver detalles de cerca
+  maxSizeKB: 1536      // ~1.5MB por foto detalle
 }
 
 const MAX_FOTOS_DETALLE = 5
@@ -60,6 +63,7 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
   const [mounted, setMounted] = useState(false)
   const [showTooltip, setShowTooltip] = useState(false)
   const [isCompressing, setIsCompressing] = useState(false)
+  const [compressionProgress, setCompressionProgress] = useState({ current: 0, total: 0 })
 
   // Manejar selección de fotos de detalle
   const handleFotosDetalleChange = async (e) => {
@@ -76,22 +80,27 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
 
     const fotosAAgregar = files.slice(0, espacioDisponible)
     setIsCompressing(true)
+    setCompressionProgress({ current: 0, total: fotosAAgregar.length })
 
     try {
-      const fotosComprimidas = await Promise.all(
-        fotosAAgregar.map(async (file) => {
-          const compressed = await compressImage(file, DETALLE_COMPRESSION_OPTIONS)
-          // Crear preview URL
-          const preview = URL.createObjectURL(compressed)
-          return {
-            id: `detalle_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            file: compressed,
-            preview,
-            name: compressed.name,
-            size: compressed.size
-          }
+      const fotosComprimidas = []
+
+      // Procesar secuencialmente para mostrar progreso
+      for (let i = 0; i < fotosAAgregar.length; i++) {
+        const file = fotosAAgregar[i]
+        setCompressionProgress({ current: i + 1, total: fotosAAgregar.length })
+
+        const compressed = await compressImage(file, DETALLE_COMPRESSION_OPTIONS)
+        const preview = URL.createObjectURL(compressed)
+
+        fotosComprimidas.push({
+          id: `detalle_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          file: compressed,
+          preview,
+          name: compressed.name,
+          size: compressed.size
         })
-      )
+      }
 
       const nuevasFotos = [...currentFotos, ...fotosComprimidas]
       onUpdateMetadata(obra.id, 'fotos_detalle', nuevasFotos)
@@ -100,6 +109,7 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
       alert('Error al procesar las imágenes. Intenta de nuevo.')
     } finally {
       setIsCompressing(false)
+      setCompressionProgress({ current: 0, total: 0 })
       // Limpiar input
       if (fotosDetalleInputRef.current) {
         fotosDetalleInputRef.current.value = ''
@@ -167,6 +177,14 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
 
   const modalContent = (
     <>
+      {/* Overlay de compresión */}
+      <CompressingOverlay
+        isCompressing={isCompressing}
+        filesCount={compressionProgress.total}
+        currentFile={compressionProgress.current}
+        message="Comprimiendo fotos de detalle..."
+      />
+
       {/* Overlay fijo que cubre toda la pantalla */}
       <div
         onClick={handleClose}
@@ -511,7 +529,8 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
                 lineHeight: '1.5'
               }}>
                 Agrega hasta {MAX_FOTOS_DETALLE} fotos de detalles, texturas o acabados de tu obra.
-                Las imágenes se comprimen automáticamente.
+                <br />
+                <strong>Acepta hasta 100MB.</strong> Se comprimen automáticamente preservando calidad. PNG transparente se mantiene, otros formatos → JPEG.
               </p>
 
               {/* Input oculto para seleccionar archivos */}

@@ -251,7 +251,7 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
             lineHeight: '1.7',
             margin: 0
           }}>
-            Las imágenes se comprimen automáticamente preservando alta calidad (90-92%) para optimizar la carga sin perder detalles.
+            Las imágenes se comprimen automáticamente preservando alta calidad (90-92%). PNG con transparencia se mantiene, otros formatos se convierten a JPEG optimizado.
           </p>
         </div>
       </div>

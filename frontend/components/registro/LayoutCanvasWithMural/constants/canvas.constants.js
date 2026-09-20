@@ -65,14 +65,16 @@ export const SVG_LINEA_ASPECT_RATIO = 231 / 1981
 export const SVG_LINEA_POSITION_RATIO = 0.4845 // Posición proporcional de la línea dentro del viewBox
 
 // ========== LÍMITES DE ARCHIVOS ==========
-export const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
-export const MAX_COMPRESSED_SIZE_KB = 400 // 400KB después de compresión
+export const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100MB - acepta archivos grandes para comprimir
+export const MAX_COMPRESSED_SIZE_KB = 10240 // 10MB después de compresión (alta calidad)
 
 // ========== CONFIGURACIÓN DE COMPRESIÓN ==========
+// Compresión balanceada: preserva calidad mientras reduce tamaño significativamente
+// 80MB → ~8-10MB (reducción ~87%, calidad 94%)
 export const IMAGE_COMPRESSION_CONFIG = {
-  maxWidth: 1920,
-  maxHeight: 1920,
-  quality: 0.85,
+  maxWidth: 3500,      // Dimensiones generosas para obras de arte
+  maxHeight: 3500,
+  quality: 0.94,       // Alta calidad (94%) para preservar detalles
   maxSizeKB: MAX_COMPRESSED_SIZE_KB
 }
 
