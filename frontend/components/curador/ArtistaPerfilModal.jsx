@@ -66,7 +66,8 @@ export default function ArtistaPerfilModal({ artista: artistaProp, faseActiva, o
       }
     }
     cargarDatosCompletos()
-  }, [artistaProp?.id, fetchArtistaById])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [artistaProp?.id])
 
   const [votoSeleccionado, setVotoSeleccionado] = useState(null) // true = favor, false = contra, null = no seleccionado
   const [comentario, setComentario] = useState('')
