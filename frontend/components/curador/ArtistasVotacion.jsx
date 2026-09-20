@@ -45,7 +45,7 @@ const CATEGORIAS = [
 
 export default function ArtistasVotacion() {
   const { user } = useAuth()
-  const { artistas, fetchArtistasByFase, isLoading: isLoadingArtistas } = useArtistasStore()
+  const { artistas, fetchArtistasByFase, fetchArtistaById, isLoading: isLoadingArtistas } = useArtistasStore()
   const { getFaseActiva } = useFasesStore()
   const { hasVotado, getVotacion, fetchMisVotaciones, votaciones } = useVotacionesStore()
   const { favoritos, fetchMisFavoritos, toggleFavorito, isFavorito } = useFavoritosStore()
@@ -111,9 +111,16 @@ export default function ArtistasVotacion() {
   // Contar favoritos
   const totalFavoritos = artistasFaseActiva.filter(a => isFavorito(a.id, faseActiva?.id)).length
 
-  const handleVerPerfil = (artista) => {
-    setSelectedArtista(artista)
-    setShowModal(true)
+  const handleVerPerfil = async (artista) => {
+    // Cargar datos completos del artista antes de abrir modal
+    setLoadingFavorito(artista.id)
+    const result = await fetchArtistaById(artista.id)
+    setLoadingFavorito(null)
+
+    if (result.success) {
+      setSelectedArtista(result.data)
+      setShowModal(true)
+    }
   }
 
   const handleCloseModal = () => {
