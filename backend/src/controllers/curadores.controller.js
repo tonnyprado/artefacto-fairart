@@ -690,7 +690,10 @@ export const resetPasswordCurador = async (req, res) => {
     const { id } = req.params
     const { password } = req.body
 
+    console.log('🔑 Reset password request - ID:', id, 'Password length:', password?.length)
+
     if (!password) {
+      console.log('❌ Password not provided')
       return res.status(400).json({
         success: false,
         error: 'La nueva contraseña es requerida'
@@ -698,6 +701,7 @@ export const resetPasswordCurador = async (req, res) => {
     }
 
     if (password.length < 8) {
+      console.log('❌ Password too short:', password.length)
       return res.status(400).json({
         success: false,
         error: 'La contraseña debe tener al menos 8 caracteres'
@@ -705,11 +709,13 @@ export const resetPasswordCurador = async (req, res) => {
     }
 
     if (useDatabase()) {
+      console.log('📊 Using database to reset password for curador:', id)
       // Buscar curador
       const curadorResult = await pool.query(
         'SELECT c.*, c.usuario_id FROM curadores c WHERE c.id = $1',
         [id]
       )
+      console.log('✅ Curador query result:', curadorResult.rows.length, 'rows')
 
       if (curadorResult.rows.length === 0) {
         return res.status(404).json({
@@ -719,19 +725,25 @@ export const resetPasswordCurador = async (req, res) => {
       }
 
       const curador = curadorResult.rows[0]
+      console.log('👤 Curador found:', curador.nombre, curador.apellido, 'Usuario ID:', curador.usuario_id)
 
       // Hash nueva contraseña
       const hashedPassword = await bcrypt.hash(password, 10)
+      console.log('🔐 Password hashed successfully')
 
       // Actualizar contraseña del usuario
-      await pool.query(
+      const updateResult = await pool.query(
         'UPDATE usuarios SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
         [hashedPassword, curador.usuario_id]
       )
+      console.log('✅ Password updated in DB, rows affected:', updateResult.rowCount)
+
+      const successMessage = `Contraseña actualizada para ${curador.nombre} ${curador.apellido}`
+      console.log('✅ Sending success response:', successMessage)
 
       return res.json({
         success: true,
-        message: `Contraseña actualizada para ${curador.nombre} ${curador.apellido}`
+        message: successMessage
       })
     }
 
@@ -755,10 +767,11 @@ export const resetPasswordCurador = async (req, res) => {
       message: `Contraseña actualizada para ${curador.nombre} ${curador.apellido}`
     })
   } catch (error) {
-    console.error('Error al resetear contraseña:', error)
+    console.error('❌ Error al resetear contraseña:', error)
+    console.error('❌ Error stack:', error.stack)
     res.status(500).json({
       success: false,
-      error: 'Error al resetear contraseña'
+      error: 'Error al resetear contraseña: ' + error.message
     })
   }
 }
