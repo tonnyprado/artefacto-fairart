@@ -17,24 +17,32 @@ dotenv.config()
 // Rate limiter general para toda la API
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // máximo 100 requests por IP cada 15 minutos
+  max: 1000, // máximo 1000 requests por IP cada 15 minutos (aumentado para aplicación en uso)
   message: {
     error: 'Demasiadas solicitudes desde esta IP, intenta de nuevo en 15 minutos'
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  skip: (req) => {
+    // No aplicar rate limit en desarrollo local
+    return process.env.NODE_ENV === 'development' && (req.ip === '::1' || req.ip === '127.0.0.1' || req.ip === 'localhost')
+  }
 })
 
 // Rate limiter estricto para login (prevenir brute force)
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 5, // máximo 5 intentos de login por IP cada 15 minutos
+  max: 20, // máximo 20 intentos de login por IP cada 15 minutos (aumentado)
   message: {
     error: 'Demasiados intentos de inicio de sesión. Intenta de nuevo en 15 minutos.'
   },
   standardHeaders: true,
   legacyHeaders: false,
-  skipSuccessfulRequests: true // no contar los logins exitosos
+  skipSuccessfulRequests: true, // no contar los logins exitosos
+  skip: (req) => {
+    // No aplicar rate limit en desarrollo local
+    return process.env.NODE_ENV === 'development' && (req.ip === '::1' || req.ip === '127.0.0.1' || req.ip === 'localhost')
+  }
 })
 
 // Rate limiter para creación de recursos (registro, etc)
