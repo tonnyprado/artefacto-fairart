@@ -47,27 +47,15 @@ export default function ArtistaPerfilModal({ artista: artistaProp, faseActiva, o
   const { user } = useAuth()
   const { hasVotado, getVotacion, createVotacion, updateVotacion } = useVotacionesStore()
   const { isFavorito, toggleFavorito } = useFavoritosStore()
-  const { fetchArtistaById } = useArtistasStore()
 
   // Estado para el artista con datos completos (incluyendo obras con URLs)
   const [artista, setArtista] = useState(artistaProp)
   const [loadingArtista, setLoadingArtista] = useState(false)
 
-  // Cargar datos completos del artista al montar
+  // Actualizar estado local cuando cambia artistaProp
   useEffect(() => {
-    const cargarDatosCompletos = async () => {
-      if (artistaProp?.id) {
-        setLoadingArtista(true)
-        const result = await fetchArtistaById(artistaProp.id)
-        if (result.success) {
-          setArtista(result.data)
-        }
-        setLoadingArtista(false)
-      }
-    }
-    cargarDatosCompletos()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [artistaProp?.id])
+    setArtista(artistaProp)
+  }, [artistaProp])
 
   const [votoSeleccionado, setVotoSeleccionado] = useState(null) // true = favor, false = contra, null = no seleccionado
   const [comentario, setComentario] = useState('')

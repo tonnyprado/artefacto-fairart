@@ -38,7 +38,7 @@ const CATEGORIAS = [
 ]
 
 export default function ArtistasPorFase() {
-  const { fetchArtistasByFase, isLoading: isLoadingArtistas } = useArtistasStore()
+  const { fetchArtistasByFase, fetchArtistaById, isLoading: isLoadingArtistas } = useArtistasStore()
   const { fases, fetchFases, isLoading: isLoadingFases } = useFasesStore()
   const { favoritos, fetchMisFavoritos, toggleFavorito, isFavorito, isLoading: isLoadingFavoritos } = useFavoritosStore()
 
@@ -102,10 +102,17 @@ export default function ArtistasPorFase() {
     setLoadingFavorito(null)
   }
 
-  const handleVerPerfil = (artista, fase) => {
-    setSelectedArtista(artista)
-    setSelectedFase(fase)
-    setShowModal(true)
+  const handleVerPerfil = async (artista, fase) => {
+    // Cargar datos completos del artista antes de abrir modal
+    setLoadingFavorito(`loading-${artista.id}`)
+    const result = await fetchArtistaById(artista.id)
+    setLoadingFavorito(null)
+
+    if (result.success) {
+      setSelectedArtista(result.data)
+      setSelectedFase(fase)
+      setShowModal(true)
+    }
   }
 
   const handleCloseModal = () => {
