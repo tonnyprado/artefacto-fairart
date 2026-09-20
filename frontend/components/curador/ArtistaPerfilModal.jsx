@@ -232,6 +232,7 @@ export default function ArtistaPerfilModal({ artista: artistaProp, faseActiva, o
             <img
               src={artista.foto}
               alt={artista.nombre}
+              loading="eager"
               className="w-48 h-48 rounded-lg object-cover shadow-lg"
             />
           </div>
@@ -347,6 +348,7 @@ export default function ArtistaPerfilModal({ artista: artistaProp, faseActiva, o
                     <img
                       src={artista.layout_canvas_url}
                       alt="Preview del lienzo"
+                      loading="lazy"
                       className="w-full rounded-lg"
                       style={{ maxHeight: '200px', objectFit: 'contain' }}
                     />
@@ -376,6 +378,7 @@ export default function ArtistaPerfilModal({ artista: artistaProp, faseActiva, o
                 <img
                   src={artista.layout_canvas_url}
                   alt="Layout del lienzo"
+                  loading="lazy"
                   className="w-full rounded-lg border-2 border-gray-200 group-hover:border-purple-400 transition-colors"
                   style={{ maxHeight: '300px', objectFit: 'contain' }}
                 />
@@ -436,6 +439,7 @@ export default function ArtistaPerfilModal({ artista: artistaProp, faseActiva, o
                           <img
                             src={imagenUrl}
                             alt={obra.titulo}
+                            loading="lazy"
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                           />
                           {obra.tipo_obra && (
