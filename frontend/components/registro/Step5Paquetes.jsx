@@ -350,10 +350,10 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
             console.log(`🖼️ Comprimiendo obra ${index + 1}: ${fileSizeMB.toFixed(2)}MB...`)
             try {
               processedFile = await compressImage(file, {
-                maxWidth: 2400,
-                maxHeight: 2400,
-                quality: 0.85,
-                maxSizeKB: 4500 // Comprimir a menos de 4.5MB
+                maxWidth: 3000, // Aumentado de 2400 a 3000 para mejor calidad
+                maxHeight: 3000,
+                quality: 0.92, // Aumentado de 0.85 a 0.92 para mejor calidad
+                maxSizeKB: 8000 // Aumentado de 4.5MB a 8MB para preservar calidad
               })
               const newSizeMB = processedFile.size / (1024 * 1024)
               console.log(`✅ Obra ${index + 1} comprimida: ${fileSizeMB.toFixed(2)}MB → ${newSizeMB.toFixed(2)}MB`)
@@ -1276,7 +1276,7 @@ function CanvasPlaceholder() {
   )
 }
 
-const MAX_FOTOS_DETALLE = 5
+const MAX_FOTOS_DETALLE = 10 // Aumentado de 5 a 10 para dar más flexibilidad a los artistas
 
 function ObraModal({ obra, es3D, onSave, onClose }) {
   const modalRef = useRef(null)
@@ -1316,10 +1316,10 @@ function ObraModal({ obra, es3D, onSave, onClose }) {
       const fotosComprimidas = await Promise.all(
         fotosAAgregar.map(async (file) => {
           const compressed = await compressImage(file, {
-            maxWidth: 800,
-            maxHeight: 800,
-            quality: 0.7,
-            maxSizeKB: 200
+            maxWidth: 1600, // Aumentado de 800 a 1600 para mejor calidad de detalles
+            maxHeight: 1600,
+            quality: 0.88, // Aumentado de 0.7 a 0.88 para mejor calidad
+            maxSizeKB: 1200 // Aumentado de 200KB a 1.2MB para preservar detalles
           })
           return {
             id: `detalle_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,

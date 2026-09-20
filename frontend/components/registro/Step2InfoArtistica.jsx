@@ -21,10 +21,12 @@ export default function Step2InfoArtistica({ formData, updateFormData, errors })
 
   const handleRedesChange = (e) => {
     const { name, value } = e.target
+    // Si es Instagram, limpiar el @ inicial si lo escribieron
+    const cleanValue = name === 'instagram' ? value.replace(/^@+/, '') : value
     updateFormData({
       redes_sociales: {
         ...formData.redes_sociales,
-        [name]: value
+        [name]: cleanValue
       }
     })
   }

@@ -66,10 +66,10 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
       setFieldLoading(fieldName, true)
       try {
         processedFile = await compressImage(file, {
-          maxWidth: 1920,
-          maxHeight: 1920,
-          quality: 0.80,
-          maxSizeKB: 1500 // Comprimir a ~1.5MB
+          maxWidth: 2400, // Aumentado de 1920 a 2400 para mejor calidad
+          maxHeight: 2400,
+          quality: 0.90, // Aumentado de 0.80 a 0.90 para mejor calidad
+          maxSizeKB: 3000 // Aumentado de 1.5MB a 3MB para preservar calidad
         })
         console.log(`✅ Imagen comprimida: ${fileSizeMB.toFixed(2)}MB → ${(processedFile.size / (1024 * 1024)).toFixed(2)}MB`)
       } catch (error) {
@@ -105,10 +105,10 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
       setFieldLoading('foto', true)
       try {
         const compressedFile = await compressImage(file, {
-          maxWidth: 1200,
-          maxHeight: 1200,
-          quality: 0.85,
-          maxSizeKB: 800 // Comprimir a ~800KB
+          maxWidth: 1600, // Aumentado de 1200 a 1600 para mejor calidad
+          maxHeight: 1600,
+          quality: 0.90, // Aumentado de 0.85 a 0.90 para mejor calidad
+          maxSizeKB: 1500 // Aumentado de 800KB a 1.5MB para mejor calidad
         })
         console.log(`✅ Foto comprimida: ${fileSizeMB.toFixed(2)}MB → ${(compressedFile.size / (1024 * 1024)).toFixed(2)}MB`)
         setFieldLoading('foto', false)
@@ -143,7 +143,7 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
         value={formData.foto}
         onChange={handleFotoChange}
         error={errors?.foto}
-        helperText="JPG, PNG o WebP. Se comprimirá automáticamente si es mayor a 1MB"
+        helperText="JPG, PNG o WebP. Máximo 1600x1600px. Se comprime automáticamente manteniendo alta calidad."
         isLoading={loadingStates.foto}
         loadingText="Comprimiendo foto..."
       />
@@ -251,7 +251,7 @@ export default function Step3Documentos({ formData, updateFormData, errors }) {
             lineHeight: '1.7',
             margin: 0
           }}>
-            Las imágenes se comprimen automáticamente sin pérdida visible de calidad para optimizar la carga.
+            Las imágenes se comprimen automáticamente preservando alta calidad (90-92%) para optimizar la carga sin perder detalles.
           </p>
         </div>
       </div>

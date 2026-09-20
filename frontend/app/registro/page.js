@@ -354,6 +354,17 @@ export default function RegistroPage() {
       return
     }
 
+    // CRÍTICO: Validar que TODAS las obras tengan su archivo File
+    if (formData.obras_lienzo && formData.obras_lienzo.length > 0) {
+      const obrasSinArchivo = formData.obras_lienzo.filter(obra => !obra.file)
+      if (obrasSinArchivo.length > 0) {
+        const titulos = obrasSinArchivo.map(o => o.titulo || 'Sin título').join(', ')
+        alert(`⚠️ ERROR: Las siguientes obras no tienen archivo de imagen:\n\n${titulos}\n\nPor favor, vuelve a "Tu Lienzo" y verifica que todas las obras tengan su imagen.`)
+        setErrors({ submit: 'Hay obras sin archivo de imagen. Por favor verifica en el paso "Tu Lienzo".' })
+        return
+      }
+    }
+
     setIsSubmitting(true)
 
     try {
