@@ -1,4 +1,9 @@
 import pg from 'pg'
+import dotenv from 'dotenv'
+
+// Cargar variables de entorno
+dotenv.config()
+
 const { Pool } = pg
 
 // Railway proporciona DATABASE_URL automáticamente cuando agregas PostgreSQL
