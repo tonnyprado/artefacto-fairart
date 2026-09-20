@@ -7,7 +7,7 @@ import RoleGuard from '@/components/shared/RoleGuard'
 import { useArtistasStore } from '@/stores/artistasStore'
 import { useFasesStore } from '@/stores/fasesStore'
 import { useVotacionesStore } from '@/stores/votacionesStore'
-import ArtistasVotacion from '@/components/curador/ArtistasVotacion'
+import PanelVotacionRondas from '@/components/curador/PanelVotacionRondas'
 import MisVotaciones from '@/components/curador/MisVotaciones'
 import ResultadosFases from '@/components/curador/ResultadosFases'
 import ArtistasPorFase from '@/components/curador/ArtistasPorFase'
@@ -340,7 +340,12 @@ function CuradorDashboardContent() {
         {/* Content */}
         <div className="max-w-7xl mx-auto px-6 py-8">
           {activeTab === 'artistas-fase' && <ArtistasPorFase />}
-          {activeTab === 'votar' && <ArtistasVotacion />}
+          {activeTab === 'votar' && faseActiva && <PanelVotacionRondas faseId={faseActiva.id} />}
+          {activeTab === 'votar' && !faseActiva && (
+            <div className="text-center py-12">
+              <p className="text-gray-600">No hay una fase activa en este momento.</p>
+            </div>
+          )}
           {activeTab === 'mis-favoritos' && <MisFavoritos />}
           {activeTab === 'mis-votaciones' && <MisVotaciones />}
           {activeTab === 'resultados' && <ResultadosFases />}

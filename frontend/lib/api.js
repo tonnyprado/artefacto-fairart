@@ -251,31 +251,115 @@ export const curadoresApi = {
 }
 
 /**
- * Votaciones API
+ * Rondas API
+ */
+export const rondasApi = {
+  // Obtener rondas de una fase
+  getByFase: (faseId) =>
+    api.get(`/rondas/fase/${faseId}`),
+
+  // Obtener ronda específica
+  getById: (id) =>
+    api.get(`/rondas/${id}`),
+
+  // Obtener estadísticas de una ronda
+  getEstadisticas: (id) =>
+    api.get(`/rondas/${id}/estadisticas`),
+
+  // Crear ronda (admin)
+  create: (data) =>
+    api.post('/rondas', data),
+
+  // Abrir ronda (admin)
+  abrir: (id) =>
+    api.post(`/rondas/${id}/abrir`),
+
+  // Cerrar ronda (admin)
+  cerrar: (id) =>
+    api.post(`/rondas/${id}/cerrar`),
+
+  // Eliminar ronda (admin)
+  delete: (id) =>
+    api.delete(`/rondas/${id}`)
+}
+
+/**
+ * Postulaciones API
+ */
+export const postulacionesApi = {
+  // Obtener postulaciones con filtros
+  getAll: (params = {}) => {
+    const queryString = new URLSearchParams(params).toString()
+    return api.get(`/postulaciones${queryString ? `?${queryString}` : ''}`)
+  },
+
+  // Obtener postulación específica
+  getById: (id) =>
+    api.get(`/postulaciones/${id}`),
+
+  // Obtener postulaciones para votación (curador)
+  getParaVotacion: (faseId, rondaId) =>
+    api.get(`/postulaciones/fase/${faseId}/para-votacion?ronda_id=${rondaId}`),
+
+  // Crear postulación (admin)
+  create: (data) =>
+    api.post('/postulaciones', data),
+
+  // Actualizar postulación (admin)
+  update: (id, data) =>
+    api.put(`/postulaciones/${id}`, data),
+
+  // Mover de reserva a shortlist (admin)
+  moverAShortlist: (id) =>
+    api.post(`/postulaciones/${id}/mover-a-shortlist`),
+
+  // Eliminar postulación (admin)
+  delete: (id) =>
+    api.delete(`/postulaciones/${id}`)
+}
+
+/**
+ * Votaciones API - Sistema de Rondas
  */
 export const votacionesApi = {
+  // Crear o actualizar votación
   create: (data) =>
     api.post('/votaciones', data),
 
   update: (id, data) =>
     api.put(`/votaciones/${id}`, data),
 
-  getMisVotos: (faseId = null) => {
-    const params = faseId ? `?fase_id=${faseId}` : ''
-    return api.get(`/votaciones/mis-votos${params}`)
+  // Obtener mis votos
+  getMisVotos: (params = {}) => {
+    const queryString = new URLSearchParams(params).toString()
+    return api.get(`/votaciones/mis-votos${queryString ? `?${queryString}` : ''}`)
   },
 
-  getEstadisticas: (faseId = null) => {
-    const params = faseId ? `?fase_id=${faseId}` : ''
-    return api.get(`/votaciones/estadisticas${params}`)
+  // Obtener mis estadísticas
+  getEstadisticas: (params = {}) => {
+    const queryString = new URLSearchParams(params).toString()
+    return api.get(`/votaciones/estadisticas${queryString ? `?${queryString}` : ''}`)
   },
 
+  // Obtener progreso en una ronda
+  getProgreso: (rondaId) =>
+    api.get(`/votaciones/ronda/${rondaId}/progreso`),
+
+  // Obtener resultados de una ronda (solo cerrada o admin)
+  getResultadosRonda: (rondaId) =>
+    api.get(`/votaciones/ronda/${rondaId}/resultados`),
+
+  // Obtener resultados de una fase
   getResultados: (faseId) =>
     api.get(`/votaciones/resultados/${faseId}`),
 
-  verificarVoto: (faseId, artistaId) =>
-    api.get(`/votaciones/fase/${faseId}/artista/${artistaId}`),
+  // Verificar si votó por un artista
+  verificarVoto: (faseId, artistaId, rondaId = null) => {
+    const params = rondaId ? `?ronda_id=${rondaId}` : ''
+    return api.get(`/votaciones/fase/${faseId}/artista/${artistaId}${params}`)
+  },
 
+  // Eliminar votación
   delete: (id) =>
     api.delete(`/votaciones/${id}`)
 }

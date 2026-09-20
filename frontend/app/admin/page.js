@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import AuthGuard from '@/components/shared/AuthGuard'
 import RoleGuard from '@/components/shared/RoleGuard'
@@ -97,6 +98,7 @@ const StatCard = ({ icon, label, value, details, iconBg }) => (
 )
 
 function AdminDashboardContent() {
+  const router = useRouter()
   const { user, logout } = useAuth()
   const [activeTab, setActiveTab] = useState('dashboard')
 
@@ -450,7 +452,26 @@ function AdminDashboardContent() {
         {activeTab === 'ediciones' && <EdicionesControl />}
 
         {/* Fases Tab */}
-        {activeTab === 'fases' && <FasesControl />}
+        {activeTab === 'fases' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Gestión de Fases</h2>
+                <p className="text-gray-600 mt-1">Controla las fases y sus rondas de votación</p>
+              </div>
+              <Button
+                onClick={() => router.push('/admin/fases')}
+                size="lg"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+                Gestionar Rondas
+              </Button>
+            </div>
+            <FasesControl />
+          </div>
+        )}
 
         {/* Curadores Tab */}
         {activeTab === 'curadores' && <CuradoresTable />}

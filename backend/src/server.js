@@ -68,6 +68,8 @@ import edicionesRoutes from './routes/ediciones.routes.js'
 import fasesRoutes from './routes/fases.routes.js'
 import curadoresRoutes from './routes/curadores.routes.js'
 import votacionesRoutes from './routes/votaciones.routes.js'
+import rondasRoutes from './routes/rondas.routes.js'
+import postulacionesRoutes from './routes/postulaciones.routes.js'
 import paquetesRoutes from './routes/paquetes.routes.js'
 import layoutsRoutes from './routes/layouts.routes.js'
 import eventosRoutes from './routes/eventos.routes.js'
@@ -186,6 +188,8 @@ app.use('/api/ediciones', edicionesRoutes)
 app.use('/api/fases', fasesRoutes)
 app.use('/api/curadores', curadoresRoutes)
 app.use('/api/votaciones', votacionesRoutes)
+app.use('/api/rondas', rondasRoutes) // Sistema de rondas de votación
+app.use('/api/postulaciones', postulacionesRoutes) // Sistema de postulaciones
 app.use('/api/paquetes', paquetesRoutes)
 app.use('/api/layouts', layoutsRoutes)
 app.use('/api/eventos', eventosRoutes)
