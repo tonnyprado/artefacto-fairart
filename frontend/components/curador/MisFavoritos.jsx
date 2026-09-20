@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useFasesStore } from '@/stores/fasesStore'
 import { useFavoritosStore } from '@/stores/favoritosStore'
+import { useArtistasStore } from '@/stores/artistasStore'
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import ArtistaPerfilModal from './ArtistaPerfilModal'
@@ -39,12 +40,14 @@ const CATEGORIAS = [
 export default function MisFavoritos() {
   const { fases, fetchFases } = useFasesStore()
   const { favoritos, fetchMisFavoritos, removeFavorito, isLoading } = useFavoritosStore()
+  const { fetchArtistaById } = useArtistasStore()
 
   const [faseFilter, setFaseFilter] = useState('all')
   const [selectedArtista, setSelectedArtista] = useState(null)
   const [selectedFase, setSelectedFase] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const [removingId, setRemovingId] = useState(null)
+  const [loadingArtista, setLoadingArtista] = useState(null)
 
   // Cargar datos al montar
   useEffect(() => {
@@ -63,25 +66,20 @@ export default function MisFavoritos() {
     setRemovingId(null)
   }
 
-  const handleVerPerfil = (favorito) => {
-    // Construir objeto artista desde los datos del favorito
-    const artista = {
-      id: favorito.artista_id,
-      nombre: favorito.artista_nombre,
-      apellido: favorito.artista_apellido,
-      foto: favorito.artista_foto,
-      categoria: favorito.artista_categoria,
-      ciudad: favorito.artista_ciudad,
-      pais: favorito.artista_pais,
-      bio: favorito.artista_bio
+  const handleVerPerfil = async (favorito) => {
+    // Cargar datos completos del artista antes de abrir modal
+    setLoadingArtista(favorito.artista_id)
+    const result = await fetchArtistaById(favorito.artista_id)
+    setLoadingArtista(null)
+
+    if (result.success) {
+      // Buscar la fase correspondiente
+      const fase = fases.find(f => f.id === favorito.fase_id)
+
+      setSelectedArtista(result.data)
+      setSelectedFase(fase)
+      setShowModal(true)
     }
-
-    // Buscar la fase correspondiente
-    const fase = fases.find(f => f.id === favorito.fase_id)
-
-    setSelectedArtista(artista)
-    setSelectedFase(fase)
-    setShowModal(true)
   }
 
   const handleCloseModal = () => {
@@ -160,11 +158,14 @@ export default function MisFavoritos() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {favoritosFiltrados.map(favorito => (
+          {favoritosFiltrados.map(favorito => {
+            const isLoadingThis = loadingArtista === favorito.artista_id
+
+            return (
             <div
               key={favorito.id}
-              className="bg-white rounded-lg shadow hover:shadow-lg transition-all overflow-hidden cursor-pointer group"
-              onClick={() => handleVerPerfil(favorito)}
+              className={`bg-white rounded-lg shadow hover:shadow-lg transition-all overflow-hidden cursor-pointer group ${isLoadingThis ? 'opacity-50' : ''}`}
+              onClick={() => !isLoadingThis && handleVerPerfil(favorito)}
             >
               {/* Foto */}
               <div className="relative h-48 overflow-hidden">
@@ -231,7 +232,8 @@ export default function MisFavoritos() {
                 </p>
               </div>
             </div>
-          ))}
+            )
+          })}
         </div>
       )}
 
