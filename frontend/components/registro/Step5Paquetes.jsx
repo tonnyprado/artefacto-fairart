@@ -138,16 +138,49 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
   }, [paquetes, formData.paquete_id])
 
   // Convierte Data URL a File object
-  const dataURLtoFile = (dataURL, filename) => {
-    const arr = dataURL.split(',')
-    const mime = arr[0].match(/:(.*?);/)[1]
-    const bstr = atob(arr[1])
-    let n = bstr.length
-    const u8arr = new Uint8Array(n)
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n)
+  const dataURLtoFile = (dataURL, baseFilename) => {
+    try {
+      // Validar que el Data URL esté bien formado
+      if (!dataURL || !dataURL.startsWith('data:')) {
+        console.error('❌ Data URL inválido:', dataURL?.substring(0, 50))
+        return null
+      }
+
+      const arr = dataURL.split(',')
+      if (arr.length !== 2) {
+        console.error('❌ Data URL mal formado (no tiene coma):', dataURL?.substring(0, 50))
+        return null
+      }
+
+      // Extraer MIME type
+      const mimeMatch = arr[0].match(/:(.*?);/)
+      if (!mimeMatch) {
+        console.error('❌ No se pudo extraer MIME type de Data URL:', arr[0])
+        return null
+      }
+      const mime = mimeMatch[1]
+
+      // Determinar extensión correcta según MIME type
+      const extension = mime.includes('png') ? '.png' : mime.includes('jpeg') || mime.includes('jpg') ? '.jpg' : '.jpg'
+
+      // Asegurar que el filename tenga la extensión correcta
+      const filename = baseFilename.replace(/\.(jpg|jpeg|png)$/i, '') + extension
+
+      // Decodificar base64
+      const bstr = atob(arr[1])
+      let n = bstr.length
+      const u8arr = new Uint8Array(n)
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n)
+      }
+
+      const file = new File([u8arr], filename, { type: mime })
+      console.log(`✅ File reconstruido: ${filename} (${mime}, ${Math.round(file.size / 1024)}KB)`)
+      return file
+    } catch (error) {
+      console.error('❌ Error reconstruyendo File desde Data URL:', error)
+      return null
     }
-    return new File([u8arr], filename, { type: mime })
   }
 
   // Inicializar todasLasObras desde formData.portfolio_obras al montar
@@ -156,11 +189,18 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
       console.log('Inicializando obras desde formData.portfolio_obras:', formData.portfolio_obras.length)
 
       // CRÍTICO: Recrear File objects desde Data URLs si no existen
-      const obrasReconstruidas = formData.portfolio_obras.map(obra => {
+      const obrasReconstruidas = formData.portfolio_obras.map((obra, index) => {
         if (!obra.file && obra.preview && obra.preview.startsWith('data:')) {
           // Recrear File desde Data URL
-          const fileName = obra.titulo ? `${obra.titulo}.jpg` : `obra-${obra.id}.jpg`
-          const file = dataURLtoFile(obra.preview, fileName)
+          const baseFileName = obra.titulo ? `${obra.titulo}` : `obra-${obra.id || index}`
+          const file = dataURLtoFile(obra.preview, baseFileName)
+
+          if (!file) {
+            console.error(`❌ No se pudo recrear File para obra: ${obra.titulo || obra.id}`)
+            // Retornar obra sin file - el usuario verá el preview pero deberá re-subir
+            return obra
+          }
+
           console.log(`✅ File reconstruido para obra: ${obra.titulo || obra.id}`)
           return { ...obra, file }
         }
@@ -415,6 +455,14 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
 
         // CRÍTICO: Usar Data URL en lugar de Blob URL para que persista entre navegaciones
         const previewDataURL = await fileToDataURL(processedFile)
+
+        // Advertir si el Data URL es muy grande (podría causar problemas con localStorage)
+        const sizeKB = Math.round(previewDataURL.length / 1024)
+        if (sizeKB > 1024) {
+          console.warn(`⚠️ Data URL muy grande para obra ${index + 1}: ${sizeKB}KB`)
+          console.warn('   Esto podría causar problemas al guardar en localStorage')
+          console.warn('   Considera comprimir más la imagen o usar un formato diferente')
+        }
 
         processedObras.push({
           id: `obra-${Date.now()}-${index}`,
