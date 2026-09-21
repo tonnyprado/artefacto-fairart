@@ -158,6 +158,60 @@ const GalleryDetail = forwardRef(function GalleryDetail({
               </p>
             </div>
           )}
+
+          {/* Fotos de detalle */}
+          {obra.fotos_detalle_urls && obra.fotos_detalle_urls.length > 0 && (
+            <div style={{ marginTop: '20px' }}>
+              <p style={{
+                margin: '0 0 12px',
+                fontSize: '11px',
+                fontWeight: 600,
+                color: COLORS.gray,
+                fontFamily: FONTS.body,
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+              }}>
+                Fotos de detalle ({obra.fotos_detalle_urls.length})
+              </p>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                gap: '8px',
+              }}>
+                {obra.fotos_detalle_urls.map((fotoUrl, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => window.open(fotoUrl, '_blank')}
+                    style={{
+                      position: 'relative',
+                      aspectRatio: '1',
+                      background: COLORS.cream,
+                      borderRadius: '8px',
+                      overflow: 'hidden',
+                      cursor: 'pointer',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.opacity = '0.9'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.opacity = '1'
+                    }}
+                  >
+                    <img
+                      src={fotoUrl}
+                      alt={`Detalle ${idx + 1}`}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                      }}
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Botón de descarga */}

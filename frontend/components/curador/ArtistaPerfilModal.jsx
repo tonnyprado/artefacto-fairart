@@ -772,6 +772,34 @@ export default function ArtistaPerfilModal({ artista: artistaProp, faseActiva, o
                       <p className="text-sm text-gray-700 mt-1 italic">{obraModal.obra.notas_montaje}</p>
                     </div>
                   )}
+
+                  {/* Fotos de detalle */}
+                  {obraModal.obra.fotos_detalle_urls && obraModal.obra.fotos_detalle_urls.length > 0 && (
+                    <div className="pt-4 border-t">
+                      <span className="text-xs text-gray-500 uppercase tracking-wide block mb-3">
+                        Fotos de detalle ({obraModal.obra.fotos_detalle_urls.length})
+                      </span>
+                      <div className="grid grid-cols-2 gap-2">
+                        {obraModal.obra.fotos_detalle_urls.map((fotoUrl, idx) => (
+                          <div
+                            key={idx}
+                            className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity group"
+                            onClick={() => window.open(fotoUrl, '_blank')}
+                          >
+                            <img
+                              src={fotoUrl}
+                              alt={`Detalle ${idx + 1}`}
+                              className="w-full h-full object-cover"
+                              loading="lazy"
+                            />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                              <Eye className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
