@@ -396,16 +396,34 @@ export default function ArtistaPerfilModal({ artista: artistaProp, faseActiva, o
           const obrasCanvas = artista.layout_canvas_data?.obras || []
           const obrasDB = artista.documentos?.portfolio_images || artista.obras || []
 
-          // Enriquecer obras del canvas con URLs de la DB
-          const obrasEnriquecidas = obrasCanvas.map((obraCanvas, index) => {
-            // Buscar la obra correspondiente en la DB por título o por índice
-            const obraDB = obrasDB.find(o => o.titulo === obraCanvas.titulo) || obrasDB[index]
-            return {
-              ...obraCanvas,
-              preview: obraCanvas.preview || obraDB?.imagen_url || null,
-              imagen_url: obraDB?.imagen_url || null
-            }
-          })
+          let obrasEnriquecidas = []
+
+          if (obrasCanvas.length > 0) {
+            // Si hay obras en el canvas, enriquecerlas con URLs de la DB
+            obrasEnriquecidas = obrasCanvas.map((obraCanvas, index) => {
+              // Buscar la obra correspondiente en la DB por título (normalizado) o por índice
+              const tituloNormalizado = obraCanvas.titulo?.trim().toLowerCase()
+              const obraDB = obrasDB.find(o => o.titulo?.trim().toLowerCase() === tituloNormalizado) || obrasDB[index]
+              return {
+                ...obraCanvas,
+                preview: obraCanvas.preview || obraDB?.imagen_url || null,
+                imagen_url: obraDB?.imagen_url || null,
+                // Agregar campos que puedan faltar en el canvas
+                id: obraDB?.id || null,
+                artista_id: obraDB?.artista_id || null
+              }
+            })
+          } else if (obrasDB.length > 0) {
+            // Si no hay obras en canvas pero sí en la BD, mostrar todas las obras de la BD
+            obrasEnriquecidas = obrasDB.map(obra => ({
+              ...obra,
+              preview: obra.imagen_url,
+              // Asegurar que los campos necesarios existan
+              alto_cm: obra.alto_cm || 0,
+              ancho_cm: obra.ancho_cm || 0,
+              precio_mxn: obra.precio_mxn || 0
+            }))
+          }
 
           if (obrasEnriquecidas.length === 0) return null
 
