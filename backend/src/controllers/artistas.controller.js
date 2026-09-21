@@ -129,50 +129,64 @@ export const getAllArtistas = async (req, res) => {
 
       const result = await pool.query(query, params)
 
-      // Transformar campos para cada artista
-      const artistasTransformados = result.rows.map(artista => ({
-        ...artista,
-        // Agrupar redes sociales
-        redes_sociales: {
-          instagram: artista.instagram,
-          facebook: artista.facebook,
-          website: artista.website,
-          sitio_web: artista.website // Alias para compatibilidad
-        },
-        // Agrupar documentos
-        documentos: {
-          cv_url: artista.cv_url,
-          cv: artista.cv_url, // Alias
-          portfolio_url: artista.portfolio_url,
-          portfolio: artista.portfolio_url, // Alias
-          identificacion_url: artista.identificacion_url,
-          identificacion: artista.identificacion_url // Alias
-        },
-        // Mapear estado para compatibilidad
-        estado: artista.estado_registro || artista.estado || 'pendiente',
-        // Agregar info del paquete
-        paquete: artista.paquete_id ? {
-          id: artista.paquete_id,
-          nombre: artista.paquete_nombre,
-          tipo: artista.paquete_tipo,
-          metros_lineales: artista.paquete_metros_lineales,
-          altura_pared: artista.paquete_altura_pared,
-          metros_cuadrados: artista.paquete_metros_cuadrados,
-          precio_mxn: artista.paquete_precio_mxn,
-          obras_maximas: artista.paquete_obras_maximas
-        } : null,
-        // Agregar info de fase si está disponible
-        fase_inscripcion: artista.fase_id ? {
-          id: artista.fase_id,
-          nombre: artista.fase_nombre,
-          numero_fase: artista.numero_fase,
-          inscripciones_abiertas: artista.fase_inscripciones_abiertas,
-          votacion_abierta: artista.fase_votacion_abierta
-        } : null,
-        // Votos
-        total_votos_favor: parseInt(artista.votos_favor) || 0,
-        total_votos_contra: parseInt(artista.votos_contra) || 0
-      }))
+      // Transformar campos para cada artista (incluyendo URLs de fotos)
+      const artistasTransformados = result.rows.map(artista => {
+        // Procesar URLs de archivos (igual que getArtistaById)
+        const fotoUrl = artista.foto || null
+        const cvUrl = artista.cv_url || null
+        const portfolioUrl = artista.portfolio_url || null
+        const identificacionUrl = artista.identificacion_url || null
+        const layoutCanvasUrl = artista.layout_canvas_url || null
+        const layoutCanvasPdf = artista.layout_canvas_pdf || null
+
+        return {
+          ...artista,
+          // URLs de archivos procesadas
+          foto: fotoUrl,
+          layout_canvas_url: layoutCanvasUrl,
+          layout_canvas_pdf: layoutCanvasPdf,
+          // Agrupar redes sociales
+          redes_sociales: {
+            instagram: artista.instagram,
+            facebook: artista.facebook,
+            website: artista.website,
+            sitio_web: artista.website // Alias para compatibilidad
+          },
+          // Agrupar documentos
+          documentos: {
+            cv_url: cvUrl,
+            cv: cvUrl, // Alias
+            portfolio_url: portfolioUrl,
+            portfolio: portfolioUrl, // Alias
+            identificacion_url: identificacionUrl,
+            identificacion: identificacionUrl // Alias
+          },
+          // Mapear estado para compatibilidad
+          estado: artista.estado_registro || artista.estado || 'pendiente',
+          // Agregar info del paquete
+          paquete: artista.paquete_id ? {
+            id: artista.paquete_id,
+            nombre: artista.paquete_nombre,
+            tipo: artista.paquete_tipo,
+            metros_lineales: artista.paquete_metros_lineales,
+            altura_pared: artista.paquete_altura_pared,
+            metros_cuadrados: artista.paquete_metros_cuadrados,
+            precio_mxn: artista.paquete_precio_mxn,
+            obras_maximas: artista.paquete_obras_maximas
+          } : null,
+          // Agregar info de fase si está disponible
+          fase_inscripcion: artista.fase_id ? {
+            id: artista.fase_id,
+            nombre: artista.fase_nombre,
+            numero_fase: artista.numero_fase,
+            inscripciones_abiertas: artista.fase_inscripciones_abiertas,
+            votacion_abierta: artista.fase_votacion_abierta
+          } : null,
+          // Votos
+          total_votos_favor: parseInt(artista.votos_favor) || 0,
+          total_votos_contra: parseInt(artista.votos_contra) || 0
+        }
+      })
 
       return res.json({
         success: true,
