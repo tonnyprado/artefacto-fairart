@@ -290,12 +290,13 @@ export const registrarArtista = async (req, res) => {
           identificacion_url = $16,
           paquete_id = $17,
           layout_canvas_url = $18,
-          layout_canvas_data = $19,
+          layout_canvas_pdf = $19,
+          layout_canvas_data = $20,
           aprobado = false,
           estado_registro = 'pendiente',
           fecha_registro_completo = NOW(),
           updated_at = NOW()
-        WHERE id = $20
+        WHERE id = $21
         RETURNING *`,
         [
           nombre,
@@ -316,6 +317,7 @@ export const registrarArtista = async (req, res) => {
           identificacion_url,
           paquete_id ? parseInt(paquete_id) : null,
           layout_canvas_url,
+          layout_canvas_pdf_url,
           parsedLayoutData,
           existingArtista.id
         ]
@@ -330,9 +332,9 @@ export const registrarArtista = async (req, res) => {
           ciudad, pais, categoria, bio, foto,
           instagram, facebook, website,
           cv_url, portfolio_url, identificacion_url,
-          paquete_id, layout_canvas_url, layout_canvas_data,
+          paquete_id, layout_canvas_url, layout_canvas_pdf, layout_canvas_data,
           aprobado, estado_registro
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
         RETURNING *`,
         [
           nombre,
@@ -354,6 +356,7 @@ export const registrarArtista = async (req, res) => {
           identificacion_url,
           paquete_id ? parseInt(paquete_id) : null,
           layout_canvas_url,
+          layout_canvas_pdf_url,
           parsedLayoutData,
           false, // aprobado
           'pendiente' // estado_registro

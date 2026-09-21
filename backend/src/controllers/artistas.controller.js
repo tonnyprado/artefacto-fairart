@@ -309,6 +309,7 @@ export const getArtistaById = async (req, res) => {
         identificacion_url: row.identificacion_url,
         paquete_id: row.paquete_id,
         layout_canvas_url: row.layout_canvas_url,
+        layout_canvas_pdf: row.layout_canvas_pdf,
         layout_canvas_data: row.layout_canvas_data,
         aprobado: row.aprobado,
         estado_registro: row.estado_registro,
@@ -355,6 +356,7 @@ export const getArtistaById = async (req, res) => {
       const portfolioUrl = artista.portfolio_url || null
       const identificacionUrl = artista.identificacion_url || null
       const layoutCanvasUrl = artista.layout_canvas_url || null
+      const layoutCanvasPdf = artista.layout_canvas_pdf || null
 
       // Usar URLs directas para las imágenes de las obras
       const obrasConUrls = obrasResult.rows.map((obra) => {
@@ -399,6 +401,7 @@ export const getArtistaById = async (req, res) => {
           ...artista,
           foto: fotoUrl,
           layout_canvas_url: layoutCanvasUrl,
+          layout_canvas_pdf: layoutCanvasPdf,
           redes_sociales: {
             instagram: artista.instagram,
             facebook: artista.facebook,
