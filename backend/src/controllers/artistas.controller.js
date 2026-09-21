@@ -1181,9 +1181,29 @@ export const getArtistasByFase = async (req, res) => {
         [fase_id]
       )
 
+      // Procesar URLs de archivos (igual que getAllArtistas y getArtistaById)
+      const artistasTransformados = result.rows.map(artista => {
+        const fotoUrl = artista.foto || null
+        const cvUrl = artista.cv_url || null
+        const portfolioUrl = artista.portfolio_url || null
+        const identificacionUrl = artista.identificacion_url || null
+        const layoutCanvasUrl = artista.layout_canvas_url || null
+        const layoutCanvasPdf = artista.layout_canvas_pdf || null
+
+        return {
+          ...artista,
+          foto: fotoUrl,
+          cv_url: cvUrl,
+          portfolio_url: portfolioUrl,
+          identificacion_url: identificacionUrl,
+          layout_canvas_url: layoutCanvasUrl,
+          layout_canvas_pdf: layoutCanvasPdf
+        }
+      })
+
       return res.json({
         success: true,
-        data: result.rows
+        data: artistasTransformados
       })
     }
 
