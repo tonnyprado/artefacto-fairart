@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { COLORS, FONTS, container } from './theme';
 import { useTextScramble } from './useTextScramble';
 import TransitionLink from './TransitionLink';
@@ -29,12 +29,12 @@ function HoverCard({ children, style }) {
 }
 
 // Componente de botón con hover
-function HoverButton({ href, bg, color, hoverBg, hoverColor, children, download, external, isTransitionLink, ...props }) {
+function HoverButton({ href, bg, color, hoverBg, hoverColor, children, download, external, isTransitionLink, disabled, ...props }) {
   const [isHovered, setIsHovered] = useState(false);
 
   const style = {
-    background: isHovered ? hoverBg : bg,
-    color: isHovered ? hoverColor : color,
+    background: disabled ? 'rgba(0,0,0,0.3)' : (isHovered ? hoverBg : bg),
+    color: disabled ? 'rgba(244,237,228,0.4)' : (isHovered ? hoverColor : color),
     padding: '16px 28px',
     fontWeight: 700,
     fontSize: 13,
@@ -44,9 +44,11 @@ function HoverButton({ href, bg, color, hoverBg, hoverColor, children, download,
     display: 'inline-block',
     transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
     borderRadius: 12,
-    transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
-    boxShadow: isHovered ? '0 8px 24px rgba(0,0,0,0.25)' : '0 4px 12px rgba(0,0,0,0.15)',
-    cursor: 'pointer',
+    transform: disabled ? 'translateY(0)' : (isHovered ? 'translateY(-2px)' : 'translateY(0)'),
+    boxShadow: disabled ? 'none' : (isHovered ? '0 8px 24px rgba(0,0,0,0.25)' : '0 4px 12px rgba(0,0,0,0.15)'),
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    opacity: disabled ? 0.6 : 1,
+    pointerEvents: disabled ? 'none' : 'auto',
     ...props.style,
   };
 
@@ -96,10 +98,41 @@ function HoverButton({ href, bg, color, hoverBg, hoverColor, children, download,
 }
 
 export default function ConvocatoriaSection({ edicion = '2027', abierta = true, urlRegistro = '/registro' }) {
+  const [inscripcionesAbiertas, setInscripcionesAbiertas] = useState(abierta);
+  const [loading, setLoading] = useState(true);
+
   const titleScramble = useTextScramble('Convocatoria Abierta', {
     duration: 1200,
     delay: 400,
   });
+
+  // Consultar estado de inscripciones desde el API
+  useEffect(() => {
+    const fetchInscripcionesEstado = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+        const response = await fetch(`${apiUrl}/api/fases`);
+
+        if (response.ok) {
+          const data = await response.json();
+          // Buscar la fase activa con inscripciones abiertas
+          const faseActiva = data.data?.find(fase => fase.inscripciones_abiertas === true);
+          setInscripcionesAbiertas(!!faseActiva);
+        } else {
+          // Si falla el API, usar el valor por defecto de la prop
+          setInscripcionesAbiertas(abierta);
+        }
+      } catch (error) {
+        console.error('Error al consultar estado de inscripciones:', error);
+        // Si hay error, usar el valor por defecto de la prop
+        setInscripcionesAbiertas(abierta);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInscripcionesEstado();
+  }, [abierta]);
 
   const sectionHeader = {
     margin: '0 0 14px',
@@ -241,18 +274,17 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
             >
               Descargar PDF
             </HoverButton>
-            {abierta && (
-              <HoverButton
-                href={urlRegistro}
-                bg={COLORS.black}
-                color={COLORS.cream}
-                hoverBg={COLORS.cream}
-                hoverColor={COLORS.black}
-                isTransitionLink
-              >
-                Registrarse
-              </HoverButton>
-            )}
+            <HoverButton
+              href={urlRegistro}
+              bg={COLORS.black}
+              color={COLORS.cream}
+              hoverBg={COLORS.cream}
+              hoverColor={COLORS.black}
+              isTransitionLink
+              disabled={!inscripcionesAbiertas}
+            >
+              {inscripcionesAbiertas ? 'Registrarse' : 'Registro cerrado'}
+            </HoverButton>
           </div>
         </div>
 
@@ -498,8 +530,9 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
                 hoverBg={COLORS.cream}
                 hoverColor={COLORS.black}
                 isTransitionLink
+                disabled={!inscripcionesAbiertas}
               >
-                {abierta ? 'Iniciar registro' : 'Registro cerrado'}
+                {inscripcionesAbiertas ? 'Iniciar registro' : 'Registro cerrado'}
               </HoverButton>
             </div>
             <a
