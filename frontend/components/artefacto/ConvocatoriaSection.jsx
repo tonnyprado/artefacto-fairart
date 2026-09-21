@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { COLORS, FONTS, container } from './theme';
 import { useTextScramble } from './useTextScramble';
 import TransitionLink from './TransitionLink';
+import { useFasesStore } from '@/stores/fasesStore';
 
 // Componente de card con hover
 function HoverCard({ children, style }) {
@@ -98,41 +99,21 @@ function HoverButton({ href, bg, color, hoverBg, hoverColor, children, download,
 }
 
 export default function ConvocatoriaSection({ edicion = '2027', abierta = true, urlRegistro = '/registro' }) {
-  const [inscripcionesAbiertas, setInscripcionesAbiertas] = useState(abierta);
-  const [loading, setLoading] = useState(true);
+  const { fetchFases, getFaseConInscripcionesAbiertas } = useFasesStore();
 
   const titleScramble = useTextScramble('Convocatoria Abierta', {
     duration: 1200,
     delay: 400,
   });
 
-  // Consultar estado de inscripciones desde el API
+  // Fetch fases on mount (igual que FloatingRegistrationButton)
   useEffect(() => {
-    const fetchInscripcionesEstado = async () => {
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-        const response = await fetch(`${apiUrl}/api/fases`);
+    fetchFases();
+  }, [fetchFases]);
 
-        if (response.ok) {
-          const data = await response.json();
-          // Buscar la fase activa con inscripciones abiertas
-          const faseActiva = data.data?.find(fase => fase.inscripciones_abiertas === true);
-          setInscripcionesAbiertas(!!faseActiva);
-        } else {
-          // Si falla el API, usar el valor por defecto de la prop
-          setInscripcionesAbiertas(abierta);
-        }
-      } catch (error) {
-        console.error('Error al consultar estado de inscripciones:', error);
-        // Si hay error, usar el valor por defecto de la prop
-        setInscripcionesAbiertas(abierta);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchInscripcionesEstado();
-  }, [abierta]);
+  // Obtener fase activa con inscripciones abiertas (igual que FloatingRegistrationButton)
+  const faseActiva = getFaseConInscripcionesAbiertas();
+  const inscripcionesAbiertas = !!faseActiva;
 
   const sectionHeader = {
     margin: '0 0 14px',
