@@ -185,8 +185,8 @@ export const createCurador = async (req, res) => {
 
       // Crear curador
       const curadorResult = await pool.query(
-        `INSERT INTO curadores (usuario_id, nombre, apellido, email, telefono, especialidad, bio, foto, activo)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        `INSERT INTO curadores (usuario_id, nombre, apellido, email, telefono, especialidad, bio, foto, activo, password_visible)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
          RETURNING *`,
         [
           nuevoUsuario.id,
@@ -197,7 +197,8 @@ export const createCurador = async (req, res) => {
           especialidad || null,
           bio || null,
           foto || null,
-          true
+          true,
+          password // Guardar password en texto plano para admin
         ]
       )
 
@@ -737,6 +738,13 @@ export const resetPasswordCurador = async (req, res) => {
         [hashedPassword, curador.usuario_id]
       )
       console.log('✅ Password updated in DB, rows affected:', updateResult.rowCount)
+
+      // Actualizar password_visible en curadores para que el admin pueda verla
+      await pool.query(
+        'UPDATE curadores SET password_visible = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+        [password, id]
+      )
+      console.log('✅ Password visible updated in curadores table')
 
       const successMessage = `Contraseña actualizada para ${curador.nombre} ${curador.apellido}`
       console.log('✅ Sending success response:', successMessage)

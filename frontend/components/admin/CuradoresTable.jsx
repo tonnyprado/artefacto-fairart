@@ -259,6 +259,7 @@ export default function CuradoresTable() {
             <TableRow>
               <TableHeader>Curador</TableHeader>
               <TableHeader>Email</TableHeader>
+              <TableHeader>Contraseña</TableHeader>
               <TableHeader>Especialidad</TableHeader>
               <TableHeader>Votaciones</TableHeader>
               <TableHeader>Favoritos</TableHeader>
@@ -269,7 +270,7 @@ export default function CuradoresTable() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-gray-500 py-8">
+                <TableCell colSpan={8} className="text-center text-gray-500 py-8">
                   <div className="flex items-center justify-center gap-2">
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-600"></div>
                     Cargando curadores...
@@ -278,7 +279,7 @@ export default function CuradoresTable() {
               </TableRow>
             ) : curadores.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-gray-500 py-8">
+                <TableCell colSpan={8} className="text-center text-gray-500 py-8">
                   No hay curadores registrados
                 </TableCell>
               </TableRow>
@@ -317,6 +318,33 @@ export default function CuradoresTable() {
                   {/* Email */}
                   <TableCell className="text-gray-600">
                     {curador.email}
+                  </TableCell>
+
+                  {/* Contraseña */}
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {curador.password_visible ? (
+                        <>
+                          <code className="px-2 py-1 bg-gray-100 rounded text-sm font-mono text-gray-700">
+                            {curador.password_visible}
+                          </code>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(curador.password_visible)
+                              alert('Contraseña copiada al portapapeles')
+                            }}
+                            className="text-blue-600 hover:text-blue-800"
+                            title="Copiar contraseña"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                          </button>
+                        </>
+                      ) : (
+                        <span className="text-gray-400 text-sm italic">Sin contraseña registrada</span>
+                      )}
+                    </div>
                   </TableCell>
 
                   {/* Especialidad */}
