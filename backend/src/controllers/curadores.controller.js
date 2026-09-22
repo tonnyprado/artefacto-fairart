@@ -152,8 +152,25 @@ export const createCurador = async (req, res) => {
       password
     } = req.body
 
+    // Debug: Log de datos recibidos
+    console.log('📝 CREATE CURADOR - Datos recibidos:', {
+      nombre,
+      apellido,
+      email,
+      telefono,
+      especialidad,
+      hasPassword: !!password,
+      passwordLength: password?.length
+    })
+
     // Validaciones
     if (!nombre || !apellido || !email || !password) {
+      console.log('❌ Validación fallida:', {
+        nombre: !!nombre,
+        apellido: !!apellido,
+        email: !!email,
+        password: !!password
+      })
       return res.status(400).json({
         success: false,
         error: 'Nombre, apellido, email y password son requeridos'
