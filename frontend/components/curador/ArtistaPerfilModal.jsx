@@ -466,7 +466,33 @@ export default function ArtistaPerfilModal({ artista: artistaProp, faseActiva, o
                       <p className="text-xs text-gray-500">
                         {obra.ancho_cm} × {obra.alto_cm}{obra.largo_cm ? ` × ${obra.largo_cm}` : ''} cm
                       </p>
-                      <p className="text-xs text-green-600 font-medium mt-1">${obra.precio_mxn?.toLocaleString('es-MX')} MXN</p>
+                      {/* Desglose de precio */}
+                      {obra.precio_mxn && (
+                        <div className="mt-2 pt-2 border-t border-gray-100 space-y-0.5">
+                          <div className="flex justify-between text-[10px]">
+                            <span className="text-gray-500">Ganancia artista (75%):</span>
+                            <span className="font-medium text-gray-700">${obra.precio_mxn?.toLocaleString('es-MX')}</span>
+                          </div>
+                          {obra.comision_artefacto && (
+                            <div className="flex justify-between text-[10px]">
+                              <span className="text-gray-500">Comisión (25%):</span>
+                              <span className="text-gray-700">${obra.comision_artefacto?.toLocaleString('es-MX')}</span>
+                            </div>
+                          )}
+                          {obra.precio_publico && (
+                            <div className="flex justify-between text-[10px]">
+                              <span className="text-gray-500">Precio público:</span>
+                              <span className="text-gray-700">${obra.precio_publico?.toLocaleString('es-MX')}</span>
+                            </div>
+                          )}
+                          {obra.precio_sugerido && (
+                            <div className="flex justify-between text-[10px] pt-1 border-t border-gray-100">
+                              <span className="font-semibold text-gray-700">Precio sugerido:</span>
+                              <span className="font-bold text-green-600">${obra.precio_sugerido?.toLocaleString('es-MX')}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )
                 })}
@@ -759,12 +785,39 @@ export default function ArtistaPerfilModal({ artista: artistaProp, faseActiva, o
                     <p className="font-medium text-gray-900">{obraModal.obra.tecnica || '-'}</p>
                   </div>
 
-                  <div className="pt-4 border-t">
-                    <span className="text-xs text-gray-500 uppercase tracking-wide">Precio</span>
-                    <p className="text-2xl font-bold text-green-600">
-                      ${obraModal.obra.precio_mxn?.toLocaleString('es-MX')} MXN
-                    </p>
-                  </div>
+                  {/* Desglose de precios con calculadora */}
+                  {obraModal.obra.precio_mxn && (
+                    <div className="pt-4 border-t">
+                      <span className="text-xs text-gray-500 uppercase tracking-wide block mb-3">Desglose de Precio</span>
+                      <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                        <div className="flex justify-between items-center pb-2 border-b border-gray-200">
+                          <span className="text-sm text-gray-600">Ganancia artista (75%)</span>
+                          <span className="text-base font-semibold text-gray-900">${obraModal.obra.precio_mxn?.toLocaleString('es-MX')}</span>
+                        </div>
+                        {obraModal.obra.comision_artefacto && (
+                          <div className="flex justify-between items-center pb-2 border-b border-gray-200">
+                            <span className="text-sm text-gray-600">Comisión Artefacto (25%)</span>
+                            <span className="text-base text-gray-900">${obraModal.obra.comision_artefacto?.toLocaleString('es-MX')}</span>
+                          </div>
+                        )}
+                        {obraModal.obra.precio_publico && (
+                          <div className="flex justify-between items-center pb-2 border-b border-gray-200">
+                            <span className="text-sm text-gray-600">Precio al público</span>
+                            <span className="text-base text-gray-900">${obraModal.obra.precio_publico?.toLocaleString('es-MX')}</span>
+                          </div>
+                        )}
+                        {obraModal.obra.precio_sugerido && (
+                          <div className="flex justify-between items-center pt-2">
+                            <span className="text-sm font-semibold text-gray-900">Precio sugerido (redondeado)</span>
+                            <span className="text-xl font-bold text-green-600">${obraModal.obra.precio_sugerido?.toLocaleString('es-MX')}</span>
+                          </div>
+                        )}
+                        <p className="text-xs text-gray-500 pt-2 border-t border-gray-200 italic">
+                          *Montos sin IVA. Otras comisiones pueden aplicarse dependiendo del método de pago del comprador.
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   {obraModal.obra.notas_montaje && (
                     <div className="pt-4 border-t">
