@@ -634,7 +634,8 @@ export default function ArtistasTable() {
 
       const obrasHeaders = [
         'Folio Artista', 'Artista', 'Email', 'No.', 'Título de la Obra',
-        'Precio MXN', 'Alto (cm)', 'Ancho (cm)', 'Largo (cm)', 'Tipo',
+        'Ganancia Artista (75%)', 'Comisión (25%)', 'Precio Público', 'Precio Sugerido',
+        'Alto (cm)', 'Ancho (cm)', 'Largo (cm)', 'Tipo',
         'Técnica', 'Año', 'Notas de Montaje'
       ]
 
@@ -658,6 +659,9 @@ export default function ArtistasTable() {
               index + 1,
               obra.titulo || 'Sin título',
               obra.precio_mxn || obra.precio ? `$${Number(obra.precio_mxn || obra.precio).toLocaleString('es-MX')}` : '',
+              obra.comision_artefacto ? `$${Number(obra.comision_artefacto).toLocaleString('es-MX')}` : '',
+              obra.precio_publico ? `$${Number(obra.precio_publico).toLocaleString('es-MX')}` : '',
+              obra.precio_sugerido ? `$${Number(obra.precio_sugerido).toLocaleString('es-MX')}` : '',
               obra.alto_cm || '',
               obra.ancho_cm || '',
               obra.largo_cm || '',
@@ -681,7 +685,8 @@ export default function ArtistasTable() {
       })
 
       // Anchos de columnas para obras
-      const obrasWidths = [14, 28, 28, 6, 35, 14, 10, 10, 10, 8, 20, 8, 35]
+      // Folio, Artista, Email, No., Título, Ganancia, Comisión, Precio Público, Precio Sugerido, Alto, Ancho, Largo, Tipo, Técnica, Año, Notas
+      const obrasWidths = [14, 28, 28, 6, 35, 16, 14, 16, 16, 10, 10, 10, 8, 20, 8, 35]
       obrasWidths.forEach((width, idx) => {
         wsObras.getColumn(idx + 1).width = width
       })
