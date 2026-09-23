@@ -148,7 +148,7 @@ export default function PanelAdminRondas({ faseId }) {
             </div>
             <div>
               <p className="text-sm text-gray-500">Umbral R1</p>
-              <p className="text-lg font-bold text-gray-900">{(config.umbral_r1 * 100) || 60}%</p>
+              <p className="text-lg font-bold text-gray-900">{config.umbral_r1 ? (config.umbral_r1 * 100) : 60}%</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Votos R2</p>
@@ -156,7 +156,7 @@ export default function PanelAdminRondas({ faseId }) {
             </div>
             <div>
               <p className="text-sm text-gray-500">Umbral Consenso</p>
-              <p className="text-lg font-bold text-gray-900">{(config.umbral_consenso * 100) || 80}%</p>
+              <p className="text-lg font-bold text-gray-900">{config.umbral_consenso ? (config.umbral_consenso * 100) : 80}%</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Cortesía Max</p>
