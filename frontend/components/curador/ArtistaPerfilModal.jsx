@@ -11,7 +11,7 @@ import Badge from '@/components/ui/Badge'
 import { Download, X } from 'lucide-react'
 
 /**
- * ArtistaPerfilModal - Modal de perfil de artista con votacion
+ * ArtistaPerfilModal - Modal de perfil de artista (solo lectura)
  *
  * Muestra informacion completa del artista:
  * - Foto y datos personales
@@ -19,12 +19,12 @@ import { Download, X } from 'lucide-react'
  * - Redes sociales (links)
  * - Documentos (CV, portfolio, ID)
  * - Boton de favorito
- * - Interfaz de votacion (A Favor / En Contra) - solo si votaciones abiertas
- * - Textarea para comentarios
- * - Si ya voto, permite editar
+ *
+ * NOTA: La votación se realiza ahora a través del sistema de rondas.
+ * Este modal es solo para explorar información del artista.
  *
  * Props:
- * - modoLectura: boolean - Si true, oculta la seccion de votacion
+ * - modoLectura: boolean - Por defecto true, oculta la seccion de votacion
  */
 
 const CATEGORIAS = {
@@ -43,7 +43,7 @@ const CATEGORIAS = {
   otro: 'Otro'
 }
 
-export default function ArtistaPerfilModal({ artista: artistaProp, faseActiva, onClose, modoLectura = false }) {
+export default function ArtistaPerfilModal({ artista: artistaProp, faseActiva, onClose, modoLectura = true }) {
   const { user } = useAuth()
   const { hasVotado, getVotacion, createVotacion, updateVotacion } = useVotacionesStore()
   const { isFavorito, toggleFavorito } = useFavoritosStore()
