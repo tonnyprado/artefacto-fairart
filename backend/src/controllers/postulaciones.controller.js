@@ -444,7 +444,11 @@ export const getPostulacionesParaVotacion = async (req, res) => {
     }
 
     // Orden aleatorio estable por curador (semilla = curador_id + ronda_id)
-    const seed = (curadorId * 1000) + ronda_id
+    const seed = (curadorId * 1000) + parseInt(ronda_id)
+    const seedValue = seed / 1000000.0
+
+    // Ejecutar setseed primero
+    await pool.query('SELECT setseed($1)', [seedValue])
 
     const result = await pool.query(`
       SELECT
@@ -463,8 +467,10 @@ export const getPostulacionesParaVotacion = async (req, res) => {
       LEFT JOIN votaciones v ON v.postulacion_id = p.id AND v.curador_id = $1 AND v.ronda_id = $2
       WHERE p.fase_actual_id = $3
         AND p.estado = ANY($4::varchar[])
-      ORDER BY setseed(${seed / 1000000.0}), RANDOM()
+      ORDER BY RANDOM()
     `, [curadorId, ronda_id, fase_id, estadosPermitidos])
+
+    console.log(`[Votación] Fase ${fase_id}, Ronda ${ronda.numero}: Encontradas ${result.rows.length} postulaciones con estados ${estadosPermitidos.join(', ')}`)
 
     res.json({
       success: true,
