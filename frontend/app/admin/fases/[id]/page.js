@@ -1,13 +1,12 @@
 'use client'
 
-import { use } from 'react'
 import { useRouter } from 'next/navigation'
 import PanelAdminRondas from '@/components/admin/PanelAdminRondas'
 import Button from '@/components/ui/Button'
 
 export default function FaseRondasPage({ params }) {
   const router = useRouter()
-  const { id } = use(params)
+  const { id } = params
 
   return (
     <div className="space-y-6">
