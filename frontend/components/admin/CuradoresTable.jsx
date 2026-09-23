@@ -97,6 +97,8 @@ export default function CuradoresTable() {
     password: ''
   })
   const [showPassword, setShowPassword] = useState(false)
+  const [createError, setCreateError] = useState(null)
+  const [isCreating, setIsCreating] = useState(false)
 
   const resetForm = () => {
     setFormData({
@@ -124,6 +126,7 @@ export default function CuradoresTable() {
       password: tempPassword
     })
     setShowPassword(false)
+    setCreateError(null)
     setShowCreateModal(true)
   }
 
@@ -142,10 +145,29 @@ export default function CuradoresTable() {
 
   const handleSubmitCreate = async (e) => {
     if (e) e.preventDefault()
-    const result = await createCurador(formData)
-    if (result.success) {
-      setShowCreateModal(false)
-      resetForm()
+
+    console.log('Creando curador con datos:', formData)
+    setIsCreating(true)
+    setCreateError(null)
+
+    try {
+      const result = await createCurador(formData)
+      console.log('Resultado de createCurador:', result)
+
+      if (result.success) {
+        console.log('Curador creado exitosamente')
+        setShowCreateModal(false)
+        resetForm()
+        alert(`Curador creado exitosamente.\n\nEmail: ${formData.email}\nContraseña: ${formData.password}\n\nAsegúrate de copiar esta contraseña y entregarla al curador de forma segura.`)
+      } else {
+        console.error('Error al crear curador:', result.error)
+        setCreateError(result.error || 'Error al crear curador')
+      }
+    } catch (err) {
+      console.error('Error inesperado al crear curador:', err)
+      setCreateError('Error inesperado al crear curador: ' + err.message)
+    } finally {
+      setIsCreating(false)
     }
   }
 
@@ -452,16 +474,33 @@ export default function CuradoresTable() {
         title="Nuevo Curador"
         footer={
           <>
-            <Button variant="secondary" onClick={() => setShowCreateModal(false)}>
+            <Button variant="secondary" onClick={() => setShowCreateModal(false)} disabled={isCreating}>
               Cancelar
             </Button>
-            <Button onClick={handleSubmitCreate}>
-              Crear Curador
+            <Button onClick={handleSubmitCreate} disabled={isCreating}>
+              {isCreating ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Creando...
+                </>
+              ) : (
+                'Crear Curador'
+              )}
             </Button>
           </>
         }
       >
         <form onSubmit={handleSubmitCreate} className="space-y-4">
+          {/* Mensaje de error */}
+          {createError && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+              <p className="font-medium">Error al crear curador:</p>
+              <p className="text-sm mt-1">{createError}</p>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <Input
               label="Nombre"

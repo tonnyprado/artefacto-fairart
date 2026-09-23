@@ -178,62 +178,82 @@ export const createCurador = async (req, res) => {
     }
 
     if (useDatabase()) {
-      // Verificar si el email ya existe
-      const emailCheck = await pool.query('SELECT id FROM usuarios WHERE email = $1', [email])
-      if (emailCheck.rows.length > 0) {
-        return res.status(400).json({
-          success: false,
-          error: 'El email ya está registrado'
+      const client = await pool.connect()
+      try {
+        await client.query('BEGIN')
+
+        // Verificar si el email ya existe
+        const emailCheck = await client.query('SELECT id FROM usuarios WHERE email = $1', [email])
+        if (emailCheck.rows.length > 0) {
+          await client.query('ROLLBACK')
+          console.log('❌ Email ya registrado:', email)
+          return res.status(400).json({
+            success: false,
+            error: 'El email ya está registrado'
+          })
+        }
+
+        // Hash password
+        console.log('🔐 Hasheando contraseña...')
+        const hashedPassword = await bcrypt.hash(password, 10)
+
+        // Crear usuario
+        console.log('👤 Creando usuario...')
+        const usuarioResult = await client.query(
+          `INSERT INTO usuarios (email, password, nombre, role)
+           VALUES ($1, $2, $3, $4)
+           RETURNING id, email, nombre, role, created_at`,
+          [email, hashedPassword, `${nombre} ${apellido}`, 'curador']
+        )
+
+        const nuevoUsuario = usuarioResult.rows[0]
+        console.log('✅ Usuario creado:', nuevoUsuario.id)
+
+        // Crear curador
+        console.log('🎨 Creando curador...')
+        const curadorResult = await client.query(
+          `INSERT INTO curadores (usuario_id, nombre, apellido, email, telefono, especialidad, bio, foto, activo, password_visible)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+           RETURNING *`,
+          [
+            nuevoUsuario.id,
+            nombre,
+            apellido,
+            email,
+            telefono || null,
+            especialidad || null,
+            bio || null,
+            foto || null,
+            true,
+            password // Guardar password en texto plano para admin
+          ]
+        )
+
+        const nuevoCurador = curadorResult.rows[0]
+        console.log('✅ Curador creado:', nuevoCurador.id)
+
+        await client.query('COMMIT')
+
+        return res.status(201).json({
+          success: true,
+          data: {
+            curador: nuevoCurador,
+            usuario: {
+              id: nuevoUsuario.id,
+              email: nuevoUsuario.email,
+              nombre: nuevoUsuario.nombre,
+              role: nuevoUsuario.role
+            }
+          },
+          message: 'Curador creado exitosamente'
         })
+      } catch (dbError) {
+        await client.query('ROLLBACK')
+        console.error('❌ Error en transacción de BD:', dbError)
+        throw dbError
+      } finally {
+        client.release()
       }
-
-      // Hash password
-      const hashedPassword = await bcrypt.hash(password, 10)
-
-      // Crear usuario
-      const usuarioResult = await pool.query(
-        `INSERT INTO usuarios (email, password, nombre, role)
-         VALUES ($1, $2, $3, $4)
-         RETURNING id, email, nombre, role, created_at`,
-        [email, hashedPassword, `${nombre} ${apellido}`, 'curador']
-      )
-
-      const nuevoUsuario = usuarioResult.rows[0]
-
-      // Crear curador
-      const curadorResult = await pool.query(
-        `INSERT INTO curadores (usuario_id, nombre, apellido, email, telefono, especialidad, bio, foto, activo, password_visible)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-         RETURNING *`,
-        [
-          nuevoUsuario.id,
-          nombre,
-          apellido,
-          email,
-          telefono || null,
-          especialidad || null,
-          bio || null,
-          foto || null,
-          true,
-          password // Guardar password en texto plano para admin
-        ]
-      )
-
-      const nuevoCurador = curadorResult.rows[0]
-
-      return res.status(201).json({
-        success: true,
-        data: {
-          curador: nuevoCurador,
-          usuario: {
-            id: nuevoUsuario.id,
-            email: nuevoUsuario.email,
-            nombre: nuevoUsuario.nombre,
-            role: nuevoUsuario.role
-          }
-        },
-        message: 'Curador creado exitosamente'
-      })
     }
 
     // Fallback a mockData
@@ -288,10 +308,12 @@ export const createCurador = async (req, res) => {
       message: 'Curador creado exitosamente'
     })
   } catch (error) {
-    console.error('Error al crear curador:', error)
+    console.error('❌ Error al crear curador:', error)
+    console.error('Stack trace:', error.stack)
     res.status(500).json({
       success: false,
-      error: 'Error al crear curador'
+      error: error.message || 'Error al crear curador',
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     })
   }
 }
