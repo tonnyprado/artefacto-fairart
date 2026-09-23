@@ -458,7 +458,9 @@ export const getPostulacionesParaVotacion = async (req, res) => {
         a.email as artista_email,
         a.foto as artista_foto,
         a.bio,
-        a.redes_sociales,
+        a.instagram,
+        a.facebook,
+        a.website,
         a.layout_canvas_url,
         a.layout_canvas_data,
         (SELECT COUNT(*) FROM obras WHERE postulacion_id = p.id) as total_obras,
@@ -476,15 +478,23 @@ export const getPostulacionesParaVotacion = async (req, res) => {
 
     console.log(`[Votación] Fase ${fase_id}, Ronda ${ronda.numero}: Encontradas ${result.rows.length} postulaciones con estados ${estadosPermitidos.join(', ')}`)
 
-    // Cargar las obras de cada postulación
+    // Cargar las obras de cada postulación y construir redes_sociales
     const postulacionesConObras = await Promise.all(
       result.rows.map(async (postulacion) => {
         const obrasResult = await pool.query(
           'SELECT * FROM obras WHERE postulacion_id = $1 ORDER BY orden ASC',
           [postulacion.id]
         )
+
+        // Construir objeto redes_sociales desde columnas individuales
+        const redes_sociales = {}
+        if (postulacion.instagram) redes_sociales.instagram = postulacion.instagram
+        if (postulacion.facebook) redes_sociales.facebook = postulacion.facebook
+        if (postulacion.website) redes_sociales.website = postulacion.website
+
         return {
           ...postulacion,
+          redes_sociales,
           obras: obrasResult.rows
         }
       })
