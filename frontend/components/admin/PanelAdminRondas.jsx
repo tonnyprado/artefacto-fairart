@@ -273,17 +273,24 @@ export default function PanelAdminRondas({ faseId }) {
           faseId={faseId}
           onClose={() => setShowCreateModal(false)}
           onCreate={async (data) => {
-            const result = await createRonda(data)
-            if (result.success) {
-              setShowCreateModal(false)
-              loadData()
+            console.log('onCreate llamado con:', data)
+            try {
+              const result = await createRonda(data)
+              console.log('Resultado de createRonda:', result)
+              if (result.success) {
+                setShowCreateModal(false)
+                loadData()
 
-              // Preguntar si quiere abrir la ronda inmediatamente
-              if (confirm('Ronda creada. ¿Deseas abrirla ahora?')) {
-                await handleAbrirRonda(result.ronda.id)
+                // Preguntar si quiere abrir la ronda inmediatamente
+                if (confirm('Ronda creada. ¿Deseas abrirla ahora?')) {
+                  await handleAbrirRonda(result.ronda.id)
+                }
+              } else {
+                alert(result.error || 'Error al crear ronda')
               }
-            } else {
-              alert(result.error)
+            } catch (err) {
+              console.error('Error en onCreate:', err)
+              alert('Error al crear ronda: ' + err.message)
             }
           }}
         />
@@ -305,6 +312,11 @@ function ModalCrearRonda({ faseId, onClose, onCreate }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    console.log('Creando ronda con datos:', {
+      fase_id: parseInt(faseId),
+      numero: parseInt(numero),
+      votos_asignados: votosAsignados ? parseInt(votosAsignados) : null
+    })
     onCreate({
       fase_id: parseInt(faseId),
       numero: parseInt(numero),
