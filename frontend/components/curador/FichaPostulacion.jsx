@@ -63,64 +63,34 @@ export default function FichaPostulacion({ postulacion, ronda, onClose, onVotoGu
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
                   {/* Columna izquierda: Canvas/Lienzo y Visor de obra */}
                   <div className="space-y-6">
-                    {/* Lienzo del Artista (PDF Canvas) */}
-                    {postulacion.layout_canvas_url && (
+                    {/* Lienzo del Artista (PDF Canvas) - Solo botón */}
+                    {postulacion.layout_canvas_data?.pdf_url && (
                       <div className="bg-purple-50 p-4 rounded-lg">
-                        <h3 className="text-lg font-bold text-gray-900 mb-3">
-                          Lienzo de Diseño
-                        </h3>
-                        <div className="space-y-3">
-                          {/* Botones de visualización */}
-                          <div className="flex flex-wrap items-center gap-3">
-                            {/* Botón ver PDF (si está disponible) */}
-                            {postulacion.layout_canvas_data?.pdf_url && (
-                              <a
-                                href={postulacion.layout_canvas_data.pdf_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
-                              >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                </svg>
-                                Ver PDF Completo
-                              </a>
-                            )}
-
-                            {/* Botón descargar */}
-                            <a
-                              href={postulacion.layout_canvas_data?.pdf_url || postulacion.layout_canvas_url}
-                              download
-                              className="inline-flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
-                            >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                              </svg>
-                              Descargar
-                            </a>
-                          </div>
-
-                          {/* Preview de la imagen del lienzo */}
-                          <div className="cursor-pointer">
-                            <img
-                              src={postulacion.layout_canvas_url}
-                              alt="Layout del lienzo"
-                              className="w-full rounded-lg border-2 border-gray-200 hover:border-purple-400 transition-colors"
-                              style={{ maxHeight: '300px', objectFit: 'contain' }}
-                              onClick={() => window.open(postulacion.layout_canvas_url, '_blank')}
-                            />
-                            <p className="text-xs text-gray-500 text-center mt-1">Click para ampliar</p>
-                          </div>
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-bold text-gray-900">
+                            Lienzo de Diseño
+                          </h3>
+                          <a
+                            href={postulacion.layout_canvas_data.pdf_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                            Ver PDF
+                          </a>
                         </div>
                       </div>
                     )}
 
-                    <VisorObra
+                    <GaleriaObras
                       postulacion={postulacion}
-                      obraSeleccionada={obraSeleccionada}
-                      setObraSeleccionada={setObraSeleccionada}
-                      fullscreen={fullscreen}
-                      setFullscreen={setFullscreen}
+                      onObraClick={(obra, index) => {
+                        setObraSeleccionada(index)
+                        setFullscreen(true)
+                      }}
                     />
                   </div>
 
@@ -172,6 +142,54 @@ export default function FichaPostulacion({ postulacion, ronda, onClose, onVotoGu
                           )}
                         </div>
                       )}
+
+                      {/* Documentos */}
+                      {(postulacion.cv_url || postulacion.portfolio_url || postulacion.identificacion_url) && (
+                        <div className="border-t border-gray-200 pt-4 mt-4">
+                          <h4 className="text-sm font-semibold text-gray-900 mb-3">Documentos</h4>
+                          <div className="flex flex-col gap-2">
+                            {postulacion.cv_url && (
+                              <a
+                                href={postulacion.cv_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                                Ver CV
+                              </a>
+                            )}
+                            {postulacion.portfolio_url && (
+                              <a
+                                href={postulacion.portfolio_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                                Ver Portfolio
+                              </a>
+                            )}
+                            {postulacion.identificacion_url && (
+                              <a
+                                href={postulacion.identificacion_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                                </svg>
+                                Ver Identificación
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Control de votación */}
@@ -212,107 +230,84 @@ export default function FichaPostulacion({ postulacion, ronda, onClose, onVotoGu
   )
 }
 
-function VisorObra({ postulacion, obraSeleccionada, setObraSeleccionada, fullscreen, setFullscreen }) {
+function GaleriaObras({ postulacion, onObraClick }) {
   const obras = postulacion.obras || []
-  const obraActual = obras[obraSeleccionada]
+
+  if (obras.length === 0) {
+    return (
+      <div className="bg-gray-50 rounded-lg p-8">
+        <div className="text-center text-gray-400">
+          <svg className="w-16 h-16 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <p className="text-sm">No hay obras registradas</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4">
-      {/* Imagen principal */}
-      <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 group">
-        {obraActual?.imagen ? (
-          <>
-            <img
-              src={obraActual.imagen}
-              alt={obraActual.titulo}
-              className="w-full h-full object-contain cursor-pointer"
-              onClick={() => setFullscreen(true)}
-            />
-            {/* Overlay con botones */}
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
-              <button
-                onClick={() => setFullscreen(true)}
-                className="opacity-0 group-hover:opacity-100 transition-opacity bg-white text-gray-900 px-4 py-2 rounded-lg font-medium"
-              >
-                Ver en pantalla completa
-              </button>
-            </div>
-          </>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400">
-            <div className="text-center">
-              <svg className="w-20 h-20 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <p className="text-sm">Sin obra cargada</p>
-            </div>
-          </div>
-        )}
-
-        {/* Medidas siempre visibles */}
-        {obraActual && (
-          <div className="absolute bottom-4 left-4 bg-black bg-opacity-70 text-white px-3 py-2 rounded-lg text-sm">
-            {obraActual.medida_alto && obraActual.medida_ancho ? (
-              <span>
-                {obraActual.medida_alto} × {obraActual.medida_ancho}
-                {obraActual.medida_prof && ` × ${obraActual.medida_prof}`} cm
-              </span>
-            ) : (
-              <span>Medidas no especificadas</span>
-            )}
-          </div>
-        )}
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-bold text-gray-900">
+          Obras ({obras.length})
+        </h3>
       </div>
 
-      {/* Información de la obra */}
-      {obraActual && (
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h4 className="font-bold text-gray-900 mb-1">{obraActual.titulo}</h4>
-          {obraActual.tecnica && (
-            <p className="text-sm text-gray-600 mb-1">{obraActual.tecnica}</p>
-          )}
-          {obraActual.anio && (
-            <p className="text-sm text-gray-500">{obraActual.anio}</p>
-          )}
-          {obraActual.notas && (
-            <p className="text-sm text-gray-600 mt-2">{obraActual.notas}</p>
-          )}
-        </div>
-      )}
-
-      {/* Galería de obras (thumbnails) */}
-      {obras.length > 1 && (
-        <div className="grid grid-cols-5 gap-2">
-          {obras.map((obra, index) => (
-            <button
-              key={obra.id || index}
-              onClick={() => setObraSeleccionada(index)}
-              className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${
-                index === obraSeleccionada
-                  ? 'border-red-600 ring-2 ring-red-600 ring-offset-2'
-                  : 'border-gray-200 hover:border-gray-400'
-              }`}
-            >
+      <div className="grid grid-cols-2 gap-4">
+        {obras.map((obra, index) => (
+          <div
+            key={obra.id || index}
+            onClick={() => onObraClick(obra, index)}
+            className="bg-white rounded-lg border-2 border-gray-200 hover:border-red-600 transition-all cursor-pointer group overflow-hidden"
+          >
+            {/* Imagen */}
+            <div className="aspect-square bg-gray-100 overflow-hidden relative">
               {obra.imagen ? (
-                <img
-                  src={obra.imagen}
-                  alt={obra.titulo}
-                  className="w-full h-full object-cover"
-                />
+                <>
+                  <img
+                    src={obra.imagen}
+                    alt={obra.titulo}
+                    className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+                  />
+                  {/* Overlay al hover */}
+                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                      <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                      </svg>
+                    </div>
+                  </div>
+                </>
               ) : (
-                <div className="w-full h-full bg-gray-100"></div>
+                <div className="w-full h-full flex items-center justify-center">
+                  <svg className="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
               )}
-            </button>
-          ))}
-        </div>
-      )}
+            </div>
 
-      {/* Contador de obras */}
-      {obras.length > 0 && (
-        <p className="text-sm text-gray-500 text-center">
-          Obra {obraSeleccionada + 1} de {obras.length}
-        </p>
-      )}
+            {/* Info */}
+            <div className="p-3">
+              <h4 className="font-bold text-gray-900 text-sm mb-1 truncate">
+                {obra.titulo || `Obra ${index + 1}`}
+              </h4>
+              {obra.tecnica && (
+                <p className="text-xs text-gray-600 mb-1 truncate">{obra.tecnica}</p>
+              )}
+              {(obra.medida_alto && obra.medida_ancho) ? (
+                <p className="text-xs text-gray-500">
+                  {obra.medida_alto} × {obra.medida_ancho}
+                  {obra.medida_prof && ` × ${obra.medida_prof}`} cm
+                </p>
+              ) : (
+                <p className="text-xs text-gray-400">Sin medidas</p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
