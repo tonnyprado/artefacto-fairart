@@ -61,8 +61,60 @@ export default function FichaPostulacion({ postulacion, ronda, onClose, onVotoGu
               {/* Content */}
               <div className="flex-1 overflow-y-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
-                  {/* Columna izquierda: Visor de obra */}
-                  <div>
+                  {/* Columna izquierda: Canvas/Lienzo y Visor de obra */}
+                  <div className="space-y-6">
+                    {/* Lienzo del Artista (PDF Canvas) */}
+                    {postulacion.layout_canvas_url && (
+                      <div className="bg-purple-50 p-4 rounded-lg">
+                        <h3 className="text-lg font-bold text-gray-900 mb-3">
+                          Lienzo de Diseño
+                        </h3>
+                        <div className="space-y-3">
+                          {/* Botones de visualización */}
+                          <div className="flex flex-wrap items-center gap-3">
+                            {/* Botón ver PDF (si está disponible) */}
+                            {postulacion.layout_canvas_data?.pdf_url && (
+                              <a
+                                href={postulacion.layout_canvas_data.pdf_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
+                              >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                                Ver PDF Completo
+                              </a>
+                            )}
+
+                            {/* Botón descargar */}
+                            <a
+                              href={postulacion.layout_canvas_data?.pdf_url || postulacion.layout_canvas_url}
+                              download
+                              className="inline-flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                              </svg>
+                              Descargar
+                            </a>
+                          </div>
+
+                          {/* Preview de la imagen del lienzo */}
+                          <div className="cursor-pointer">
+                            <img
+                              src={postulacion.layout_canvas_url}
+                              alt="Layout del lienzo"
+                              className="w-full rounded-lg border-2 border-gray-200 hover:border-purple-400 transition-colors"
+                              style={{ maxHeight: '300px', objectFit: 'contain' }}
+                              onClick={() => window.open(postulacion.layout_canvas_url, '_blank')}
+                            />
+                            <p className="text-xs text-gray-500 text-center mt-1">Click para ampliar</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     <VisorObra
                       postulacion={postulacion}
                       obraSeleccionada={obraSeleccionada}
