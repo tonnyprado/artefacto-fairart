@@ -141,7 +141,7 @@ export default function CuradoresTable() {
   }
 
   const handleSubmitCreate = async (e) => {
-    e.preventDefault()
+    if (e) e.preventDefault()
     const result = await createCurador(formData)
     if (result.success) {
       setShowCreateModal(false)
@@ -150,7 +150,7 @@ export default function CuradoresTable() {
   }
 
   const handleSubmitEdit = async (e) => {
-    e.preventDefault()
+    if (e) e.preventDefault()
     const result = await updateCurador(selectedCurador.id, formData)
     if (result.success) {
       setShowEditModal(false)
