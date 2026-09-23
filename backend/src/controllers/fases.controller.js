@@ -493,6 +493,48 @@ export const toggleVotaciones = async (req, res) => {
         [abiertas, id]
       )
 
+      // Si se están abriendo votaciones, crear y abrir Ronda 1 automáticamente
+      if (abiertas) {
+        // Verificar si ya existe una ronda abierta
+        const rondaExistente = await pool.query(
+          'SELECT * FROM rondas WHERE fase_id = $1 AND estado = $2',
+          [id, 'abierta']
+        )
+
+        // Si no hay ronda abierta, crear y abrir la Ronda 1
+        if (rondaExistente.rows.length === 0) {
+          // Verificar si existe la Ronda 1 cerrada
+          const ronda1Existente = await pool.query(
+            'SELECT * FROM rondas WHERE fase_id = $1 AND numero = 1',
+            [id]
+          )
+
+          let rondaId
+
+          if (ronda1Existente.rows.length === 0) {
+            // Crear la Ronda 1
+            const nuevaRonda = await pool.query(
+              `INSERT INTO rondas (fase_id, numero, estado, fecha_apertura)
+               VALUES ($1, 1, 'abierta', NOW())
+               RETURNING *`,
+              [id]
+            )
+            rondaId = nuevaRonda.rows[0].id
+          } else {
+            // Abrir la Ronda 1 existente
+            await pool.query(
+              `UPDATE rondas
+               SET estado = 'abierta', fecha_apertura = NOW()
+               WHERE id = $1`,
+              [ronda1Existente.rows[0].id]
+            )
+            rondaId = ronda1Existente.rows[0].id
+          }
+
+          console.log(`Ronda 1 creada/abierta automáticamente para fase ${id}`)
+        }
+      }
+
       return res.json({
         success: true,
         data: result.rows[0],
