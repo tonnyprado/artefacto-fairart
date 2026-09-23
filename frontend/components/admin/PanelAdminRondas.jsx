@@ -12,7 +12,7 @@ import EstadisticasRonda from './EstadisticasRonda'
 
 export default function PanelAdminRondas({ faseId }) {
   const { fetchRondasPorFase, rondas, createRonda, abrirRonda, cerrarRonda, deleteRonda } = useRondasStore()
-  const { fetchById } = useFasesStore()
+  const { fetchFaseById } = useFasesStore()
 
   const [fase, setFase] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -28,8 +28,12 @@ export default function PanelAdminRondas({ faseId }) {
     setIsLoading(true)
     setError(null)
     try {
-      const faseData = await fetchById(faseId)
-      setFase(faseData)
+      const result = await fetchFaseById(faseId)
+      if (result.success) {
+        setFase(result.data)
+      } else {
+        setError(result.error)
+      }
       await fetchRondasPorFase(faseId)
     } catch (err) {
       setError(err.message)
