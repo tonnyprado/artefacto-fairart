@@ -533,6 +533,20 @@ export const toggleVotaciones = async (req, res) => {
 
           console.log(`Ronda 1 creada/abierta automáticamente para fase ${id}`)
         }
+
+        // Admitir automáticamente todas las postulaciones inscritas/pendientes de esta fase
+        const admitirResult = await pool.query(
+          `UPDATE postulaciones
+           SET estado = 'admitida'
+           WHERE fase_actual_id = $1
+             AND estado IN ('inscrita', 'pendiente')
+           RETURNING id`,
+          [id]
+        )
+
+        if (admitirResult.rows.length > 0) {
+          console.log(`${admitirResult.rows.length} postulaciones admitidas automáticamente en fase ${id}`)
+        }
       }
 
       return res.json({
