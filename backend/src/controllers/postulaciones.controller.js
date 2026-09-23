@@ -472,10 +472,24 @@ export const getPostulacionesParaVotacion = async (req, res) => {
 
     console.log(`[Votación] Fase ${fase_id}, Ronda ${ronda.numero}: Encontradas ${result.rows.length} postulaciones con estados ${estadosPermitidos.join(', ')}`)
 
+    // Cargar las obras de cada postulación
+    const postulacionesConObras = await Promise.all(
+      result.rows.map(async (postulacion) => {
+        const obrasResult = await pool.query(
+          'SELECT * FROM obras WHERE postulacion_id = $1 ORDER BY orden ASC',
+          [postulacion.id]
+        )
+        return {
+          ...postulacion,
+          obras: obrasResult.rows
+        }
+      })
+    )
+
     res.json({
       success: true,
-      data: result.rows,
-      total: result.rows.length,
+      data: postulacionesConObras,
+      total: postulacionesConObras.length,
       ronda: ronda,
       estados_permitidos: estadosPermitidos
     })
