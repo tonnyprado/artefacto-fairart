@@ -5,265 +5,197 @@ import { useVotacionesStore } from '@/stores/votacionesStore'
 import Modal from '@/components/ui/Modal'
 import Button from '@/components/ui/Button'
 import Badge from '@/components/ui/Badge'
-import ControlVotoRondas from './ControlVotoRondas'
 
 export default function FichaPostulacion({ postulacion, ronda, onClose, onVotoGuardado }) {
-  const [obraSeleccionada, setObraSeleccionada] = useState(0)
-  const [fullscreen, setFullscreen] = useState(false)
+  const { createVotacion, updateVotacion } = useVotacionesStore()
 
-  if (!postulacion) return null
+  const [voto, setVoto] = useState(postulacion.mi_voto || null)
+  const [comentario, setComentario] = useState(postulacion.mi_comentario || '')
+  const [conoceArtista, setConoceArtista] = useState(postulacion.mi_conoce_artista || false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  return (
-    <Modal onClose={onClose} maxWidth="7xl">
-      <div className="flex flex-col h-[90vh]">
-        {/* Header */}
-        <div className="border-b border-gray-200 px-6 py-4">
-          <div className="flex items-start justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-1">
-                {postulacion.nombre} {postulacion.apellido}
-              </h2>
-              <p className="text-gray-600">{postulacion.disciplina}</p>
-            </div>
-            <div className="flex gap-2">
-              <Badge variant={postulacion.tipo === '2d' ? 'primary' : 'secondary'}>
-                {postulacion.tipo.toUpperCase()}
-              </Badge>
-              {postulacion.es_carryover && (
-                <Badge variant="warning">
-                  Postuló en {postulacion.fase_origen_nombre}
-                </Badge>
-              )}
-            </div>
-          </div>
-        </div>
+  const handleGuardarVoto = async () => {
+    if (voto === null) {
+      alert('Por favor selecciona un voto')
+      return
+    }
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
-            {/* Columna izquierda: Visor de obra */}
-            <div>
-              <VisorObra
-                postulacion={postulacion}
-                obraSeleccionada={obraSeleccionada}
-                setObraSeleccionada={setObraSeleccionada}
-                fullscreen={fullscreen}
-                setFullscreen={setFullscreen}
-              />
-            </div>
+    setIsSubmitting(true)
 
-            {/* Columna derecha: Info y votación */}
-            <div className="space-y-6">
-              {/* Información del artista */}
-              <div>
-                <h3 className="text-lg font-bold text-gray-900 mb-3">
-                  Información del Artista
-                </h3>
-                {postulacion.bio && (
-                  <div className="prose prose-sm max-w-none text-gray-600 mb-4">
-                    <p>{postulacion.bio}</p>
-                  </div>
-                )}
-                {postulacion.redes_sociales && Object.keys(postulacion.redes_sociales).length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {postulacion.redes_sociales.instagram && (
-                      <a
-                        href={postulacion.redes_sociales.instagram}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-red-600 hover:text-red-700"
-                      >
-                        Instagram
-                      </a>
-                    )}
-                    {postulacion.redes_sociales.website && (
-                      <a
-                        href={postulacion.redes_sociales.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-red-600 hover:text-red-700"
-                      >
-                        Sitio web
-                      </a>
-                    )}
-                  </div>
-                )}
-              </div>
+    const data = {
+      postulacion_id: postulacion.id,
+      ronda_id: ronda.id,
+      valor: voto,
+      comentario: comentario.trim() || null,
+      conoce_artista: conoceArtista
+    }
 
-              {/* Control de votación */}
-              <div className="border-t border-gray-200 pt-6">
-                <ControlVotoRondas
-                  postulacion={postulacion}
-                  ronda={ronda}
-                  onVotoGuardado={() => {
-                    onVotoGuardado()
-                    onClose()
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+    let result
+    if (postulacion.ya_votado) {
+      result = await updateVotacion(postulacion.id, data)
+    } else {
+      result = await createVotacion(data)
+    }
 
-        {/* Footer con nota */}
-        <div className="border-t border-gray-200 px-6 py-4 bg-amber-50">
-          <p className="text-sm text-amber-800 text-center">
-            Se evalúa la obra, no la calidad de la fotografía
-          </p>
-        </div>
-      </div>
+    setIsSubmitting(false)
 
-      {/* Modal fullscreen para obra */}
-      {fullscreen && (
-        <FullscreenViewer
-          postulacion={postulacion}
-          obraSeleccionada={obraSeleccionada}
-          onClose={() => setFullscreen(false)}
-        />
-      )}
-    </Modal>
-  )
-}
+    if (result.success) {
+      onVotoGuardado()
+      onClose()
+    } else {
+      alert('Error al guardar voto: ' + result.error)
+    }
+  }
 
-function VisorObra({ postulacion, obraSeleccionada, setObraSeleccionada, fullscreen, setFullscreen }) {
-  // Placeholder: en producción, esto vendría de postulacion.obras
-  const obras = postulacion.obras || []
-  const obraActual = obras[obraSeleccionada]
+  // Determinar opciones de voto según la ronda
+  const getOpcionesVoto = () => {
+    if (ronda.numero === 1) {
+      return [
+        { valor: 2, label: 'Sí', color: 'bg-green-600 hover:bg-green-700', descripcion: 'Recomiendo que continúe' },
+        { valor: 1, label: 'Tal vez', color: 'bg-yellow-600 hover:bg-yellow-700', descripcion: 'Indeciso, puede continuar' },
+        { valor: 0, label: 'No', color: 'bg-red-600 hover:bg-red-700', descripcion: 'No recomiendo que continúe' }
+      ]
+    } else if (ronda.numero === 2) {
+      return [
+        { valor: 1, label: 'Sí, voto por este artista', color: 'bg-green-600 hover:bg-green-700', descripcion: 'Usar uno de mis votos limitados' }
+      ]
+    } else if (ronda.numero === 3) {
+      return [
+        { valor: 1, label: 'Sí', color: 'bg-green-600 hover:bg-green-700', descripcion: 'Apruebo esta selección' },
+        { valor: 0, label: 'No', color: 'bg-red-600 hover:bg-red-700', descripcion: 'No apruebo esta selección' }
+      ]
+    }
+    return []
+  }
+
+  const opcionesVoto = getOpcionesVoto()
 
   return (
-    <div className="space-y-4">
-      {/* Imagen principal */}
-      <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 group">
-        {obraActual?.imagen ? (
-          <>
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      maxWidth="4xl"
+      title={
+        <div className="flex items-center gap-3">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">
+              {postulacion.nombre} {postulacion.apellido}
+            </h2>
+            <p className="text-sm text-gray-600 mt-1">
+              {postulacion.disciplina} • {postulacion.tipo.toUpperCase()}
+            </p>
+          </div>
+          {postulacion.ya_votado && (
+            <Badge variant="success">Ya votado</Badge>
+          )}
+        </div>
+      }
+    >
+      <div className="space-y-6">
+        {/* Información del artista */}
+        <div className="flex gap-6">
+          {postulacion.artista_foto && (
             <img
-              src={obraActual.imagen}
-              alt={obraActual.titulo}
-              className="w-full h-full object-contain cursor-pointer"
-              onClick={() => setFullscreen(true)}
+              src={postulacion.artista_foto}
+              alt={`${postulacion.nombre} ${postulacion.apellido}`}
+              className="w-32 h-32 rounded-xl object-cover"
             />
-            {/* Overlay con botones */}
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
-              <button
-                onClick={() => setFullscreen(true)}
-                className="opacity-0 group-hover:opacity-100 transition-opacity bg-white text-gray-900 px-4 py-2 rounded-lg font-medium"
-              >
-                Ver en pantalla completa
-              </button>
-            </div>
-          </>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400">
-            <div className="text-center">
-              <svg className="w-20 h-20 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <p className="text-sm">Sin obra cargada</p>
-            </div>
-          </div>
-        )}
-
-        {/* Medidas siempre visibles */}
-        {obraActual && (
-          <div className="absolute bottom-4 left-4 bg-black bg-opacity-70 text-white px-3 py-2 rounded-lg text-sm">
-            {obraActual.medida_alto && obraActual.medida_ancho ? (
-              <span>
-                {obraActual.medida_alto} × {obraActual.medida_ancho}
-                {obraActual.medida_prof && ` × ${obraActual.medida_prof}`} cm
-              </span>
-            ) : (
-              <span>Medidas no especificadas</span>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Información de la obra */}
-      {obraActual && (
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h4 className="font-bold text-gray-900 mb-1">{obraActual.titulo}</h4>
-          {obraActual.tecnica && (
-            <p className="text-sm text-gray-600 mb-1">{obraActual.tecnica}</p>
           )}
-          {obraActual.anio && (
-            <p className="text-sm text-gray-500">{obraActual.anio}</p>
-          )}
-          {obraActual.notas && (
-            <p className="text-sm text-gray-600 mt-2">{obraActual.notas}</p>
-          )}
-        </div>
-      )}
-
-      {/* Galería de obras (thumbnails) */}
-      {obras.length > 1 && (
-        <div className="grid grid-cols-5 gap-2">
-          {obras.map((obra, index) => (
-            <button
-              key={obra.id || index}
-              onClick={() => setObraSeleccionada(index)}
-              className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${
-                index === obraSeleccionada
-                  ? 'border-red-600 ring-2 ring-red-600 ring-offset-2'
-                  : 'border-gray-200 hover:border-gray-400'
-              }`}
-            >
-              {obra.imagen ? (
-                <img
-                  src={obra.imagen}
-                  alt={obra.titulo}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-gray-100"></div>
+          <div className="flex-1">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-gray-500">Email</p>
+                <p className="font-medium text-gray-900">{postulacion.artista_email || 'No disponible'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Obras presentadas</p>
+                <p className="font-medium text-gray-900">{postulacion.total_obras || 0}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Estado</p>
+                <Badge variant="primary">{postulacion.estado}</Badge>
+              </div>
+              {postulacion.es_carryover && (
+                <div>
+                  <Badge variant="warning">Carryover</Badge>
+                </div>
               )}
-            </button>
-          ))}
+            </div>
+          </div>
         </div>
-      )}
 
-      {/* Contador de obras */}
-      {obras.length > 0 && (
-        <p className="text-sm text-gray-500 text-center">
-          Obra {obraSeleccionada + 1} de {obras.length}
-        </p>
-      )}
-    </div>
-  )
-}
+        {/* Descripción o biografía si existe */}
+        {postulacion.descripcion && (
+          <div>
+            <h3 className="font-semibold text-gray-900 mb-2">Descripción</h3>
+            <p className="text-gray-700">{postulacion.descripcion}</p>
+          </div>
+        )}
 
-function FullscreenViewer({ postulacion, obraSeleccionada, onClose }) {
-  const obras = postulacion.obras || []
-  const obraActual = obras[obraSeleccionada]
-
-  return (
-    <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
-      <button
-        onClick={onClose}
-        className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
-      >
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-
-      {obraActual?.imagen && (
-        <img
-          src={obraActual.imagen}
-          alt={obraActual.titulo}
-          className="max-w-full max-h-full object-contain"
-        />
-      )}
-
-      {/* Medidas */}
-      {obraActual && (
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-70 text-white px-6 py-3 rounded-lg">
-          <p className="text-lg font-medium">
-            {obraActual.medida_alto && obraActual.medida_ancho
-              ? `${obraActual.medida_alto} × ${obraActual.medida_ancho}${obraActual.medida_prof ? ` × ${obraActual.medida_prof}` : ''} cm`
-              : 'Medidas no especificadas'}
-          </p>
+        {/* Opciones de voto */}
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-3">Tu voto</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {opcionesVoto.map((opcion) => (
+              <button
+                key={opcion.valor}
+                onClick={() => setVoto(opcion.valor)}
+                className={`p-4 rounded-xl border-2 transition-all ${
+                  voto === opcion.valor
+                    ? `${opcion.color} text-white border-transparent shadow-lg scale-105`
+                    : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                <div className="font-bold text-lg mb-1">{opcion.label}</div>
+                <div className={`text-sm ${voto === opcion.valor ? 'text-white/90' : 'text-gray-500'}`}>
+                  {opcion.descripcion}
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
-      )}
-    </div>
+
+        {/* Checkbox: ¿Conoces al artista? */}
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="conoce_artista"
+            checked={conoceArtista}
+            onChange={(e) => setConoceArtista(e.target.checked)}
+            className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
+          />
+          <label htmlFor="conoce_artista" className="text-sm text-gray-700">
+            Conozco personalmente a este artista
+          </label>
+        </div>
+
+        {/* Comentario */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Comentario (opcional)
+          </label>
+          <textarea
+            value={comentario}
+            onChange={(e) => setComentario(e.target.value)}
+            rows={3}
+            placeholder="Agrega tus observaciones sobre esta postulación..."
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+          />
+        </div>
+
+        {/* Botones */}
+        <div className="flex gap-3 justify-end pt-4 border-t border-gray-200">
+          <Button variant="secondary" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleGuardarVoto}
+            disabled={isSubmitting || voto === null}
+          >
+            {isSubmitting ? 'Guardando...' : postulacion.ya_votado ? 'Actualizar Voto' : 'Guardar Voto'}
+          </Button>
+        </div>
+      </div>
+    </Modal>
   )
 }
