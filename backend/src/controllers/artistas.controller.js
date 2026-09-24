@@ -1171,19 +1171,26 @@ export const getArtistasByFase = async (req, res) => {
     const { fase_id } = req.params
 
     if (useDatabase()) {
-      // JOIN para obtener artistas de la fase
+      // Obtener postulaciones de la fase (evita duplicados, usa postulaciones en lugar de artistas_fases)
       const result = await pool.query(
-        `SELECT a.*
+        `SELECT DISTINCT ON (a.id)
+          a.*,
+          a.foto as artista_foto,
+          p.id as postulacion_id,
+          p.estado as estado_postulacion,
+          p.tipo as tipo_postulacion,
+          p.disciplina,
+          p.es_carryover
          FROM artistas a
-         INNER JOIN artistas_fases af ON af.artista_id = a.id
-         WHERE af.fase_id = $1
-         ORDER BY a.created_at DESC`,
+         INNER JOIN postulaciones p ON p.artista_id = a.id
+         WHERE p.fase_actual_id = $1
+         ORDER BY a.id, p.created_at DESC`,
         [fase_id]
       )
 
-      // Procesar URLs de archivos (igual que getAllArtistas y getArtistaById)
+      // Procesar URLs de archivos
       const artistasTransformados = result.rows.map(artista => {
-        const fotoUrl = artista.foto || null
+        const fotoUrl = artista.foto || artista.artista_foto || null
         const cvUrl = artista.cv_url || null
         const portfolioUrl = artista.portfolio_url || null
         const identificacionUrl = artista.identificacion_url || null
@@ -1193,6 +1200,7 @@ export const getArtistasByFase = async (req, res) => {
         return {
           ...artista,
           foto: fotoUrl,
+          artista_foto: fotoUrl, // Agregar alias para compatibilidad con panel de curadores
           cv_url: cvUrl,
           portfolio_url: portfolioUrl,
           identificacion_url: identificacionUrl,
