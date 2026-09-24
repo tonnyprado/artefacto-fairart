@@ -487,13 +487,6 @@ export const getPostulacionesParaVotacion = async (req, res) => {
 
     console.log(`[Votación] Fase ${fase_id}, Ronda ${ronda.numero}: Encontradas ${result.rows.length} postulaciones con estados ${estadosPermitidos.join(', ')}`)
 
-    // Debug: verificar duplicados
-    const postulacionIds = result.rows.map(r => r.id)
-    const duplicates = postulacionIds.filter((id, index) => postulacionIds.indexOf(id) !== index)
-    if (duplicates.length > 0) {
-      console.error('⚠️ DUPLICADOS DETECTADOS EN QUERY:', duplicates)
-    }
-
     // Cargar las obras de cada postulación y construir redes_sociales
     const postulacionesConObras = await Promise.all(
       result.rows.map(async (postulacion) => {
@@ -515,14 +508,6 @@ export const getPostulacionesParaVotacion = async (req, res) => {
         }
       })
     )
-
-    // Debug: verificar duplicados después de cargar obras
-    const finalIds = postulacionesConObras.map(p => p.id)
-    const finalDuplicates = finalIds.filter((id, index) => finalIds.indexOf(id) !== index)
-    if (finalDuplicates.length > 0) {
-      console.error('⚠️ DUPLICADOS DETECTADOS DESPUÉS DE CARGAR OBRAS:', finalDuplicates)
-    }
-    console.log(`[Votación] Retornando ${postulacionesConObras.length} postulaciones únicas`)
 
     res.json({
       success: true,
