@@ -104,7 +104,7 @@ export const createOrUpdateVotacion = async (req, res) => {
       }
     }
 
-    // Verificar que la postulación existe
+    // Verificar que la postulación existe y obtener datos
     const postulacionResult = await client.query(
       'SELECT * FROM postulaciones WHERE id = $1',
       [postulacion_id]
@@ -117,6 +117,24 @@ export const createOrUpdateVotacion = async (req, res) => {
         error: 'Postulación no encontrada'
       })
     }
+
+    const postulacion = postulacionResult.rows[0]
+
+    // Obtener ronda para saber la fase
+    const rondaResult = await client.query(
+      'SELECT fase_id FROM rondas WHERE id = $1',
+      [ronda_id]
+    )
+
+    if (rondaResult.rows.length === 0) {
+      await client.query('ROLLBACK')
+      return res.status(404).json({
+        success: false,
+        error: 'Ronda no encontrada'
+      })
+    }
+
+    const fase_id = rondaResult.rows[0].fase_id
 
     // Verificar si ya existe un voto
     const existeResult = await client.query(
@@ -133,10 +151,10 @@ export const createOrUpdateVotacion = async (req, res) => {
 
       result = await client.query(
         `UPDATE votaciones
-         SET valor = $1, comentario = $2, conoce_artista = $3, updated_at = CURRENT_TIMESTAMP
-         WHERE id = $4
+         SET valor = $1, comentario = $2, conoce_artista = $3, voto = $4, updated_at = CURRENT_TIMESTAMP
+         WHERE id = $5
          RETURNING *`,
-        [valor, comentario || null, conoce_artista || false, existeResult.rows[0].id]
+        [valor, comentario || null, conoce_artista || false, valor > 0, existeResult.rows[0].id]
       )
 
       accion = 'voto_actualizado'
@@ -155,13 +173,23 @@ export const createOrUpdateVotacion = async (req, res) => {
         ]
       )
     } else {
-      // Crear nuevo voto
+      // Crear nuevo voto (incluir campos legacy para compatibilidad)
       result = await client.query(
         `INSERT INTO votaciones (
-          curador_id, postulacion_id, ronda_id, valor, comentario, conoce_artista
-        ) VALUES ($1, $2, $3, $4, $5, $6)
+          curador_id, postulacion_id, ronda_id, artista_id, fase_id, valor, voto, comentario, conoce_artista
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         RETURNING *`,
-        [curadorId, postulacion_id, ronda_id, valor, comentario || null, conoce_artista || false]
+        [
+          curadorId,
+          postulacion_id,
+          ronda_id,
+          postulacion.artista_id,
+          fase_id,
+          valor,
+          valor > 0, // voto boolean (legacy)
+          comentario || null,
+          conoce_artista || false
+        ]
       )
 
       accion = 'voto_creado'
