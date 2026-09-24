@@ -120,21 +120,8 @@ export const createOrUpdateVotacion = async (req, res) => {
 
     const postulacion = postulacionResult.rows[0]
 
-    // Obtener ronda para saber la fase
-    const rondaResult = await client.query(
-      'SELECT fase_id FROM rondas WHERE id = $1',
-      [ronda_id]
-    )
-
-    if (rondaResult.rows.length === 0) {
-      await client.query('ROLLBACK')
-      return res.status(404).json({
-        success: false,
-        error: 'Ronda no encontrada'
-      })
-    }
-
-    const fase_id = rondaResult.rows[0].fase_id
+    // Usar fase_id de la ronda que ya fue consultada arriba
+    const fase_id = ronda.fase_id
 
     // Verificar si ya existe un voto
     const existeResult = await client.query(
