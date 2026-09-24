@@ -451,31 +451,37 @@ export const getPostulacionesParaVotacion = async (req, res) => {
     await pool.query('SELECT setseed($1)', [seedValue])
 
     const result = await pool.query(`
+      WITH postulaciones_base AS (
+        SELECT DISTINCT ON (p.id)
+          p.*,
+          a.nombre,
+          a.apellido,
+          a.email as artista_email,
+          a.foto as artista_foto,
+          a.bio,
+          a.instagram,
+          a.facebook,
+          a.website,
+          a.cv_url,
+          a.portfolio_url,
+          a.identificacion_url,
+          a.layout_canvas_url,
+          a.layout_canvas_data,
+          (SELECT COUNT(*) FROM obras WHERE postulacion_id = p.id) as total_obras
+        FROM postulaciones p
+        JOIN artistas a ON a.id = p.artista_id
+        WHERE p.fase_actual_id = $3
+          AND p.estado = ANY($4::varchar[])
+        ORDER BY p.id
+      )
       SELECT
-        p.*,
-        a.nombre,
-        a.apellido,
-        a.email as artista_email,
-        a.foto as artista_foto,
-        a.bio,
-        a.instagram,
-        a.facebook,
-        a.website,
-        a.cv_url,
-        a.portfolio_url,
-        a.identificacion_url,
-        a.layout_canvas_url,
-        a.layout_canvas_data,
-        (SELECT COUNT(*) FROM obras WHERE postulacion_id = p.id) as total_obras,
+        pb.*,
         COALESCE(v.id IS NOT NULL, false) as ya_votado,
         v.valor as mi_voto,
         v.comentario as mi_comentario,
         v.conoce_artista as mi_conoce_artista
-      FROM postulaciones p
-      JOIN artistas a ON a.id = p.artista_id
-      LEFT JOIN votaciones v ON v.postulacion_id = p.id AND v.curador_id = $1 AND v.ronda_id = $2
-      WHERE p.fase_actual_id = $3
-        AND p.estado = ANY($4::varchar[])
+      FROM postulaciones_base pb
+      LEFT JOIN votaciones v ON v.postulacion_id = pb.id AND v.curador_id = $1 AND v.ronda_id = $2
       ORDER BY RANDOM()
     `, [curadorId, ronda_id, fase_id, estadosPermitidos])
 
