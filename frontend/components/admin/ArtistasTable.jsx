@@ -335,7 +335,7 @@ export default function ArtistasTable() {
       formData.append('foto', file)
 
       const token = localStorage.getItem('token')
-      const response = await fetch(`${apiUrl}/api/obras/${obraModal.obra.id}/foto`, {
+      const response = await fetch(`${apiUrl}/obras/${obraModal.obra.id}/foto`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`

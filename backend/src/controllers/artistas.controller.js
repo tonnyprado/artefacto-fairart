@@ -1188,7 +1188,44 @@ export const getArtistasByFase = async (req, res) => {
         [fase_id]
       )
 
-      // Procesar URLs de archivos
+      // Obtener obras para cada artista
+      const artistaIds = result.rows.map(a => a.id)
+      let obrasResult = { rows: [] }
+
+      if (artistaIds.length > 0) {
+        obrasResult = await pool.query(
+          `SELECT * FROM obras WHERE artista_id = ANY($1) ORDER BY artista_id, orden NULLS LAST, created_at DESC`,
+          [artistaIds]
+        )
+      }
+
+      // Agrupar obras por artista
+      const obrasPorArtista = {}
+      obrasResult.rows.forEach(obra => {
+        if (!obrasPorArtista[obra.artista_id]) {
+          obrasPorArtista[obra.artista_id] = []
+        }
+
+        // Parsear fotos_detalle_urls si es un string JSON
+        let fotosDetalleUrls = obra.fotos_detalle_urls
+        if (typeof fotosDetalleUrls === 'string') {
+          try {
+            fotosDetalleUrls = JSON.parse(fotosDetalleUrls)
+          } catch (e) {
+            fotosDetalleUrls = []
+          }
+        }
+        if (!Array.isArray(fotosDetalleUrls)) {
+          fotosDetalleUrls = []
+        }
+
+        obrasPorArtista[obra.artista_id].push({
+          ...obra,
+          fotos_detalle_urls: fotosDetalleUrls
+        })
+      })
+
+      // Procesar URLs de archivos y agregar obras
       const artistasTransformados = result.rows.map(artista => {
         const fotoUrl = artista.foto || artista.artista_foto || null
         const cvUrl = artista.cv_url || null
@@ -1196,6 +1233,30 @@ export const getArtistasByFase = async (req, res) => {
         const identificacionUrl = artista.identificacion_url || null
         const layoutCanvasUrl = artista.layout_canvas_url || null
         const layoutCanvasPdf = artista.layout_canvas_pdf || null
+
+        // Obtener obras del artista
+        const obrasArtista = obrasPorArtista[artista.id] || []
+
+        // Actualizar layout_canvas_data con las obras reales
+        let layoutCanvasData = artista.layout_canvas_data || {}
+        if (obrasArtista.length > 0) {
+          layoutCanvasData = {
+            ...layoutCanvasData,
+            obras: obrasArtista.map(obra => ({
+              id: obra.id,
+              titulo: obra.titulo,
+              imagen_url: obra.imagen_url,
+              fotos_detalle_urls: obra.fotos_detalle_urls,
+              tecnica: obra.tecnica,
+              anio: obra.anio,
+              alto_cm: obra.alto_cm,
+              ancho_cm: obra.ancho_cm,
+              precio_mxn: obra.precio_mxn,
+              precio_publico: obra.precio_publico,
+              orden: obra.orden
+            }))
+          }
+        }
 
         return {
           ...artista,
@@ -1205,7 +1266,9 @@ export const getArtistasByFase = async (req, res) => {
           portfolio_url: portfolioUrl,
           identificacion_url: identificacionUrl,
           layout_canvas_url: layoutCanvasUrl,
-          layout_canvas_pdf: layoutCanvasPdf
+          layout_canvas_pdf: layoutCanvasPdf,
+          layout_canvas_data: layoutCanvasData, // Layout actualizado con obras de la tabla
+          obras: obrasArtista // Agregar obras directamente también
         }
       })
 

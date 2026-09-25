@@ -108,7 +108,7 @@ export default function ArtistaDetalle() {
       formData.append('foto', file)
 
       const token = localStorage.getItem('token')
-      const response = await fetch(`${apiUrl}/api/obras/${obraId}/foto`, {
+      const response = await fetch(`${apiUrl}/obras/${obraId}/foto`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`
