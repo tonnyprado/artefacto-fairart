@@ -8,7 +8,7 @@ import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
 import ExcelJS from 'exceljs'
-import { Download, Mail, MessageCircle, Phone, X, UserPlus, Plus } from 'lucide-react'
+import { Download, Mail, MessageCircle, Phone, X, UserPlus, Plus, Upload, Loader2 } from 'lucide-react'
 import AdminArtistasPorFase from './AdminArtistasPorFase'
 import ArtistasInscritos from './ArtistasInscritos'
 
@@ -125,6 +125,8 @@ export default function ArtistasTable() {
   const [viewerModal, setViewerModal] = useState({ open: false, url: '', type: '', title: '' })
   // Estado para modal de obra individual
   const [obraModal, setObraModal] = useState({ open: false, obra: null })
+  // Estado para upload de fotos
+  const [uploadingFoto, setUploadingFoto] = useState(false)
   // Estado para modal de mensaje
   const [mensajeModal, setMensajeModal] = useState({ open: false, artista: null })
   const [mensajeForm, setMensajeForm] = useState({ asunto: '', mensaje: '' })
@@ -318,6 +320,53 @@ export default function ArtistasTable() {
       alert('Error al inscribir artista: ' + error.message)
     } finally {
       setInscribiendoArtista(false)
+    }
+  }
+
+  // Subir foto de obra
+  const handleUploadFotoObra = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file || !obraModal.obra?.id) return
+
+    setUploadingFoto(true)
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+      const formData = new FormData()
+      formData.append('foto', file)
+
+      const token = localStorage.getItem('token')
+      const response = await fetch(`${apiUrl}/api/obras/${obraModal.obra.id}/foto`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        console.log('Foto actualizada:', data)
+        alert('Foto actualizada exitosamente')
+
+        // Actualizar la obra en el modal
+        setObraModal({ ...obraModal, obra: { ...obraModal.obra, preview: data.obra.imagen_url } })
+
+        // Recargar los datos del artista para ver los cambios
+        if (selectedArtista) {
+          const result = await fetchArtistaById(selectedArtista.id)
+          if (result.success) {
+            setSelectedArtista(result.data)
+          }
+        }
+      } else {
+        const error = await response.json()
+        alert('Error al subir foto: ' + (error.error || 'Error desconocido'))
+      }
+    } catch (err) {
+      console.error('Error al subir foto:', err)
+      alert('Error al subir foto: ' + err.message)
+    } finally {
+      setUploadingFoto(false)
     }
   }
 
@@ -1618,16 +1667,41 @@ export default function ArtistasTable() {
                       alt={obraModal.obra.titulo}
                       className="max-w-full max-h-[60vh] object-contain mb-4"
                     />
-                    {/* Botón de descarga sobre la imagen */}
-                    <a
-                      href={obraModal.obra.preview}
-                      download={`obra-${(obraModal.obra.titulo || 'sin-titulo').replace(/\s+/g, '-').toLowerCase()}.jpg`}
-                      className="absolute top-6 right-6 inline-flex items-center gap-2 px-4 py-2 bg-white/90 hover:bg-white text-gray-900 rounded-lg shadow-lg transition-all text-sm font-medium z-10"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Download size={16} />
-                      Descargar imagen
-                    </a>
+                    {/* Botones sobre la imagen */}
+                    <div className="absolute top-6 right-6 flex flex-col gap-2 z-10">
+                      {/* Botón de subir foto */}
+                      <label className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg transition-all text-sm font-medium cursor-pointer">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleUploadFotoObra}
+                          disabled={uploadingFoto}
+                          className="hidden"
+                        />
+                        {uploadingFoto ? (
+                          <>
+                            <Loader2 size={16} className="animate-spin" />
+                            Subiendo...
+                          </>
+                        ) : (
+                          <>
+                            <Upload size={16} />
+                            {obraModal.obra.preview ? 'Cambiar foto' : 'Agregar foto'}
+                          </>
+                        )}
+                      </label>
+
+                      {/* Botón de descarga */}
+                      <a
+                        href={obraModal.obra.preview}
+                        download={`obra-${(obraModal.obra.titulo || 'sin-titulo').replace(/\s+/g, '-').toLowerCase()}.jpg`}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-white/90 hover:bg-white text-gray-900 rounded-lg shadow-lg transition-all text-sm font-medium"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Download size={16} />
+                        Descargar imagen
+                      </a>
+                    </div>
                   </>
                 )}
 
