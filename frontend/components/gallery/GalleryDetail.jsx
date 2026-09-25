@@ -105,7 +105,7 @@ const GalleryDetail = forwardRef(function GalleryDetail({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'flex-start',
-          marginBottom: '24px',
+          marginBottom: '16px',
         }}>
           <h2 style={{
             margin: 0,
@@ -139,6 +139,54 @@ const GalleryDetail = forwardRef(function GalleryDetail({
             <CloseIcon />
           </button>
         </div>
+
+        {/* Botón de subir foto (solo admin) - SIEMPRE VISIBLE */}
+        {isAdmin && onUploadFoto && (
+          <>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              disabled={uploading}
+              style={{ display: 'none' }}
+              id={`upload-foto-${obra.id}`}
+            />
+            <label
+              htmlFor={`upload-foto-${obra.id}`}
+              style={{
+                marginBottom: '16px',
+                width: '100%',
+                padding: '12px',
+                background: uploading ? COLORS.gray : '#3B82F6',
+                color: COLORS.white,
+                border: 'none',
+                borderRadius: '10px',
+                fontSize: '13px',
+                fontWeight: 600,
+                fontFamily: FONTS.body,
+                cursor: uploading ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase',
+              }}
+            >
+              {uploading ? (
+                <>
+                  <LoadingIcon />
+                  Subiendo...
+                </>
+              ) : (
+                <>
+                  <UploadIcon />
+                  {hasImage ? 'Cambiar foto' : 'Agregar foto'}
+                </>
+              )}
+            </label>
+          </>
+        )}
 
         {/* Ficha técnica */}
         <div style={{ flex: 1 }}>
@@ -230,54 +278,6 @@ const GalleryDetail = forwardRef(function GalleryDetail({
             </div>
           )}
         </div>
-
-        {/* Botón de subir foto (solo admin) */}
-        {isAdmin && onUploadFoto && (
-          <>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              disabled={uploading}
-              style={{ display: 'none' }}
-              id={`upload-foto-${obra.id}`}
-            />
-            <label
-              htmlFor={`upload-foto-${obra.id}`}
-              style={{
-                marginTop: '24px',
-                width: '100%',
-                padding: '14px',
-                background: uploading ? COLORS.gray : '#3B82F6',
-                color: COLORS.white,
-                border: 'none',
-                borderRadius: '12px',
-                fontSize: '13px',
-                fontWeight: 600,
-                fontFamily: FONTS.body,
-                cursor: uploading ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                letterSpacing: '0.04em',
-                textTransform: 'uppercase',
-              }}
-            >
-              {uploading ? (
-                <>
-                  <LoadingIcon />
-                  Subiendo...
-                </>
-              ) : (
-                <>
-                  <UploadIcon />
-                  {hasImage ? 'Cambiar foto' : 'Agregar foto'}
-                </>
-              )}
-            </label>
-          </>
-        )}
 
         {/* Botón de descarga */}
         {onDownload && hasImage && (
