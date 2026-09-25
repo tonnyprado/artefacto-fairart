@@ -81,6 +81,7 @@ import registroRoutes from './routes/registro.routes.js'
 import opinionesRoutes from './routes/opiniones.routes.js'
 import favoritosRoutes from './routes/favoritos.routes.js'
 import preregistroRoutes from './routes/preregistro.routes.js'
+import obrasRoutes from './routes/obras.routes.js'
 
 // Importar cron job de recordatorios
 import { iniciarCronRecordatorios } from './jobs/recordatorios.job.js'
@@ -201,6 +202,7 @@ app.use('/api/registro', createLimiter, registroRoutes) // Rate limit para regis
 app.use('/api/opiniones', createLimiter, opinionesRoutes) // Rate limit para opiniones
 app.use('/api/favoritos', favoritosRoutes)
 app.use('/api/preregistro', createLimiter, preregistroRoutes) // Rate limit para pre-registro
+app.use('/api/obras', obrasRoutes)
 
 // Ruta 404
 app.use('*', (req, res) => {
