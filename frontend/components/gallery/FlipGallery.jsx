@@ -25,6 +25,8 @@ export default function FlipGallery({
   columns = 3,
   gap = 16,
   onDownload,
+  onUploadFoto,
+  isAdmin = false,
   className = '',
   variant = 'light',
 }) {
@@ -258,6 +260,8 @@ export default function FlipGallery({
         obra={activeObra}
         onClose={hideDetails}
         onDownload={handleDownload}
+        onUploadFoto={onUploadFoto}
+        isAdmin={isAdmin}
       />
     </div>
   )

@@ -98,12 +98,10 @@ export default function ArtistaDetalle() {
     }
   }
 
-  const handleUploadFoto = async (e, obraId) => {
-    try {
-      const file = e.target.files?.[0]
-      if (!file) return
+  const handleUploadFoto = async (file, obraId) => {
+    if (!file || !obraId) return
 
-      setUploading(true)
+    try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
       const formData = new FormData()
@@ -123,15 +121,28 @@ export default function ArtistaDetalle() {
         console.log('Foto actualizada:', data)
 
         // Recargar obras
-        fetchArtista()
-        setEditFotoModal(null)
+        await fetchArtista()
+        alert('Foto actualizada exitosamente')
       } else {
         const error = await response.json()
         alert('Error al subir foto: ' + (error.error || 'Error desconocido'))
+        throw new Error(error.error)
       }
     } catch (err) {
       console.error('Error al subir foto:', err)
       alert('Error al subir foto: ' + err.message)
+      throw err
+    }
+  }
+
+  const handleUploadFotoModal = async (e, obraId) => {
+    try {
+      const file = e.target.files?.[0]
+      if (!file) return
+
+      setUploading(true)
+      await handleUploadFoto(file, obraId)
+      setEditFotoModal(null)
     } finally {
       setUploading(false)
     }
@@ -216,7 +227,7 @@ export default function ArtistaDetalle() {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleUploadFoto(e, editFotoModal.id)}
+                  onChange={(e) => handleUploadFotoModal(e, editFotoModal.id)}
                   disabled={uploading}
                   className="hidden"
                   id="foto-upload"
@@ -517,12 +528,14 @@ export default function ArtistaDetalle() {
             {/* Obras con galería animada */}
             <div className="bg-white rounded-2xl shadow p-6 mb-6">
               <h2 className="text-lg font-semibold mb-4">
-                Obras ({obras.length})
+                Obras ({obrasCompletas.length > 0 ? obrasCompletas.length : obras.length})
               </h2>
               <FlipGallery
-                obras={obras}
+                obras={obrasCompletas.length > 0 ? obrasCompletas : obras}
                 columns={3}
                 gap={16}
+                isAdmin={true}
+                onUploadFoto={handleUploadFoto}
               />
             </div>
 
