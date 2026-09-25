@@ -21,6 +21,14 @@ const GalleryDetail = forwardRef(function GalleryDetail({
 
   if (!obra) return null
 
+  // DEBUG: Log para ver si llegan las props
+  console.log('GalleryDetail DEBUG:', {
+    isAdmin,
+    hasOnUploadFoto: !!onUploadFoto,
+    obraId: obra?.id,
+    obraTitulo: obra?.titulo
+  })
+
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0]
     if (!file || !onUploadFoto) return
