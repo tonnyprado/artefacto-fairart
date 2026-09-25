@@ -24,6 +24,7 @@ let nextContenidoId = 4
 let nextEventoId = 2
 let nextMensajeContactoId = 1
 let nextFavoritoId = 5
+let nextObraId = 1
 
 // USUARIOS (Admin y Curadores)
 // Password: admin123 (hasheado con bcrypt)
@@ -611,6 +612,9 @@ export const eventos = [
 // MENSAJES DE CONTACTO
 export const mensajesContacto = []
 
+// OBRAS (portfolio de artistas)
+export const obras = []
+
 // FAVORITOS (artistas marcados como favoritos por curadores)
 export const favoritos = [
   {
@@ -664,7 +668,8 @@ export const getNextId = {
   contenido: () => nextContenidoId++,
   evento: () => nextEventoId++,
   mensajeContacto: () => nextMensajeContactoId++,
-  favorito: () => nextFavoritoId++
+  favorito: () => nextFavoritoId++,
+  obra: () => nextObraId++
 }
 
 // Helper para crear timestamp
