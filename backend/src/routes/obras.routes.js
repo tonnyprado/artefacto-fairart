@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { body } from 'express-validator'
 import { validate } from '../middleware/validation.middleware.js'
 import { verifyToken, isAdmin } from '../middleware/auth.middleware.js'
+import { uploadSingle } from '../middleware/upload.middleware.js'
 import * as obrasController from '../controllers/obras.controller.js'
 
 const router = Router()
@@ -29,6 +30,13 @@ router.put('/:id',
   verifyToken,
   isAdmin,
   obrasController.updateObra
+)
+
+router.put('/:id/foto',
+  verifyToken,
+  isAdmin,
+  uploadSingle('foto'),
+  obrasController.updateObraFoto
 )
 
 router.delete('/:id',

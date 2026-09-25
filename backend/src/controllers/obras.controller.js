@@ -5,6 +5,7 @@
  */
 import pool from '../config/database.js'
 import { obras, getNextId, now } from '../data/mockData.js'
+import { uploadToS3 } from '../services/upload.service.js'
 
 // Helper para determinar si usamos DB o mockData
 const useDatabase = () => !!pool
@@ -332,6 +333,78 @@ export const deleteObra = async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Error al eliminar obra'
+    })
+  }
+}
+
+/**
+ * Actualizar foto de obra (solo admin)
+ * Sube la nueva imagen a S3 y actualiza imagen_url
+ */
+export const updateObraFoto = async (req, res) => {
+  try {
+    const { id } = req.params
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        error: 'No se proporcionó ninguna imagen'
+      })
+    }
+
+    console.log(`📸 Actualizando foto de obra ${id}...`)
+
+    // Subir nueva imagen a S3
+    const imageUrl = await uploadToS3(
+      req.file.buffer,
+      req.file.originalname,
+      req.file.mimetype,
+      'artistas/obras'
+    )
+
+    console.log(`✅ Imagen subida a S3: ${imageUrl}`)
+
+    // Actualizar imagen_url en base de datos
+    if (useDatabase()) {
+      const result = await pool.query(
+        'UPDATE obras SET imagen_url = $1 WHERE id = $2 RETURNING *',
+        [imageUrl, id]
+      )
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Obra no encontrada'
+        })
+      }
+
+      return res.json({
+        success: true,
+        message: 'Foto de obra actualizada exitosamente',
+        obra: parseFotosDetalle(result.rows[0])
+      })
+    }
+
+    // Fallback a mockData
+    const index = obras.findIndex(o => o.id === parseInt(id))
+    if (index === -1) {
+      return res.status(404).json({
+        success: false,
+        error: 'Obra no encontrada'
+      })
+    }
+
+    obras[index].imagen_url = imageUrl
+    res.json({
+      success: true,
+      message: 'Foto de obra actualizada exitosamente',
+      obra: obras[index]
+    })
+  } catch (error) {
+    console.error('Error al actualizar foto de obra:', error)
+    res.status(500).json({
+      success: false,
+      error: 'Error al actualizar foto de obra: ' + error.message
     })
   }
 }

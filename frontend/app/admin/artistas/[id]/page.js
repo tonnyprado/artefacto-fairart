@@ -19,7 +19,9 @@ import {
   Globe,
   Loader2,
   Download,
-  Eye
+  Eye,
+  Upload,
+  Edit
 } from 'lucide-react'
 import { FlipGallery } from '@/components/gallery'
 
@@ -28,9 +30,12 @@ export default function ArtistaDetalle() {
   const router = useRouter()
   const [artista, setArtista] = useState(null)
   const [obras, setObras] = useState([])
+  const [obrasCompletas, setObrasCompletas] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [imageModal, setImageModal] = useState(null)
+  const [editFotoModal, setEditFotoModal] = useState(null)
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     if (params.id) {
@@ -51,6 +56,13 @@ export default function ArtistaDetalle() {
       const data = await response.json()
       setArtista(data.data)
       setObras(data.data?.documentos?.portfolio_images || [])
+
+      // Cargar obras completas con IDs desde la API
+      const obrasResponse = await fetch(`${apiUrl}/api/obras/artista/${params.id}`)
+      if (obrasResponse.ok) {
+        const obrasData = await obrasResponse.json()
+        setObrasCompletas(obrasData.obras || [])
+      }
     } catch (err) {
       setError(err.message)
     } finally {
@@ -83,6 +95,45 @@ export default function ArtistaDetalle() {
       }
     } catch (err) {
       console.error('Error al rechazar:', err)
+    }
+  }
+
+  const handleUploadFoto = async (e, obraId) => {
+    try {
+      const file = e.target.files?.[0]
+      if (!file) return
+
+      setUploading(true)
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
+      const formData = new FormData()
+      formData.append('foto', file)
+
+      const token = localStorage.getItem('token')
+      const response = await fetch(`${apiUrl}/api/obras/${obraId}/foto`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        console.log('Foto actualizada:', data)
+
+        // Recargar obras
+        fetchArtista()
+        setEditFotoModal(null)
+      } else {
+        const error = await response.json()
+        alert('Error al subir foto: ' + (error.error || 'Error desconocido'))
+      }
+    } catch (err) {
+      console.error('Error al subir foto:', err)
+      alert('Error al subir foto: ' + err.message)
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -134,6 +185,67 @@ export default function ArtistaDetalle() {
           >
             &times;
           </button>
+        </div>
+      )}
+
+      {/* Modal de edición de foto */}
+      {editFotoModal && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+          onClick={() => !uploading && setEditFotoModal(null)}
+        >
+          <div
+            className="bg-white rounded-2xl p-6 max-w-md w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-xl font-semibold mb-4">
+              Editar foto de obra
+            </h3>
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 mb-2">
+                {editFotoModal.titulo || 'Sin título'}
+              </p>
+              {editFotoModal.imagen_url && (
+                <img
+                  src={editFotoModal.imagen_url}
+                  alt={editFotoModal.titulo}
+                  className="w-full h-48 object-cover rounded-lg mb-4"
+                />
+              )}
+              <label className="block">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleUploadFoto(e, editFotoModal.id)}
+                  disabled={uploading}
+                  className="hidden"
+                  id="foto-upload"
+                />
+                <div className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 cursor-pointer">
+                  {uploading ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Subiendo...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-5 w-5" />
+                      Seleccionar nueva foto
+                    </>
+                  )}
+                </div>
+              </label>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setEditFotoModal(null)}
+                disabled={uploading}
+                className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -403,7 +515,7 @@ export default function ArtistaDetalle() {
             )}
 
             {/* Obras con galería animada */}
-            <div className="bg-white rounded-2xl shadow p-6">
+            <div className="bg-white rounded-2xl shadow p-6 mb-6">
               <h2 className="text-lg font-semibold mb-4">
                 Obras ({obras.length})
               </h2>
@@ -413,6 +525,49 @@ export default function ArtistaDetalle() {
                 gap={16}
               />
             </div>
+
+            {/* Administración de Obras (solo admin) */}
+            {obrasCompletas.length > 0 && (
+              <div className="bg-white rounded-2xl shadow p-6">
+                <h2 className="text-lg font-semibold mb-4">
+                  Administración de Obras ({obrasCompletas.length})
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {obrasCompletas.map((obra) => (
+                    <div key={obra.id} className="border rounded-lg p-4">
+                      <div className="aspect-square bg-gray-100 rounded-lg mb-3 relative overflow-hidden">
+                        {obra.imagen_url ? (
+                          <img
+                            src={obra.imagen_url}
+                            alt={obra.titulo || 'Obra sin título'}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex items-center justify-center h-full text-gray-400">
+                            <Palette className="h-12 w-12" />
+                          </div>
+                        )}
+                      </div>
+                      <h3 className="font-medium text-sm mb-1">
+                        {obra.titulo || 'Sin título'}
+                      </h3>
+                      <p className="text-xs text-gray-500 mb-3">
+                        {obra.alto_cm && obra.ancho_cm
+                          ? `${obra.alto_cm} x ${obra.ancho_cm} cm`
+                          : 'Dimensiones no especificadas'}
+                      </p>
+                      <button
+                        onClick={() => setEditFotoModal(obra)}
+                        className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-2 px-3 rounded-lg hover:bg-blue-700 text-sm"
+                      >
+                        <Edit className="h-4 w-4" />
+                        {obra.imagen_url ? 'Cambiar foto' : 'Agregar foto'}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
