@@ -61,9 +61,16 @@ export default function FloatingRegistrationButton() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Fetch fases on mount
+  // Fetch fases on mount y polling cada 30 segundos
   useEffect(() => {
     fetchFases()
+
+    // Polling cada 30 segundos para detectar cambios en fases
+    const interval = setInterval(() => {
+      fetchFases()
+    }, 30000) // 30 segundos
+
+    return () => clearInterval(interval)
   }, [fetchFases])
 
   // Determinar si mostrar el botón
