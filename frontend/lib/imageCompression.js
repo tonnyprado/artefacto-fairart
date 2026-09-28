@@ -67,84 +67,86 @@ export async function compressImage(file, options = {}) {
   }
 
   return new Promise((resolve, reject) => {
-    const reader = new FileReader()
+    // CRÍTICO: Usar Blob URL en lugar de Data URL para cargar archivos grandes
+    // Esto evita problemas de memoria con archivos de 80+ MB
+    const blobURL = URL.createObjectURL(file)
+    const img = new Image()
 
-    reader.onerror = () => reject(new Error('Error al leer el archivo'))
-
-    reader.onload = (e) => {
-      const img = new Image()
-
-      img.onerror = () => reject(new Error('Error al cargar la imagen'))
-
-      img.onload = () => {
-        // Calcular nuevas dimensiones manteniendo aspect ratio
-        let width = img.width
-        let height = img.height
-
-        if (width > maxWidth) {
-          height = (height * maxWidth) / width
-          width = maxWidth
-        }
-
-        if (height > maxHeight) {
-          width = (width * maxHeight) / height
-          height = maxHeight
-        }
-
-        // Crear canvas y redimensionar
-        const canvas = document.createElement('canvas')
-        canvas.width = width
-        canvas.height = height
-
-        const ctx = canvas.getContext('2d')
-        ctx.drawImage(img, 0, 0, width, height)
-
-        // Detectar si la imagen tiene transparencia
-        const hasTransparency = detectTransparency(ctx, width, height)
-
-        // Elegir formato según transparencia
-        const outputFormat = hasTransparency ? 'image/png' : 'image/jpeg'
-        const extension = hasTransparency ? '.png' : '.jpg'
-        const outputQuality = hasTransparency ? 0.95 : quality // PNG usa calidad más alta
-
-        // Convertir a blob con compresión
-        canvas.toBlob(
-          (blob) => {
-            if (!blob) {
-              reject(new Error('Error al comprimir la imagen'))
-              return
-            }
-
-            // Crear nuevo File desde el blob
-            const compressedFile = new File(
-              [blob],
-              file.name.replace(/\.[^.]+$/, extension),
-              {
-                type: outputFormat,
-                lastModified: Date.now()
-              }
-            )
-
-            const originalSizeKB = Math.round(file.size / 1024)
-            const compressedSizeKB = Math.round(compressedFile.size / 1024)
-            const reduction = Math.round((1 - compressedFile.size / file.size) * 100)
-            const formatInfo = hasTransparency ? 'PNG (transparencia preservada)' : 'JPEG'
-
-            console.log(`✅ Imagen comprimida: ${file.name} → ${formatInfo}`)
-            console.log(`   Original: ${originalSizeKB}KB → Comprimido: ${compressedSizeKB}KB (${reduction}% reducción)`)
-            console.log(`   Dimensiones: ${img.width}x${img.height} → ${Math.round(width)}x${Math.round(height)}`)
-
-            resolve(compressedFile)
-          },
-          outputFormat,
-          outputQuality
-        )
-      }
-
-      img.src = e.target.result
+    img.onerror = () => {
+      URL.revokeObjectURL(blobURL)
+      reject(new Error('Error al cargar la imagen'))
     }
 
-    reader.readAsDataURL(file)
+    img.onload = () => {
+      // Limpiar Blob URL inmediatamente
+      URL.revokeObjectURL(blobURL)
+
+      // Calcular nuevas dimensiones manteniendo aspect ratio
+      let width = img.width
+      let height = img.height
+
+      if (width > maxWidth) {
+        height = (height * maxWidth) / width
+        width = maxWidth
+      }
+
+      if (height > maxHeight) {
+        width = (width * maxHeight) / height
+        height = maxHeight
+      }
+
+      // Crear canvas y redimensionar
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+
+      const ctx = canvas.getContext('2d')
+      ctx.drawImage(img, 0, 0, width, height)
+
+      // Detectar si la imagen tiene transparencia
+      const hasTransparency = detectTransparency(ctx, width, height)
+
+      // Elegir formato según transparencia
+      const outputFormat = hasTransparency ? 'image/png' : 'image/jpeg'
+      const extension = hasTransparency ? '.png' : '.jpg'
+      const outputQuality = hasTransparency ? 0.95 : quality // PNG usa calidad más alta
+
+      // Convertir a blob con compresión
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            reject(new Error('Error al comprimir la imagen'))
+            return
+          }
+
+          // Crear nuevo File desde el blob
+          const compressedFile = new File(
+            [blob],
+            file.name.replace(/\.[^.]+$/, extension),
+            {
+              type: outputFormat,
+              lastModified: Date.now()
+            }
+          )
+
+          const originalSizeKB = Math.round(file.size / 1024)
+          const compressedSizeKB = Math.round(compressedFile.size / 1024)
+          const reduction = Math.round((1 - compressedFile.size / file.size) * 100)
+          const formatInfo = hasTransparency ? 'PNG (transparencia preservada)' : 'JPEG'
+
+          console.log(`✅ Imagen comprimida: ${file.name} → ${formatInfo}`)
+          console.log(`   Original: ${originalSizeKB}KB → Comprimido: ${compressedSizeKB}KB (${reduction}% reducción)`)
+          console.log(`   Dimensiones: ${img.width}x${img.height} → ${Math.round(width)}x${Math.round(height)}`)
+
+          resolve(compressedFile)
+        },
+        outputFormat,
+        outputQuality
+      )
+    }
+
+    // Cargar imagen usando Blob URL (mucho más eficiente que Data URL)
+    img.src = blobURL
   })
 }
 

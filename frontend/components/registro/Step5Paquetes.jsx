@@ -455,8 +455,8 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
   const handleAddNewObra = async (files) => {
     const filesArray = Array.from(files)
 
-    // Validar tamaño máximo ANTES de procesar
-    const MAX_FILE_SIZE_MB = 50
+    // Validar tamaño máximo ANTES de procesar (100MB - se comprimirá agresivamente)
+    const MAX_FILE_SIZE_MB = 100
     const tooLargeFiles = filesArray.filter(f => f.size / (1024 * 1024) > MAX_FILE_SIZE_MB)
 
     if (tooLargeFiles.length > 0) {
@@ -487,13 +487,33 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
         if (fileSizeMB > 5) {
           console.log(`🖼️ Comprimiendo obra ${index + 1}: ${fileSizeMB.toFixed(2)}MB...`)
           try {
-            // Usar resolución adaptativa según tamaño del archivo
-            const maxDimension = fileSizeMB > 30 ? 3500 : 3000
+            // Compresión adaptativa según tamaño:
+            // - Archivos >50MB: compresión muy agresiva (2500px, calidad 0.80)
+            // - Archivos 30-50MB: compresión agresiva (2800px, calidad 0.85)
+            // - Archivos 5-30MB: compresión moderada (3000px, calidad 0.88)
+            let maxDimension, quality, maxSizeKB
+
+            if (fileSizeMB > 50) {
+              // Archivos muy grandes (>50MB): compresión MUY agresiva
+              maxDimension = 2500
+              quality = 0.80
+              maxSizeKB = 2048  // Target 2MB
+              console.log(`   ⚡ Compresión agresiva activada para archivo de ${fileSizeMB.toFixed(1)}MB`)
+            } else if (fileSizeMB > 30) {
+              maxDimension = 2800
+              quality = 0.85
+              maxSizeKB = 2560  // Target 2.5MB
+            } else {
+              maxDimension = 3000
+              quality = 0.88
+              maxSizeKB = 3072  // Target 3MB
+            }
+
             processedFile = await compressImage(file, {
-              maxWidth: maxDimension,   // 3K-3.5K para obras de alta resolución
+              maxWidth: maxDimension,
               maxHeight: maxDimension,
-              quality: 0.88,            // Calidad 88% - optimizado para localStorage
-              maxSizeKB: 3072           // ~3MB target (seguro para localStorage después de base64)
+              quality: quality,
+              maxSizeKB: maxSizeKB
             })
             const newSizeMB = processedFile.size / (1024 * 1024)
             console.log(`✅ Obra ${index + 1} comprimida: ${fileSizeMB.toFixed(2)}MB → ${newSizeMB.toFixed(2)}MB`)
