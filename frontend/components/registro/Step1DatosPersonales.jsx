@@ -11,11 +11,13 @@ import { Info, Palette, Shield } from 'lucide-react'
  * - Tabla: artistas
  *   - nombre VARCHAR(255) NOT NULL
  *   - apellido VARCHAR(255) NOT NULL
+ *   - nombre_artistico VARCHAR(255)
  *   - email VARCHAR(255) UNIQUE NOT NULL
  *   - telefono VARCHAR(20)
  *   - fecha_nacimiento DATE
  *   - pais VARCHAR(100)
  *   - ciudad VARCHAR(100)
+ *   - como_te_enteraste VARCHAR(50)
  *   - direccion TEXT
  *
  * Nota: La categoría/disciplina artística se selecciona en Step5 (Tu Lienzo)
@@ -380,6 +382,28 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
         error={errors?.ciudad}
         required
         placeholder="Ej: Ciudad de México"
+      />
+
+      {/* ¿Cómo te enteraste de nosotros? */}
+      <Select
+        label="¿Por dónde te enteraste de nosotros?"
+        name="como_te_enteraste"
+        value={formData.como_te_enteraste || ''}
+        onChange={handleChange}
+        error={errors?.como_te_enteraste}
+        required
+        options={[
+          { value: '', label: 'Selecciona una opción' },
+          { value: 'instagram', label: 'Instagram' },
+          { value: 'google', label: 'Google' },
+          { value: 'youtube', label: 'YouTube' },
+          { value: 'conocido', label: 'Conocido' },
+          { value: 'prensa', label: 'Prensa/Medios' },
+          { value: 'artista', label: 'Artista aplicante' },
+          { value: 'comite', label: 'Comité curatorial' },
+          { value: 'otro', label: 'Otro' }
+        ]}
+        placeholder="Selecciona una opción"
       />
 
       {/* Aviso de Privacidad con checkbox */}

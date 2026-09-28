@@ -212,6 +212,18 @@
       "countryPlaceholder": "Selecciona tu país",
       "city": "Ciudad",
       "cityPlaceholder": "Ciudad de México",
+      "howDidYouHear": "¿Por dónde te enteraste de nosotros?",
+      "howDidYouHearPlaceholder": "Selecciona una opción",
+      "howDidYouHearOptions": {
+        "instagram": "Instagram",
+        "google": "Google",
+        "youtube": "YouTube",
+        "conocido": "Conocido",
+        "prensa": "Prensa/Medios",
+        "artista": "Artista aplicante",
+        "comite": "Comité curatorial",
+        "otro": "Otro"
+      },
       "privacyText": "He leído y acepto el",
       "privacyLink": "Aviso de Privacidad"
     },
