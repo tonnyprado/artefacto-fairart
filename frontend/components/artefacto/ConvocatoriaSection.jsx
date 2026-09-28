@@ -191,7 +191,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
               opacity: 0.85,
             }}
           >
-            Edición 2026
+            EDICION II
           </span>
         </div>
 
@@ -208,7 +208,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
             fontFamily: FONTS.body,
             fontWeight: 500,
           }}>
-            Una oportunidad para exponer y comercializar tu obra
+            Feria de arte independiente en formato salón:
           </p>
           <p style={{
             margin: '0 0 16px',
@@ -218,7 +218,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
             fontFamily: FONTS.body,
             fontStyle: 'italic',
           }}>
-            en un espacio dedicado al arte y diseño contemporáneo
+            ~50 artistas, un solo proyecto curatorial.
           </p>
           <p style={{
             margin: 0,
@@ -228,7 +228,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
             fontFamily: FONTS.body,
             letterSpacing: '0.02em',
           }}>
-            del 4 al 7 de febrero de 2027 en el Centro Cultural Estación Indianilla
+            4 al 7 de febrero de 2027 · Centro Cultural Estación Indianilla, CDMX.
           </p>
         </div>
 
