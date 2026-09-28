@@ -330,10 +330,11 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
             </h2>
             <ul style={{ margin: 0, padding: 0, listStyle: 'none', maxWidth: 800 }}>
               {[
-                'ARTEFACTO es una feria de arte y diseño contemporáneo que reúne a artistas, diseñadores, galerías, coleccionistas y público en general.',
-                'Nuestro objetivo es crear un espacio de encuentro, exposición y comercialización de obra de artistas emergentes y consolidados.',
-                'La feria incluye stands de artistas, galerías, talleres, charlas, performances y actividades especiales.',
-                'Buscamos proyectos que exploren las fronteras entre arte, diseño, artesanía y nuevos medios.'
+                'ARTE FACTO | Éticas Creativas es un proyecto cultural a largo plazo: un catalizador de proyectos de arte y disciplinas creativas.',
+                'Buscamos forjar cultura y sembrar una comunidad de creadores apasionados por la praxis artística.',
+                'Aquí lo conceptual y lo técnico ponderan por igual — vengas de la figuración, la abstracción o cualquier territorio intermedio.',
+                'Valoramos el camino de tu práctica: el arte al que has llegado con trabajo, atención y convicción.',
+                'No es una feria de stands: es una exposición híbrida e integral, al estilo salón, con curaduría rigurosa.'
               ].map((item, i) => (
                 <li key={i} style={{
                   display: 'flex',
@@ -378,11 +379,11 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
               <h3 style={sectionHeader}>▸ ¿Cómo postular?</h3>
               <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
                 {[
-                  'Completa el formulario de registro en línea',
-                  'Adjunta portafolio digital (máx. 10 imágenes)',
-                  'Incluye descripción de tu proyecto y propuesta de stand',
-                  'Especifica dimensiones y requerimientos técnicos',
-                  'Espera la confirmación del comité curatorial'
+                  'Regístrate en arte-facto.mx/#convocatoria — el registro es gratuito.',
+                  'Solo cubres el costo de tu paquete si resultas seleccionado.',
+                  'En Tu Lienzo eliges tu paquete, cargas tus obras con ficha técnica y propones su acomodo.',
+                  'Tú pones el precio de tu obra; la interfaz calcula las comisiones automáticamente.',
+                  'Convocatoria abierta del 24 de agosto al 13 de noviembre de 2026, en tres fases.'
                 ].map((item, i) => (
                   <li key={i} style={listItem}>
                     <span style={bullet}>·</span>
@@ -397,11 +398,11 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
               <h3 style={sectionHeader}>▸ Requisitos generales</h3>
               <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
                 {[
-                  'Ser mayor de 18 años',
-                  'Obra original y de autoría propia',
-                  'Disponibilidad para montaje (2-3 febrero) y desmontaje (7-8 febrero)',
-                  'Compromiso de atención del stand durante toda la feria',
-                  'Seguro de obra bajo responsabilidad del artista'
+                  'Mayores de 18 años, emergentes o consolidados, con o sin estudios en artes visuales.',
+                  'Nacionalidad mexicana o extranjera, sin necesidad de residir en México.',
+                  'Postulación individual o colectiva.',
+                  'Medios: pintura, acuarela, dibujo, escultura, gráfica, fotografía, cerámica, collage & mixta, textil.',
+                  'Sin mínimo ni máximo de obras: incluye tantas como quepan en tu paquete.'
                 ].map((item, i) => (
                   <li key={i} style={listItem}>
                     <span style={bullet}>·</span>
@@ -416,11 +417,10 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
               <h3 style={sectionHeader}>▸ Selección y exhibición</h3>
               <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
                 {[
-                  'El comité curatorial revisará todas las postulaciones',
-                  'Notificación de aceptación: 15 de febrero de 2027',
-                  'Stand básico incluido (2x2m, iluminación, muro)',
-                  'Posibilidad de adquirir espacio adicional',
-                  'Difusión en redes y medios de ARTEFACTO'
+                  'El Comité Curatorial define la selección y el orden conceptual — formato salón, no stands.',
+                  'Se elegirán de 11 a 18 artistas por fase. No seleccionados siguen en concurso.',
+                  'Espacio expositivo gratuito para 5–10 artistas mediante concurso.',
+                  'Tu paquete incluye montaje, asesores de venta, catálogo digital, difusión y más.'
                 ].map((item, i) => (
                   <li key={i} style={listItem}>
                     <span style={bullet}>·</span>

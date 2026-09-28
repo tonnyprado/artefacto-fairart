@@ -431,7 +431,7 @@
     "menu": "Menú"
   },
   "conoceMas": {
-    "intro": "Somos una feria de arte independiente que trabaja directo con el artista, sin galerías de por medio. Reunimos a cerca de 50 creadores nacionales e internacionales bajo una curaduría que pesa la técnica y el concepto por igual. Funcionamos como salón y no como feria de stands: una sola narrativa visual, construida por un comité curatorial que busca los diálogos entre las obras. Nos montamos durante la Semana del Arte de la Ciudad de México.",
+    "intro": "Somos una feria de arte independiente con un formato híbrido estilo salon que reúne diferentes sectores del mundo del arte, haciendo hincapié en el talento, los conceptos y la técnica de las diferentes disciplinas creativas. Reuniendo a 50 artistas nacionales e internacionales con una sola narrativa visual armada por nuestro comité curatorial, donde tu obra, si queda, seleccionada se integra a una historia colectiva.",
     "cierre": "FORJAR CULTURA — 4 · 7 FEBRERO 2027",
     "scrollIndicator": "desliza",
     "artisFactum": {
@@ -466,8 +466,8 @@
       "forjarCultura": {
         "title": "FORJAR CULTURA",
         "p1": "Forjar es dar forma con calor y golpe: donde alguien insiste y alguien aprende. El calor es el concepto y el golpe es la técnica. La cultura es materia al rojo vivo, en constante transformación, que toma la forma de quienes hacen y enseñan.",
-        "p2Lead": "ARTE FACTO",
-        "p2": " es para artistas cuyo concepto y técnica se desarrollan con el mismo rigor — donde uno no existe sin el otro. Aquí, lo conceptual y lo técnico ponderan en un mismo nivel, vengas de la figuración, la abstracción o cualquier territorio intermedio, con estudios o años de prueba y error. Valoramos el camino que haya seguido tu práctica: es la construcción del arte al que has llegado con trabajo, atención y convicción."
+        "p2Lead": "ARTEFACTO",
+        "p2": " es para artistas cuyo concepto y técnica se desarrollan con el mismo rigor — donde uno no existe sin el otro. Aquí, lo conceptual y lo técnico se ponderan en un mismo nivel, vengas de la figuración, la abstracción o cualquier territorio intermedio, ya sea con estudios o años de prueba y error. Valoramos el camino que haya seguido tu práctica: es la construcción del arte al que has llegado con trabajo, atención y convicción."
       }
     },
     "diaGnosis": {
