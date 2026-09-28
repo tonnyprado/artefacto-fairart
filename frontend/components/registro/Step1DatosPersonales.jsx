@@ -2,7 +2,7 @@
 
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
-import { Info, Palette, Shield, Sparkles } from 'lucide-react'
+import { Info, Palette } from 'lucide-react'
 import { useFasesStore } from '@/stores/fasesStore'
 import { useEffect } from 'react'
 
@@ -268,38 +268,20 @@ export default function Step1DatosPersonales({ formData, updateFormData, errors 
       {/* Banner de Fase Activa */}
       {faseActiva && (
         <div style={{
-          background: 'linear-gradient(135deg, rgba(244, 237, 228, 0.2), rgba(244, 237, 228, 0.05))',
-          border: '2px solid rgba(244, 237, 228, 0.5)',
-          borderRadius: '16px',
-          padding: '16px 24px',
-          marginBottom: '16px',
-          textAlign: 'center'
+          textAlign: 'center',
+          marginBottom: '20px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '6px' }}>
-            <Sparkles size={20} color="#F4EDE4" />
-            <p style={{
-              color: '#F4EDE4',
-              fontWeight: '700',
-              fontSize: '16px',
-              margin: 0,
-              fontFamily: '"Inter Tight", Inter, sans-serif',
-              letterSpacing: '0.05em',
-              textTransform: 'uppercase'
-            }}>
-              {faseActiva.nombre} en proceso
-            </p>
-            <Sparkles size={20} color="#F4EDE4" />
-          </div>
-          {faseActiva.descripcion && (
-            <p style={{
-              color: 'rgba(244, 237, 228, 0.8)',
-              fontSize: '13px',
-              margin: 0,
-              fontStyle: 'italic'
-            }}>
-              {faseActiva.descripcion}
-            </p>
-          )}
+          <p style={{
+            color: '#F4EDE4',
+            fontWeight: '700',
+            fontSize: '24px',
+            margin: 0,
+            fontFamily: '"Inter Tight", Inter, sans-serif',
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase'
+          }}>
+            {faseActiva.nombre} en proceso
+          </p>
         </div>
       )}
 
