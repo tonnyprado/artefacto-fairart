@@ -40,18 +40,18 @@ function detectTransparency(ctx, width, height) {
  * Detecta automáticamente transparencia y preserva PNG si es necesario
  * @param {File} file - Archivo de imagen a comprimir
  * @param {Object} options - Opciones de compresión
- * @param {number} options.maxWidth - Ancho máximo en píxeles (default: 1920)
- * @param {number} options.maxHeight - Alto máximo en píxeles (default: 1920)
- * @param {number} options.quality - Calidad JPEG (0-1, default: 0.85)
- * @param {number} options.maxSizeKB - Tamaño máximo objetivo en KB (default: 500)
+ * @param {number} options.maxWidth - Ancho máximo en píxeles (default: 2400)
+ * @param {number} options.maxHeight - Alto máximo en píxeles (default: 2400)
+ * @param {number} options.quality - Calidad JPEG (0-1, default: 0.90)
+ * @param {number} options.maxSizeKB - Tamaño máximo objetivo en KB (default: 2048)
  * @returns {Promise<File>} - Archivo comprimido (JPEG o PNG según transparencia)
  */
 export async function compressImage(file, options = {}) {
   const {
-    maxWidth = 1920,
-    maxHeight = 1920,
-    quality = 0.85,
-    maxSizeKB = 500
+    maxWidth = 2400,
+    maxHeight = 2400,
+    quality = 0.90,
+    maxSizeKB = 2048
   } = options
 
   // Si no es una imagen, retornar tal cual
@@ -59,9 +59,10 @@ export async function compressImage(file, options = {}) {
     return file
   }
 
-  // Si ya es suficientemente pequeño, retornar tal cual
+  // Si ya es pequeño (menor a 2MB por defecto), retornar tal cual
   if (file.size <= maxSizeKB * 1024) {
-    console.log(`Imagen ${file.name} ya es pequeña (${Math.round(file.size / 1024)}KB), no se comprime`)
+    const sizeMB = (file.size / (1024 * 1024)).toFixed(2)
+    console.log(`Imagen ${file.name} ya tiene buen tamaño (${sizeMB}MB), no se comprime`)
     return file
   }
 

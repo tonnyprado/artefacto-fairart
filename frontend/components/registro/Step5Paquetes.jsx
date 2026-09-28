@@ -469,15 +469,17 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
         let processedFile = file
 
         // Comprimir automáticamente archivos grandes (>5MB)
-        // Acepta hasta 100MB, comprime a ~8-10MB preservando alta calidad
+        // Acepta hasta 100MB, comprime preservando máxima calidad
         if (fileSizeMB > 5) {
           console.log(`🖼️ Comprimiendo obra ${index + 1}: ${fileSizeMB.toFixed(2)}MB...`)
           try {
+            // Usar resolución adaptativa según tamaño del archivo
+            const maxDimension = fileSizeMB > 50 ? 5000 : 4000
             processedFile = await compressImage(file, {
-              maxWidth: 3500,     // Alta resolución para obras de arte
-              maxHeight: 3500,
-              quality: 0.94,      // Calidad 94% - preserva detalles
-              maxSizeKB: 10240    // ~10MB target (excelente calidad)
+              maxWidth: maxDimension,   // 4K-5K para obras de alta resolución
+              maxHeight: maxDimension,
+              quality: 0.95,            // Calidad 95% - preserva máximos detalles
+              maxSizeKB: 15360          // ~15MB target (calidad profesional)
             })
             const newSizeMB = processedFile.size / (1024 * 1024)
             console.log(`✅ Obra ${index + 1} comprimida: ${fileSizeMB.toFixed(2)}MB → ${newSizeMB.toFixed(2)}MB`)
@@ -1468,10 +1470,10 @@ function ObraModal({ obra, es3D, onSave, onClose }) {
         setCompressionProgress({ current: i + 1, total: fotosAAgregar.length })
 
         const compressed = await compressImage(file, {
-          maxWidth: 1400,      // Suficiente resolución para zoom en detalles
-          maxHeight: 1400,
-          quality: 0.88,       // Calidad 88% para ver detalles de cerca
-          maxSizeKB: 1536      // ~1.5MB por foto detalle
+          maxWidth: 2000,      // Mayor resolución para zoom de detalles
+          maxHeight: 2000,
+          quality: 0.92,       // Calidad 92% para ver detalles nítidos
+          maxSizeKB: 3072      // ~3MB por foto detalle (mejor calidad)
         })
 
         fotosComprimidas.push({
