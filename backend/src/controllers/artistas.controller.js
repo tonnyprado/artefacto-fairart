@@ -501,11 +501,13 @@ export const createArtista = async (req, res) => {
     const {
       nombre,
       apellido,
+      nombre_artistico,
       email,
       telefono,
       fecha_nacimiento,
       ciudad,
       pais,
+      como_te_enteraste,
       categoria,
       bio,
       foto,
@@ -560,17 +562,17 @@ export const createArtista = async (req, res) => {
       // Insertar artista
       const artistaResult = await pool.query(
         `INSERT INTO artistas (
-          nombre, apellido, email, telefono, fecha_nacimiento,
-          ciudad, pais, categoria, bio, foto,
+          nombre, apellido, nombre_artistico, email, telefono, fecha_nacimiento,
+          ciudad, pais, como_te_enteraste, categoria, bio, foto,
           instagram, facebook, website,
           cv_url, portfolio_url, identificacion_url,
           paquete_id, layout_canvas_url, layout_canvas_data,
           aprobado, estado_registro
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
         RETURNING *`,
         [
-          nombre, apellido, email, telefono, fecha_nacimiento,
-          ciudad, pais, categoria, bio, foto,
+          nombre, apellido, nombre_artistico, email, telefono, fecha_nacimiento,
+          ciudad, pais, como_te_enteraste, categoria, bio, foto,
           instagram, facebook, website,
           cv_url, portfolio_url, identificacion_url,
           paquete_id ? parseInt(paquete_id) : null,
@@ -726,11 +728,13 @@ export const updateArtista = async (req, res) => {
     const {
       nombre,
       apellido,
+      nombre_artistico,
       email,
       telefono,
       fecha_nacimiento,
       ciudad,
       pais,
+      como_te_enteraste,
       categoria,
       bio,
       foto,
@@ -781,6 +785,11 @@ export const updateArtista = async (req, res) => {
         values.push(apellido)
         paramCount++
       }
+      if (nombre_artistico !== undefined) {
+        updates.push(`nombre_artistico = $${paramCount}`)
+        values.push(nombre_artistico)
+        paramCount++
+      }
       if (email !== undefined) {
         updates.push(`email = $${paramCount}`)
         values.push(email)
@@ -804,6 +813,11 @@ export const updateArtista = async (req, res) => {
       if (pais !== undefined) {
         updates.push(`pais = $${paramCount}`)
         values.push(pais)
+        paramCount++
+      }
+      if (como_te_enteraste !== undefined) {
+        updates.push(`como_te_enteraste = $${paramCount}`)
+        values.push(como_te_enteraste)
         paramCount++
       }
       if (categoria !== undefined) {
