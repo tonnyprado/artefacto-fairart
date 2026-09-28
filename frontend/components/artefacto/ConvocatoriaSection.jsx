@@ -332,7 +332,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
               {[
                 'ARTE FACTO | Éticas Creativas es un proyecto cultural a largo plazo: un catalizador de proyectos de arte y disciplinas creativas.',
                 'Buscamos forjar cultura y sembrar una comunidad de creadores apasionados por la praxis artística.',
-                'Aquí lo conceptual y lo técnico ponderan por igual — vengas de la figuración, la abstracción o cualquier territorio intermedio.',
+                'Aquí lo conceptual y lo técnico ponderan por igual vengas, de la figuración, la abstracción o cualquier territorio intermedio.',
                 'Valoramos el camino de tu práctica: el arte al que has llegado con trabajo, atención y convicción.',
                 'No es una feria de stands: es una exposición híbrida e integral, al estilo salón, con curaduría rigurosa.'
               ].map((item, i) => (
