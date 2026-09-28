@@ -191,7 +191,7 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
               opacity: 0.85,
             }}
           >
-            EDICION II
+            EDICIÓN II
           </span>
         </div>
 
@@ -417,9 +417,9 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
               <h3 style={sectionHeader}>▸ Selección y exhibición</h3>
               <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
                 {[
-                  'El Comité Curatorial define la selección y el orden conceptual — formato salón, no stands.',
-                  'Se elegirán de 11 a 18 artistas por fase. No seleccionados siguen en concurso.',
-                  'Espacio expositivo gratuito para 5–10 artistas mediante concurso.',
+                  'El Comité Curatorial define la selección y la narrativa colectiva — formato salón, no stands.',
+                  'Se elegirán de 11 a 18 artistas por fase. No seleccionados siguen en revisión para próximas fases.',
+                  'Al registrate, automáticamente eres considerado para el concurso: piezas expuestas gratuitamente para 5–10 artistas.',
                   'Tu paquete incluye montaje, asesores de venta, catálogo digital, difusión y más.'
                 ].map((item, i) => (
                   <li key={i} style={listItem}>

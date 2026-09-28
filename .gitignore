@@ -43,3 +43,4 @@ uploads/*
 frontend/public/ITEMS_PagWeb_SVG_ConocerMas/
 *.ai
 *.zip
+frontend/components/artefacto/cosigna

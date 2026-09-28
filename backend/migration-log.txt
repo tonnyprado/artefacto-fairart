@@ -1,0 +1,535 @@
+🚀 Iniciando migración de fotos a AWS S3...
+
+
+================================================================================
+📧 Procesando artista: juarezag01@gmail.com
+================================================================================
+
+✅ Artista encontrado: Andrés  Juárez García (ID: 69)
+
+📸 Subiendo foto de perfil...
+📤 Iniciando upload: AndresJuarezGarcia_perfil.jpg (0.39MB)
+📸 Imagen original: 0.39MB, 666x1069
+✅ Imagen comprimida: 0.13MB (ahorro: 65.9%)
+☁️  Subiendo a S3: artistas/perfiles/1790361008103-4y5io6.jpg (137.58KB)
+❌ Error subiendo archivo a S3: Error: No value provided for input HTTP label: Bucket.
+    at S3RestXmlProtocol.serializeRequest (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:507:31)
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@smithy/core/dist-cjs/submodules/schema/index.js:87:21
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:62:28
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:89:20
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/core/dist-cjs/submodules/client/index.js:125:26
+    at async Promise.all (index 0)
+    at async Upload.__uploadUsingPut (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:277:26)
+    at async Upload.__doConcurrentUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:352:24)
+    at async Promise.all (index 0)
+    at async Upload.__doMultipartUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:432:9)
+   ❌ Error subiendo foto de perfil: Error al subir archivo: No value provided for input HTTP label: Bucket.
+
+🎨 Procesando 3 obras...
+
+  📝 Obra: "Delirio de notas amargas"
+     ✅ Obra encontrada (ID: 143)
+📤 Iniciando upload: Delirio de notas amargas_page-0001.jpg (2.97MB)
+📸 Imagen original: 2.97MB, 1860x2485
+✅ Imagen comprimida: 0.58MB (ahorro: 80.6%)
+☁️  Subiendo a S3: artistas/obras/1790361008232-rqezj5.jpg (590.15KB)
+❌ Error subiendo archivo a S3: Error: No value provided for input HTTP label: Bucket.
+    at S3RestXmlProtocol.serializeRequest (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:507:31)
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@smithy/core/dist-cjs/submodules/schema/index.js:87:21
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:62:28
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:89:20
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/core/dist-cjs/submodules/client/index.js:125:26
+    at async Promise.all (index 0)
+    at async Upload.__uploadUsingPut (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:277:26)
+    at async Upload.__doConcurrentUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:352:24)
+    at async Promise.all (index 0)
+    at async Upload.__doMultipartUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:432:9)
+     ❌ Error subiendo foto principal: Error al subir archivo: No value provided for input HTTP label: Bucket.
+     📷 Subiendo 3 fotos de detalle...
+📤 Iniciando upload: Delirio de notas amargas_page-0002.jpg (3.07MB)
+📸 Imagen original: 3.07MB, 1860x2485
+✅ Imagen comprimida: 0.62MB (ahorro: 79.8%)
+☁️  Subiendo a S3: artistas/obras/detalles/1790361008300-q239b3.jpg (634.60KB)
+❌ Error subiendo archivo a S3: Error: No value provided for input HTTP label: Bucket.
+    at S3RestXmlProtocol.serializeRequest (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:507:31)
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@smithy/core/dist-cjs/submodules/schema/index.js:87:21
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:62:28
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:89:20
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/core/dist-cjs/submodules/client/index.js:125:26
+    at async Promise.all (index 0)
+    at async Upload.__uploadUsingPut (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:277:26)
+    at async Upload.__doConcurrentUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:352:24)
+    at async Promise.all (index 0)
+    at async Upload.__doMultipartUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:432:9)
+        ❌ Error subiendo detalle 1: Error al subir archivo: No value provided for input HTTP label: Bucket.
+📤 Iniciando upload: Delirio de notas amargas_page-0003.jpg (3.19MB)
+📸 Imagen original: 3.19MB, 1860x2485
+✅ Imagen comprimida: 0.64MB (ahorro: 80.0%)
+☁️  Subiendo a S3: artistas/obras/detalles/1790361008381-q3j7hw.jpg (651.72KB)
+❌ Error subiendo archivo a S3: Error: No value provided for input HTTP label: Bucket.
+    at S3RestXmlProtocol.serializeRequest (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:507:31)
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@smithy/core/dist-cjs/submodules/schema/index.js:87:21
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:62:28
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:89:20
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/core/dist-cjs/submodules/client/index.js:125:26
+    at async Promise.all (index 0)
+    at async Upload.__uploadUsingPut (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:277:26)
+    at async Upload.__doConcurrentUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:352:24)
+    at async Promise.all (index 0)
+    at async Upload.__doMultipartUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:432:9)
+        ❌ Error subiendo detalle 2: Error al subir archivo: No value provided for input HTTP label: Bucket.
+📤 Iniciando upload: Delirio de notas amargas_page-0004.jpg (2.81MB)
+📸 Imagen original: 2.81MB, 1860x2485
+✅ Imagen comprimida: 0.61MB (ahorro: 78.1%)
+☁️  Subiendo a S3: artistas/obras/detalles/1790361008459-nml1ge.jpg (628.39KB)
+❌ Error subiendo archivo a S3: Error: No value provided for input HTTP label: Bucket.
+    at S3RestXmlProtocol.serializeRequest (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:507:31)
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@smithy/core/dist-cjs/submodules/schema/index.js:87:21
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:62:28
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:89:20
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/core/dist-cjs/submodules/client/index.js:125:26
+    at async Promise.all (index 0)
+    at async Upload.__uploadUsingPut (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:277:26)
+    at async Upload.__doConcurrentUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:352:24)
+    at async Promise.all (index 0)
+    at async Upload.__doMultipartUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:432:9)
+        ❌ Error subiendo detalle 3: Error al subir archivo: No value provided for input HTTP label: Bucket.
+
+  📝 Obra: "Llegó por la noche"
+     ✅ Obra encontrada (ID: 145)
+📤 Iniciando upload: Llego por la noche_page-0001.jpg (3.05MB)
+📸 Imagen original: 3.05MB, 2825x1878
+✅ Imagen comprimida: 0.31MB (ahorro: 89.7%)
+☁️  Subiendo a S3: artistas/obras/1790361008572-e2h37x.jpg (320.48KB)
+❌ Error subiendo archivo a S3: Error: No value provided for input HTTP label: Bucket.
+    at S3RestXmlProtocol.serializeRequest (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:507:31)
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@smithy/core/dist-cjs/submodules/schema/index.js:87:21
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:62:28
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:89:20
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/core/dist-cjs/submodules/client/index.js:125:26
+    at async Promise.all (index 0)
+    at async Upload.__uploadUsingPut (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:277:26)
+    at async Upload.__doConcurrentUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:352:24)
+    at async Promise.all (index 0)
+    at async Upload.__doMultipartUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:432:9)
+     ❌ Error subiendo foto principal: Error al subir archivo: No value provided for input HTTP label: Bucket.
+     📷 Subiendo 4 fotos de detalle...
+📤 Iniciando upload: Llego por la noche_page-0002.jpg (3.25MB)
+📸 Imagen original: 3.25MB, 2825x1878
+✅ Imagen comprimida: 0.29MB (ahorro: 91.1%)
+☁️  Subiendo a S3: artistas/obras/detalles/1790361008631-67g7zz.jpg (295.50KB)
+❌ Error subiendo archivo a S3: Error: No value provided for input HTTP label: Bucket.
+    at S3RestXmlProtocol.serializeRequest (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:507:31)
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@smithy/core/dist-cjs/submodules/schema/index.js:87:21
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:62:28
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:89:20
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/core/dist-cjs/submodules/client/index.js:125:26
+    at async Promise.all (index 0)
+    at async Upload.__uploadUsingPut (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:277:26)
+    at async Upload.__doConcurrentUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:352:24)
+    at async Promise.all (index 0)
+    at async Upload.__doMultipartUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:432:9)
+        ❌ Error subiendo detalle 1: Error al subir archivo: No value provided for input HTTP label: Bucket.
+📤 Iniciando upload: Llego por la noche_page-0003.jpg (3.20MB)
+📸 Imagen original: 3.20MB, 2825x1878
+✅ Imagen comprimida: 0.28MB (ahorro: 91.4%)
+☁️  Subiendo a S3: artistas/obras/detalles/1790361008694-ue2bjc.jpg (283.52KB)
+❌ Error subiendo archivo a S3: Error: No value provided for input HTTP label: Bucket.
+    at S3RestXmlProtocol.serializeRequest (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:507:31)
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@smithy/core/dist-cjs/submodules/schema/index.js:87:21
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:62:28
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:89:20
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/core/dist-cjs/submodules/client/index.js:125:26
+    at async Promise.all (index 0)
+    at async Upload.__uploadUsingPut (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:277:26)
+    at async Upload.__doConcurrentUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:352:24)
+    at async Promise.all (index 0)
+    at async Upload.__doMultipartUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:432:9)
+        ❌ Error subiendo detalle 2: Error al subir archivo: No value provided for input HTTP label: Bucket.
+📤 Iniciando upload: Llego por la noche_page-0004.jpg (3.50MB)
+📸 Imagen original: 3.50MB, 2825x1878
+✅ Imagen comprimida: 0.34MB (ahorro: 90.3%)
+☁️  Subiendo a S3: artistas/obras/detalles/1790361008755-5c9wm8.jpg (347.30KB)
+❌ Error subiendo archivo a S3: Error: No value provided for input HTTP label: Bucket.
+    at S3RestXmlProtocol.serializeRequest (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:507:31)
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@smithy/core/dist-cjs/submodules/schema/index.js:87:21
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:62:28
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:89:20
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/core/dist-cjs/submodules/client/index.js:125:26
+    at async Promise.all (index 0)
+    at async Upload.__uploadUsingPut (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:277:26)
+    at async Upload.__doConcurrentUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:352:24)
+    at async Promise.all (index 0)
+    at async Upload.__doMultipartUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:432:9)
+        ❌ Error subiendo detalle 3: Error al subir archivo: No value provided for input HTTP label: Bucket.
+📤 Iniciando upload: Llego por la noche_page-0005.jpg (2.41MB)
+📸 Imagen original: 2.41MB, 2825x1878
+✅ Imagen comprimida: 0.23MB (ahorro: 90.3%)
+☁️  Subiendo a S3: artistas/obras/detalles/1790361008806-guy7wk.jpg (240.28KB)
+❌ Error subiendo archivo a S3: Error: No value provided for input HTTP label: Bucket.
+    at S3RestXmlProtocol.serializeRequest (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:507:31)
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@smithy/core/dist-cjs/submodules/schema/index.js:87:21
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:62:28
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:89:20
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/core/dist-cjs/submodules/client/index.js:125:26
+    at async Promise.all (index 0)
+    at async Upload.__uploadUsingPut (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:277:26)
+    at async Upload.__doConcurrentUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:352:24)
+    at async Promise.all (index 0)
+    at async Upload.__doMultipartUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:432:9)
+        ❌ Error subiendo detalle 4: Error al subir archivo: No value provided for input HTTP label: Bucket.
+
+  📝 Obra: "Nadé en el Lete"
+     ✅ Obra encontrada (ID: 144)
+📤 Iniciando upload: Nade por el lete_page-0001.jpg (2.77MB)
+📸 Imagen original: 2.77MB, 2825x1878
+✅ Imagen comprimida: 0.29MB (ahorro: 89.4%)
+☁️  Subiendo a S3: artistas/obras/1790361008918-bj8ukr.jpg (301.20KB)
+❌ Error subiendo archivo a S3: Error: No value provided for input HTTP label: Bucket.
+    at S3RestXmlProtocol.serializeRequest (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:507:31)
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@smithy/core/dist-cjs/submodules/schema/index.js:87:21
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:62:28
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:89:20
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/core/dist-cjs/submodules/client/index.js:125:26
+    at async Promise.all (index 0)
+    at async Upload.__uploadUsingPut (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:277:26)
+    at async Upload.__doConcurrentUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:352:24)
+    at async Promise.all (index 0)
+    at async Upload.__doMultipartUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:432:9)
+     ❌ Error subiendo foto principal: Error al subir archivo: No value provided for input HTTP label: Bucket.
+     📷 Subiendo 4 fotos de detalle...
+📤 Iniciando upload: Nade por el lete_page-0002.jpg (2.45MB)
+📸 Imagen original: 2.45MB, 2825x1878
+✅ Imagen comprimida: 0.28MB (ahorro: 88.6%)
+☁️  Subiendo a S3: artistas/obras/detalles/1790361008972-ar9yrx.jpg (285.96KB)
+❌ Error subiendo archivo a S3: Error: No value provided for input HTTP label: Bucket.
+    at S3RestXmlProtocol.serializeRequest (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:507:31)
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@smithy/core/dist-cjs/submodules/schema/index.js:87:21
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:62:28
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:89:20
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/core/dist-cjs/submodules/client/index.js:125:26
+    at async Promise.all (index 0)
+    at async Upload.__uploadUsingPut (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:277:26)
+    at async Upload.__doConcurrentUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:352:24)
+    at async Promise.all (index 0)
+    at async Upload.__doMultipartUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:432:9)
+        ❌ Error subiendo detalle 1: Error al subir archivo: No value provided for input HTTP label: Bucket.
+📤 Iniciando upload: Nade por el lete_page-0003.jpg (3.08MB)
+📸 Imagen original: 3.08MB, 2825x1878
+✅ Imagen comprimida: 0.31MB (ahorro: 89.9%)
+☁️  Subiendo a S3: artistas/obras/detalles/1790361009030-be6s1n.jpg (318.99KB)
+❌ Error subiendo archivo a S3: Error: No value provided for input HTTP label: Bucket.
+    at S3RestXmlProtocol.serializeRequest (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:507:31)
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@smithy/core/dist-cjs/submodules/schema/index.js:87:21
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:62:28
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:89:20
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/core/dist-cjs/submodules/client/index.js:125:26
+    at async Promise.all (index 0)
+    at async Upload.__uploadUsingPut (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:277:26)
+    at async Upload.__doConcurrentUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:352:24)
+    at async Promise.all (index 0)
+    at async Upload.__doMultipartUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:432:9)
+        ❌ Error subiendo detalle 2: Error al subir archivo: No value provided for input HTTP label: Bucket.
+📤 Iniciando upload: Nade por el lete_page-0004.jpg (3.51MB)
+📸 Imagen original: 3.51MB, 2825x1878
+✅ Imagen comprimida: 0.32MB (ahorro: 90.7%)
+☁️  Subiendo a S3: artistas/obras/detalles/1790361009090-6oyw9r.jpg (332.64KB)
+❌ Error subiendo archivo a S3: Error: No value provided for input HTTP label: Bucket.
+    at S3RestXmlProtocol.serializeRequest (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:507:31)
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@smithy/core/dist-cjs/submodules/schema/index.js:87:21
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:62:28
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:89:20
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/core/dist-cjs/submodules/client/index.js:125:26
+    at async Promise.all (index 0)
+    at async Upload.__uploadUsingPut (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:277:26)
+    at async Upload.__doConcurrentUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:352:24)
+    at async Promise.all (index 0)
+    at async Upload.__doMultipartUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:432:9)
+        ❌ Error subiendo detalle 3: Error al subir archivo: No value provided for input HTTP label: Bucket.
+📤 Iniciando upload: Nade por el lete_page-0005.jpg (3.28MB)
+📸 Imagen original: 3.28MB, 2825x1878
+✅ Imagen comprimida: 0.27MB (ahorro: 91.9%)
+☁️  Subiendo a S3: artistas/obras/detalles/1790361009148-qq0gya.jpg (273.89KB)
+❌ Error subiendo archivo a S3: Error: No value provided for input HTTP label: Bucket.
+    at S3RestXmlProtocol.serializeRequest (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:507:31)
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@smithy/core/dist-cjs/submodules/schema/index.js:87:21
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:62:28
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:89:20
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/core/dist-cjs/submodules/client/index.js:125:26
+    at async Promise.all (index 0)
+    at async Upload.__uploadUsingPut (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:277:26)
+    at async Upload.__doConcurrentUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:352:24)
+    at async Promise.all (index 0)
+    at async Upload.__doMultipartUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:432:9)
+        ❌ Error subiendo detalle 4: Error al subir archivo: No value provided for input HTTP label: Bucket.
+
+================================================================================
+📧 Procesando artista: elogguer@gmail.com
+================================================================================
+
+✅ Artista encontrado: Eloisa  Garcia Guerrero (ID: 72)
+
+🎨 Procesando 1 obras...
+
+  📝 Obra: "La Cantera"
+     ❌ Obra no encontrada en BD: "La Cantera"
+
+================================================================================
+📧 Procesando artista: eperezangeles96@gmail.com
+================================================================================
+
+✅ Artista encontrado: Emilio Pérez Angeles (ID: 35)
+
+🎨 Procesando 3 obras...
+
+  📝 Obra: "En sueños te evoco, pero quien viene no es más que una sombra"
+     ❌ Obra no encontrada en BD: "En sueños te evoco, pero quien viene no es más que una sombra"
+
+  📝 Obra: "Quimérico museo de formas inconstantes"
+     ❌ Obra no encontrada en BD: "Quimérico museo de formas inconstantes"
+
+  📝 Obra: "Los pasos que ya no doy contigo"
+     ❌ Obra no encontrada en BD: "Los pasos que ya no doy contigo"
+
+================================================================================
+📧 Procesando artista: meza@estrategasdigitales.com
+================================================================================
+
+✅ Artista encontrado: Jorge Julián  Meza Aguilar (ID: 30)
+
+🎨 Procesando 9 obras...
+
+  📝 Obra: "Entresueño"
+     ❌ Obra no encontrada en BD: "Entresueño"
+
+  📝 Obra: "Abrazado"
+     ❌ Obra no encontrada en BD: "Abrazado"
+
+  📝 Obra: "Atardecer Sentado"
+     ❌ Obra no encontrada en BD: "Atardecer Sentado"
+
+  📝 Obra: "Contemplacion"
+     ❌ Obra no encontrada en BD: "Contemplacion"
+
+  📝 Obra: "Descanso Morado"
+     ❌ Obra no encontrada en BD: "Descanso Morado"
+
+  📝 Obra: "Expectante"
+     ❌ Obra no encontrada en BD: "Expectante"
+
+  📝 Obra: "Rebasado"
+     ❌ Obra no encontrada en BD: "Rebasado"
+
+  📝 Obra: "Santo Azul"
+     ❌ Obra no encontrada en BD: "Santo Azul"
+
+  📝 Obra: "Retrato complementario"
+     ❌ Obra no encontrada en BD: "Retrato complementario"
+
+================================================================================
+📧 Procesando artista: jgarciatlanda@gmail.com
+================================================================================
+
+✅ Artista encontrado: Juan Jose Garcia Torres Landa (ID: 92)
+
+🎨 Procesando 6 obras...
+
+  📝 Obra: "Tigre Floreciente"
+     ✅ Obra encontrada (ID: 227)
+📤 Iniciando upload: Tigrefloreciente_JuanJose.JPG (6.60MB)
+📸 Imagen original: 6.60MB, 8268x6116
+✅ Imagen comprimida: 0.77MB (ahorro: 88.3%)
+☁️  Subiendo a S3: artistas/obras/1790361010509-e755qs.jpg (792.83KB)
+❌ Error subiendo archivo a S3: Error: No value provided for input HTTP label: Bucket.
+    at S3RestXmlProtocol.serializeRequest (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:507:31)
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@smithy/core/dist-cjs/submodules/schema/index.js:87:21
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:62:28
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:89:20
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/core/dist-cjs/submodules/client/index.js:125:26
+    at async Promise.all (index 0)
+    at async Upload.__uploadUsingPut (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:277:26)
+    at async Upload.__doConcurrentUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:352:24)
+    at async Promise.all (index 0)
+    at async Upload.__doMultipartUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:432:9)
+     ❌ Error subiendo foto principal: Error al subir archivo: No value provided for input HTTP label: Bucket.
+
+  📝 Obra: "Entrelazados"
+     ✅ Obra encontrada (ID: 228)
+📤 Iniciando upload: Entrelazados_JuanJose.JPG (5.76MB)
+📸 Imagen original: 5.76MB, 6784x4800
+✅ Imagen comprimida: 0.45MB (ahorro: 92.2%)
+☁️  Subiendo a S3: artistas/obras/1790361010775-fap949.jpg (458.72KB)
+❌ Error subiendo archivo a S3: Error: No value provided for input HTTP label: Bucket.
+    at S3RestXmlProtocol.serializeRequest (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:507:31)
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@smithy/core/dist-cjs/submodules/schema/index.js:87:21
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:62:28
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:89:20
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/core/dist-cjs/submodules/client/index.js:125:26
+    at async Promise.all (index 0)
+    at async Upload.__uploadUsingPut (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:277:26)
+    at async Upload.__doConcurrentUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:352:24)
+    at async Promise.all (index 0)
+    at async Upload.__doMultipartUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:432:9)
+     ❌ Error subiendo foto principal: Error al subir archivo: No value provided for input HTTP label: Bucket.
+
+  📝 Obra: "Esperándote"
+     ✅ Obra encontrada (ID: 229)
+📤 Iniciando upload: Esperandote_JuanJose.JPG (16.79MB)
+📸 Imagen original: 16.79MB, 8400x11514
+✅ Imagen comprimida: 0.68MB (ahorro: 96.0%)
+☁️  Subiendo a S3: artistas/obras/1790361011377-n1a6x5.jpg (695.28KB)
+❌ Error subiendo archivo a S3: Error: No value provided for input HTTP label: Bucket.
+    at S3RestXmlProtocol.serializeRequest (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:507:31)
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@smithy/core/dist-cjs/submodules/schema/index.js:87:21
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:62:28
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:89:20
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/core/dist-cjs/submodules/client/index.js:125:26
+    at async Promise.all (index 0)
+    at async Upload.__uploadUsingPut (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:277:26)
+    at async Upload.__doConcurrentUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:352:24)
+    at async Promise.all (index 0)
+    at async Upload.__doMultipartUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:432:9)
+     ❌ Error subiendo foto principal: Error al subir archivo: No value provided for input HTTP label: Bucket.
+
+  📝 Obra: "Disociarse o No Disociarse"
+     ✅ Obra encontrada (ID: 230)
+📤 Iniciando upload: Disociarse o no disociarse_JuanJose.JPG (9.95MB)
+📸 Imagen original: 9.95MB, 8838x6600
+✅ Imagen comprimida: 1.04MB (ahorro: 89.5%)
+☁️  Subiendo a S3: artistas/obras/1790361011883-jufey9.jpg (1064.80KB)
+❌ Error subiendo archivo a S3: Error: No value provided for input HTTP label: Bucket.
+    at S3RestXmlProtocol.serializeRequest (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:507:31)
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@smithy/core/dist-cjs/submodules/schema/index.js:87:21
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:62:28
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:89:20
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/core/dist-cjs/submodules/client/index.js:125:26
+    at async Promise.all (index 0)
+    at async Upload.__uploadUsingPut (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:277:26)
+    at async Upload.__doConcurrentUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:352:24)
+    at async Promise.all (index 0)
+    at async Upload.__doMultipartUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:432:9)
+     ❌ Error subiendo foto principal: Error al subir archivo: No value provided for input HTTP label: Bucket.
+
+  📝 Obra: "Figura Roja Efímera"
+     ✅ Obra encontrada (ID: 231)
+📤 Iniciando upload: FiguraRojaEfimera_JuanJose.JPG (15.22MB)
+📸 Imagen original: 15.22MB, 7568x3850
+✅ Imagen comprimida: 0.55MB (ahorro: 96.4%)
+☁️  Subiendo a S3: artistas/obras/1790361012203-8794so.jpg (564.28KB)
+❌ Error subiendo archivo a S3: Error: No value provided for input HTTP label: Bucket.
+    at S3RestXmlProtocol.serializeRequest (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:507:31)
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@smithy/core/dist-cjs/submodules/schema/index.js:87:21
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:62:28
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:89:20
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/core/dist-cjs/submodules/client/index.js:125:26
+    at async Promise.all (index 0)
+    at async Upload.__uploadUsingPut (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:277:26)
+    at async Upload.__doConcurrentUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:352:24)
+    at async Promise.all (index 0)
+    at async Upload.__doMultipartUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:432:9)
+     ❌ Error subiendo foto principal: Error al subir archivo: No value provided for input HTTP label: Bucket.
+
+  📝 Obra: "Lobo Floreciente"
+     ✅ Obra encontrada (ID: 232)
+📤 Iniciando upload: LoboFloreciente_JuanJose.JPG (12.21MB)
+📸 Imagen original: 12.21MB, 6808x10664
+✅ Imagen comprimida: 0.55MB (ahorro: 95.5%)
+☁️  Subiendo a S3: artistas/obras/1790361012595-iiubs7.jpg (565.91KB)
+❌ Error subiendo archivo a S3: Error: No value provided for input HTTP label: Bucket.
+    at S3RestXmlProtocol.serializeRequest (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:507:31)
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@smithy/core/dist-cjs/submodules/schema/index.js:87:21
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:62:28
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/middleware-sdk-s3/dist-cjs/submodules/s3/index.js:89:20
+    at async /Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/core/dist-cjs/submodules/client/index.js:125:26
+    at async Promise.all (index 0)
+    at async Upload.__uploadUsingPut (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:277:26)
+    at async Upload.__doConcurrentUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:352:24)
+    at async Promise.all (index 0)
+    at async Upload.__doMultipartUpload (/Users/tonyprado/Documents/Proyectos/Benito-web/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:432:9)
+     ❌ Error subiendo foto principal: Error al subir archivo: No value provided for input HTTP label: Bucket.
+
+================================================================================
+📧 Procesando artista: juliocesarvela1@gmail.com
+================================================================================
+
+✅ Artista encontrado: JULIO CÉSAR VELASCO HERNÁNDEZ (ID: 52)
+
+🎨 Procesando 6 obras...
+
+  📝 Obra: "Maravilla"
+     ❌ Obra no encontrada en BD: "Maravilla"
+
+  📝 Obra: "Paraíso"
+     ❌ Obra no encontrada en BD: "Paraíso"
+
+  📝 Obra: "El joven que murió en el Nilo azul"
+     ❌ Obra no encontrada en BD: "El joven que murió en el Nilo azul"
+
+  📝 Obra: "La visión del Balam en la selva Lacandona"
+     ❌ Obra no encontrada en BD: "La visión del Balam en la selva Lacandona"
+
+  📝 Obra: "Luna y estrellas"
+     ❌ Obra no encontrada en BD: "Luna y estrellas"
+
+  📝 Obra: "Montaña divina"
+     ❌ Obra no encontrada en BD: "Montaña divina"
+
+================================================================================
+📧 Procesando artista: manuelsolisarte@gmail.com
+================================================================================
+
+✅ Artista encontrado: MANUEL SOLÍS MENODZA (ID: 80)
+
+🎨 Procesando 8 obras...
+
+  📝 Obra: "Ensamble residual II"
+     ❌ Obra no encontrada en BD: "Ensamble residual II"
+
+  📝 Obra: "Ensamble residual III"
+     ❌ Obra no encontrada en BD: "Ensamble residual III"
+
+  📝 Obra: "Ensamble residual VI"
+     ❌ Obra no encontrada en BD: "Ensamble residual VI"
+
+  📝 Obra: "Ensamble residual VIII"
+     ❌ Obra no encontrada en BD: "Ensamble residual VIII"
+
+  📝 Obra: "Ensamble residual VII"
+     ❌ Obra no encontrada en BD: "Ensamble residual VII"
+
+  📝 Obra: "Ensamble residual XI"
+     ❌ Obra no encontrada en BD: "Ensamble residual XI"
+
+  📝 Obra: "Ensamble residual X"
+     ❌ Obra no encontrada en BD: "Ensamble residual X"
+
+  📝 Obra: "Ensamble Residual XIII"
+     ❌ Obra no encontrada en BD: "Ensamble Residual XIII"
+
+================================================================================
+📧 Procesando artista: victor.aniceto.abbud@gmail.com
+================================================================================
+
+✅ Artista encontrado: VICTOR ABBOUD (ID: 78)
+
+🎨 Procesando 4 obras...
+
+  📝 Obra: "acuerdo"
+     ❌ Obra no encontrada en BD: "acuerdo"
+
+  📝 Obra: "caracol"
+     ❌ Obra no encontrada en BD: "caracol"
+
+  📝 Obra: "estructura"
+     ❌ Obra no encontrada en BD: "estructura"
+
+  📝 Obra: "rebozo"
+     ❌ Obra no encontrada en BD: "rebozo"
+
+================================================================================
+🎉 MIGRACIÓN COMPLETADA
+================================================================================
+✅ Total de fotos subidas: 0
+❌ Total de errores: 52
+================================================================================
+
