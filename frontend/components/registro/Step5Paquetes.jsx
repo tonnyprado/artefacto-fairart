@@ -2155,7 +2155,7 @@ const InstructionsModal = forwardRef(function InstructionsModal({ onClose }, ref
           style={{
             background: COLORS.cream,
             borderRadius: '24px',
-            maxWidth: '520px',
+            maxWidth: '960px',
             width: '100%',
             maxHeight: 'calc(100vh - 48px)',
             overflow: 'auto',
@@ -2191,7 +2191,12 @@ const InstructionsModal = forwardRef(function InstructionsModal({ onClose }, ref
         </div>
 
         {/* Steps */}
-        <div style={{ padding: '24px 32px' }}>
+        <div style={{
+          padding: '24px 32px',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, 1fr)',
+          gap: '20px 32px',
+        }}>
           {steps.map((step, index) => {
             const Icon = step.icon
             return (
@@ -2199,10 +2204,8 @@ const InstructionsModal = forwardRef(function InstructionsModal({ onClose }, ref
                 key={index}
                 style={{
                   display: 'flex',
-                  gap: '14px',
+                  gap: '12px',
                   alignItems: 'flex-start',
-                  padding: '14px 0',
-                  borderBottom: index < steps.length - 1 ? `1px solid ${COLORS.creamDark}` : 'none',
                 }}
               >
                 <Icon size={20} color={COLORS.red} style={{ flexShrink: 0, marginTop: 2 }} />
@@ -2218,7 +2221,7 @@ const InstructionsModal = forwardRef(function InstructionsModal({ onClose }, ref
                   </h4>
                   <p style={{
                     fontFamily: FONTS.body,
-                    fontSize: '13px',
+                    fontSize: '12px',
                     color: COLORS.gray,
                     margin: 0,
                     lineHeight: 1.5,
