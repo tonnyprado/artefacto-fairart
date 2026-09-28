@@ -488,24 +488,24 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
           console.log(`🖼️ Comprimiendo obra ${index + 1}: ${fileSizeMB.toFixed(2)}MB...`)
           try {
             // Compresión adaptativa según tamaño:
-            // - Archivos >50MB: compresión balanceada (3500px, calidad 0.88, target ~6MB)
-            // - Archivos 30-50MB: compresión moderada (3200px, calidad 0.90, target ~8MB)
-            // - Archivos 5-30MB: compresión suave (3000px, calidad 0.90, target ~10MB)
+            // - Archivos >50MB: compresión suave (4500px, calidad 0.92, target ~15MB)
+            // - Archivos 30-50MB: compresión moderada (4000px, calidad 0.92, target ~12MB)
+            // - Archivos 5-30MB: compresión suave (3500px, calidad 0.92, target ~10MB)
             let maxDimension, quality, maxSizeKB
 
             if (fileSizeMB > 50) {
-              // Archivos muy grandes (>50MB): target ~6MB para buena calidad
-              maxDimension = 3500
-              quality = 0.88
-              maxSizeKB = 6144  // Target 6MB
+              // Archivos muy grandes (>50MB): target ~15MB para máxima calidad
+              maxDimension = 4500
+              quality = 0.92
+              maxSizeKB = 15360  // Target 15MB
               console.log(`   ⚡ Compresión activada para archivo de ${fileSizeMB.toFixed(1)}MB`)
             } else if (fileSizeMB > 30) {
-              maxDimension = 3200
-              quality = 0.90
-              maxSizeKB = 8192  // Target 8MB
+              maxDimension = 4000
+              quality = 0.92
+              maxSizeKB = 12288  // Target 12MB
             } else {
-              maxDimension = 3000
-              quality = 0.90
+              maxDimension = 3500
+              quality = 0.92
               maxSizeKB = 10240  // Target 10MB
             }
 
@@ -532,15 +532,15 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
         const dataURLSizeMB = (dataURLSizeKB / 1024).toFixed(2)
 
         // Rechazar si el Data URL es demasiado grande para localStorage
-        // 15MB Data URL = límite seguro (equivale a ~11MB comprimido)
-        if (dataURLSizeKB > 15360) { // >15MB Data URL
+        // 25MB Data URL = límite seguro (equivale a ~19MB comprimido)
+        if (dataURLSizeKB > 25600) { // >25MB Data URL
           console.error(`❌ Data URL demasiado grande para obra ${index + 1}: ${dataURLSizeMB}MB`)
           alert(`❌ La imagen "${file.name}" es demasiado grande incluso después de comprimirla (${dataURLSizeMB}MB).\n\nPor favor, comprime la imagen manualmente antes de subirla usando:\n- TinyPNG.com\n- Squoosh.app\n- Photoshop/GIMP`)
           continue // Saltar este archivo
         }
 
         // Advertir si está cerca del límite
-        if (dataURLSizeKB > 10240) { // >10MB Data URL
+        if (dataURLSizeKB > 20480) { // >20MB Data URL
           console.warn(`⚠️ Data URL grande para obra ${index + 1}: ${dataURLSizeMB}MB`)
           console.warn('   Considera comprimir más si planeas subir múltiples obras')
         }
