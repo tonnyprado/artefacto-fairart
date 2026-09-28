@@ -454,6 +454,21 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
 
   const handleAddNewObra = async (files) => {
     const filesArray = Array.from(files)
+
+    // Validar tamaño máximo ANTES de procesar
+    const MAX_FILE_SIZE_MB = 50
+    const tooLargeFiles = filesArray.filter(f => f.size / (1024 * 1024) > MAX_FILE_SIZE_MB)
+
+    if (tooLargeFiles.length > 0) {
+      const fileNames = tooLargeFiles.map(f => {
+        const sizeMB = (f.size / (1024 * 1024)).toFixed(1)
+        return `${f.name} (${sizeMB}MB)`
+      }).join('\n')
+
+      alert(`❌ Los siguientes archivos son demasiado grandes (máximo ${MAX_FILE_SIZE_MB}MB):\n\n${fileNames}\n\nPor favor, comprime las imágenes antes de subirlas. Recomendamos usar herramientas como:\n- TinyPNG.com\n- Squoosh.app\n- Photoshop/GIMP con "Guardar para web"`)
+      return
+    }
+
     setIsProcessingImages(true)
     setCompressionProgress({ current: 0, total: filesArray.length })
 
@@ -469,35 +484,44 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
         let processedFile = file
 
         // Comprimir automáticamente archivos grandes (>5MB)
-        // Acepta hasta 100MB, comprime preservando máxima calidad
         if (fileSizeMB > 5) {
           console.log(`🖼️ Comprimiendo obra ${index + 1}: ${fileSizeMB.toFixed(2)}MB...`)
           try {
             // Usar resolución adaptativa según tamaño del archivo
-            const maxDimension = fileSizeMB > 50 ? 5000 : 4000
+            const maxDimension = fileSizeMB > 30 ? 3500 : 3000
             processedFile = await compressImage(file, {
-              maxWidth: maxDimension,   // 4K-5K para obras de alta resolución
+              maxWidth: maxDimension,   // 3K-3.5K para obras de alta resolución
               maxHeight: maxDimension,
-              quality: 0.95,            // Calidad 95% - preserva máximos detalles
-              maxSizeKB: 15360          // ~15MB target (calidad profesional)
+              quality: 0.88,            // Calidad 88% - optimizado para localStorage
+              maxSizeKB: 3072           // ~3MB target (seguro para localStorage después de base64)
             })
             const newSizeMB = processedFile.size / (1024 * 1024)
             console.log(`✅ Obra ${index + 1} comprimida: ${fileSizeMB.toFixed(2)}MB → ${newSizeMB.toFixed(2)}MB`)
           } catch (error) {
-            console.error('Error comprimiendo imagen:', error)
-            // Si falla la compresión, usar archivo original
+            console.error('❌ Error comprimiendo imagen:', error)
+            alert(`❌ No se pudo procesar la imagen "${file.name}".\n\nEl archivo es demasiado grande o tiene un formato incompatible.\n\nPor favor:\n1. Comprime la imagen antes de subirla\n2. O usa un formato más ligero (JPEG en lugar de PNG)`)
+            continue // Saltar este archivo
           }
         }
 
         // CRÍTICO: Usar Data URL en lugar de Blob URL para que persista entre navegaciones
         const previewDataURL = await fileToDataURL(processedFile)
 
-        // Advertir si el Data URL es muy grande (podría causar problemas con localStorage)
-        const sizeKB = Math.round(previewDataURL.length / 1024)
-        if (sizeKB > 1024) {
-          console.warn(`⚠️ Data URL muy grande para obra ${index + 1}: ${sizeKB}KB`)
-          console.warn('   Esto podría causar problemas al guardar en localStorage')
-          console.warn('   Considera comprimir más la imagen o usar un formato diferente')
+        // Validar tamaño del Data URL (base64 añade ~33% de overhead)
+        const dataURLSizeKB = Math.round(previewDataURL.length / 1024)
+        const dataURLSizeMB = (dataURLSizeKB / 1024).toFixed(2)
+
+        // Rechazar si el Data URL es demasiado grande para localStorage
+        if (dataURLSizeKB > 5120) { // >5MB Data URL
+          console.error(`❌ Data URL demasiado grande para obra ${index + 1}: ${dataURLSizeMB}MB`)
+          alert(`❌ La imagen "${file.name}" es demasiado grande incluso después de comprimirla (${dataURLSizeMB}MB).\n\nPor favor, comprime la imagen manualmente antes de subirla usando:\n- TinyPNG.com\n- Squoosh.app\n- Photoshop/GIMP`)
+          continue // Saltar este archivo
+        }
+
+        // Advertir si está cerca del límite
+        if (dataURLSizeKB > 3072) { // >3MB Data URL
+          console.warn(`⚠️ Data URL grande para obra ${index + 1}: ${dataURLSizeMB}MB`)
+          console.warn('   Esto podría causar problemas con múltiples imágenes')
         }
 
         processedObras.push({
