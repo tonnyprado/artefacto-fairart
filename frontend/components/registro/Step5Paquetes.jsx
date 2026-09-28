@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useLayoutEffect, forwardRef } from 'react'
 import { createPortal } from 'react-dom'
 import dynamic from 'next/dynamic'
 import { usePaquetesStore } from '@/stores/paquetesStore'
+import { useFasesStore } from '@/stores/fasesStore'
 import { ChevronDown, ChevronUp, Check, Plus, Edit2, Trash2, GripVertical, AlertCircle, Palette, Box, Download, ArrowRight, X, MousePointer2, Move, Save, FileText, ExternalLink, Info, Loader2, Layers, Frame, Boxes } from 'lucide-react'
 import gsap from 'gsap'
 import { compressImage } from '@/lib/imageCompression'
@@ -93,12 +94,44 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
   const [canvasState, setCanvasState] = useState({ obrasCount: 0, isSaving: false })
 
   const { paquetes, fetchPaquetes, isLoading } = usePaquetesStore()
+  const { fetchFases, getFaseConInscripcionesAbiertas } = useFasesStore()
+  const faseActiva = getFaseConInscripcionesAbiertas()
 
   // Obras
   const [todasLasObras, setTodasLasObras] = useState([])
   const [editingObra, setEditingObra] = useState(null)
   const [isProcessingImages, setIsProcessingImages] = useState(false)
   const [compressionProgress, setCompressionProgress] = useState({ current: 0, total: 0 })
+
+  // Helper para obtener precio y descuento según fase activa
+  const getPrecioYDescuento = (paquete) => {
+    if (!faseActiva) {
+      return {
+        precio: paquete.precio_fase3 || paquete.precio,
+        descuento: 0,
+        textoDescuento: 'Precio regular'
+      }
+    }
+
+    const numeroFase = faseActiva.numero_fase
+    let precio, descuento, textoDescuento
+
+    if (numeroFase === 1) {
+      precio = paquete.precio_fase1 || paquete.precio
+      descuento = 20
+      textoDescuento = '−20% ya aplicado'
+    } else if (numeroFase === 2) {
+      precio = paquete.precio_fase2 || paquete.precio
+      descuento = 10
+      textoDescuento = '−10% ya aplicado'
+    } else {
+      precio = paquete.precio_fase3 || paquete.precio
+      descuento = 0
+      textoDescuento = 'Precio regular'
+    }
+
+    return { precio, descuento, textoDescuento }
+  }
 
   // Modal de instrucciones
   const [showInstructions, setShowInstructions] = useState(true)
@@ -129,6 +162,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
   const mostrarTodosPaquetes = tipoFormato === 'OTRO' || (selectedFormatos.some(f => f.includes('otro')))
 
   useEffect(() => { fetchPaquetes() }, [])
+  useEffect(() => { fetchFases() }, [fetchFases])
 
   useEffect(() => {
     if (formData.paquete_id && paquetes.length > 0 && !confirmedPaquete?.nombre) {
@@ -1096,6 +1130,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
                     paquetesFiltrados.map((paquete) => {
                       const isExpanded = expandedPaqueteId === paquete.id
                       const isConfirmed = confirmedPaquete?.id === paquete.id
+                      const { precio, descuento, textoDescuento } = getPrecioYDescuento(paquete)
 
                       return (
                         <div key={paquete.id} style={{
@@ -1134,11 +1169,13 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
                                   </span>
                                 )}
                                 <span style={{ background: 'rgba(184,48,48,0.1)', padding: '4px 8px', borderRadius: '6px', fontFamily: FONTS.body, fontSize: '11px', color: COLORS.black }}>
-                                  ${(paquete.precio_fase1 || paquete.precio).toLocaleString('es-MX')} MXN
+                                  ${precio.toLocaleString('es-MX')} MXN
                                 </span>
-                                <span style={{ background: 'rgba(34, 197, 94, 0.2)', padding: '4px 8px', borderRadius: '6px', fontFamily: FONTS.body, fontSize: '9px', color: 'rgba(34, 197, 94, 0.95)', fontWeight: 700, textTransform: 'uppercase' }}>
-                                  −20% ya aplicado
-                                </span>
+                                {descuento > 0 && (
+                                  <span style={{ background: 'rgba(34, 197, 94, 0.2)', padding: '4px 8px', borderRadius: '6px', fontFamily: FONTS.body, fontSize: '9px', color: 'rgba(34, 197, 94, 0.95)', fontWeight: 700, textTransform: 'uppercase' }}>
+                                    {textoDescuento}
+                                  </span>
+                                )}
                               </div>
                               {!isConfirmed ? (
                                 <button
