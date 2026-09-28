@@ -2057,43 +2057,43 @@ const InstructionsModal = forwardRef(function InstructionsModal({ onClose }, ref
   const steps = [
     {
       icon: Layers,
-      title: 'Elige tu Formato',
-      description: 'Selecciona si trabajas con formatos 2D (pintura, fotografía), 3D (escultura, cerámica) u otros'
+      title: '1. Elige tu Formato',
+      description: 'Selecciona 2D, 3D u Otro, y marca los medios en los que trabajas.'
     },
     {
       icon: Box,
-      title: 'Selecciona un Paquete',
-      description: 'Elige el paquete que mejor se adapte al tamaño de tu obra. Cada paquete tiene metros lineales o cuadrados específicos'
+      title: '2. Elige tu Paquete',
+      description: 'Haz clic en "Paquetes" y selecciona el espacio que mejor se adapte a tus obras.'
     },
     {
       icon: Plus,
-      title: 'Agrega tus Obras',
-      description: 'Haz clic en "Mis Obras" para subir imágenes (hasta 100MB cada una). Se comprimen automáticamente preservando alta calidad. PNG con transparencia → PNG, otros formatos → JPEG'
+      title: '3. Sube tus Obras',
+      description: 'Abre "Mis Obras" y agrega las imágenes de las piezas que quieres exhibir.'
     },
     {
       icon: Edit2,
-      title: 'Completa la Ficha Técnica',
-      description: 'Para cada obra, ingresa título, medidas, técnica, año y precio. Esta información es obligatoria'
+      title: '4. Completa la Info',
+      description: 'Cada obra necesita título, medidas, técnica y precio para poder colocarla.'
     },
     {
       icon: Move,
-      title: 'Diseña tu Lienzo',
-      description: 'Arrastra tus obras desde "Mis Obras" al canvas. Organízalas como quieras que se vean en el mural'
+      title: '5. Arrastra al Lienzo',
+      description: 'Arrastra tus obras desde el panel hacia el lienzo y acomódalas como prefieras.'
     },
     {
       icon: Save,
-      title: 'Guarda tu Diseño',
-      description: 'Una vez que estés satisfecho con tu lienzo, haz clic en "Guardar y Continuar"'
+      title: '6. Guarda tu Layout',
+      description: 'Cuando estés satisfecho, haz clic en "Guardar y Continuar" para seguir con tu registro.'
     },
     {
       icon: Frame,
-      title: 'Dimensiones Importantes',
-      description: 'Asegúrate de incluir el marco o base en las medidas si tu obra lo requiere'
+      title: '7. Obra en muro (2D)',
+      description: 'Tu acomodo es una referencia compositiva: el Comité puede conservarla total o parcialmente.'
     },
     {
       icon: Boxes,
-      title: 'Múltiples Obras',
-      description: 'Puedes incluir varias obras en un mismo paquete si el espacio lo permite. El sistema te avisará si excedes el límite'
+      title: '8. Arte 3D',
+      description: 'La vista cenital confirma que tu obra cabe en los m² de tu paquete. La imagen que uses nos es clave para entender tu trabajo:\n· Escultura/cerámica: su ubicación final se define curatorialmente.\n· Instalación: se exhibe como unidad; represéntala fielmente y completa.'
     }
   ]
 
@@ -2177,7 +2177,7 @@ const InstructionsModal = forwardRef(function InstructionsModal({ onClose }, ref
             margin: '0 0 8px',
             letterSpacing: '0.02em',
           }}>
-            Tu Lienzo Digital
+            Tu Lienzo
           </h2>
           <p style={{
             fontFamily: FONTS.body,
