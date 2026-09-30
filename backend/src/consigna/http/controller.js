@@ -122,7 +122,7 @@ export class ConsignaController {
       const inv = await this.invitaciones.resolver(token, ip);
       const url = await this.consigna.urlPdfEnviado(inv);
 
-      res.redirect(url);
+      res.json({ success: true, data: { url } });
     } catch (error) {
       next(error);
     }
