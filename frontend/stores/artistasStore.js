@@ -200,6 +200,38 @@ export const useArtistasStore = create((set, get) => ({
   },
 
   /**
+   * Cambiar estado de artista (admin only)
+   * @param {number} id - ID del artista
+   * @param {string} estado - Nuevo estado (pendiente, aprobado, rechazado)
+   * @param {string} notasAdmin - Notas del administrador
+   */
+  cambiarEstadoArtista: async (id, estado, notasAdmin = '') => {
+    set({ isLoading: true, error: null })
+    try {
+      const response = await artistasApi.update(id, {
+        estado,
+        notas_admin: notasAdmin
+      })
+
+      // Actualizar en el estado local
+      set(state => ({
+        artistas: state.artistas.map(a =>
+          a.id === id ? response.data : a
+        ),
+        isLoading: false
+      }))
+
+      return { success: true, data: response.data }
+    } catch (error) {
+      set({
+        error: error.message,
+        isLoading: false
+      })
+      return { success: false, error: error.message }
+    }
+  },
+
+  /**
    * Eliminar artista (admin only)
    */
   deleteArtista: async (id) => {
