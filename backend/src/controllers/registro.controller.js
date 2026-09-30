@@ -374,10 +374,11 @@ export const registrarArtista = async (req, res) => {
     // 4.5. INSCRIBIR A LA FASE ACTIVA AUTOMÁTICAMENTE
     // ========================================
     try {
-      // Buscar la fase activa con inscripciones abiertas
+      // Buscar la fase activa con inscripciones abiertas (SOLO fases normales, NO concursos)
       const faseActivaResult = await pool.query(
         `SELECT id, nombre, tipo, numero_fase FROM fases
          WHERE inscripciones_abiertas = true
+         AND tipo = 'fase'
          ORDER BY created_at DESC
          LIMIT 1`
       )
