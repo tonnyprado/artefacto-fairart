@@ -38,7 +38,7 @@ router.get('/invitaciones', async (req, res) => {
         END as estado,
         ac.id as acuerdo_id,
         ac.firmado_en,
-        ac.datos->>'estadoFiscal' as estado_fiscal
+        ac.estado_fiscal
       FROM consigna.invitaciones i
       JOIN consigna.v_artistas_seleccionados a
         ON a.artista_id = i.artista_id
@@ -270,7 +270,8 @@ router.get('/acuerdos', async (req, res) => {
         ac.invitacion_id,
         ac.artista_id,
         ac.firmado_en,
-        ac.datos,
+        ac.snapshot_artista,
+        ac.estado_fiscal,
         ac.pdf_key,
         a.nombre,
         a.correo,
@@ -282,7 +283,7 @@ router.get('/acuerdos', async (req, res) => {
           WHERE ao.acuerdo_id = ac.id
         ) as num_obras,
         (
-          SELECT SUM(ao.ganancia)
+          SELECT SUM(ao.ganancia_final)
           FROM consigna.acuerdo_obras ao
           WHERE ao.acuerdo_id = ac.id
         ) as total_ganancia
@@ -398,14 +399,14 @@ router.get('/estadisticas', async (req, res) => {
         COUNT(DISTINCT i.id) as total_invitaciones,
         COUNT(DISTINCT CASE WHEN i.abierta_en IS NOT NULL THEN i.id END) as abiertas,
         COUNT(DISTINCT ac.id) as completadas,
-        COUNT(DISTINCT CASE WHEN ac.datos->>'estadoFiscal' = 'cargada' THEN ac.id END) as con_constancia,
+        COUNT(DISTINCT CASE WHEN ac.estado_fiscal = 'cargada' THEN ac.id END) as con_constancia,
         COALESCE(SUM((
           SELECT COUNT(*)
           FROM consigna.acuerdo_obras ao
           WHERE ao.acuerdo_id = ac.id
         )), 0) as total_obras,
         COALESCE(SUM((
-          SELECT SUM(ao.ganancia)
+          SELECT SUM(ao.ganancia_final)
           FROM consigna.acuerdo_obras ao
           WHERE ao.acuerdo_id = ac.id
         )), 0) as total_ganancias
