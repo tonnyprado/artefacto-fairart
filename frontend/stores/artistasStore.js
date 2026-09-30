@@ -149,54 +149,18 @@ export const useArtistasStore = create((set, get) => ({
 
   /**
    * Aprobar artista (admin only)
+   * Ahora usa cambiarEstadoArtista internamente para sincronizar todos los campos
    */
   aprobarArtista: async (id) => {
-    set({ isLoading: true, error: null })
-    try {
-      const response = await artistasApi.aprobar(id)
-
-      // Actualizar en el estado local
-      set(state => ({
-        artistas: state.artistas.map(a =>
-          a.id === id ? response.data : a
-        ),
-        isLoading: false
-      }))
-
-      return { success: true, data: response.data }
-    } catch (error) {
-      set({
-        error: error.message,
-        isLoading: false
-      })
-      return { success: false, error: error.message }
-    }
+    return get().cambiarEstadoArtista(id, 'aprobado', '')
   },
 
   /**
    * Rechazar artista (admin only)
+   * Ahora usa cambiarEstadoArtista internamente para sincronizar todos los campos
    */
   rechazarArtista: async (id) => {
-    set({ isLoading: true, error: null })
-    try {
-      const response = await artistasApi.rechazar(id)
-
-      // Actualizar en el estado local
-      set(state => ({
-        artistas: state.artistas.map(a =>
-          a.id === id ? response.data : a
-        ),
-        isLoading: false
-      }))
-
-      return { success: true, data: response.data }
-    } catch (error) {
-      set({
-        error: error.message,
-        isLoading: false
-      })
-      return { success: false, error: error.message }
-    }
+    return get().cambiarEstadoArtista(id, 'rechazado', '')
   },
 
   /**
@@ -208,10 +172,15 @@ export const useArtistasStore = create((set, get) => ({
   cambiarEstadoArtista: async (id, estado, notasAdmin = '') => {
     set({ isLoading: true, error: null })
     try {
-      const response = await artistasApi.update(id, {
+      // Sincronizar los 3 campos relacionados con el estado
+      const updateData = {
         estado,
+        estado_registro: estado,
+        aprobado: estado === 'aprobado',
         notas_admin: notasAdmin
-      })
+      }
+
+      const response = await artistasApi.update(id, updateData)
 
       // Actualizar en el estado local
       set(state => ({
