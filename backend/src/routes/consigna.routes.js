@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticateToken, authorizeRole } from '../middleware/auth.js';
+import { authenticateToken, authorizeRole } from '../middleware/auth.middleware.js';
 import { obtenerContenedor } from '../consigna/contenedor.js';
 import pool from '../config/database.js';
 
