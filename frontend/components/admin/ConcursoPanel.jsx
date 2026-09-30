@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useArtistasStore } from '@/stores/artistasStore'
 import { useFasesStore } from '@/stores/fasesStore'
 import Button from '@/components/ui/Button'
+import { useToast } from '@/hooks/use-toast'
 
 const COLORS = {
   red: '#B83030',
@@ -22,9 +23,11 @@ const FONTS = {
 }
 
 /**
- * Panel de Concurso - Vista Simplificada
+ * Panel de Concurso - Vista Completa
  *
- * Muestra únicamente la lista de artistas inscritos en concurso
+ * Muestra la lista de artistas inscritos en concurso con:
+ * - Herramientas para aprobar/rechazar artistas
+ * - Selección de obras específicas para cada artista
  */
 export default function ConcursoPanel() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -32,9 +35,12 @@ export default function ConcursoPanel() {
   const [isLoading, setIsLoading] = useState(true)
   const [artistaSeleccionado, setArtistaSeleccionado] = useState(null)
   const [modalAbierto, setModalAbierto] = useState(false)
+  const [obrasSeleccionadas, setObrasSeleccionadas] = useState(new Set())
+  const [guardandoObras, setGuardandoObras] = useState(false)
 
-  const { fetchArtistasByFase } = useArtistasStore()
+  const { fetchArtistasByFase, cambiarEstadoArtista } = useArtistasStore()
   const { fases, fetchFases } = useFasesStore()
+  const { toast } = useToast()
 
   // Filtrar solo fases de tipo concurso
   const concursos = fases.filter(f => f.tipo === 'concurso')
@@ -75,14 +81,115 @@ export default function ConcursoPanel() {
     )
   })
 
+  const handleAprobar = async (artista) => {
+    const result = await cambiarEstadoArtista(artista.id, 'aprobado', 'Aprobado para concurso')
+    if (result.success) {
+      toast({
+        title: 'Artista aprobado',
+        description: `${artista.nombre} ${artista.apellido} ha sido aprobado para el concurso`,
+      })
+      // Recargar lista
+      const updatedResult = await fetchArtistasByFase(concurso.id)
+      setArtistasConcurso(updatedResult?.data || [])
+    } else {
+      toast({
+        title: 'Error',
+        description: result.error || 'No se pudo aprobar al artista',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  const handleRechazar = async (artista) => {
+    const result = await cambiarEstadoArtista(artista.id, 'rechazado', 'Rechazado para concurso')
+    if (result.success) {
+      toast({
+        title: 'Artista rechazado',
+        description: `${artista.nombre} ${artista.apellido} ha sido rechazado`,
+      })
+      // Recargar lista
+      const updatedResult = await fetchArtistasByFase(concurso.id)
+      setArtistasConcurso(updatedResult?.data || [])
+    } else {
+      toast({
+        title: 'Error',
+        description: result.error || 'No se pudo rechazar al artista',
+        variant: 'destructive',
+      })
+    }
+  }
+
   const handleVerObras = (artista) => {
     setArtistaSeleccionado(artista)
     setModalAbierto(true)
+    // Cargar obras ya seleccionadas para este artista
+    // TODO: Cargar desde API las obras previamente seleccionadas
+    setObrasSeleccionadas(new Set())
   }
 
   const handleCerrarModal = () => {
     setModalAbierto(false)
     setArtistaSeleccionado(null)
+    setObrasSeleccionadas(new Set())
+  }
+
+  const toggleObraSeleccionada = (obraId) => {
+    const newSet = new Set(obrasSeleccionadas)
+    if (newSet.has(obraId)) {
+      newSet.delete(obraId)
+    } else {
+      newSet.add(obraId)
+    }
+    setObrasSeleccionadas(newSet)
+  }
+
+  const handleGuardarObrasSeleccionadas = async () => {
+    setGuardandoObras(true)
+    try {
+      // TODO: Llamar API para guardar las obras seleccionadas
+      // Por ahora solo simulamos
+      await new Promise(resolve => setTimeout(resolve, 500))
+
+      toast({
+        title: 'Obras guardadas',
+        description: `${obrasSeleccionadas.size} obra(s) seleccionada(s) para ${artistaSeleccionado.nombre}`,
+      })
+
+      handleCerrarModal()
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'No se pudieron guardar las obras seleccionadas',
+        variant: 'destructive',
+      })
+    } finally {
+      setGuardandoObras(false)
+    }
+  }
+
+  const getEstadoBadge = (estado) => {
+    const estilos = {
+      aprobado: { bg: '#10b981', text: 'Aprobado' },
+      rechazado: { bg: '#ef4444', text: 'Rechazado' },
+      pendiente: { bg: '#f59e0b', text: 'Pendiente' }
+    }
+
+    const config = estilos[estado] || estilos.pendiente
+
+    return (
+      <span style={{
+        display: 'inline-block',
+        padding: '4px 12px',
+        borderRadius: '12px',
+        background: config.bg,
+        color: 'white',
+        fontSize: '12px',
+        fontWeight: '600',
+        fontFamily: FONTS.body
+      }}>
+        {config.text}
+      </span>
+    )
   }
 
   if (isLoading) {
@@ -165,47 +272,77 @@ export default function ConcursoPanel() {
         overflow: 'hidden',
         border: `2px solid ${COLORS.creamDark}`
       }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ background: COLORS.creamDark }}>
-              <th style={tableHeaderStyle}>Folio</th>
-              <th style={tableHeaderStyle}>Artista</th>
-              <th style={tableHeaderStyle}>Email</th>
-              <th style={tableHeaderStyle}>Teléfono</th>
-              <th style={tableHeaderStyle}>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {artistasFiltrados.length === 0 && (
-              <tr>
-                <td colSpan="5" style={{ textAlign: 'center', padding: '32px' }}>
-                  <p style={{ fontFamily: FONTS.body, color: COLORS.gray }}>
-                    {searchTerm ? 'No se encontraron artistas' : 'No hay artistas inscritos en concurso'}
-                  </p>
-                </td>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
+            <thead>
+              <tr style={{ background: COLORS.creamDark }}>
+                <th style={tableHeaderStyle}>Folio</th>
+                <th style={tableHeaderStyle}>Artista</th>
+                <th style={tableHeaderStyle}>Email</th>
+                <th style={tableHeaderStyle}>Estado</th>
+                <th style={tableHeaderStyle}>Obras</th>
+                <th style={tableHeaderStyle}>Acciones</th>
               </tr>
-            )}
-            {artistasFiltrados.map(artista => (
-              <tr key={artista.id} style={{ borderBottom: `1px solid ${COLORS.creamDark}` }}>
-                <td style={tableCellStyle}>{artista.folio}</td>
-                <td style={tableCellStyle}>
-                  {artista.nombre} {artista.apellido}
-                </td>
-                <td style={tableCellStyle}>{artista.email}</td>
-                <td style={tableCellStyle}>{artista.telefono || '-'}</td>
-                <td style={tableCellStyle}>
-                  <Button
-                    onClick={() => handleVerObras(artista)}
-                    variant="primary"
-                    size="sm"
-                  >
-                    Ver Obras
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {artistasFiltrados.length === 0 && (
+                <tr>
+                  <td colSpan="6" style={{ textAlign: 'center', padding: '32px' }}>
+                    <p style={{ fontFamily: FONTS.body, color: COLORS.gray }}>
+                      {searchTerm ? 'No se encontraron artistas' : 'No hay artistas inscritos en concurso'}
+                    </p>
+                  </td>
+                </tr>
+              )}
+              {artistasFiltrados.map(artista => (
+                <tr key={artista.id} style={{ borderBottom: `1px solid ${COLORS.creamDark}` }}>
+                  <td style={tableCellStyle}>{artista.folio}</td>
+                  <td style={tableCellStyle}>
+                    <strong>{artista.nombre} {artista.apellido}</strong>
+                  </td>
+                  <td style={tableCellStyle}>{artista.email}</td>
+                  <td style={tableCellStyle}>
+                    {getEstadoBadge(artista.estado_registro || 'pendiente')}
+                  </td>
+                  <td style={tableCellStyle}>
+                    {artista.obras?.length || 0} obras
+                  </td>
+                  <td style={tableCellStyle}>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      <Button
+                        onClick={() => handleVerObras(artista)}
+                        variant="primary"
+                        size="sm"
+                      >
+                        Ver Obras
+                      </Button>
+                      {artista.estado_registro !== 'aprobado' && (
+                        <Button
+                          onClick={() => handleAprobar(artista)}
+                          variant="success"
+                          size="sm"
+                          style={{ background: '#10b981' }}
+                        >
+                          ✓ Aprobar
+                        </Button>
+                      )}
+                      {artista.estado_registro !== 'rechazado' && (
+                        <Button
+                          onClick={() => handleRechazar(artista)}
+                          variant="danger"
+                          size="sm"
+                          style={{ background: '#ef4444' }}
+                        >
+                          ✗ Rechazar
+                        </Button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Modal de Obras */}
@@ -264,7 +401,7 @@ export default function ConcursoPanel() {
                   color: COLORS.gray,
                   margin: 0
                 }}>
-                  Folio: {artistaSeleccionado.folio} | Email: {artistaSeleccionado.email}
+                  Folio: {artistaSeleccionado.folio} | {obrasSeleccionadas.size} obra(s) seleccionada(s)
                 </p>
               </div>
               <button
@@ -289,57 +426,99 @@ export default function ConcursoPanel() {
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: '20px'
+              gap: '20px',
+              marginBottom: '24px'
             }}>
               {(!artistaSeleccionado.obras || artistaSeleccionado.obras.length === 0) && (
                 <p style={{ fontFamily: FONTS.body, color: COLORS.gray }}>
                   Este artista no tiene obras registradas
                 </p>
               )}
-              {artistaSeleccionado.obras?.map(obra => (
-                <div
-                  key={obra.id}
-                  style={{
-                    background: 'white',
-                    borderRadius: '12px',
-                    overflow: 'hidden',
-                    border: `2px solid ${COLORS.creamDark}`
-                  }}
-                >
-                  {/* Imagen */}
-                  {obra.imagen_url && (
+              {artistaSeleccionado.obras?.map(obra => {
+                const isSelected = obrasSeleccionadas.has(obra.id)
+                return (
+                  <div
+                    key={obra.id}
+                    onClick={() => toggleObraSeleccionada(obra.id)}
+                    style={{
+                      background: 'white',
+                      borderRadius: '12px',
+                      overflow: 'hidden',
+                      border: `3px solid ${isSelected ? COLORS.red : COLORS.creamDark}`,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      position: 'relative'
+                    }}
+                  >
+                    {/* Checkbox visual */}
                     <div style={{
-                      height: '200px',
-                      background: `url(${obra.imagen_url}) center/cover`
-                    }} />
-                  )}
-
-                  {/* Info */}
-                  <div style={{ padding: '16px' }}>
-                    <h4 style={{
-                      fontFamily: FONTS.body,
-                      fontSize: '16px',
-                      fontWeight: '600',
-                      color: COLORS.black,
-                      margin: '0 0 8px 0'
+                      position: 'absolute',
+                      top: '12px',
+                      right: '12px',
+                      width: '28px',
+                      height: '28px',
+                      borderRadius: '50%',
+                      background: isSelected ? COLORS.red : 'white',
+                      border: `2px solid ${isSelected ? COLORS.red : COLORS.gray}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      zIndex: 10
                     }}>
-                      {obra.titulo || 'Sin título'}
-                    </h4>
-                    <div style={{
-                      fontFamily: FONTS.body,
-                      fontSize: '13px',
-                      color: COLORS.gray
-                    }}>
-                      <p style={{ margin: '4px 0' }}>{obra.alto_cm} x {obra.ancho_cm} cm</p>
-                      <p style={{ margin: '4px 0' }}>{obra.tecnica}</p>
-                      {obra.precio_mxn && (
-                        <p style={{ margin: '4px 0' }}>${obra.precio_mxn.toLocaleString()} MXN</p>
+                      {isSelected && (
+                        <span style={{ color: 'white', fontSize: '16px', fontWeight: 'bold' }}>✓</span>
                       )}
                     </div>
+
+                    {/* Imagen */}
+                    {obra.imagen_url && (
+                      <div style={{
+                        height: '200px',
+                        background: `url(${obra.imagen_url}) center/cover`
+                      }} />
+                    )}
+
+                    {/* Info */}
+                    <div style={{ padding: '16px' }}>
+                      <h4 style={{
+                        fontFamily: FONTS.body,
+                        fontSize: '16px',
+                        fontWeight: '600',
+                        color: COLORS.black,
+                        margin: '0 0 8px 0'
+                      }}>
+                        {obra.titulo || 'Sin título'}
+                      </h4>
+                      <div style={{
+                        fontFamily: FONTS.body,
+                        fontSize: '13px',
+                        color: COLORS.gray
+                      }}>
+                        <p style={{ margin: '4px 0' }}>{obra.alto_cm} x {obra.ancho_cm} cm</p>
+                        <p style={{ margin: '4px 0' }}>{obra.tecnica}</p>
+                        {obra.precio_mxn && (
+                          <p style={{ margin: '4px 0' }}>${obra.precio_mxn.toLocaleString()} MXN</p>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
+
+            {/* Botón de guardar */}
+            {artistaSeleccionado.obras && artistaSeleccionado.obras.length > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
+                <Button
+                  onClick={handleGuardarObrasSeleccionadas}
+                  disabled={guardandoObras || obrasSeleccionadas.size === 0}
+                  variant="primary"
+                  size="lg"
+                >
+                  {guardandoObras ? 'Guardando...' : `Guardar Selección (${obrasSeleccionadas.size})`}
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       )}
