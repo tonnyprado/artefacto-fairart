@@ -267,14 +267,14 @@ export class PgEventosRepo {
   /**
    * @param {string} invitacionId
    * @param {string} tipo
-   * @param {any | null} payload
+   * @param {any | null} detalle
    * @param {string | null} ip
    */
-  async registrar(invitacionId, tipo, payload, ip) {
+  async registrar(invitacionId, tipo, detalle, ip) {
     await this.pool.query(
-      `INSERT INTO consigna.eventos (invitacion_id, tipo, payload, ip)
+      `INSERT INTO consigna.eventos (invitacion_id, tipo, detalle, ip)
        VALUES ($1, $2, $3, $4)`,
-      [invitacionId, tipo, payload, ip]
+      [invitacionId, tipo, detalle, ip]
     );
   }
 }
