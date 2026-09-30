@@ -28,6 +28,7 @@ import { useToast } from '@/hooks/use-toast'
  */
 export default function ArtistasAceptados() {
   const { toast } = useToast()
+  const [artistasAprobados, setArtistasAprobados] = useState([])
   const [invitaciones, setInvitaciones] = useState([])
   const [acuerdos, setAcuerdos] = useState([])
   const [estadisticas, setEstadisticas] = useState(null)
@@ -48,22 +49,25 @@ export default function ArtistasAceptados() {
         Authorization: `Bearer ${token}`,
       }
 
-      const [invRes, acuRes, estRes] = await Promise.all([
+      const [artistasRes, invRes, acuRes, estRes] = await Promise.all([
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/artistas?estado_registro=aprobado`, { headers }),
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/consigna/invitaciones?edicion=${edicion}`, { headers }),
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/consigna/acuerdos?edicion=${edicion}`, { headers }),
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/consigna/estadisticas?edicion=${edicion}`, { headers }),
       ])
 
-      if (!invRes.ok || !acuRes.ok || !estRes.ok) {
+      if (!artistasRes.ok || !invRes.ok || !acuRes.ok || !estRes.ok) {
         throw new Error('Error al cargar datos')
       }
 
-      const [invData, acuData, estData] = await Promise.all([
+      const [artistasData, invData, acuData, estData] = await Promise.all([
+        artistasRes.json(),
         invRes.json(),
         acuRes.json(),
         estRes.json(),
       ])
 
+      setArtistasAprobados(artistasData.data || [])
       setInvitaciones(invData.data || [])
       setAcuerdos(acuData.data || [])
       setEstadisticas(estData.data || null)
@@ -190,6 +194,62 @@ export default function ArtistasAceptados() {
 
   return (
     <div className="space-y-6">
+      {/* Lista de Artistas Aprobados */}
+      <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
+        <div className="p-4 border-b bg-gray-50">
+          <h3 className="text-lg font-semibold">Artistas Aprobados</h3>
+          <p className="text-sm text-gray-600">
+            {artistasAprobados.length} artista{artistasAprobados.length !== 1 ? 's' : ''} aprobado{artistasAprobados.length !== 1 ? 's' : ''} en total
+          </p>
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Folio</TableHead>
+              <TableHead>Nombre</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Teléfono</TableHead>
+              <TableHead>Estado Invitación</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {artistasAprobados.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                  <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p>No hay artistas aprobados</p>
+                </TableCell>
+              </TableRow>
+            ) : (
+              artistasAprobados.map((artista) => {
+                const tieneInvitacion = invitaciones.some(inv => inv.artista_id === artista.id)
+                return (
+                  <TableRow key={artista.id}>
+                    <TableCell className="font-medium">{artista.folio}</TableCell>
+                    <TableCell>{artista.nombre} {artista.apellido}</TableCell>
+                    <TableCell>{artista.email}</TableCell>
+                    <TableCell>{artista.telefono || '-'}</TableCell>
+                    <TableCell>
+                      {tieneInvitacion ? (
+                        <Badge className="bg-green-500 text-white">
+                          <CheckCircle2 className="w-3 h-3 mr-1" />
+                          Invitación enviada
+                        </Badge>
+                      ) : (
+                        <Badge className="bg-yellow-500 text-white">
+                          <Clock className="w-3 h-3 mr-1" />
+                          Pendiente invitación
+                        </Badge>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                )
+              })
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
       {/* Estadísticas */}
       {estadisticas && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
