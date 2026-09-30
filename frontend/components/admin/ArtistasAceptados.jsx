@@ -300,8 +300,8 @@ export default function ArtistasAceptados() {
               </TableRow>
             ) : (
               artistasAprobados.map((artista) => {
-                const invitacion = invitaciones.find(inv => inv.artista_id === artista.id)
-                const acuerdo = acuerdos.find(ac => ac.artista_id === artista.id)
+                const invitacion = invitaciones.find(inv => inv.artista_id === String(artista.id))
+                const acuerdo = acuerdos.find(ac => ac.artista_id === String(artista.id))
 
                 return (
                   <TableRow key={artista.id}>
