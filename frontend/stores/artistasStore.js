@@ -172,9 +172,9 @@ export const useArtistasStore = create((set, get) => ({
   cambiarEstadoArtista: async (id, estado, notasAdmin = '') => {
     set({ isLoading: true, error: null })
     try {
-      // Sincronizar los 3 campos relacionados con el estado
+      // Sincronizar los campos relacionados con el estado
+      // Nota: La tabla solo tiene 'estado_registro' y 'aprobado', NO 'estado'
       const updateData = {
-        estado,
         estado_registro: estado,
         aprobado: estado === 'aprobado',
         notas_admin: notasAdmin
