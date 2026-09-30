@@ -54,7 +54,7 @@ export class HttpConsignaApi {
    * @returns {Promise<any>}
    */
   contexto(token) {
-    return this.req(`/${encodeURIComponent(token)}`);
+    return this.req(`/${encodeURIComponent(token)}/contexto`);
   }
 
   /**
@@ -63,7 +63,7 @@ export class HttpConsignaApi {
    * @returns {Promise<void>}
    */
   guardarBorrador(token, b) {
-    return this.req(`/${encodeURIComponent(token)}/borrador`, { method: 'PUT', body: JSON.stringify(b) }, 'none');
+    return this.req(`/${encodeURIComponent(token)}/borrador`, { method: 'POST', body: JSON.stringify(b) }, 'none');
   }
 
   /**
@@ -72,7 +72,7 @@ export class HttpConsignaApi {
    * @returns {Promise<{key: string; nombre: string}>}
    */
   async subirConstancia(token, archivo) {
-    const { uploadUrl, key } = await this.req(`/${encodeURIComponent(token)}/constancia`, {
+    const { uploadUrl, key } = await this.req(`/${encodeURIComponent(token)}/subir-constancia`, {
       method: 'POST', body: JSON.stringify({ nombre: archivo.name, tipo: archivo.type, tamano: archivo.size }),
     });
     const s3 = await fetch(uploadUrl, {
@@ -106,6 +106,6 @@ export class HttpConsignaApi {
    * @returns {Promise<string>}
    */
   async urlPdf(token) {
-    return (await this.req(`/${encodeURIComponent(token)}/pdf`)).url;
+    return (await this.req(`/${encodeURIComponent(token)}/pdf-enviado`)).url;
   }
 }
