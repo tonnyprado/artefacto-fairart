@@ -64,6 +64,7 @@ export default function ArtistasAceptados() {
       setArtistasAprobados(artistasData.data || [])
 
       // Intentar cargar datos de consignación (opcional)
+      // Estos endpoints fallarán hasta que se configure el módulo de consignación
       try {
         const [invRes, acuRes, estRes] = await Promise.all([
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/consigna/invitaciones?edicion=${edicion}`, { headers }),
@@ -81,8 +82,9 @@ export default function ArtistasAceptados() {
           setAcuerdos(acuData.data || [])
           setEstadisticas(estData.data || null)
         }
+        // Si algún endpoint falla (500), simplemente usar arrays vacíos
       } catch (consignaError) {
-        console.warn('Datos de consignación no disponibles:', consignaError)
+        // Silenciar estos errores esperados hasta que se configure consignación
         // No es crítico, continuar con datos vacíos
       }
     } catch (error) {
