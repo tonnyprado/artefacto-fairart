@@ -72,7 +72,7 @@ export class ConsignaService {
    * @returns {Promise<ArtistaRegistro>}
    */
   async artista(inv) {
-    const a = await this.registro.artista(inv.artistaId);
+    const a = await this.registro.porId(inv.artistaId);
     if (!a) throw NoEncontrado('No encontramos tu registro. Escríbenos por WhatsApp.');
     return a;
   }
@@ -93,7 +93,7 @@ export class ConsignaService {
   async contexto(inv) {
     const a = await this.artista(inv);
     const [obras, borrador, enviado] = await Promise.all([
-      this.registro.obras(inv.artistaId),
+      this.registro.obrasPostuladas(inv.artistaId),
       this.borradores.obtener(inv.id),
       this.acuerdos.porInvitacion(inv.id),
     ]);
