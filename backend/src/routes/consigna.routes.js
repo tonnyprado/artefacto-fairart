@@ -1,13 +1,13 @@
 import { Router } from 'express';
-import { authenticateToken, authorizeRole } from '../middleware/auth.middleware.js';
+import { verifyToken, isAdmin } from '../middleware/auth.middleware.js';
 import { obtenerContenedor } from '../consigna/contenedor.js';
 import pool from '../config/database.js';
 
 const router = Router();
 
 // Middleware: solo admins autenticados
-router.use(authenticateToken);
-router.use(authorizeRole(['admin']));
+router.use(verifyToken);
+router.use(isAdmin);
 
 /**
  * GET /api/admin/consigna/invitaciones
