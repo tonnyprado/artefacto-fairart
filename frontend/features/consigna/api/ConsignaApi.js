@@ -24,10 +24,10 @@ export class ErrorApi extends Error {
 
 export class HttpConsignaApi {
   /**
-   * @param {string} [base='/api/consigna']
+   * @param {string} [base]
    */
-  constructor(base = '/api/consigna') {
-    this.base = base;
+  constructor(base) {
+    this.base = base || (process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL + '/consigna' : '/api/consigna');
   }
 
   /**
