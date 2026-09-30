@@ -167,17 +167,16 @@ export const useArtistasStore = create((set, get) => ({
    * Cambiar estado de artista (admin only)
    * @param {number} id - ID del artista
    * @param {string} estado - Nuevo estado (pendiente, aprobado, rechazado)
-   * @param {string} notasAdmin - Notas del administrador
+   * @param {string} notasAdmin - Notas del administrador (actualmente no se persiste)
    */
   cambiarEstadoArtista: async (id, estado, notasAdmin = '') => {
     set({ isLoading: true, error: null })
     try {
       // Sincronizar los campos relacionados con el estado
-      // Nota: La tabla solo tiene 'estado_registro' y 'aprobado', NO 'estado'
+      // Nota: La tabla solo tiene 'estado_registro' y 'aprobado'
       const updateData = {
         estado_registro: estado,
-        aprobado: estado === 'aprobado',
-        notas_admin: notasAdmin
+        aprobado: estado === 'aprobado'
       }
 
       const response = await artistasApi.update(id, updateData)

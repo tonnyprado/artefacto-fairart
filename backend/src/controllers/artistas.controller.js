@@ -745,8 +745,7 @@ export const updateArtista = async (req, res) => {
       redes_sociales,
       documentos,
       aprobado,
-      estado_registro,
-      notas_admin
+      estado_registro
     } = req.body
 
     if (useDatabase()) {
@@ -882,11 +881,6 @@ export const updateArtista = async (req, res) => {
       if (estado_registro !== undefined) {
         updates.push(`estado_registro = $${paramCount}`)
         values.push(estado_registro)
-        paramCount++
-      }
-      if (notas_admin !== undefined) {
-        updates.push(`notas_admin = $${paramCount}`)
-        values.push(notas_admin)
         paramCount++
       }
 
