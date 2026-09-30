@@ -45,7 +45,7 @@ export class ConsignaController {
   async guardarBorrador(req, res, next) {
     try {
       const { token } = req.params;
-      const { datos } = req.body;
+      const datos = req.body;
 
       validarToken(token);
       validarDatosBorrador(datos);
@@ -130,48 +130,21 @@ export class ConsignaController {
 
   /**
    * POST /api/consigna/:token/subir-constancia
-   * Sube constancia fiscal a S3 y devuelve la key
+   * Genera URL presignada para subir constancia fiscal a S3
    */
   async subirConstancia(req, res, next) {
     try {
       const { token } = req.params;
-      const { archivo, contentType, nombreArchivo } = req.body;
+      const { nombre, tipo, tamano } = req.body;
 
       validarToken(token);
-
-      if (!archivo || !contentType) {
-        return res.status(400).json({
-          success: false,
-          error: 'Faltan datos del archivo',
-        });
-      }
 
       const ip = extraerIP(req);
       const inv = await this.invitaciones.resolver(token, ip);
 
-      // Validar que sea PDF
-      if (contentType !== 'application/pdf') {
-        return res.status(400).json({
-          success: false,
-          error: 'Solo se permiten archivos PDF',
-        });
-      }
+      const resultado = await this.consigna.urlSubidaConstancia(inv, nombre, tipo, tamano);
 
-      // El archivo viene en base64
-      const buffer = Buffer.from(archivo, 'base64');
-
-      // Validar tamaño (máximo 10MB)
-      if (buffer.length > 10 * 1024 * 1024) {
-        return res.status(400).json({
-          success: false,
-          error: 'El archivo es demasiado grande (máximo 10MB)',
-        });
-      }
-
-      const key = `constancias/${inv.artistaId}/${Date.now()}-${nombreArchivo || 'constancia.pdf'}`;
-      await this.consigna.archivos.subir(key, buffer, contentType);
-
-      res.json({ success: true, data: { key } });
+      res.json({ success: true, data: resultado });
     } catch (error) {
       next(error);
     }
