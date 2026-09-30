@@ -1,4 +1,7 @@
-import { SESClient, SendRawEmailCommand } from '@aws-sdk/client-ses';
+/**
+ * Notificadores de email para el sistema de consignación
+ * Usa Brevo (anteriormente Sendinblue) en producción
+ */
 
 /**
  * @typedef {Object} Adjunto
@@ -20,57 +23,68 @@ import { SESClient, SendRawEmailCommand } from '@aws-sdk/client-ses';
  * @property {(c: Correo) => Promise<void>} enviar
  */
 
-export class SesNotificador {
+/**
+ * Notificador con Brevo (reemplaza SES del original)
+ * Reutiliza la configuración existente de Brevo
+ */
+export class BrevoNotificador {
   /**
-   * @param {SESClient} ses
-   * @param {string} remitente
+   * @param {string} brevoApiKey - API key de Brevo
+   * @param {string} remitente - Email del remitente
    */
-  constructor(ses, remitente) {
-    this.ses = ses;
+  constructor(brevoApiKey, remitente) {
+    this.apiKey = brevoApiKey;
     this.remitente = remitente;
+    this.apiUrl = 'https://api.brevo.com/v3/smtp/email';
   }
 
   /**
-   * @param {Correo} c
+   * @param {Correo} correo
    * @returns {Promise<void>}
    */
-  async enviar(c) {
-    const limite = 'af-' + Date.now().toString(36);
-    const partes = [
-      `From: ${this.remitente}`,
-      `To: ${c.para.join(', ')}`,
-      `Subject: =?UTF-8?B?${Buffer.from(c.asunto).toString('base64')}?=`,
-      'MIME-Version: 1.0',
-      `Content-Type: multipart/mixed; boundary="${limite}"`,
-      '',
-      `--${limite}`,
-      'Content-Type: text/plain; charset=UTF-8',
-      'Content-Transfer-Encoding: base64',
-      '',
-      Buffer.from(c.texto).toString('base64'),
-    ];
-    for (const a of c.adjuntos ?? []) {
-      partes.push(
-        `--${limite}`,
-        `Content-Type: ${a.tipo}; name="${a.nombre}"`,
-        'Content-Transfer-Encoding: base64',
-        `Content-Disposition: attachment; filename="${a.nombre}"`,
-        '',
-        a.contenido.toString('base64')
-      );
+  async enviar(correo) {
+    const attachments = (correo.adjuntos || []).map(adj => ({
+      name: adj.nombre,
+      content: adj.contenido.toString('base64')
+    }));
+
+    const payload = {
+      sender: { email: this.remitente },
+      to: correo.para.map(email => ({ email })),
+      subject: correo.asunto,
+      textContent: correo.texto,
+      attachment: attachments
+    };
+
+    const response = await fetch(this.apiUrl, {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': this.apiKey,
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(`Brevo error: ${error.message || 'Unknown error'}`);
     }
-    partes.push(`--${limite}--`);
-    await this.ses.send(new SendRawEmailCommand({ RawMessage: { Data: Buffer.from(partes.join('\r\n')) } }));
+
+    console.log('✅ Email enviado:', correo.para.join(', '));
+    return await response.json();
   }
 }
 
-/** Para desarrollo local: imprime en consola en lugar de enviar. */
+/**
+ * Para desarrollo local: imprime en consola en lugar de enviar
+ */
 export class ConsolaNotificador {
   /**
    * @param {Correo} c
    * @returns {Promise<void>}
    */
   async enviar(c) {
-    console.log('[correo]', c.para, c.asunto, (c.adjuntos ?? []).map(a => a.nombre));
+    console.log('[correo dev]', c.para, c.asunto, (c.adjuntos ?? []).map(a => a.nombre));
   }
 }
