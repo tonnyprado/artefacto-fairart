@@ -94,7 +94,7 @@ export class ConsignaService {
     const a = await this.artista(inv);
     const [obras, borrador, enviado] = await Promise.all([
       this.registro.obrasPostuladas(inv.artistaId),
-      this.borradores.obtener(inv.id),
+      this.borradores.porInvitacion(inv.id),
       this.acuerdos.porInvitacion(inv.id),
     ]);
     const { apellido, ...artista } = a;
