@@ -2,8 +2,10 @@ import { Router } from 'express';
 import { verifyToken, isAdmin } from '../middleware/auth.middleware.js';
 import { obtenerContenedor } from '../consigna/contenedor.js';
 import pool from '../config/database.js';
+import { ConsignaEmailService } from '../consigna/services/ConsignaEmailService.js';
 
 const router = Router();
+const emailService = new ConsignaEmailService();
 
 // Middleware: solo admins autenticados
 router.use(verifyToken);
@@ -71,19 +73,123 @@ router.post('/generar-invitaciones', async (req, res) => {
 
     const ligas = await invitaciones.crearPendientes(edicion);
 
+    // Enviar emails a todos los artistas
+    let emailsEnviados = 0;
+    for (const liga of ligas) {
+      try {
+        await emailService.enviarInvitacionAceptado(
+          {
+            nombre: liga.nombre,
+            nombrePila: liga.nombre.split(' ')[0],
+            correo: liga.correo,
+            folio: liga.artistaId, // TODO: obtener folio real
+          },
+          liga.url
+        );
+        emailsEnviados++;
+        console.log(`✅ Email enviado a ${liga.correo}`);
+      } catch (emailError) {
+        console.error(`⚠️ Error enviando email a ${liga.correo}:`, emailError.message);
+        // Continuar con los demás emails
+      }
+    }
+
     res.json({
       success: true,
       data: {
         generadas: ligas.length,
+        emailsEnviados,
         invitaciones: ligas,
       },
-      message: `${ligas.length} invitaciones generadas para ${edicion}`,
+      message: `${ligas.length} invitaciones generadas, ${emailsEnviados} emails enviados para ${edicion}`,
     });
   } catch (error) {
     console.error('Error generando invitaciones:', error);
     res.status(500).json({
       success: false,
       error: 'Error al generar invitaciones',
+    });
+  }
+});
+
+/**
+ * POST /api/admin/consigna/generar-invitacion/:artistaId
+ * Genera invitación para un artista específico
+ */
+router.post('/generar-invitacion/:artistaId', async (req, res) => {
+  try {
+    const { artistaId } = req.params;
+    const { edicion = 'AF2' } = req.body;
+
+    // Verificar que el artista existe y está aprobado
+    const artistaResult = await pool.query(
+      `SELECT id, nombre, apellido, email, folio, aprobado, estado_registro
+       FROM artistas
+       WHERE id = $1`,
+      [artistaId]
+    );
+
+    if (artistaResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Artista no encontrado',
+      });
+    }
+
+    const artista = artistaResult.rows[0];
+
+    if (!artista.aprobado || artista.estado_registro !== 'aprobado') {
+      return res.status(400).json({
+        success: false,
+        error: 'El artista debe estar aprobado para generar invitación',
+      });
+    }
+
+    // Verificar si ya tiene invitación
+    const invExistente = await pool.query(
+      `SELECT id FROM consigna.invitaciones
+       WHERE artista_id = $1 AND edicion = $2`,
+      [artistaId, edicion]
+    );
+
+    if (invExistente.rows.length > 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Este artista ya tiene una invitación generada',
+      });
+    }
+
+    // Generar invitación usando el servicio
+    const { invitaciones } = obtenerContenedor();
+    const invitacionCreada = await invitaciones.crearParaArtista(artistaId, edicion);
+
+    // Enviar email con la invitación
+    try {
+      await emailService.enviarInvitacionAceptado(
+        {
+          nombre: artista.nombre + ' ' + artista.apellido,
+          nombrePila: artista.nombre,
+          correo: artista.email,
+          folio: artista.folio,
+        },
+        invitacionCreada.url
+      );
+      console.log(`✅ Email de invitación enviado a ${artista.email}`);
+    } catch (emailError) {
+      console.error('⚠️ Error enviando email:', emailError);
+      // No fallar el request si el email falla, la invitación ya fue creada
+    }
+
+    res.json({
+      success: true,
+      data: invitacionCreada,
+      message: `Invitación generada y enviada a ${artista.nombre} ${artista.apellido}`,
+    });
+  } catch (error) {
+    console.error('Error generando invitación individual:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Error al generar invitación',
     });
   }
 });

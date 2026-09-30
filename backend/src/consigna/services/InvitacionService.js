@@ -60,4 +60,28 @@ export class InvitacionService {
     }
     return out;
   }
+
+  /**
+   * Crea invitación para un artista específico
+   * @param {string} artistaId
+   * @param {string} edicion
+   * @returns {Promise<{artistaId: string; nombre: string; correo: string; url: string}>}
+   */
+  async crearParaArtista(artistaId, edicion) {
+    const artista = await this.registro.porId(artistaId);
+    if (!artista) {
+      throw new Error('Artista no encontrado');
+    }
+
+    const expira = new Date(Date.now() + this.diasVigencia * 86400000);
+    const token = this.tokens.generar();
+    await this.invitaciones.crear(artistaId, edicion, this.tokens.hash(token), expira);
+
+    return {
+      artistaId: artistaId,
+      nombre: artista.nombre,
+      correo: artista.correo,
+      url: `${this.baseUrl}/${token}`
+    };
+  }
 }
