@@ -134,6 +134,40 @@ export default function ArtistasAceptados() {
     }
   }
 
+  const generarInvitacionIndividual = async (artista) => {
+    try {
+      const token = localStorage.getItem('token')
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/consigna/generar-invitacion/${artista.id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ edicion }),
+      })
+
+      if (!res.ok) {
+        throw new Error('Error al generar invitación')
+      }
+
+      const data = await res.json()
+
+      toast({
+        title: 'Invitación enviada',
+        description: `Invitación enviada a ${artista.nombre} ${artista.apellido}`,
+      })
+
+      await cargarDatos()
+    } catch (error) {
+      console.error('Error generando invitación:', error)
+      toast({
+        title: 'Error',
+        description: `No se pudo enviar la invitación a ${artista.nombre}`,
+        variant: 'destructive',
+      })
+    }
+  }
+
   const descargarPDF = async (acuerdoId, folio) => {
     try {
       const token = localStorage.getItem('token')
@@ -208,116 +242,19 @@ export default function ArtistasAceptados() {
 
   return (
     <div className="space-y-6">
-      {/* Lista de Artistas Aprobados */}
-      <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
-        <div className="p-4 border-b bg-gray-50">
-          <h3 className="text-lg font-semibold">Artistas Aprobados</h3>
-          <p className="text-sm text-gray-600">
-            {artistasAprobados.length} artista{artistasAprobados.length !== 1 ? 's' : ''} aprobado{artistasAprobados.length !== 1 ? 's' : ''} en total
-          </p>
-        </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Folio</TableHead>
-              <TableHead>Nombre</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Teléfono</TableHead>
-              <TableHead>Estado Invitación</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {artistasAprobados.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                  <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>No hay artistas aprobados</p>
-                </TableCell>
-              </TableRow>
-            ) : (
-              artistasAprobados.map((artista) => {
-                const tieneInvitacion = invitaciones.some(inv => inv.artista_id === artista.id)
-                return (
-                  <TableRow key={artista.id}>
-                    <TableCell className="font-medium">{artista.folio}</TableCell>
-                    <TableCell>{artista.nombre} {artista.apellido}</TableCell>
-                    <TableCell>{artista.email}</TableCell>
-                    <TableCell>{artista.telefono || '-'}</TableCell>
-                    <TableCell>
-                      {tieneInvitacion ? (
-                        <Badge className="bg-green-500 text-white">
-                          <CheckCircle2 className="w-3 h-3 mr-1" />
-                          Invitación enviada
-                        </Badge>
-                      ) : (
-                        <Badge className="bg-yellow-500 text-white">
-                          <Clock className="w-3 h-3 mr-1" />
-                          Pendiente invitación
-                        </Badge>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                )
-              })
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      {/* Estadísticas */}
-      {estadisticas && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-lg border shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Invitaciones</p>
-                <p className="text-2xl font-bold">{estadisticas.total_invitaciones}</p>
-              </div>
-              <Mail className="w-8 h-8 text-blue-500" />
-            </div>
-          </div>
-
-          <div className="bg-white p-4 rounded-lg border shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Abiertas</p>
-                <p className="text-2xl font-bold">{estadisticas.abiertas}</p>
-              </div>
-              <Clock className="w-8 h-8 text-yellow-500" />
-            </div>
-          </div>
-
-          <div className="bg-white p-4 rounded-lg border shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Completadas</p>
-                <p className="text-2xl font-bold">{estadisticas.completadas}</p>
-              </div>
-              <CheckCircle2 className="w-8 h-8 text-green-500" />
-            </div>
-          </div>
-
-          <div className="bg-white p-4 rounded-lg border shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Con Constancia</p>
-                <p className="text-2xl font-bold">{estadisticas.con_constancia}</p>
-              </div>
-              <FileText className="w-8 h-8 text-purple-500" />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Acciones */}
+      {/* Header con botón de generar todas */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">Invitaciones de Consignación</h3>
-          <p className="text-sm text-gray-600">Edición: {edicion}</p>
+          <h3 className="text-lg font-semibold">Artistas Aprobados & Hojas de Consignación</h3>
+          <p className="text-sm text-gray-600">
+            {artistasAprobados.length} artista{artistasAprobados.length !== 1 ? 's' : ''} aprobado{artistasAprobados.length !== 1 ? 's' : ''}
+            {' · '}
+            {artistasAprobados.filter(a => !invitaciones.some(inv => inv.artista_id === a.id)).length} pendiente{artistasAprobados.filter(a => !invitaciones.some(inv => inv.artista_id === a.id)).length !== 1 ? 's' : ''}
+          </p>
         </div>
         <Button
           onClick={generarInvitaciones}
-          disabled={generando}
+          disabled={generando || artistasAprobados.length === 0}
           className="bg-blue-600 hover:bg-blue-700"
         >
           {generando ? (
@@ -328,13 +265,13 @@ export default function ArtistasAceptados() {
           ) : (
             <>
               <Mail className="w-4 h-4 mr-2" />
-              Generar Invitaciones
+              Generar Todas las Invitaciones
             </>
           )}
         </Button>
       </div>
 
-      {/* Tabla de invitaciones */}
+      {/* Tabla Unificada */}
       <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
         <Table>
           <TableHeader>
@@ -342,71 +279,97 @@ export default function ArtistasAceptados() {
               <TableHead>Folio</TableHead>
               <TableHead>Nombre</TableHead>
               <TableHead>Email</TableHead>
+              <TableHead>Teléfono</TableHead>
               <TableHead>Estado Invitación</TableHead>
-              <TableHead>Hoja Consigna</TableHead>
-              <TableHead>Situación Fiscal</TableHead>
-              <TableHead>Creada</TableHead>
+              <TableHead>Estado Consigna</TableHead>
               <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {invitaciones.length === 0 ? (
+            {artistasAprobados.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={7} className="text-center py-8 text-gray-500">
                   <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>No hay invitaciones generadas para {edicion}</p>
+                  <p>No hay artistas aprobados</p>
                   <p className="text-sm mt-1">
-                    Haz clic en "Generar Invitaciones" para crear tokens para artistas aprobados
+                    Aprueba artistas desde el panel de Concurso o Lista
                   </p>
                 </TableCell>
               </TableRow>
             ) : (
-              invitaciones.map((inv) => (
-                <TableRow key={inv.id}>
-                  <TableCell className="font-medium">{inv.folio}</TableCell>
-                  <TableCell>{inv.nombre}</TableCell>
-                  <TableCell className="text-sm text-gray-600">{inv.correo}</TableCell>
-                  <TableCell>{getEstadoBadge(inv.estado)}</TableCell>
-                  <TableCell>
-                    {inv.acuerdo_id ? (
-                      <Badge className="bg-green-500 text-white">
-                        <CheckCircle2 className="w-3 h-3 mr-1" />
-                        Firmada
-                      </Badge>
-                    ) : (
-                      <Badge className="bg-gray-400 text-white">
-                        <AlertCircle className="w-3 h-3 mr-1" />
-                        Pendiente
-                      </Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {inv.estado_fiscal
-                      ? getEstadoFiscalBadge(inv.estado_fiscal)
-                      : <span className="text-sm text-gray-400">N/A</span>}
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-600">
-                    {new Date(inv.creada_en).toLocaleDateString('es-MX')}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      {inv.acuerdo_id && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => descargarPDF(inv.acuerdo_id, inv.folio)}
-                        >
-                          <Download className="w-4 h-4" />
-                        </Button>
+              artistasAprobados.map((artista) => {
+                const invitacion = invitaciones.find(inv => inv.artista_id === artista.id)
+                const acuerdo = acuerdos.find(ac => ac.artista_id === artista.id)
+
+                return (
+                  <TableRow key={artista.id}>
+                    <TableCell className="font-medium font-mono">{artista.folio}</TableCell>
+                    <TableCell>{artista.nombre} {artista.apellido}</TableCell>
+                    <TableCell className="text-sm">{artista.email}</TableCell>
+                    <TableCell className="text-sm">{artista.telefono || '-'}</TableCell>
+                    <TableCell>
+                      {invitacion ? (
+                        <Badge className="bg-green-500 text-white">
+                          <CheckCircle2 className="w-3 h-3 mr-1" />
+                          Enviada
+                        </Badge>
+                      ) : (
+                        <Badge className="bg-yellow-500 text-white">
+                          <Clock className="w-3 h-3 mr-1" />
+                          Pendiente
+                        </Badge>
                       )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
+                    </TableCell>
+                    <TableCell>
+                      {acuerdo ? (
+                        <Badge className="bg-purple-500 text-white">
+                          <CheckCircle2 className="w-3 h-3 mr-1" />
+                          Completada
+                        </Badge>
+                      ) : invitacion ? (
+                        <Badge className="bg-blue-500 text-white">
+                          <Clock className="w-3 h-3 mr-1" />
+                          En proceso
+                        </Badge>
+                      ) : (
+                        <Badge className="bg-gray-400 text-white">
+                          <AlertCircle className="w-3 h-3 mr-1" />
+                          Sin iniciar
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        {!invitacion && (
+                          <Button
+                            onClick={() => generarInvitacionIndividual(artista)}
+                            size="sm"
+                            className="bg-blue-600 hover:bg-blue-700"
+                          >
+                            <Mail className="w-3 h-3 mr-1" />
+                            Enviar Invitación
+                          </Button>
+                        )}
+                        {acuerdo && (
+                          <Button
+                            onClick={() => descargarPDF(acuerdo.id, artista.folio)}
+                            size="sm"
+                            variant="outline"
+                          >
+                            <Download className="w-3 h-3 mr-1" />
+                            PDF
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )
+              })
             )}
           </TableBody>
         </Table>
       </div>
+
     </div>
   )
 }
