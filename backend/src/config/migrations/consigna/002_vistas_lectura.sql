@@ -11,7 +11,7 @@ SELECT
   CONCAT(a.nombre, ' ', a.apellido)          AS nombre,
   SPLIT_PART(a.nombre, ' ', 1)               AS nombre_pila,
   a.apellido                                 AS apellido,
-  COALESCE(a.rfc, '')                        AS rfc,
+  ''                                         AS rfc,  -- Campo no existe en BD, retorna vacío
   a.folio                                    AS folio,
   COALESCE(p.nombre, 'Sin paquete')          AS paquete,
   a.email                                    AS correo,
@@ -45,9 +45,10 @@ FROM public.obras o
 WHERE o.precio_mxn IS NOT NULL
   AND o.precio_mxn > 0;
 
--- Otorgar permisos de lectura al rol consigna_app
-GRANT USAGE ON SCHEMA consigna TO consigna_app;
-GRANT SELECT ON consigna.v_artistas_seleccionados, consigna.v_obras_postuladas TO consigna_app;
+-- Otorgar permisos de lectura al rol consigna_app (comentado - usando postgres directamente)
+-- GRANT USAGE ON SCHEMA consigna TO consigna_app;
+-- GRANT SELECT ON consigna.v_artistas_seleccionados, consigna.v_obras_postuladas TO consigna_app;
 
--- Nota: consigna_app NO recibe permisos sobre public.*; la vista corre con los
+-- Nota: En producción con rol dedicado, descomentar los GRANT anteriores
+-- El rol consigna_app NO recibe permisos sobre public.*; la vista corre con los
 -- permisos de su dueño, así que la app solo ve lo que la vista expone.
