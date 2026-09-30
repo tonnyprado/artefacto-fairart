@@ -31,52 +31,52 @@ export default function AdminArtistasPorFase({ onVerDetalles }) {
   const { fases, fetchFases, isLoading: isLoadingFases } = useFasesStore()
 
   const [artistasPorFase, setArtistasPorFase] = useState({})
-  const [expandedFases, setExpandedFases] = useState({})
-  const [isLoading, setIsLoading] = useState(true)
+  const [expandedFases, setExpandedFases] = useState({}) // Todas colapsadas por defecto
+  const [loadingFases, setLoadingFases] = useState({}) // Track loading state por fase
 
   // Cargar fases al montar
   useEffect(() => {
     fetchFases()
   }, [fetchFases])
 
-  // Cargar artistas de cada fase
-  useEffect(() => {
-    const loadArtistas = async () => {
-      setIsLoading(true)
-      const fasesConArtistas = fases.filter(f => f.tipo === 'fase')
-      const artistasData = {}
-
-      for (const fase of fasesConArtistas) {
-        try {
-          const result = await fetchArtistasByFase(fase.id)
-          artistasData[fase.id] = result?.data || []
-        } catch (error) {
-          console.error(`Error cargando artistas de fase ${fase.id}:`, error)
-          artistasData[fase.id] = []
-        }
-      }
-
-      setArtistasPorFase(artistasData)
-
-      // Expandir todas las fases por defecto
-      const expanded = {}
-      fasesConArtistas.forEach(f => {
-        expanded[f.id] = true
-      })
-      setExpandedFases(expanded)
-      setIsLoading(false)
+  // Cargar artistas de una fase específica (lazy loading)
+  const cargarArtistasDeFase = async (faseId) => {
+    // Si ya están cargados, no recargar
+    if (artistasPorFase[faseId]) {
+      return
     }
 
-    if (fases.length > 0) {
-      loadArtistas()
-    }
-  }, [fases, fetchArtistasByFase])
+    setLoadingFases(prev => ({ ...prev, [faseId]: true }))
 
-  const toggleFase = (faseId) => {
+    try {
+      const result = await fetchArtistasByFase(faseId)
+      setArtistasPorFase(prev => ({
+        ...prev,
+        [faseId]: result?.data || []
+      }))
+    } catch (error) {
+      console.error(`Error cargando artistas de fase ${faseId}:`, error)
+      setArtistasPorFase(prev => ({
+        ...prev,
+        [faseId]: []
+      }))
+    } finally {
+      setLoadingFases(prev => ({ ...prev, [faseId]: false }))
+    }
+  }
+
+  const toggleFase = async (faseId) => {
+    const isExpanding = !expandedFases[faseId]
+
     setExpandedFases(prev => ({
       ...prev,
-      [faseId]: !prev[faseId]
+      [faseId]: isExpanding
     }))
+
+    // Si está expandiendo y no tiene artistas cargados, cargarlos
+    if (isExpanding && !artistasPorFase[faseId]) {
+      await cargarArtistasDeFase(faseId)
+    }
   }
 
   const getEstadoFase = (fase) => {
@@ -105,11 +105,11 @@ export default function AdminArtistasPorFase({ onVerDetalles }) {
     return { label: 'Inscrito', variant: 'info' }
   }
 
-  if (isLoading || isLoadingFases) {
+  if (isLoadingFases) {
     return (
       <div className="text-center py-12">
         <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mb-4"></div>
-        <p className="text-gray-600">Cargando artistas por fase...</p>
+        <p className="text-gray-600">Cargando fases...</p>
       </div>
     )
   }
@@ -183,7 +183,7 @@ export default function AdminArtistasPorFase({ onVerDetalles }) {
                         {fase.nombre}
                       </h4>
                       <p className="text-sm text-gray-600">
-                        {artistas.length} artistas inscritos
+                        {artistasPorFase[fase.id] ? `${artistas.length} artistas inscritos` : 'Click para cargar artistas'}
                       </p>
                     </div>
                   </div>
@@ -196,7 +196,12 @@ export default function AdminArtistasPorFase({ onVerDetalles }) {
                 {/* Lista de artistas */}
                 {isExpanded && (
                   <div className="border-t border-gray-100">
-                    {artistas.length === 0 ? (
+                    {loadingFases[fase.id] ? (
+                      <div className="px-6 py-8 text-center">
+                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mb-2"></div>
+                        <p className="text-sm text-gray-500">Cargando artistas...</p>
+                      </div>
+                    ) : artistas.length === 0 ? (
                       <div className="px-6 py-8 text-center text-gray-500">
                         No hay artistas inscritos en esta fase
                       </div>
