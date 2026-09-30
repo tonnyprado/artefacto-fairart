@@ -1249,7 +1249,8 @@ export const getArtistasByFase = async (req, res) => {
     const { fase_id } = req.params
 
     if (useDatabase()) {
-      // Obtener postulaciones de la fase (evita duplicados, usa postulaciones en lugar de artistas_fases)
+      // Obtener artistas de la fase usando artistas_fases
+      // LEFT JOIN con postulaciones para mantener compatibilidad con artistas que tienen postulación
       const result = await pool.query(
         `SELECT DISTINCT ON (a.id)
           a.*,
@@ -1258,11 +1259,13 @@ export const getArtistasByFase = async (req, res) => {
           p.estado as estado_postulacion,
           p.tipo as tipo_postulacion,
           p.disciplina,
-          p.es_carryover
+          p.es_carryover,
+          af.estado as estado_fase
          FROM artistas a
-         INNER JOIN postulaciones p ON p.artista_id = a.id
-         WHERE p.fase_actual_id = $1
-         ORDER BY a.id, p.created_at DESC`,
+         INNER JOIN artistas_fases af ON af.artista_id = a.id
+         LEFT JOIN postulaciones p ON p.artista_id = a.id AND p.fase_actual_id = af.fase_id
+         WHERE af.fase_id = $1
+         ORDER BY a.id, af.created_at DESC`,
         [fase_id]
       )
 

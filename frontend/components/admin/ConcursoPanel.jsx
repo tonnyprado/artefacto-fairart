@@ -149,7 +149,7 @@ export default function ConcursoPanel() {
           marginBottom: '8px',
           textTransform: 'uppercase'
         }}>
-          Gestión de Concursos
+          Concurso
         </h2>
         <p style={{
           fontFamily: FONTS.body,
