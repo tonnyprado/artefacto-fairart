@@ -406,7 +406,41 @@ export const registrarArtista = async (req, res) => {
     }
 
     // ========================================
-    // 4.6. OBTENER INFO DEL PAQUETE SELECCIONADO
+    // 4.6. INSCRIBIR AL CONCURSO SI ACEPTA_CONCURSO = TRUE
+    // ========================================
+    if (acepta_concurso === 'true' || acepta_concurso === true) {
+      try {
+        // Buscar la fase de tipo 'concurso'
+        const faseConcursoResult = await pool.query(
+          `SELECT id, nombre FROM fases
+           WHERE tipo = 'concurso'
+           ORDER BY created_at DESC
+           LIMIT 1`
+        )
+
+        if (faseConcursoResult.rows.length > 0) {
+          const faseConcurso = faseConcursoResult.rows[0]
+
+          // Insertar en artistas_fases para inscripción al concurso
+          await pool.query(
+            `INSERT INTO artistas_fases (artista_id, fase_id, seleccionado)
+             VALUES ($1, $2, $3)
+             ON CONFLICT (artista_id, fase_id) DO NOTHING`,
+            [nuevoArtista.id, faseConcurso.id, false]
+          )
+
+          console.log(`✅ Artista inscrito automáticamente al CONCURSO (Fase ${faseConcurso.id}: ${faseConcurso.nombre})`)
+        } else {
+          console.warn('⚠️  No se encontró fase de tipo concurso. El artista NO fue inscrito al concurso.')
+        }
+      } catch (concursoError) {
+        console.error('❌ Error al inscribir al concurso:', concursoError)
+        // No fallar el registro si no se puede inscribir al concurso
+      }
+    }
+
+    // ========================================
+    // 4.7. OBTENER INFO DEL PAQUETE SELECCIONADO
     // ========================================
     try {
       if (nuevoArtista.paquete_id) {

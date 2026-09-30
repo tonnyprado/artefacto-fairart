@@ -34,7 +34,8 @@ export default function ConcursoPanel() {
   // Estados locales
   const [concursoSeleccionado, setConcursoSeleccionado] = useState(null)
   const [artistaSeleccionado, setArtistaSeleccionado] = useState(null)
-  const [vistaActual, setVistaActual] = useState('lista') // 'lista' | 'obras' | 'seleccionadas'
+  const [modalObrasAbierto, setModalObrasAbierto] = useState(false)
+  const [vistaActual, setVistaActual] = useState('lista') // 'lista' | 'seleccionadas'
   const [searchTerm, setSearchTerm] = useState('')
 
   // Store hooks
@@ -78,8 +79,13 @@ export default function ConcursoPanel() {
   // Handlers
   const handleSeleccionarArtista = async (artista) => {
     setArtistaSeleccionado(artista)
-    setVistaActual('obras')
+    setModalObrasAbierto(true)
     await fetchObrasArtista(artista.id)
+  }
+
+  const handleCerrarModal = () => {
+    setModalObrasAbierto(false)
+    setArtistaSeleccionado(null)
   }
 
   const handleSeleccionarObra = async (obra) => {
@@ -232,10 +238,7 @@ export default function ConcursoPanel() {
         }}>
           <TabButton
             active={vistaActual === 'lista'}
-            onClick={() => {
-              setVistaActual('lista')
-              setArtistaSeleccionado(null)
-            }}
+            onClick={() => setVistaActual('lista')}
           >
             Artistas Elegibles ({artistasElegibles.length})
           </TabButton>
@@ -321,75 +324,6 @@ export default function ConcursoPanel() {
         </div>
       )}
 
-      {/* Vista: Obras del Artista */}
-      {vistaActual === 'obras' && artistaSeleccionado && (
-        <div>
-          {/* Header con botón volver */}
-          <div style={{
-            background: 'white',
-            padding: '20px',
-            borderRadius: '12px',
-            border: `2px solid ${COLORS.creamDark}`,
-            marginBottom: '16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}>
-            <div>
-              <h3 style={{
-                fontFamily: FONTS.heading,
-                fontWeight: FONTS.headingWeight,
-                fontSize: '20px',
-                color: COLORS.black,
-                margin: 0,
-                marginBottom: '4px'
-              }}>
-                Obras de {artistaSeleccionado.nombre} {artistaSeleccionado.apellido}
-              </h3>
-              <p style={{
-                fontFamily: FONTS.body,
-                fontSize: '14px',
-                color: COLORS.gray,
-                margin: 0
-              }}>
-                Selecciona las obras que participarán en el concurso
-              </p>
-            </div>
-            <Button
-              onClick={() => {
-                setVistaActual('lista')
-                setArtistaSeleccionado(null)
-              }}
-              variant="secondary"
-            >
-              ← Volver
-            </Button>
-          </div>
-
-          {/* Grid de obras */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: '20px'
-          }}>
-            {isLoading && <p>Cargando obras...</p>}
-            {!isLoading && obrasArtista[artistaSeleccionado.id]?.length === 0 && (
-              <p style={{ fontFamily: FONTS.body, color: COLORS.gray }}>
-                Este artista no tiene obras
-              </p>
-            )}
-            {obrasArtista[artistaSeleccionado.id]?.map(obra => (
-              <ObraCard
-                key={obra.id}
-                obra={obra}
-                onSeleccionar={handleSeleccionarObra}
-                concursoSeleccionado={concursoSeleccionado}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Vista: Obras Seleccionadas */}
       {vistaActual === 'seleccionadas' && concursoSeleccionado && (
         <div>
@@ -411,6 +345,112 @@ export default function ConcursoPanel() {
                 onDeseleccionar={handleDeseleccionarObra}
               />
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Obras del Artista */}
+      {modalObrasAbierto && artistaSeleccionado && (
+        <div
+          onClick={handleCerrarModal}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+            zIndex: 1000,
+            overflowY: 'auto'
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: COLORS.cream,
+              borderRadius: '16px',
+              padding: '32px',
+              maxWidth: '1200px',
+              width: '100%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              position: 'relative'
+            }}
+          >
+            {/* Header del Modal */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              marginBottom: '24px'
+            }}>
+              <div>
+                <h3 style={{
+                  fontFamily: FONTS.heading,
+                  fontWeight: FONTS.headingWeight,
+                  fontSize: '24px',
+                  color: COLORS.black,
+                  margin: '0 0 8px 0',
+                  textTransform: 'uppercase'
+                }}>
+                  Obras de {artistaSeleccionado.nombre} {artistaSeleccionado.apellido}
+                </h3>
+                <p style={{
+                  fontFamily: FONTS.body,
+                  fontSize: '14px',
+                  color: COLORS.gray,
+                  margin: 0
+                }}>
+                  Folio: {artistaSeleccionado.folio} | Email: {artistaSeleccionado.email}
+                </p>
+              </div>
+              <button
+                onClick={handleCerrarModal}
+                style={{
+                  background: COLORS.red,
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '8px 16px',
+                  cursor: 'pointer',
+                  fontFamily: FONTS.body,
+                  fontSize: '14px',
+                  fontWeight: '600'
+                }}
+              >
+                Cerrar
+              </button>
+            </div>
+
+            {/* Grid de Obras */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+              gap: '20px'
+            }}>
+              {!obrasArtista[artistaSeleccionado.id] && (
+                <p style={{ fontFamily: FONTS.body, color: COLORS.gray }}>
+                  Cargando obras...
+                </p>
+              )}
+              {obrasArtista[artistaSeleccionado.id]?.length === 0 && (
+                <p style={{ fontFamily: FONTS.body, color: COLORS.gray }}>
+                  Este artista no tiene obras registradas
+                </p>
+              )}
+              {obrasArtista[artistaSeleccionado.id]?.map(obra => (
+                <ObraCard
+                  key={obra.id}
+                  obra={obra}
+                  onSeleccionar={handleSeleccionarObra}
+                  concursoSeleccionado={concursoSeleccionado}
+                />
+              ))}
+            </div>
           </div>
         </div>
       )}

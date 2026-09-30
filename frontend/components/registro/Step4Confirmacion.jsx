@@ -737,7 +737,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                   marginBottom: '8px',
                   fontSize: '16px'
                 }}>
-                  Participación en Concurso (Opcional)
+                  Participar solo en Concurso ARTEFACTO (Opcional)
                 </span>
                 <span style={{
                   lineHeight: '1.7',
@@ -745,10 +745,10 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
                   fontSize: '14px',
                   display: 'block'
                 }}>
-                  Al marcar esta casilla acepto participar en <strong>Concursos</strong> organizados
-                  por ARTEFACT y entiendo que el equipo de curaduría podrá{' '}
-                  <strong>seleccionar solo algunas de mis obras</strong> para participar en dichos
-                  concursos, según criterios curatoriales.
+                  Al registrarte, entras automáticamente al concurso ARTEFACTO. El premio consiste en la{' '}
+                  <strong>selección curatorial de una a cuatro piezas</strong> de tu propuesta{' '}
+                  <strong>sin costo de inscripción</strong> y desistes de sumarte mediante la adquisición de tu{' '}
+                  paquete completo. Marca esta casilla si gustas <strong>participar solamente en el concurso</strong>.
                 </span>
               </div>
             </label>
