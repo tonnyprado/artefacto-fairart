@@ -49,33 +49,47 @@ export default function ArtistasAceptados() {
         Authorization: `Bearer ${token}`,
       }
 
-      const [artistasRes, invRes, acuRes, estRes] = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/artistas?estado_registro=aprobado`, { headers }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/consigna/invitaciones?edicion=${edicion}`, { headers }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/consigna/acuerdos?edicion=${edicion}`, { headers }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/consigna/estadisticas?edicion=${edicion}`, { headers }),
-      ])
+      // Solo cargar artistas aprobados por ahora
+      // Los endpoints de consignación se cargarán cuando estén disponibles
+      const artistasRes = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/artistas?estado_registro=aprobado`,
+        { headers }
+      )
 
-      if (!artistasRes.ok || !invRes.ok || !acuRes.ok || !estRes.ok) {
-        throw new Error('Error al cargar datos')
+      if (!artistasRes.ok) {
+        throw new Error('Error al cargar artistas')
       }
 
-      const [artistasData, invData, acuData, estData] = await Promise.all([
-        artistasRes.json(),
-        invRes.json(),
-        acuRes.json(),
-        estRes.json(),
-      ])
-
+      const artistasData = await artistasRes.json()
       setArtistasAprobados(artistasData.data || [])
-      setInvitaciones(invData.data || [])
-      setAcuerdos(acuData.data || [])
-      setEstadisticas(estData.data || null)
+
+      // Intentar cargar datos de consignación (opcional)
+      try {
+        const [invRes, acuRes, estRes] = await Promise.all([
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/consigna/invitaciones?edicion=${edicion}`, { headers }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/consigna/acuerdos?edicion=${edicion}`, { headers }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/consigna/estadisticas?edicion=${edicion}`, { headers }),
+        ])
+
+        if (invRes.ok && acuRes.ok && estRes.ok) {
+          const [invData, acuData, estData] = await Promise.all([
+            invRes.json(),
+            acuRes.json(),
+            estRes.json(),
+          ])
+          setInvitaciones(invData.data || [])
+          setAcuerdos(acuData.data || [])
+          setEstadisticas(estData.data || null)
+        }
+      } catch (consignaError) {
+        console.warn('Datos de consignación no disponibles:', consignaError)
+        // No es crítico, continuar con datos vacíos
+      }
     } catch (error) {
       console.error('Error cargando datos:', error)
       toast({
         title: 'Error',
-        description: 'No se pudieron cargar los datos de consignación',
+        description: 'No se pudieron cargar los artistas aprobados',
         variant: 'destructive',
       })
     } finally {
