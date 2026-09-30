@@ -1,9 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useConcursoStore } from '@/stores/concursoStore'
+import { useArtistasStore } from '@/stores/artistasStore'
 import { useFasesStore } from '@/stores/fasesStore'
-import Button from '@/components/ui/Button'
 
 const COLORS = {
   red: '#B83030',
@@ -22,103 +21,47 @@ const FONTS = {
 }
 
 /**
- * Panel de Administración de Concursos
+ * Panel de Concurso - Vista Simplificada
  *
- * Permite a los admins:
- * - Ver artistas que aceptaron participar en concursos
- * - Seleccionar obras específicas de artistas para concurso
- * - Ver obras ya seleccionadas
- * - Ver estadísticas del concurso
+ * Muestra únicamente la lista de artistas inscritos en concurso
  */
 export default function ConcursoPanel() {
-  // Estados locales
-  const [concursoSeleccionado, setConcursoSeleccionado] = useState(null)
-  const [artistaSeleccionado, setArtistaSeleccionado] = useState(null)
-  const [modalObrasAbierto, setModalObrasAbierto] = useState(false)
-  const [vistaActual, setVistaActual] = useState('lista') // 'lista' | 'seleccionadas'
   const [searchTerm, setSearchTerm] = useState('')
+  const [artistasConcurso, setArtistasConcurso] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  // Store hooks
-  const {
-    artistasElegibles,
-    obrasArtista,
-    obrasSeleccionadas,
-    estadisticas,
-    isLoading,
-    fetchArtistasElegibles,
-    fetchObrasArtista,
-    fetchObrasSeleccionadas,
-    fetchEstadisticas,
-    seleccionarObra,
-    deseleccionarObra
-  } = useConcursoStore()
-
+  const { fetchArtistasByFase } = useArtistasStore()
   const { fases, fetchFases } = useFasesStore()
 
   // Filtrar solo fases de tipo concurso
   const concursos = fases.filter(f => f.tipo === 'concurso')
+  const concurso = concursos[0] // Tomar el primer concurso
 
-  // Cargar fases al montar
   useEffect(() => {
     fetchFases()
   }, [])
 
-  // Cargar artistas elegibles al montar
   useEffect(() => {
-    fetchArtistasElegibles()
-  }, [])
-
-  // Cargar datos del concurso seleccionado
-  useEffect(() => {
-    if (concursoSeleccionado) {
-      fetchObrasSeleccionadas(concursoSeleccionado.id)
-      fetchEstadisticas(concursoSeleccionado.id)
-    }
-  }, [concursoSeleccionado])
-
-  // Handlers
-  const handleSeleccionarArtista = async (artista) => {
-    setArtistaSeleccionado(artista)
-    setModalObrasAbierto(true)
-    await fetchObrasArtista(artista.id)
-  }
-
-  const handleCerrarModal = () => {
-    setModalObrasAbierto(false)
-    setArtistaSeleccionado(null)
-  }
-
-  const handleSeleccionarObra = async (obra) => {
-    if (!concursoSeleccionado) {
-      alert('Primero selecciona un concurso')
-      return
-    }
-
-    const result = await seleccionarObra(concursoSeleccionado.id, obra.id)
-    if (result.success) {
-      alert('✓ Obra seleccionada exitosamente')
-      // Refresh obras del artista para actualizar badges
-      if (artistaSeleccionado) {
-        await fetchObrasArtista(artistaSeleccionado.id)
-      }
-    } else {
-      alert('✗ Error: ' + result.error)
-    }
-  }
-
-  const handleDeseleccionarObra = async (obra) => {
-    if (confirm('¿Deseas deseleccionar esta obra del concurso?')) {
-      const result = await deseleccionarObra(concursoSeleccionado.id, obra.obra_id)
-      if (result.success) {
-        alert('✓ Obra deseleccionada')
-      } else {
-        alert('✗ Error: ' + result.error)
+    const cargarArtistas = async () => {
+      if (concurso) {
+        setIsLoading(true)
+        try {
+          const result = await fetchArtistasByFase(concurso.id)
+          setArtistasConcurso(result?.data || [])
+        } catch (error) {
+          console.error('Error cargando artistas de concurso:', error)
+          setArtistasConcurso([])
+        } finally {
+          setIsLoading(false)
+        }
       }
     }
-  }
+
+    cargarArtistas()
+  }, [concurso?.id])
 
   // Filtrar artistas por búsqueda
-  const artistasFiltrados = artistasElegibles.filter(a => {
+  const artistasFiltrados = artistasConcurso.filter(a => {
     if (!searchTerm) return true
     const term = searchTerm.toLowerCase()
     return (
@@ -129,7 +72,30 @@ export default function ConcursoPanel() {
     )
   })
 
-  const stats = concursoSeleccionado ? estadisticas[concursoSeleccionado.id] : null
+  if (isLoading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '40px' }}>
+        <div style={{
+          display: 'inline-block',
+          width: '40px',
+          height: '40px',
+          border: `4px solid ${COLORS.creamDark}`,
+          borderTop: `4px solid ${COLORS.red}`,
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }} />
+        <p style={{ fontFamily: FONTS.body, color: COLORS.gray, marginTop: '16px' }}>
+          Cargando artistas de concurso...
+        </p>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    )
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -157,505 +123,70 @@ export default function ConcursoPanel() {
           color: COLORS.gray,
           margin: 0
         }}>
-          Selecciona artistas y obras específicas para participar en concursos
+          {concurso?.nombre || 'No hay concursos activos'} - {artistasConcurso.length} artista{artistasConcurso.length !== 1 ? 's' : ''} inscrito{artistasConcurso.length !== 1 ? 's' : ''}
         </p>
       </div>
 
-      {/* Selector de Concurso */}
-      <div style={{
-        background: 'white',
-        padding: '20px',
-        borderRadius: '12px',
-        border: `2px solid ${COLORS.creamDark}`
-      }}>
-        <label style={{
-          fontFamily: FONTS.body,
-          fontSize: '14px',
-          fontWeight: '600',
-          color: COLORS.black,
-          display: 'block',
-          marginBottom: '8px'
-        }}>
-          Concurso Activo
-        </label>
-        <select
-          value={concursoSeleccionado?.id || ''}
-          onChange={(e) => {
-            const fase = concursos.find(f => f.id === parseInt(e.target.value))
-            setConcursoSeleccionado(fase || null)
-          }}
+      {/* Búsqueda */}
+      <div style={{ marginBottom: '16px' }}>
+        <input
+          type="text"
+          placeholder="Buscar por nombre, email o folio..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
           style={{
             width: '100%',
             padding: '12px',
             borderRadius: '8px',
             border: `2px solid ${COLORS.creamDark}`,
             fontFamily: FONTS.body,
-            fontSize: '15px',
-            cursor: 'pointer'
+            fontSize: '15px'
           }}
-        >
-          <option value="">Selecciona un concurso...</option>
-          {concursos.map(concurso => (
-            <option key={concurso.id} value={concurso.id}>
-              {concurso.nombre}
-            </option>
-          ))}
-        </select>
+        />
       </div>
 
-      {/* Estadísticas */}
-      {concursoSeleccionado && stats && (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '16px'
-        }}>
-          <StatCard
-            label="Artistas Seleccionados"
-            value={stats.total_artistas_seleccionados}
-            iconBg="rgba(184, 48, 48, 0.1)"
-          />
-          <StatCard
-            label="Obras Seleccionadas"
-            value={stats.total_obras_seleccionadas}
-            iconBg="rgba(244, 237, 228, 0.3)"
-          />
-          <StatCard
-            label="Artistas Ganadores"
-            value={stats.artistas_ganadores}
-            iconBg="rgba(20, 210, 120, 0.1)"
-          />
-        </div>
-      )}
-
-      {/* Tabs */}
-      {concursoSeleccionado && (
-        <div style={{
-          display: 'flex',
-          gap: '8px',
-          borderBottom: `2px solid ${COLORS.creamDark}`,
-          paddingBottom: '8px'
-        }}>
-          <TabButton
-            active={vistaActual === 'lista'}
-            onClick={() => setVistaActual('lista')}
-          >
-            Artistas Elegibles ({artistasElegibles.length})
-          </TabButton>
-          <TabButton
-            active={vistaActual === 'seleccionadas'}
-            onClick={() => setVistaActual('seleccionadas')}
-          >
-            Obras Seleccionadas ({obrasSeleccionadas[concursoSeleccionado.id]?.length || 0})
-          </TabButton>
-        </div>
-      )}
-
-      {/* Vista: Lista de Artistas */}
-      {vistaActual === 'lista' && concursoSeleccionado && (
-        <div>
-          {/* Búsqueda */}
-          <div style={{ marginBottom: '16px' }}>
-            <input
-              type="text"
-              placeholder="Buscar por nombre, email o folio..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '12px',
-                borderRadius: '8px',
-                border: `2px solid ${COLORS.creamDark}`,
-                fontFamily: FONTS.body,
-                fontSize: '15px'
-              }}
-            />
-          </div>
-
-          {/* Tabla de Artistas */}
-          <div style={{
-            background: 'white',
-            borderRadius: '12px',
-            overflow: 'hidden',
-            border: `2px solid ${COLORS.creamDark}`
-          }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: COLORS.creamDark }}>
-                  <th style={tableHeaderStyle}>Folio</th>
-                  <th style={tableHeaderStyle}>Artista</th>
-                  <th style={tableHeaderStyle}>Email</th>
-                  <th style={tableHeaderStyle}>Total Obras</th>
-                  <th style={tableHeaderStyle}>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {artistasFiltrados.length === 0 && (
-                  <tr>
-                    <td colSpan="5" style={{ textAlign: 'center', padding: '32px' }}>
-                      <p style={{ fontFamily: FONTS.body, color: COLORS.gray }}>
-                        No hay artistas elegibles
-                      </p>
-                    </td>
-                  </tr>
-                )}
-                {artistasFiltrados.map(artista => (
-                  <tr key={artista.id} style={{ borderBottom: `1px solid ${COLORS.creamDark}` }}>
-                    <td style={tableCellStyle}>{artista.folio}</td>
-                    <td style={tableCellStyle}>
-                      {artista.nombre} {artista.apellido}
-                    </td>
-                    <td style={tableCellStyle}>{artista.email}</td>
-                    <td style={tableCellStyle}>{artista.total_obras || 0}</td>
-                    <td style={tableCellStyle}>
-                      <Button
-                        onClick={() => handleSeleccionarArtista(artista)}
-                        variant="primary"
-                        style={{ padding: '8px 16px', fontSize: '14px' }}
-                      >
-                        Ver Obras
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* Vista: Obras Seleccionadas */}
-      {vistaActual === 'seleccionadas' && concursoSeleccionado && (
-        <div>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: '20px'
-          }}>
-            {!obrasSeleccionadas[concursoSeleccionado.id] && <p>Cargando...</p>}
-            {obrasSeleccionadas[concursoSeleccionado.id]?.length === 0 && (
-              <p style={{ fontFamily: FONTS.body, color: COLORS.gray }}>
-                No hay obras seleccionadas para este concurso
-              </p>
+      {/* Tabla de Artistas */}
+      <div style={{
+        background: 'white',
+        borderRadius: '12px',
+        overflow: 'hidden',
+        border: `2px solid ${COLORS.creamDark}`
+      }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ background: COLORS.creamDark }}>
+              <th style={tableHeaderStyle}>Folio</th>
+              <th style={tableHeaderStyle}>Artista</th>
+              <th style={tableHeaderStyle}>Email</th>
+              <th style={tableHeaderStyle}>Teléfono</th>
+            </tr>
+          </thead>
+          <tbody>
+            {artistasFiltrados.length === 0 && (
+              <tr>
+                <td colSpan="4" style={{ textAlign: 'center', padding: '32px' }}>
+                  <p style={{ fontFamily: FONTS.body, color: COLORS.gray }}>
+                    {searchTerm ? 'No se encontraron artistas' : 'No hay artistas inscritos en concurso'}
+                  </p>
+                </td>
+              </tr>
             )}
-            {obrasSeleccionadas[concursoSeleccionado.id]?.map(obra => (
-              <ObraSeleccionadaCard
-                key={obra.obra_id}
-                obra={obra}
-                onDeseleccionar={handleDeseleccionarObra}
-              />
+            {artistasFiltrados.map(artista => (
+              <tr key={artista.id} style={{ borderBottom: `1px solid ${COLORS.creamDark}` }}>
+                <td style={tableCellStyle}>{artista.folio}</td>
+                <td style={tableCellStyle}>
+                  {artista.nombre} {artista.apellido}
+                </td>
+                <td style={tableCellStyle}>{artista.email}</td>
+                <td style={tableCellStyle}>{artista.telefono || '-'}</td>
+              </tr>
             ))}
-          </div>
-        </div>
-      )}
-
-      {/* Modal: Obras del Artista */}
-      {modalObrasAbierto && artistaSeleccionado && (
-        <div
-          onClick={handleCerrarModal}
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px',
-            zIndex: 1000,
-            overflowY: 'auto'
-          }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              background: COLORS.cream,
-              borderRadius: '16px',
-              padding: '32px',
-              maxWidth: '1200px',
-              width: '100%',
-              maxHeight: '90vh',
-              overflowY: 'auto',
-              position: 'relative'
-            }}
-          >
-            {/* Header del Modal */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
-              marginBottom: '24px'
-            }}>
-              <div>
-                <h3 style={{
-                  fontFamily: FONTS.heading,
-                  fontWeight: FONTS.headingWeight,
-                  fontSize: '24px',
-                  color: COLORS.black,
-                  margin: '0 0 8px 0',
-                  textTransform: 'uppercase'
-                }}>
-                  Obras de {artistaSeleccionado.nombre} {artistaSeleccionado.apellido}
-                </h3>
-                <p style={{
-                  fontFamily: FONTS.body,
-                  fontSize: '14px',
-                  color: COLORS.gray,
-                  margin: 0
-                }}>
-                  Folio: {artistaSeleccionado.folio} | Email: {artistaSeleccionado.email}
-                </p>
-              </div>
-              <button
-                onClick={handleCerrarModal}
-                style={{
-                  background: COLORS.red,
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '8px 16px',
-                  cursor: 'pointer',
-                  fontFamily: FONTS.body,
-                  fontSize: '14px',
-                  fontWeight: '600'
-                }}
-              >
-                Cerrar
-              </button>
-            </div>
-
-            {/* Grid de Obras */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: '20px'
-            }}>
-              {!obrasArtista[artistaSeleccionado.id] && (
-                <p style={{ fontFamily: FONTS.body, color: COLORS.gray }}>
-                  Cargando obras...
-                </p>
-              )}
-              {obrasArtista[artistaSeleccionado.id]?.length === 0 && (
-                <p style={{ fontFamily: FONTS.body, color: COLORS.gray }}>
-                  Este artista no tiene obras registradas
-                </p>
-              )}
-              {obrasArtista[artistaSeleccionado.id]?.map(obra => (
-                <ObraCard
-                  key={obra.id}
-                  obra={obra}
-                  onSeleccionar={handleSeleccionarObra}
-                  concursoSeleccionado={concursoSeleccionado}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ============================================
-// Componentes auxiliares
-// ============================================
-
-const StatCard = ({ label, value, iconBg }) => (
-  <div style={{
-    background: 'white',
-    padding: '20px',
-    borderRadius: '12px',
-    border: `2px solid ${COLORS.creamDark}`
-  }}>
-    <div style={{
-      width: '40px',
-      height: '40px',
-      borderRadius: '8px',
-      background: iconBg,
-      marginBottom: '12px'
-    }} />
-    <p style={{
-      fontFamily: FONTS.body,
-      fontSize: '13px',
-      color: COLORS.gray,
-      margin: 0,
-      marginBottom: '4px'
-    }}>
-      {label}
-    </p>
-    <p style={{
-      fontFamily: FONTS.heading,
-      fontWeight: FONTS.headingWeight,
-      fontSize: '32px',
-      color: COLORS.black,
-      margin: 0
-    }}>
-      {value}
-    </p>
-  </div>
-)
-
-const TabButton = ({ active, onClick, children }) => (
-  <button
-    onClick={onClick}
-    style={{
-      fontFamily: FONTS.body,
-      fontSize: '15px',
-      fontWeight: active ? '600' : '400',
-      color: active ? COLORS.red : COLORS.gray,
-      background: active ? 'rgba(184, 48, 48, 0.1)' : 'transparent',
-      padding: '8px 16px',
-      borderRadius: '8px',
-      border: 'none',
-      cursor: 'pointer',
-      transition: 'all 0.2s'
-    }}
-  >
-    {children}
-  </button>
-)
-
-const ObraCard = ({ obra, onSeleccionar, concursoSeleccionado }) => {
-  const yaSeleccionada = obra.ya_seleccionada_en_concurso
-
-  return (
-    <div style={{
-      background: 'white',
-      borderRadius: '12px',
-      overflow: 'hidden',
-      border: `2px solid ${yaSeleccionada ? COLORS.red : COLORS.creamDark}`,
-      position: 'relative'
-    }}>
-      {/* Imagen */}
-      {obra.imagen_url && (
-        <div style={{
-          height: '200px',
-          background: `url(${obra.imagen_url}) center/cover`,
-          position: 'relative'
-        }}>
-          {yaSeleccionada && (
-            <div style={{
-              position: 'absolute',
-              top: '8px',
-              right: '8px',
-              background: COLORS.red,
-              color: 'white',
-              padding: '4px 12px',
-              borderRadius: '4px',
-              fontFamily: FONTS.body,
-              fontSize: '12px',
-              fontWeight: '600'
-            }}>
-              SELECCIONADA
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Info */}
-      <div style={{ padding: '16px' }}>
-        <h4 style={{
-          fontFamily: FONTS.body,
-          fontSize: '16px',
-          fontWeight: '600',
-          color: COLORS.black,
-          margin: '0 0 8px 0'
-        }}>
-          {obra.titulo || 'Sin título'}
-        </h4>
-        <div style={{
-          fontFamily: FONTS.body,
-          fontSize: '13px',
-          color: COLORS.gray,
-          marginBottom: '12px'
-        }}>
-          <p style={{ margin: '4px 0' }}>{obra.alto_cm} x {obra.ancho_cm} cm</p>
-          <p style={{ margin: '4px 0' }}>{obra.tecnica}</p>
-          <p style={{ margin: '4px 0' }}>${obra.precio_mxn?.toLocaleString()} MXN</p>
-        </div>
-
-        {!yaSeleccionada ? (
-          <Button
-            onClick={() => onSeleccionar(obra)}
-            variant="primary"
-            style={{ width: '100%' }}
-          >
-            Seleccionar para Concurso
-          </Button>
-        ) : (
-          <div style={{
-            padding: '8px',
-            background: 'rgba(184, 48, 48, 0.1)',
-            borderRadius: '4px',
-            textAlign: 'center',
-            fontFamily: FONTS.body,
-            fontSize: '13px',
-            color: COLORS.red
-          }}>
-            Ya seleccionada en {obra.concurso_nombre || 'concurso'}
-          </div>
-        )}
+          </tbody>
+        </table>
       </div>
     </div>
   )
 }
-
-const ObraSeleccionadaCard = ({ obra, onDeseleccionar }) => (
-  <div style={{
-    background: 'white',
-    borderRadius: '12px',
-    overflow: 'hidden',
-    border: `2px solid ${COLORS.red}`
-  }}>
-    {/* Imagen */}
-    {obra.imagen_url && (
-      <div style={{
-        height: '200px',
-        background: `url(${obra.imagen_url}) center/cover`
-      }} />
-    )}
-
-    {/* Info */}
-    <div style={{ padding: '16px' }}>
-      <h4 style={{
-        fontFamily: FONTS.body,
-        fontSize: '16px',
-        fontWeight: '600',
-        color: COLORS.black,
-        margin: '0 0 4px 0'
-      }}>
-        {obra.titulo || 'Sin título'}
-      </h4>
-      <p style={{
-        fontFamily: FONTS.body,
-        fontSize: '13px',
-        color: COLORS.gray,
-        margin: '0 0 8px 0'
-      }}>
-        {obra.nombre} {obra.apellido}
-      </p>
-      <div style={{
-        fontFamily: FONTS.body,
-        fontSize: '13px',
-        color: COLORS.gray,
-        marginBottom: '12px'
-      }}>
-        <p style={{ margin: '4px 0' }}>{obra.alto_cm} x {obra.ancho_cm} cm</p>
-        <p style={{ margin: '4px 0' }}>{obra.tecnica}</p>
-      </div>
-
-      <Button
-        onClick={() => onDeseleccionar(obra)}
-        variant="secondary"
-        style={{ width: '100%' }}
-      >
-        Deseleccionar
-      </Button>
-    </div>
-  </div>
-)
 
 // Estilos de tabla
 const tableHeaderStyle = {
