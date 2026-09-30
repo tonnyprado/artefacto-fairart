@@ -53,8 +53,9 @@ export class HttpConsignaApi {
    * @param {string} token
    * @returns {Promise<any>}
    */
-  contexto(token) {
-    return this.req(`/${encodeURIComponent(token)}/contexto`);
+  async contexto(token) {
+    const res = await this.req(`/${encodeURIComponent(token)}/contexto`);
+    return res.data;
   }
 
   /**
@@ -97,8 +98,9 @@ export class HttpConsignaApi {
    * @param {any} datos
    * @returns {Promise<any>}
    */
-  enviar(token, datos) {
-    return this.req(`/${encodeURIComponent(token)}/enviar`, { method: 'POST', body: JSON.stringify(datos) });
+  async enviar(token, datos) {
+    const res = await this.req(`/${encodeURIComponent(token)}/enviar`, { method: 'POST', body: JSON.stringify(datos) });
+    return res.data;
   }
 
   /**
@@ -106,6 +108,7 @@ export class HttpConsignaApi {
    * @returns {Promise<string>}
    */
   async urlPdf(token) {
-    return (await this.req(`/${encodeURIComponent(token)}/pdf-enviado`)).url;
+    const res = await this.req(`/${encodeURIComponent(token)}/pdf-enviado`);
+    return res.data.url;
   }
 }
