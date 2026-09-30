@@ -73,9 +73,10 @@ export class HttpConsignaApi {
    * @returns {Promise<{key: string; nombre: string}>}
    */
   async subirConstancia(token, archivo) {
-    const { uploadUrl, key } = await this.req(`/${encodeURIComponent(token)}/subir-constancia`, {
+    const res = await this.req(`/${encodeURIComponent(token)}/subir-constancia`, {
       method: 'POST', body: JSON.stringify({ nombre: archivo.name, tipo: archivo.type, tamano: archivo.size }),
     });
+    const { uploadUrl, key } = res.data;
     const s3 = await fetch(uploadUrl, {
       method: 'PUT', body: archivo,
       headers: { 'Content-Type': archivo.type, 'x-amz-server-side-encryption': 'AES256' },
