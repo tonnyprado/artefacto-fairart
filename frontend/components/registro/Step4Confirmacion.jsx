@@ -32,6 +32,7 @@ const FONTS = {
 export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, isSubmitting }) {
   const [aceptaTerminos, setAceptaTerminos] = useState(false)
   const [aceptaPrivacidad, setAceptaPrivacidad] = useState(false)
+  const [aceptaConcurso, setAceptaConcurso] = useState(false)
   const [errorTerminos, setErrorTerminos] = useState('')
 
   // Refs para animaciones GSAP
@@ -90,7 +91,7 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
       return
     }
     if (onSubmit) {
-      onSubmit()
+      onSubmit({ acepta_concurso: aceptaConcurso })
     }
   }
 
@@ -697,9 +698,62 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
         <div style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: '16px',
+          gap: '20px',
           marginBottom: '24px'
         }}>
+          {/* NUEVO: Checkbox de Concurso (Opcional) */}
+          <div style={{
+            background: 'rgba(244, 237, 228, 0.08)',
+            border: `2px solid ${COLORS.cream}30`,
+            borderRadius: '16px',
+            padding: '20px'
+          }}>
+            <label style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '12px',
+              cursor: 'pointer',
+              fontFamily: FONTS.body,
+              fontSize: '15px',
+              color: COLORS.cream
+            }}>
+              <input
+                type="checkbox"
+                checked={aceptaConcurso}
+                onChange={(e) => setAceptaConcurso(e.target.checked)}
+                style={{
+                  width: '24px',
+                  height: '24px',
+                  marginTop: '2px',
+                  cursor: 'pointer',
+                  accentColor: COLORS.cream,
+                  flexShrink: 0
+                }}
+              />
+              <div style={{ flex: 1 }}>
+                <span style={{
+                  fontWeight: '600',
+                  display: 'block',
+                  marginBottom: '8px',
+                  fontSize: '16px'
+                }}>
+                  Participación en Concurso (Opcional)
+                </span>
+                <span style={{
+                  lineHeight: '1.7',
+                  opacity: 0.9,
+                  fontSize: '14px',
+                  display: 'block'
+                }}>
+                  Al marcar esta casilla acepto participar en <strong>Concursos</strong> organizados
+                  por ARTEFACT y entiendo que el equipo de curaduría podrá{' '}
+                  <strong>seleccionar solo algunas de mis obras</strong> para participar en dichos
+                  concursos, según criterios curatoriales.
+                </span>
+              </div>
+            </label>
+          </div>
+
           <label style={{
             display: 'flex',
             alignItems: 'flex-start',

@@ -81,7 +81,8 @@ export const registrarArtista = async (req, res) => {
       facebook,
       website,
       paquete_id,
-      layout_canvas_data
+      layout_canvas_data,
+      acepta_concurso = false // Nuevo: acepta participar en concursos
     } = req.body
 
     // Parsear formatos si viene como string
@@ -292,11 +293,12 @@ export const registrarArtista = async (req, res) => {
           layout_canvas_url = $18,
           layout_canvas_pdf = $19,
           layout_canvas_data = $20,
+          acepta_concurso = $21,
           aprobado = false,
           estado_registro = 'pendiente',
           fecha_registro_completo = NOW(),
           updated_at = NOW()
-        WHERE id = $21
+        WHERE id = $22
         RETURNING *`,
         [
           nombre,
@@ -319,6 +321,7 @@ export const registrarArtista = async (req, res) => {
           layout_canvas_url,
           layout_canvas_pdf_url,
           parsedLayoutData,
+          acepta_concurso === 'true' || acepta_concurso === true,
           existingArtista.id
         ]
       )
@@ -333,8 +336,8 @@ export const registrarArtista = async (req, res) => {
           instagram, facebook, website,
           cv_url, portfolio_url, identificacion_url,
           paquete_id, layout_canvas_url, layout_canvas_pdf, layout_canvas_data,
-          aprobado, estado_registro
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
+          acepta_concurso, aprobado, estado_registro
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)
         RETURNING *`,
         [
           nombre,
@@ -358,6 +361,7 @@ export const registrarArtista = async (req, res) => {
           layout_canvas_url,
           layout_canvas_pdf_url,
           parsedLayoutData,
+          acepta_concurso === 'true' || acepta_concurso === true, // acepta_concurso
           false, // aprobado
           'pendiente' // estado_registro
         ]

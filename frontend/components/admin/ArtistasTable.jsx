@@ -11,6 +11,7 @@ import ExcelJS from 'exceljs'
 import { Download, Mail, MessageCircle, Phone, X, UserPlus, Plus, Upload, Loader2 } from 'lucide-react'
 import AdminArtistasPorFase from './AdminArtistasPorFase'
 import ArtistasInscritos from './ArtistasInscritos'
+import ArtistasAceptados from './ArtistasAceptados'
 
 // Sub-tabs para diferentes vistas
 const SUB_TABS = [
@@ -801,9 +802,9 @@ export default function ArtistasTable() {
         <AdminArtistasPorFase onVerDetalles={handleVerDetallesFromChild} />
       )}
 
-      {/* Vista: Aceptados (pasaron votaciones) */}
+      {/* Vista: Aceptados - Hojas de Consignación */}
       {activeView === 'aceptados' && (
-        <ArtistasInscritos onVerDetalles={handleVerDetallesFromChild} />
+        <ArtistasAceptados />
       )}
 
       {/* Vista: Lista Completa (default) */}

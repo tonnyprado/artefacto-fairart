@@ -14,6 +14,10 @@ import {
   now
 } from '../data/mockData.js'
 
+// Importar sistema de consigna para envío automático de emails
+import { obtenerContenedor } from '../consigna/contenedor.js'
+import { ConsignaEmailService } from '../consigna/services/ConsignaEmailService.js'
+
 // Helper para determinar si usamos DB o mockData
 const useDatabase = () => !!pool
 
@@ -995,9 +999,46 @@ export const aprobarArtista = async (req, res) => {
         })
       }
 
+      const artistaAprobado = result.rows[0]
+
+      // ==========================================
+      // ENVÍO AUTOMÁTICO DE EMAIL DE CONSIGNA
+      // ==========================================
+      try {
+        const { invitaciones } = obtenerContenedor()
+        const emailService = new ConsignaEmailService()
+        const edicion = process.env.EDICION_SUFIJO || 'AF2'
+
+        // Generar invitación para este artista
+        const ligas = await invitaciones.crearPendientes(edicion)
+        const liga = ligas.find(l => l.artistaId === artistaAprobado.id.toString())
+
+        if (liga) {
+          // Enviar email de invitación
+          await emailService.enviarInvitacionAceptado(
+            {
+              nombre: `${artistaAprobado.nombre} ${artistaAprobado.apellido}`,
+              nombrePila: artistaAprobado.nombre.split(' ')[0],
+              correo: artistaAprobado.email,
+              folio: artistaAprobado.folio || `AF2-${artistaAprobado.id}`,
+            },
+            liga.url
+          )
+          console.log(`✅ Email de consigna enviado → ${artistaAprobado.email}`)
+        } else {
+          console.log(`⚠️  Artista ${artistaAprobado.id} ya tenía invitación de consigna`)
+        }
+      } catch (emailError) {
+        // No bloquear la aprobación si falla el email
+        console.error('⚠️  Error enviando email de consigna:', emailError.message)
+        if (process.env.NODE_ENV === 'development') {
+          console.error(emailError.stack)
+        }
+      }
+
       return res.json({
         success: true,
-        data: result.rows[0],
+        data: artistaAprobado,
         message: 'Artista aprobado exitosamente'
       })
     }
@@ -1054,9 +1095,32 @@ export const rechazarArtista = async (req, res) => {
         })
       }
 
+      const artistaRechazado = result.rows[0]
+
+      // ==========================================
+      // ENVÍO AUTOMÁTICO DE EMAIL DE RECHAZO
+      // ==========================================
+      try {
+        const emailService = new ConsignaEmailService()
+
+        // Enviar email de rechazo
+        await emailService.enviarRechazo({
+          nombre: `${artistaRechazado.nombre} ${artistaRechazado.apellido}`,
+          nombrePila: artistaRechazado.nombre.split(' ')[0],
+          correo: artistaRechazado.email,
+        })
+        console.log(`✅ Email de rechazo enviado → ${artistaRechazado.email}`)
+      } catch (emailError) {
+        // No bloquear el rechazo si falla el email
+        console.error('⚠️  Error enviando email de rechazo:', emailError.message)
+        if (process.env.NODE_ENV === 'development') {
+          console.error(emailError.stack)
+        }
+      }
+
       return res.json({
         success: true,
-        data: result.rows[0],
+        data: artistaRechazado,
         message: 'Artista rechazado'
       })
     }

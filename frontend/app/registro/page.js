@@ -132,7 +132,10 @@ export default function RegistroPage() {
     portfolio_obras: [], // TODAS las obras del usuario (con archivos)
     obras_lienzo: [], // Solo obras que están en el canvas (filtradas de portfolio_obras)
     layout_canvas_url: null,
-    layout_canvas_data: {}
+    layout_canvas_data: {},
+
+    // Paso 5: Confirmación
+    acepta_concurso: false // Checkbox opcional para participar en concursos
   })
 
   // Nuevo orden de etapas: Tu Lienzo pasa a ser Etapa 2
@@ -345,7 +348,12 @@ export default function RegistroPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (datosAdicionales = {}) => {
+    // Actualizar formData con datos del paso final (acepta_concurso)
+    if (datosAdicionales.acepta_concurso !== undefined) {
+      updateFormData({ acepta_concurso: datosAdicionales.acepta_concurso })
+    }
+
     // Validar que se aceptaron los términos
     // Nota: La validación de checkboxes debe hacerse en el componente Step4Confirmacion
     // ya que no están en formData, están en estado local del componente
@@ -475,6 +483,9 @@ export default function RegistroPage() {
         })
         formDataToSend.append('obras_lienzo_count', formData.obras_lienzo.length)
       }
+
+      // Checkbox de participación en concurso (opcional)
+      formDataToSend.append('acepta_concurso', datosAdicionales.acepta_concurso || formData.acepta_concurso || false)
 
       // LOG: Calcular y mostrar tamaño total de archivos
       let totalSize = 0

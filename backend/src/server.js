@@ -82,9 +82,18 @@ import opinionesRoutes from './routes/opiniones.routes.js'
 import favoritosRoutes from './routes/favoritos.routes.js'
 import preregistroRoutes from './routes/preregistro.routes.js'
 import obrasRoutes from './routes/obras.routes.js'
+import concursoRoutes from './routes/concurso.routes.js'
+import consignaAdminRoutes from './routes/consigna.routes.js'
 
 // Importar cron job de recordatorios
 import { iniciarCronRecordatorios } from './jobs/recordatorios.job.js'
+
+// ==========================================
+// MÓDULO DE CONSIGNA
+// ==========================================
+import { crearContenedor } from './consigna/contenedor.js'
+import { rutasConsigna } from './consigna/http/rutas.js'
+import { manejoErrores as consignaErrorHandler } from './consigna/http/manejoErrores.js'
 
 // Configuración de __dirname para ES modules
 const __filename = fileURLToPath(import.meta.url)
@@ -204,6 +213,27 @@ app.use('/api/favoritos', favoritosRoutes)
 app.use('/api/preregistro', createLimiter, preregistroRoutes) // Rate limit para pre-registro
 app.use('/api/obras', obrasRoutes)
 
+// ==========================================
+// CONCURSO - Sistema de Votación
+// ==========================================
+app.use('/api/concurso', concursoRoutes)
+console.log('✅ Módulo Concurso cargado')
+
+// ==========================================
+// CONSIGNA - Hojas de Consignación
+// ==========================================
+try {
+  const { controller } = crearContenedor()
+  app.use('/api/consigna', rutasConsigna(controller))
+  app.use('/api/admin/consigna', consignaAdminRoutes)
+  console.log('✅ Módulo Consigna cargado (público + admin)')
+} catch (error) {
+  console.error('❌ Error al cargar Consigna:', error.message)
+  if (process.env.NODE_ENV === 'development') {
+    console.error(error.stack)
+  }
+}
+
 // Ruta 404
 app.use('*', (req, res) => {
   res.status(404).json({
@@ -211,6 +241,9 @@ app.use('*', (req, res) => {
     path: req.originalUrl
   })
 })
+
+// Manejador de errores de Consigna (debe ir antes del manejador global)
+app.use(consignaErrorHandler)
 
 // Manejador de errores global
 app.use((err, req, res, next) => {
