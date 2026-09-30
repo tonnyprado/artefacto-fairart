@@ -143,7 +143,7 @@ export class ConsignaService {
    * @returns {Promise<ObraAcordada[]>}
    */
   async obrasAcordadas(inv, dto) {
-    const registradas = await this.registro.obras(inv.artistaId);
+    const registradas = await this.registro.obrasPostuladas(inv.artistaId);
     const finales = new Map(dto.obras.map(o => [o.obraId, o.gananciaFinal]));
     return registradas.map(o => ({
       obraId: o.id,
