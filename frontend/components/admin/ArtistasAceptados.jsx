@@ -52,7 +52,7 @@ export default function ArtistasAceptados() {
       // Solo cargar artistas aprobados por ahora
       // Los endpoints de consignación se cargarán cuando estén disponibles
       const artistasRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/artistas?estado_registro=aprobado`,
+        `${process.env.NEXT_PUBLIC_API_URL}/artistas?estado_registro=aprobado`,
         { headers }
       )
 
@@ -66,9 +66,9 @@ export default function ArtistasAceptados() {
       // Intentar cargar datos de consignación (opcional)
       try {
         const [invRes, acuRes, estRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/consigna/invitaciones?edicion=${edicion}`, { headers }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/consigna/acuerdos?edicion=${edicion}`, { headers }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/consigna/estadisticas?edicion=${edicion}`, { headers }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/consigna/invitaciones?edicion=${edicion}`, { headers }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/consigna/acuerdos?edicion=${edicion}`, { headers }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/consigna/estadisticas?edicion=${edicion}`, { headers }),
         ])
 
         if (invRes.ok && acuRes.ok && estRes.ok) {
@@ -101,7 +101,7 @@ export default function ArtistasAceptados() {
     setGenerando(true)
     try {
       const token = localStorage.getItem('token')
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/consigna/generar-invitaciones`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/consigna/generar-invitaciones`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -137,7 +137,7 @@ export default function ArtistasAceptados() {
   const generarInvitacionIndividual = async (artista) => {
     try {
       const token = localStorage.getItem('token')
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/consigna/generar-invitacion/${artista.id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/consigna/generar-invitacion/${artista.id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -172,7 +172,7 @@ export default function ArtistasAceptados() {
     try {
       const token = localStorage.getItem('token')
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/consigna/acuerdos/${acuerdoId}/pdf`,
+        `${process.env.NEXT_PUBLIC_API_URL}/admin/consigna/acuerdos/${acuerdoId}/pdf`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
