@@ -247,7 +247,7 @@ export default function ArtistasAceptados() {
       {/* Header con botón de generar todas */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">Artistas Aprobados & Hojas de Consignación</h3>
+          <h3 className="text-lg font-semibold">Artistas Aprobados</h3>
           <p className="text-sm text-gray-600">
             {artistasAprobados.length} artista{artistasAprobados.length !== 1 ? 's' : ''} aprobado{artistasAprobados.length !== 1 ? 's' : ''}
             {' · '}
