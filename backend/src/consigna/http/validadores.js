@@ -32,19 +32,19 @@ export function validarDatosAcuerdo(datos) {
     throw Invalido('Datos de acuerdo inválidos');
   }
 
-  if (!datos.artista || !datos.artista.nombre) {
-    throw Invalido('Faltan datos del artista');
-  }
-
   if (!Array.isArray(datos.obras) || datos.obras.length === 0) {
     throw Invalido('Debe incluir al menos una obra');
   }
 
-  if (!datos.firma || !datos.firma.dataUrl) {
+  if (!datos.firmaPng || typeof datos.firmaPng !== 'string') {
     throw Invalido('Falta la firma digital');
   }
 
-  if (!datos.aceptaTerminos) {
+  if (!datos.estadoFiscal || !['pendiente', 'cargada'].includes(datos.estadoFiscal)) {
+    throw Invalido('Estado fiscal inválido');
+  }
+
+  if (!datos.acepto) {
     throw Invalido('Debe aceptar los términos y condiciones');
   }
 }
