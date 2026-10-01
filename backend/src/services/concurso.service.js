@@ -133,7 +133,14 @@ class ConcursoService {
         notas
       ])
 
-      // Inscribir artista a la fase si no está inscrito
+      // Remover artista de todas las otras fases primero
+      // Un artista solo puede estar en una fase a la vez
+      await client.query(`
+        DELETE FROM artistas_fases
+        WHERE artista_id = $1 AND fase_id != $2
+      `, [artistaId, faseId])
+
+      // Inscribir artista a la fase de concurso
       // Esto permite que el artista aparezca en el sistema de votación
       await client.query(`
         INSERT INTO artistas_fases (artista_id, fase_id, seleccionado)
@@ -262,6 +269,75 @@ class ConcursoService {
     `
     const result = await pool.query(query, [faseId, artistaId])
     return parseInt(result.rows[0].total) || 0
+  }
+
+  /**
+   * Limpiar duplicados: remover artistas que están en múltiples fases
+   * Un artista solo debe estar en una fase a la vez
+   * Si un artista tiene obras en Concurso, removerlo de todas las otras fases
+   *
+   * @returns {Promise<{removidos: number, detalles: Array}>}
+   */
+  async limpiarDuplicados() {
+    const client = await pool.connect()
+
+    try {
+      await client.query('BEGIN')
+
+      // Obtener artistas que están en múltiples fases
+      const duplicadosQuery = `
+        SELECT
+          artista_id,
+          array_agg(fase_id ORDER BY fase_id) as fases,
+          COUNT(*) as total_fases
+        FROM artistas_fases
+        GROUP BY artista_id
+        HAVING COUNT(*) > 1
+      `
+      const duplicados = await client.query(duplicadosQuery)
+
+      const detalles = []
+      let removidos = 0
+
+      for (const dup of duplicados.rows) {
+        // Verificar si el artista tiene obras en concurso
+        const concursoQuery = `
+          SELECT DISTINCT fase_id
+          FROM obras_seleccionadas_concurso
+          WHERE artista_id = $1
+        `
+        const concursoResult = await client.query(concursoQuery, [dup.artista_id])
+
+        if (concursoResult.rows.length > 0) {
+          // El artista está en concurso, removerlo de todas las otras fases
+          const fasesConcurso = concursoResult.rows.map(r => r.fase_id)
+
+          const deleteQuery = `
+            DELETE FROM artistas_fases
+            WHERE artista_id = $1 AND fase_id != ALL($2::int[])
+            RETURNING fase_id
+          `
+          const deleteResult = await client.query(deleteQuery, [dup.artista_id, fasesConcurso])
+
+          if (deleteResult.rows.length > 0) {
+            removidos += deleteResult.rows.length
+            detalles.push({
+              artista_id: dup.artista_id,
+              fases_concurso: fasesConcurso,
+              fases_removidas: deleteResult.rows.map(r => r.fase_id)
+            })
+          }
+        }
+      }
+
+      await client.query('COMMIT')
+      return { removidos, detalles }
+    } catch (error) {
+      await client.query('ROLLBACK')
+      throw error
+    } finally {
+      client.release()
+    }
   }
 }
 

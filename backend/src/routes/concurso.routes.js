@@ -11,7 +11,8 @@ import {
   seleccionarObra,
   deseleccionarObra,
   getObrasSeleccionadas,
-  getEstadisticas
+  getEstadisticas,
+  limpiarDuplicados
 } from '../controllers/concurso.controller.js'
 import { verifyToken, isAdmin } from '../middleware/auth.middleware.js'
 
@@ -58,5 +59,11 @@ router.get('/:fase_id/obras-seleccionadas', getObrasSeleccionadas)
  * Obtener estadísticas de un concurso
  */
 router.get('/:fase_id/estadisticas', getEstadisticas)
+
+/**
+ * POST /api/concurso/limpiar-duplicados
+ * Limpiar artistas que están duplicados en múltiples fases
+ */
+router.post('/limpiar-duplicados', limpiarDuplicados)
 
 export default router

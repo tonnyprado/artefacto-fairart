@@ -264,3 +264,27 @@ export const getEstadisticas = async (req, res) => {
     })
   }
 }
+
+/**
+ * POST /api/concurso/limpiar-duplicados
+ * Limpiar artistas duplicados en múltiples fases
+ * Solo mantiene al artista en Concurso si tiene obras seleccionadas ahí
+ */
+export const limpiarDuplicados = async (req, res) => {
+  try {
+    const resultado = await concursoService.limpiarDuplicados()
+
+    res.json({
+      success: true,
+      data: resultado,
+      message: `${resultado.removidos} inscripciones duplicadas removidas`
+    })
+  } catch (error) {
+    console.error('Error al limpiar duplicados:', error)
+    res.status(500).json({
+      success: false,
+      error: 'Error al limpiar duplicados',
+      details: error.message
+    })
+  }
+}
