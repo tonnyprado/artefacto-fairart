@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import {
   PREAMBULO, CLAUSULA_1_DOCUMENTO, CIERRE_DOCUMENTO, DECLARACIONES_DOCUMENTO,
   clausulasConDescuento, formatearDescuento,
@@ -13,11 +14,48 @@ const th = { textAlign: 'left', padding: '6px 8px', borderBottom: '1.5px solid '
 const td = { padding: '5px 8px', borderBottom: '1px solid #eee' };
 
 /**
+ * Convierte un data URL a Blob URL (más eficiente para el navegador)
+ * @param {string | null} dataUrl
+ * @returns {string | null}
+ */
+function dataUrlABlobUrl(dataUrl) {
+  if (!dataUrl || !dataUrl.startsWith('data:')) return dataUrl;
+  try {
+    const [header, base64] = dataUrl.split(',');
+    const mime = header.match(/:(.*?);/)?.[1] || 'image/png';
+    const bstr = atob(base64);
+    const n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
+    const blob = new Blob([u8arr], { type: mime });
+    return URL.createObjectURL(blob);
+  } catch (e) {
+    console.error('Error convirtiendo data URL a Blob URL:', e);
+    return dataUrl; // fallback al data URL original
+  }
+}
+
+/**
  * Vista HTML del PDF (espejo de backend/src/pdf/PdfKitGenerador.ts).
  * @param {Object} p
  */
 export function DocumentoAcuerdo(p) {
   const a = p.artista;
+  // Convertir data URL de firma a Blob URL para mejor rendimiento
+  const [firmaUrl, setFirmaUrl] = useState(null);
+
+  useEffect(() => {
+    if (p.firmaArtista) {
+      const blobUrl = dataUrlABlobUrl(p.firmaArtista);
+      setFirmaUrl(blobUrl);
+      // Cleanup: revocar Blob URL cuando el componente se desmonte
+      return () => {
+        if (blobUrl && blobUrl.startsWith('blob:')) {
+          URL.revokeObjectURL(blobUrl);
+        }
+      };
+    }
+  }, [p.firmaArtista]);
   return (
     <div style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.15)', borderRadius: 4, boxShadow: '0 8px 30px rgba(0,0,0,0.12)', padding: 'clamp(22px,5vw,48px)', fontSize: 11.5, lineHeight: 1.5, color: '#111' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 14, borderBottom: '2.5px solid ' + color.rojo, paddingBottom: 12, marginBottom: 14, flexWrap: 'wrap' }}>
@@ -93,12 +131,20 @@ export function DocumentoAcuerdo(p) {
       <b style={{ display: 'block', margin: '20px 0 0' }}>Firmas de conformidad</b>
       <div style={{ display: 'flex', gap: 30, flexWrap: 'wrap', marginTop: 14 }}>
         {[
-          { img: p.firmaArtista, nombre: a.nombre, rol: 'Firma del/la artista' },
+          { img: firmaUrl, nombre: a.nombre, rol: 'Firma del/la artista' },
           { img: p.firmaDireccionUrl, nombre: 'Benito García Prieto Pérez', rol: 'Dirección de ARTE FACTO' },
         ].map(f => (
           <div key={f.rol} style={{ flex: 1, minWidth: 200, textAlign: 'center' }}>
             <div style={{ height: 140, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
-              {f.img && <img src={f.img} alt={f.rol} style={{ height: '100%', maxWidth: '100%', objectFit: 'contain' }} />}
+              {f.img ? (
+                <img src={f.img} alt={f.rol} style={{ height: '100%', maxWidth: '100%', objectFit: 'contain' }}
+                  onError={(e) => {
+                    console.error('Error al cargar firma:', f.rol, 'URL:', f.img?.substring(0, 50));
+                    e.target.style.display = 'none';
+                  }} />
+              ) : (
+                <span style={{ fontSize: 11, color: '#999' }}>Cargando firma…</span>
+              )}
             </div>
             <div style={{ borderTop: '1px solid #000', paddingTop: 5, fontSize: 10.5 }}><b>{f.nombre}</b><br />{f.rol}</div>
           </div>
