@@ -92,7 +92,7 @@ export class ConsignaService {
    */
   async contexto(inv) {
     const a = await this.artista(inv);
-    const [obras, borrador, enviado] = await Promise.all([
+    const [obras, borradorRecord, enviado] = await Promise.all([
       this.registro.obrasPostuladas(inv.artistaId),
       this.borradores.porInvitacion(inv.id),
       this.acuerdos.porInvitacion(inv.id),
@@ -101,7 +101,7 @@ export class ConsignaService {
     return {
       artista,
       obras,
-      borrador,
+      borrador: borradorRecord?.datos ?? null,
       versionAcuerdo: VERSION_ACUERDO,
       datosPago: this.datosPago(a),
       contacto: this.cfg.contacto,
