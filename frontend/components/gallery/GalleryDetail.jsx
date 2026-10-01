@@ -12,6 +12,7 @@ const GalleryDetail = forwardRef(function GalleryDetail({
   onClose,
   onDownload,
   onUploadFoto,
+  onEdit,
   isAdmin = false,
   contentRef,
   imageRef,
@@ -148,52 +149,84 @@ const GalleryDetail = forwardRef(function GalleryDetail({
           </button>
         </div>
 
-        {/* Botón de subir foto (solo admin) - SIEMPRE VISIBLE */}
-        {isAdmin && onUploadFoto && (
-          <>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              disabled={uploading}
-              style={{ display: 'none' }}
-              id={`upload-foto-${obra.id}`}
-            />
-            <label
-              htmlFor={`upload-foto-${obra.id}`}
-              style={{
-                marginBottom: '16px',
-                width: '100%',
-                padding: '12px',
-                background: uploading ? COLORS.gray : '#3B82F6',
-                color: COLORS.white,
-                border: 'none',
-                borderRadius: '10px',
-                fontSize: '13px',
-                fontWeight: 600,
-                fontFamily: FONTS.body,
-                cursor: uploading ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                letterSpacing: '0.04em',
-                textTransform: 'uppercase',
-              }}
-            >
-              {uploading ? (
-                <>
-                  <LoadingIcon />
-                  Subiendo...
-                </>
-              ) : (
-                <>
-                  <UploadIcon />
-                  {hasImage ? 'Cambiar foto' : 'Agregar foto'}
-                </>
-              )}
-            </label>
-          </>
+        {/* Botones de admin */}
+        {isAdmin && (
+          <div style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
+            {/* Botón de subir foto */}
+            {onUploadFoto && (
+              <>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  disabled={uploading}
+                  style={{ display: 'none' }}
+                  id={`upload-foto-${obra.id}`}
+                />
+                <label
+                  htmlFor={`upload-foto-${obra.id}`}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: uploading ? COLORS.gray : '#3B82F6',
+                    color: COLORS.white,
+                    border: 'none',
+                    borderRadius: '10px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    fontFamily: FONTS.body,
+                    cursor: uploading ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    letterSpacing: '0.04em',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {uploading ? (
+                    <>
+                      <LoadingIcon />
+                      Subiendo...
+                    </>
+                  ) : (
+                    <>
+                      <UploadIcon />
+                      {hasImage ? 'Cambiar' : 'Agregar'}
+                    </>
+                  )}
+                </label>
+              </>
+            )}
+
+            {/* Botón de editar información */}
+            {onEdit && (
+              <button
+                onClick={() => onEdit(obra)}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: '#6B7280',
+                  color: COLORS.white,
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  fontFamily: FONTS.body,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                <EditIcon />
+                Editar info
+              </button>
+            )}
+          </div>
         )}
 
         {/* Ficha técnica */}
@@ -387,6 +420,14 @@ function LoadingIcon() {
       <circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
       <path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </svg>
+  )
+}
+
+function EditIcon() {
+  return (
+    <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
     </svg>
   )
 }

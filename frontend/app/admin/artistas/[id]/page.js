@@ -772,15 +772,25 @@ export default function ArtistaDetalle() {
 
             {/* Obras con galería animada */}
             <div className="bg-white rounded-2xl shadow p-6 mb-6">
-              <h2 className="text-lg font-semibold mb-4">
-                Obras ({obrasCompletas.length > 0 ? obrasCompletas.length : obras.length})
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold">
+                  Obras ({obrasCompletas.length > 0 ? obrasCompletas.length : obras.length})
+                </h2>
+                <button
+                  onClick={() => setCreateObraModal(true)}
+                  className="flex items-center gap-2 bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 text-sm"
+                >
+                  <Upload className="h-4 w-4" />
+                  Nueva Obra
+                </button>
+              </div>
               <FlipGallery
                 obras={obrasCompletas.length > 0 ? obrasCompletas : obras}
                 columns={3}
                 gap={16}
                 isAdmin={true}
                 onUploadFoto={handleUploadFoto}
+                onEdit={(obra) => setEditObraModal(obra)}
               />
             </div>
 
