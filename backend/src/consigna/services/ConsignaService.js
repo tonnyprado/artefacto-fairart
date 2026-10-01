@@ -261,7 +261,7 @@ export class ConsignaService {
       this.correo.enviar({
         para: [a.correo],
         asunto: 'Tu acuerdo de consignación · ARTE FACTO',
-        texto: `Hola ${a.nombrePila}:\n\nAdjuntamos tu acuerdo firmado. Recuerda cubrir el 50% de tu paquete en las próximas 24 horas.\n\nConcepto: ${this.datosPago(a).concepto}\nCLABE: ${this.cfg.pago.clabe}\n\nARTE FACTO`,
+        texto: `Hola ${a.nombrePila}:\n\nAdjuntamos tu acuerdo firmado. Recuerda cubrir el 50% de tu paquete en las próximas 48 horas.\n\nConcepto: ${this.datosPago(a).concepto}\nCLABE: ${this.cfg.pago.clabe}\n\nARTE FACTO`,
         adjuntos: [{ nombre: nombreArchivo, contenido: pdf, tipo: 'application/pdf' }],
       }),
       this.correo.enviar({

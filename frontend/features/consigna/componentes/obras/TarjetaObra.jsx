@@ -34,7 +34,7 @@ export function TarjetaObra({ obra, ganancia, onGanancia }) {
         {fila('+ Ajuste a cifra cerrada', formatoMXN(d.ajuste))}
         {fila('= Precio de venta', formatoMXN(d.precioVenta), true)}
         {fila('IVA 16%', formatoMXN(d.iva))}
-        {fila('Tarjeta 3%', formatoMXN(d.tarjeta))}
+        {fila('Gestión adm. 3%', formatoMXN(d.gestionAdmin))}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 12, alignItems: 'center', padding: '12px 16px', background: '#000' }}>
         <label style={{ fontSize: 13, fontWeight: 800, fontStyle: 'italic', textTransform: 'uppercase', color: color.crema }}>Precio público</label>

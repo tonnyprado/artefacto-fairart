@@ -14,7 +14,7 @@ export function PasoEnviado({ nombrePila, correo, onRevisar, onDescargar }) {
       <h2 style={{ margin: '0 0 10px', fontWeight: 900, fontStyle: 'italic', textTransform: 'uppercase', fontSize: 'clamp(26px,5vw,40px)' }}>Acuerdo recibido</h2>
       <p style={{ fontFamily: fuente.serif, fontStyle: 'italic', fontSize: 18, maxWidth: 440, margin: '0 auto 8px' }}>Gracias, {nombrePila}. Nos vemos en Estación Indianilla.</p>
       <p style={{ fontSize: 13.5, color: 'rgba(0,0,0,0.65)', maxWidth: 460, margin: '0 auto 26px', lineHeight: 1.45 }}>
-        Te enviamos copia del PDF firmado a {correo}. Recuerda cubrir el 50% de tu paquete en las próximas 24 horas. Recepción de obra: 30 de enero al 1 de febrero de 2027.
+        Te enviamos copia del PDF firmado a {correo}. Recuerda cubrir el 50% de tu paquete en las próximas 48 horas. Recepción de obra: 30 de enero al 1 de febrero de 2027.
       </p>
       <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
         <button type="button" onClick={onRevisar} style={botonPrimario()}>Volver a revisar mi acuerdo</button>

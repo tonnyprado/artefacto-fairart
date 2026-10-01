@@ -21,7 +21,7 @@ export function PasoObras({ obras, ganancias, descuento, onGanancia, onDescuento
       </p>
       <FormulaPrecio />
       <p style={{ fontSize: 13, maxWidth: 660, lineHeight: 1.45, color: color.rojo, fontWeight: 600, margin: '0 0 16px' }}>
-        Edita tu precio ya considerando IVA y comisión por pago con tarjeta. Lo demás se recalcula y registramos la diferencia.
+        Edita tu precio ya considerando IVA y gastos de gestión administrativa. Lo demás se recalcula y registramos la diferencia.
       </p>
       <TablaObras obras={obras} ganancias={ganancias} onGanancia={onGanancia} />
       <SelectorDescuento valor={descuento} onCambiar={onDescuento} />

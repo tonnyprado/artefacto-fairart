@@ -3,7 +3,7 @@
 
 export const COMISION = 0.25;   // 20% ARTE FACTO + 5% asesor
 export const IVA = 0.16;
-export const TARJETA = 0.03;    // siempre incluido en el precio público
+export const GESTION_ADMIN = 0.03; // gastos de gestión administrativa (siempre incluido)
 export const REDONDEO = 500;    // precio de venta cerrado al múltiplo superior
 
 /**
@@ -13,7 +13,7 @@ export const REDONDEO = 500;    // precio de venta cerrado al múltiplo superior
  * @property {number} ajuste - Diferencia para cerrar al múltiplo de 500
  * @property {number} precioVenta - Ganancia + comisión + ajuste
  * @property {number} iva - 16% sobre precio de venta
- * @property {number} tarjeta - 3% sobre (venta + IVA)
+ * @property {number} gestionAdmin - 3% gastos de gestión administrativa sobre (venta + IVA)
  * @property {number} precioPublico - Precio que ve el comprador
  */
 
@@ -29,15 +29,15 @@ export function desglosar(ganancia) {
   const bruto = g / (1 - COMISION);
   const precioVenta = Math.ceil(bruto / REDONDEO - 1e-9) * REDONDEO;
   const iva = precioVenta * IVA;
-  const tarjeta = (precioVenta + iva) * TARJETA;
+  const gestionAdmin = (precioVenta + iva) * GESTION_ADMIN;
   return {
     ganancia: r2(g),
     comision: r2(bruto - g),
     ajuste: r2(precioVenta - bruto),
     precioVenta,
     iva: r2(iva),
-    tarjeta: r2(tarjeta),
-    precioPublico: r2(precioVenta + iva + tarjeta),
+    gestionAdmin: r2(gestionAdmin),
+    precioPublico: r2(precioVenta + iva + gestionAdmin),
   };
 }
 
@@ -47,7 +47,7 @@ export function desglosar(ganancia) {
  * @returns {number} Ganancia calculada
  */
 export function gananciaDesdePublico(precioPublico) {
-  return Math.round((Math.max(0, precioPublico) / ((1 + IVA) * (1 + TARJETA))) * (1 - COMISION));
+  return Math.round((Math.max(0, precioPublico) / ((1 + IVA) * (1 + GESTION_ADMIN))) * (1 - COMISION));
 }
 
 /**

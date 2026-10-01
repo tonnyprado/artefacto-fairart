@@ -35,7 +35,7 @@ export function FilaObra({ obra, ganancia, onGanancia }) {
       <td style={celda}>{formatoMXN(d.ajuste)}</td>
       <td style={{ ...celda, fontWeight: 800, color: color.rojoOscuro, background: 'rgba(185,50,50,0.06)' }}>{formatoMXN(d.precioVenta)}</td>
       <td style={celda}>{formatoMXN(d.iva)}</td>
-      <td style={celda}>{formatoMXN(d.tarjeta)}</td>
+      <td style={celda}>{formatoMXN(d.gestionAdmin)}</td>
       <td style={{ padding: '10px 14px', textAlign: 'right', background: 'rgba(0,0,0,0.04)' }}>
         <input type="number" min={0} step={100} aria-label={`Precio público ${obra.titulo}`}
           value={borrador ?? Math.round(d.precioPublico)}

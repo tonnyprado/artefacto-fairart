@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS acuerdo_obras (
   ajuste             numeric(12,2) NOT NULL,
   precio_venta       numeric(12,2) NOT NULL,
   iva                numeric(12,2) NOT NULL,
-  tarjeta            numeric(12,2) NOT NULL,
+  gastos_admin       numeric(12,2) NOT NULL,  -- 3% gastos de gestión administrativa
   precio_publico     numeric(12,2) NOT NULL,
   modificada         boolean GENERATED ALWAYS AS (ganancia_original <> ganancia_final) STORED
 );
