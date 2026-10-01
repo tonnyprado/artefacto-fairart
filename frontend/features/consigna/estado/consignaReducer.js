@@ -30,7 +30,7 @@ export const ETIQUETAS_PASO = [
  */
 export function estadoInicial(ctx) {
   const b = ctx.borrador;
-  const ganancias = Object.fromEntries(ctx.obras.map(o => [o.id, b?.ganancias[o.id] ?? o.gananciaRegistrada]));
+  const ganancias = Object.fromEntries(ctx.obras.map(o => [o.id, b?.ganancias?.[o.id] ?? o.gananciaRegistrada]));
   if (ctx.enviado) {
     return { paso: 12, maxPaso: 12, estadoFiscal: b?.estadoFiscal ?? null, constancia: b?.constancia ?? null,
       descuentoMax: b?.descuentoMax ?? null, ganancias, acepto: true, firma: null, enviado: true };
