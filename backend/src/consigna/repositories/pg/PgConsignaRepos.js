@@ -157,46 +157,76 @@ export class PgAcuerdosRepo {
   }
 
   /**
-   * @param {string} invitacionId
-   * @param {string} artistaId
-   * @param {any} datos
-   * @param {string} pdfKey
-   * @param {string} firmaKey
-   * @param {string} datosKey
-   * @returns {Promise<string>}
+   * @param {Object} acuerdo
+   * @param {string} acuerdo.invitacionId
+   * @param {string} acuerdo.artistaId
+   * @param {string} acuerdo.folio
+   * @param {string} acuerdo.versionAcuerdo
+   * @param {Object} acuerdo.snapshotArtista
+   * @param {string} acuerdo.estadoFiscal
+   * @param {string | null} acuerdo.constanciaKey
+   * @param {number} acuerdo.descuentoMax
+   * @param {string} acuerdo.firmaKey
+   * @param {string} acuerdo.pdfKey
+   * @param {string} acuerdo.pdfSha256
+   * @param {string | null} acuerdo.ip
+   * @param {string | null} acuerdo.userAgent
+   * @param {Array} acuerdo.obras
+   * @returns {Promise<{id: string}>}
    */
-  async crear(invitacionId, artistaId, datos, pdfKey, firmaKey, datosKey) {
+  async crear(acuerdo) {
     const r = await this.pool.query(
       `INSERT INTO consigna.acuerdos
-       (invitacion_id, artista_id, datos, pdf_key, firma_key, datos_key)
-       VALUES ($1, $2, $3, $4, $5, $6)
+       (invitacion_id, artista_id, folio, version_acuerdo, snapshot_artista, estado_fiscal,
+        constancia_key, descuento_max, firma_key, pdf_key, pdf_sha256, ip, user_agent)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
        RETURNING id`,
-      [invitacionId, artistaId, datos, pdfKey, firmaKey, datosKey]
+      [
+        acuerdo.invitacionId,
+        acuerdo.artistaId,
+        acuerdo.folio,
+        acuerdo.versionAcuerdo,
+        acuerdo.snapshotArtista,
+        acuerdo.estadoFiscal,
+        acuerdo.constanciaKey,
+        acuerdo.descuentoMax,
+        acuerdo.firmaKey,
+        acuerdo.pdfKey,
+        acuerdo.pdfSha256,
+        acuerdo.ip,
+        acuerdo.userAgent,
+      ]
     );
     const acuerdoId = r.rows[0].id;
 
     // Insertar obras
-    if (datos.obras && Array.isArray(datos.obras)) {
-      for (const o of datos.obras) {
+    if (acuerdo.obras && Array.isArray(acuerdo.obras)) {
+      for (const o of acuerdo.obras) {
         await this.pool.query(
           `INSERT INTO consigna.acuerdo_obras
-           (acuerdo_id, obra_id, titulo, tecnica, medida, ganancia, precio_venta, precio_publico)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+           (acuerdo_id, obra_id, titulo, tecnica, medida, ganancia_original, ganancia_final,
+            comision, ajuste, precio_venta, iva, tarjeta, precio_publico)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
           [
             acuerdoId,
             o.obraId,
             o.titulo,
             o.tecnica,
             o.medida,
-            o.ganancia,
-            o.precioVenta,
-            o.precioPublico,
+            o.gananciaOriginal,
+            o.desglose.ganancia,
+            o.desglose.comision,
+            o.desglose.ajuste,
+            o.desglose.precioVenta,
+            o.desglose.iva,
+            o.desglose.tarjeta,
+            o.desglose.precioPublico,
           ]
         );
       }
     }
 
-    return acuerdoId;
+    return { id: acuerdoId };
   }
 
   /**
