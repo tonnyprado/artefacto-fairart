@@ -205,7 +205,7 @@ export class PgAcuerdosRepo {
         await this.pool.query(
           `INSERT INTO consigna.acuerdo_obras
            (acuerdo_id, obra_id, titulo, tecnica, medida, ganancia_original, ganancia_final,
-            comision, ajuste, precio_venta, iva, tarjeta, precio_publico)
+            comision, ajuste, precio_venta, iva, gastos_admin, precio_publico)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
           [
             acuerdoId,
@@ -219,7 +219,7 @@ export class PgAcuerdosRepo {
             o.desglose.ajuste,
             o.desglose.precioVenta,
             o.desglose.iva,
-            o.desglose.tarjeta,
+            o.desglose.gestionAdmin,
             o.desglose.precioPublico,
           ]
         );
