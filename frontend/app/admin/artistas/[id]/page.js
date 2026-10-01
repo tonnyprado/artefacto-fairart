@@ -25,6 +25,168 @@ import {
 } from 'lucide-react'
 import { FlipGallery } from '@/components/gallery'
 
+// Componente para el modal de formulario de obra
+function ObraFormModal({ obra, onSave, onClose, saving }) {
+  const [formData, setFormData] = useState({
+    titulo: obra?.titulo || '',
+    alto_cm: obra?.alto_cm || '',
+    ancho_cm: obra?.ancho_cm || '',
+    precio_mxn: obra?.precio_mxn || '',
+    imagen_url: obra?.imagen_url || ''
+  })
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    onSave({
+      ...obra,
+      ...formData,
+      alto_cm: formData.alto_cm ? parseFloat(formData.alto_cm) : null,
+      ancho_cm: formData.ancho_cm ? parseFloat(formData.ancho_cm) : null,
+      precio_mxn: formData.precio_mxn ? parseFloat(formData.precio_mxn) : null
+    })
+  }
+
+  return (
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+      onClick={() => !saving && onClose()}
+    >
+      <div
+        className="bg-white rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="text-xl font-semibold mb-4">
+          {obra ? 'Editar Obra' : 'Crear Nueva Obra'}
+        </h3>
+        <form onSubmit={handleSubmit}>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Título
+              </label>
+              <input
+                type="text"
+                value={formData.titulo}
+                onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Título de la obra"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Alto (cm)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={formData.alto_cm}
+                  onChange={(e) => setFormData({ ...formData, alto_cm: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="0.00"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Ancho (cm)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={formData.ancho_cm}
+                  onChange={(e) => setFormData({ ...formData, ancho_cm: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Precio (MXN)
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                value={formData.precio_mxn}
+                onChange={(e) => setFormData({ ...formData, precio_mxn: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="0.00"
+              />
+            </div>
+
+            {!obra && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  URL de la imagen (opcional)
+                </label>
+                <input
+                  type="text"
+                  value={formData.imagen_url}
+                  onChange={(e) => setFormData({ ...formData, imagen_url: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="https://..."
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Puedes subir la foto después de crear la obra
+                </p>
+              </div>
+            )}
+
+            {obra?.fotos_detalle_urls && obra.fotos_detalle_urls.length > 0 && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Fotos de detalle ({obra.fotos_detalle_urls.length})
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {obra.fotos_detalle_urls.map((url, idx) => (
+                    <img
+                      key={idx}
+                      src={url}
+                      alt={`Detalle ${idx + 1}`}
+                      className="w-full h-20 object-cover rounded-lg cursor-pointer hover:opacity-75"
+                      onClick={() => window.open(url, '_blank')}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-2 mt-6">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={saving}
+              className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 disabled:opacity-50"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Guardando...
+                </>
+              ) : (
+                <>
+                  <Check className="h-4 w-4" />
+                  {obra ? 'Actualizar' : 'Crear'}
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
 export default function ArtistaDetalle() {
   const params = useParams()
   const router = useRouter()
@@ -35,7 +197,10 @@ export default function ArtistaDetalle() {
   const [error, setError] = useState(null)
   const [imageModal, setImageModal] = useState(null)
   const [editFotoModal, setEditFotoModal] = useState(null)
+  const [editObraModal, setEditObraModal] = useState(null)
+  const [createObraModal, setCreateObraModal] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     if (params.id) {
@@ -101,6 +266,15 @@ export default function ArtistaDetalle() {
   const handleUploadFoto = async (file, obraId) => {
     if (!file || !obraId) return
 
+    // Validar que el ID sea numérico (de la base de datos)
+    const isValidId = typeof obraId === 'number' || (typeof obraId === 'string' && !isNaN(parseInt(obraId)) && !obraId.includes('-'))
+
+    if (!isValidId) {
+      alert('Esta obra no está guardada en la base de datos aún. No se puede actualizar la foto.')
+      console.error('ID de obra inválido:', obraId)
+      return
+    }
+
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
@@ -108,7 +282,7 @@ export default function ArtistaDetalle() {
       formData.append('foto', file)
 
       const token = localStorage.getItem('token')
-      const response = await fetch(`${apiUrl}/obras/${obraId}/foto`, {
+      const response = await fetch(`${apiUrl}/api/obras/${obraId}/foto`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -145,6 +319,71 @@ export default function ArtistaDetalle() {
       setEditFotoModal(null)
     } finally {
       setUploading(false)
+    }
+  }
+
+  const handleUpdateObra = async (obraData) => {
+    try {
+      setSaving(true)
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+      const token = localStorage.getItem('token')
+
+      const response = await fetch(`${apiUrl}/api/obras/${obraData.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(obraData)
+      })
+
+      if (response.ok) {
+        await fetchArtista()
+        alert('Obra actualizada exitosamente')
+        setEditObraModal(null)
+      } else {
+        const error = await response.json()
+        alert('Error al actualizar obra: ' + (error.error || 'Error desconocido'))
+      }
+    } catch (err) {
+      console.error('Error al actualizar obra:', err)
+      alert('Error al actualizar obra: ' + err.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleCreateObra = async (obraData) => {
+    try {
+      setSaving(true)
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+      const token = localStorage.getItem('token')
+
+      const response = await fetch(`${apiUrl}/api/obras`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          ...obraData,
+          artista_id: params.id
+        })
+      })
+
+      if (response.ok) {
+        await fetchArtista()
+        alert('Obra creada exitosamente')
+        setCreateObraModal(false)
+      } else {
+        const error = await response.json()
+        alert('Error al crear obra: ' + (error.error || 'Error desconocido'))
+      }
+    } catch (err) {
+      console.error('Error al crear obra:', err)
+      alert('Error al crear obra: ' + err.message)
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -259,6 +498,12 @@ export default function ArtistaDetalle() {
           </div>
         </div>
       )}
+
+      {/* Modal de edición de obra */}
+      {editObraModal && <ObraFormModal obra={editObraModal} onSave={handleUpdateObra} onClose={() => setEditObraModal(null)} saving={saving} />}
+
+      {/* Modal de creación de obra */}
+      {createObraModal && <ObraFormModal onSave={handleCreateObra} onClose={() => setCreateObraModal(false)} saving={saving} />}
 
       {/* Header */}
       <div className="max-w-6xl mx-auto">
@@ -540,11 +785,20 @@ export default function ArtistaDetalle() {
             </div>
 
             {/* Administración de Obras (solo admin) */}
-            {obrasCompletas.length > 0 && (
-              <div className="bg-white rounded-2xl shadow p-6">
-                <h2 className="text-lg font-semibold mb-4">
+            <div className="bg-white rounded-2xl shadow p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold">
                   Administración de Obras ({obrasCompletas.length})
                 </h2>
+                <button
+                  onClick={() => setCreateObraModal(true)}
+                  className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm"
+                >
+                  <Upload className="h-4 w-4" />
+                  Agregar Obra
+                </button>
+              </div>
+              {obrasCompletas.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {obrasCompletas.map((obra) => (
                     <div key={obra.id} className="border rounded-lg p-4">
@@ -564,23 +818,46 @@ export default function ArtistaDetalle() {
                       <h3 className="font-medium text-sm mb-1">
                         {obra.titulo || 'Sin título'}
                       </h3>
-                      <p className="text-xs text-gray-500 mb-3">
+                      <p className="text-xs text-gray-500 mb-2">
                         {obra.alto_cm && obra.ancho_cm
                           ? `${obra.alto_cm} x ${obra.ancho_cm} cm`
                           : 'Dimensiones no especificadas'}
                       </p>
-                      <button
-                        onClick={() => setEditFotoModal(obra)}
-                        className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-2 px-3 rounded-lg hover:bg-blue-700 text-sm"
-                      >
-                        <Edit className="h-4 w-4" />
-                        {obra.imagen_url ? 'Cambiar foto' : 'Agregar foto'}
-                      </button>
+                      {obra.precio_mxn && (
+                        <p className="text-xs text-green-600 mb-2 font-medium">
+                          ${parseFloat(obra.precio_mxn).toLocaleString('es-MX')} MXN
+                        </p>
+                      )}
+                      {obra.fotos_detalle_urls && obra.fotos_detalle_urls.length > 0 && (
+                        <p className="text-xs text-blue-600 mb-3">
+                          {obra.fotos_detalle_urls.length} foto{obra.fotos_detalle_urls.length !== 1 ? 's' : ''} de detalle
+                        </p>
+                      )}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setEditObraModal(obra)}
+                          className="flex-1 flex items-center justify-center gap-1 bg-gray-600 text-white py-2 px-2 rounded-lg hover:bg-gray-700 text-xs"
+                        >
+                          <Edit className="h-3 w-3" />
+                          Editar
+                        </button>
+                        <button
+                          onClick={() => setEditFotoModal(obra)}
+                          className="flex-1 flex items-center justify-center gap-1 bg-blue-600 text-white py-2 px-2 rounded-lg hover:bg-blue-700 text-xs"
+                        >
+                          <Upload className="h-3 w-3" />
+                          Foto
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  No hay obras registradas. Haz clic en "Agregar Obra" para comenzar.
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
