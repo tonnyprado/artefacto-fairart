@@ -372,38 +372,43 @@ export const registrarArtista = async (req, res) => {
 
     // ========================================
     // 4.5. INSCRIBIR A LA FASE ACTIVA AUTOMÁTICAMENTE
+    // (SOLO si NO acepta concurso - los de concurso van exclusivamente allá)
     // ========================================
-    try {
-      // Buscar la fase activa con inscripciones abiertas (SOLO fases normales, NO concursos)
-      const faseActivaResult = await pool.query(
-        `SELECT id, nombre, tipo, numero_fase FROM fases
-         WHERE inscripciones_abiertas = true
-         AND tipo = 'fase'
-         ORDER BY created_at DESC
-         LIMIT 1`
-      )
-
-      if (faseActivaResult.rows.length > 0) {
-        const faseActiva = faseActivaResult.rows[0]
-
-        // Insertar en artistas_fases
-        await pool.query(
-          `INSERT INTO artistas_fases (artista_id, fase_id, seleccionado)
-           VALUES ($1, $2, $3)
-           ON CONFLICT (artista_id, fase_id) DO NOTHING`,
-          [nuevoArtista.id, faseActiva.id, false]
+    if (acepta_concurso !== 'true' && acepta_concurso !== true) {
+      try {
+        // Buscar la fase activa con inscripciones abiertas (SOLO fases normales, NO concursos)
+        const faseActivaResult = await pool.query(
+          `SELECT id, nombre, tipo, numero_fase FROM fases
+           WHERE inscripciones_abiertas = true
+           AND tipo = 'fase'
+           ORDER BY created_at DESC
+           LIMIT 1`
         )
 
-        // Guardar info de fase para emails
-        nuevoArtista.fase = faseActiva
+        if (faseActivaResult.rows.length > 0) {
+          const faseActiva = faseActivaResult.rows[0]
 
-        console.log(`✅ Artista inscrito a la fase ${faseActiva.id} (${faseActiva.nombre})`)
-      } else {
-        console.log('⚠️  No hay fases activas con inscripciones abiertas')
+          // Insertar en artistas_fases
+          await pool.query(
+            `INSERT INTO artistas_fases (artista_id, fase_id, seleccionado)
+             VALUES ($1, $2, $3)
+             ON CONFLICT (artista_id, fase_id) DO NOTHING`,
+            [nuevoArtista.id, faseActiva.id, false]
+          )
+
+          // Guardar info de fase para emails
+          nuevoArtista.fase = faseActiva
+
+          console.log(`✅ Artista inscrito a la FASE ${faseActiva.id} (${faseActiva.nombre})`)
+        } else {
+          console.log('⚠️  No hay fases activas con inscripciones abiertas')
+        }
+      } catch (faseError) {
+        console.error('❌ Error al inscribir a fase:', faseError)
+        // No fallar el registro si no se puede inscribir a fase
       }
-    } catch (faseError) {
-      console.error('❌ Error al inscribir a fase:', faseError)
-      // No fallar el registro si no se puede inscribir a fase
+    } else {
+      console.log('⏭️  Artista marcó Concurso - saltando inscripción a fase normal')
     }
 
     // ========================================
