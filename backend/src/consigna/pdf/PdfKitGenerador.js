@@ -299,7 +299,7 @@ export class PdfKitGenerador extends GeneradorPdf {
     }
 
     y = doc.y;
-    doc.rect(50, y, 495, 60).strokeColor(COLOR_ROJO).lineWidth(1.5).stroke();
+    doc.rect(50, y, 495, 70).strokeColor(COLOR_ROJO).lineWidth(1.5).stroke();
 
     doc
       .fontSize(9)
@@ -310,20 +310,27 @@ export class PdfKitGenerador extends GeneradorPdf {
     doc.fontSize(8.5).font('Helvetica').fillColor('#111');
     let pagoY = y + 22;
 
-    // Layout en dos columnas cuando cabe, sino en una sola línea
+    // Primera línea: Beneficiario y Banco
     doc.text(`Beneficiario: ${datos.datosPago.beneficiario}`, 60, pagoY, { width: 230, continued: false });
+    const beneficiarioHeight = doc.heightOfString(`Beneficiario: ${datos.datosPago.beneficiario}`, { width: 230 });
     doc.text(`Banco: ${datos.datosPago.banco}`, 300, pagoY, { width: 150, continued: false });
 
-    pagoY += 10;
+    // Segunda línea: CLABE y Cuenta (ajustar Y según la altura del beneficiario)
+    pagoY += Math.max(beneficiarioHeight, 10);
     doc.text(`CLABE: ${datos.datosPago.clabe}`, 60, pagoY, { width: 230, continued: false });
     doc.text(`Cuenta: ${datos.datosPago.cuenta}`, 300, pagoY, { width: 150, continued: false });
 
+    // Tercera línea: Concepto
     pagoY += 10;
     doc.text(`Concepto: ${datos.datosPago.concepto}`, 60, pagoY, { width: 475, continued: false });
 
-    doc.fontSize(8).fillColor('#444').text(datos.datosPago.plazos, 60, y + 52, { width: 475, continued: false });
+    // Cuarta línea: Plazos (con espacio dinámico)
+    pagoY += 10;
+    doc.fontSize(8).fillColor('#444').text(datos.datosPago.plazos, 60, pagoY, { width: 475, continued: false });
 
-    doc.y = y + 65;
+    // Ajustar altura del cuadro y posición Y final
+    const cuadroHeight = pagoY - y + 15; // Altura dinámica del contenido + padding
+    doc.y = y + cuadroHeight;
     doc.x = 50; // Resetear posición X
     doc.moveDown(1.5);
 
