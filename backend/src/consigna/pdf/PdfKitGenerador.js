@@ -184,20 +184,21 @@ export class PdfKitGenerador extends GeneradorPdf {
     doc
       .fontSize(9)
       .font('Helvetica-Bold')
-      .text(`Descuento máximo autorizado: ${formatearDescuento(datos.descuentoMax)}`, {
+      .text(`Descuento máximo autorizado: ${formatearDescuento(datos.descuentoMax)}`, 50, doc.y, {
+        width: 495,
         continued: true,
       })
       .font('Helvetica')
       .text(' sobre el precio de venta.');
 
     doc.moveDown(0.3);
-    doc.text(CLAUSULA_1_DOCUMENTO.estado, { lineGap: 1.5 });
+    doc.text(CLAUSULA_1_DOCUMENTO.estado, 50, doc.y, { width: 495, lineGap: 1.5 });
     doc.moveDown(0.3);
 
     // Dividir cierre en párrafos (tiene \n)
     const parrafosCierre = CLAUSULA_1_DOCUMENTO.cierre.split('\n');
     parrafosCierre.forEach((parrafo, idx) => {
-      doc.text(parrafo, { lineGap: 1.5 });
+      doc.text(parrafo, 50, doc.y, { width: 495, lineGap: 1.5 });
       if (idx < parrafosCierre.length - 1) {
         doc.moveDown(0.3);
       }
@@ -218,14 +219,15 @@ export class PdfKitGenerador extends GeneradorPdf {
         .fontSize(10)
         .font('Helvetica-Bold')
         .fillColor(COLOR_ROJO)
-        .text(`${c.n} · ${c.titulo}`, { continued: false });
+        .text(`${c.n} · ${c.titulo}`, 50, doc.y, { width: 495, continued: false });
 
       // Dividir texto legal en párrafos (respetando \n como en el HTML con whiteSpace: 'pre-line')
       const parrafosClausula = c.textoLegal.split('\n');
       doc.fontSize(9).font('Helvetica').fillColor('#222');
 
       parrafosClausula.forEach((parrafo, idx) => {
-        doc.text(parrafo, {
+        doc.text(parrafo, 50, doc.y, {
+          width: 495,
           align: 'left',
           lineGap: 1.5,
         });
@@ -248,16 +250,16 @@ export class PdfKitGenerador extends GeneradorPdf {
       .fontSize(10)
       .font('Helvetica-Bold')
       .fillColor(COLOR_ROJO)
-      .text('9 · Aceptación de riesgo', { continued: false });
+      .text('9 · Aceptación de riesgo', 50, doc.y, { width: 495, continued: false });
 
-    doc.fontSize(9).font('Helvetica').fillColor('#111').text('El/la artista declara que:');
+    doc.fontSize(9).font('Helvetica').fillColor('#111').text('El/la artista declara que:', 50, doc.y, { width: 495 });
 
     DECLARACIONES_DOCUMENTO.forEach(d => {
-      doc.text(`— ${d}`, { indent: 12, lineGap: 1 });
+      doc.text(`— ${d}`, 50, doc.y, { width: 495, indent: 12, lineGap: 1 });
     });
 
     doc.moveDown(0.3);
-    doc.text(CIERRE_DOCUMENTO, { lineGap: 1.5 });
+    doc.text(CIERRE_DOCUMENTO, 50, doc.y, { width: 495, lineGap: 1.5 });
 
     doc.moveDown(1);
 
@@ -270,6 +272,12 @@ export class PdfKitGenerador extends GeneradorPdf {
 
     y = doc.y;
     doc.rect(50, y, 495, 20).fillAndStroke(COLOR_CREMA_PAPEL, COLOR_CREMA_PAPEL);
+
+    const textoFiscal = datos.estadoFiscal
+      ? ETIQUETA_FISCAL[datos.estadoFiscal] +
+          (datos.constanciaNombre ? ` (${datos.constanciaNombre})` : '')
+      : '—';
+
     doc
       .fontSize(9)
       .font('Helvetica-Bold')
@@ -277,14 +285,10 @@ export class PdfKitGenerador extends GeneradorPdf {
       .text('Constancia de situación fiscal: ', 60, y + 7, { continued: true })
       .font('Helvetica')
       .fillColor('#111')
-      .text(
-        datos.estadoFiscal
-          ? ETIQUETA_FISCAL[datos.estadoFiscal] +
-              (datos.constanciaNombre ? ` (${datos.constanciaNombre})` : '')
-          : '—'
-      );
+      .text(textoFiscal);
 
     doc.y = y + 25;
+    doc.x = 50; // Resetear posición X
     doc.moveDown(0.8);
 
     // ══════════════════════════════════════════════════════════════
@@ -323,7 +327,7 @@ export class PdfKitGenerador extends GeneradorPdf {
       doc.addPage();
     }
 
-    doc.fontSize(10).font('Helvetica-Bold').fillColor('#111').text('Firmas de conformidad');
+    doc.fontSize(10).font('Helvetica-Bold').fillColor('#111').text('Firmas de conformidad', 50, doc.y, { width: 495 });
 
     doc.moveDown(1);
 
@@ -457,5 +461,6 @@ export class PdfKitGenerador extends GeneradorPdf {
     });
 
     doc.y = y + 5;
+    doc.x = 50; // Resetear posición X para el texto que sigue
   }
 }
