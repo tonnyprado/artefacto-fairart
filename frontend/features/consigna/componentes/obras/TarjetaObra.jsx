@@ -12,7 +12,15 @@ import { color } from '../../tema';
 export function TarjetaObra({ obra, ganancia, onGanancia }) {
   const d = desglosar(ganancia);
   const [borrador, setBorrador] = useState(null);
-  const aplicar = () => { if (borrador !== null) { onGanancia(gananciaDesdePublico(Number(borrador) || 0)); setBorrador(null); } };
+  const aplicar = () => {
+    if (borrador !== null) {
+      const valorNumerico = parseFloat(borrador);
+      if (!isNaN(valorNumerico) && valorNumerico >= 0) {
+        onGanancia(gananciaDesdePublico(valorNumerico));
+      }
+      setBorrador(null);
+    }
+  };
   const modificada = Math.round(ganancia) !== obra.gananciaRegistrada;
   const input = { width: 130, textAlign: 'right', padding: '10px 12px', borderRadius: 8, fontSize: 16, background: '#fff', boxSizing: 'border-box' };
   const fila = (k, v, fuerte = false) => (<>
@@ -29,7 +37,17 @@ export function TarjetaObra({ obra, ganancia, onGanancia }) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px 12px', alignItems: 'center', padding: '12px 16px', borderTop: '1px solid rgba(0,0,0,0.08)' }}>
         <label style={{ fontSize: 13, fontWeight: 700, color: color.rojo }}>Tu ganancia</label>
         <input type="number" inputMode="numeric" min={0} step={100} value={Math.round(ganancia)} aria-label={`Ganancia ${obra.titulo}`}
-          onChange={e => onGanancia(Number(e.target.value) || 0)} style={{ ...input, border: `1.5px solid ${color.rojo}`, fontWeight: 600 }} />
+          onChange={e => {
+            const valor = parseFloat(e.target.value);
+            onGanancia(!isNaN(valor) && valor >= 0 ? valor : 0);
+          }}
+          onKeyDown={e => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              e.target.blur();
+            }
+          }}
+          style={{ ...input, border: `1.5px solid ${color.rojo}`, fontWeight: 600 }} />
         {fila('+ Comisión 25%', formatoMXN(d.comision))}
         {fila('+ Ajuste a cifra cerrada', formatoMXN(d.ajuste))}
         {fila('= Precio de venta', formatoMXN(d.precioVenta), true)}
@@ -40,7 +58,14 @@ export function TarjetaObra({ obra, ganancia, onGanancia }) {
         <label style={{ fontSize: 13, fontWeight: 800, fontStyle: 'italic', textTransform: 'uppercase', color: color.crema }}>Precio público</label>
         <input type="number" inputMode="numeric" min={0} step={100} aria-label={`Precio público ${obra.titulo}`}
           value={borrador ?? Math.round(d.precioPublico)} onChange={e => setBorrador(e.target.value)} onBlur={aplicar}
-          onKeyDown={e => e.key === 'Enter' && (e.target).blur()} style={{ ...input, border: 'none', fontWeight: 800 }} />
+          onKeyDown={e => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              aplicar();
+              e.target.blur();
+            }
+          }}
+          style={{ ...input, border: 'none', fontWeight: 800 }} />
       </div>
     </div>
   );

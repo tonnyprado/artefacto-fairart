@@ -15,7 +15,15 @@ export function FilaObra({ obra, ganancia, onGanancia }) {
   const d = desglosar(ganancia);
   // Borrador local del precio público: se aplica al salir del campo o con Enter
   const [borrador, setBorrador] = useState(null);
-  const aplicar = () => { if (borrador !== null) { onGanancia(gananciaDesdePublico(Number(borrador) || 0)); setBorrador(null); } };
+  const aplicar = () => {
+    if (borrador !== null) {
+      const valorNumerico = parseFloat(borrador);
+      if (!isNaN(valorNumerico) && valorNumerico >= 0) {
+        onGanancia(gananciaDesdePublico(valorNumerico));
+      }
+      setBorrador(null);
+    }
+  };
   const modificada = Math.round(ganancia) !== obra.gananciaRegistrada;
 
   return (
@@ -28,7 +36,16 @@ export function FilaObra({ obra, ganancia, onGanancia }) {
       </td>
       <td style={{ padding: 10, textAlign: 'right' }}>
         <input type="number" min={0} step={100} value={Math.round(ganancia)} aria-label={`Ganancia ${obra.titulo}`}
-          onChange={e => onGanancia(Number(e.target.value) || 0)}
+          onChange={e => {
+            const valor = parseFloat(e.target.value);
+            onGanancia(!isNaN(valor) && valor >= 0 ? valor : 0);
+          }}
+          onKeyDown={e => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              e.target.blur();
+            }
+          }}
           style={{ ...input, width: 96, border: `1.5px solid ${color.rojo}`, fontWeight: 600 }} />
       </td>
       <td style={celda}>{formatoMXN(d.comision)}</td>
@@ -40,7 +57,13 @@ export function FilaObra({ obra, ganancia, onGanancia }) {
         <input type="number" min={0} step={100} aria-label={`Precio público ${obra.titulo}`}
           value={borrador ?? Math.round(d.precioPublico)}
           onChange={e => setBorrador(e.target.value)} onBlur={aplicar}
-          onKeyDown={e => e.key === 'Enter' && (e.target).blur()}
+          onKeyDown={e => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              aplicar();
+              e.target.blur();
+            }
+          }}
           style={{ ...input, width: 106, border: '1.5px solid #000', fontWeight: 800 }} />
       </td>
     </tr>
