@@ -922,27 +922,41 @@ export const inscribirArtistas = async (req, res) => {
 
       let inscritosExistentes = 0
       let nuevasInscripciones = 0
+      let movidos = 0
 
-      // Insertar artistas (usando ON CONFLICT para evitar duplicados)
+      // Insertar artistas (eliminando inscripciones previas para evitar perfiles dobles)
       for (const artistaId of artista_ids) {
         try {
-          await pool.query(`
-            INSERT INTO artistas_fases (artista_id, fase_id, seleccionado)
-            VALUES ($1, $2, false)
-            ON CONFLICT (artista_id, fase_id) DO NOTHING
-          `, [artistaId, id])
-
-          // Verificar si se insertó
-          const checkResult = await pool.query(
+          // PRIMERO: Verificar si ya está inscrito en ESTA fase
+          const checkExistente = await pool.query(
             'SELECT * FROM artistas_fases WHERE artista_id = $1 AND fase_id = $2',
             [artistaId, id]
           )
 
-          if (checkResult.rows.length > 0) {
-            nuevasInscripciones++
-          } else {
+          if (checkExistente.rows.length > 0) {
+            // Ya estaba en esta fase
             inscritosExistentes++
+            continue
           }
+
+          // SEGUNDO: Eliminar inscripciones previas en OTRAS fases (evitar perfiles dobles)
+          const deleteResult = await pool.query(
+            'DELETE FROM artistas_fases WHERE artista_id = $1 AND fase_id != $2',
+            [artistaId, id]
+          )
+
+          if (deleteResult.rowCount > 0) {
+            console.log(`🔄 Artista ${artistaId} movido de otra fase a fase ${id}`)
+            movidos++
+          }
+
+          // TERCERO: Insertar en la nueva fase
+          await pool.query(`
+            INSERT INTO artistas_fases (artista_id, fase_id, seleccionado)
+            VALUES ($1, $2, false)
+          `, [artistaId, id])
+
+          nuevasInscripciones++
         } catch (err) {
           console.error('Error al inscribir artista:', err)
           inscritosExistentes++
@@ -953,9 +967,12 @@ export const inscribirArtistas = async (req, res) => {
         success: true,
         data: {
           nuevas_inscripciones: nuevasInscripciones,
-          ya_inscritos: inscritosExistentes
+          ya_inscritos: inscritosExistentes,
+          movidos: movidos
         },
-        message: `${nuevasInscripciones} artistas inscritos exitosamente`
+        message: movidos > 0
+          ? `${nuevasInscripciones} artistas inscritos (${movidos} movidos de otras fases)`
+          : `${nuevasInscripciones} artistas inscritos exitosamente`
       })
     }
 
