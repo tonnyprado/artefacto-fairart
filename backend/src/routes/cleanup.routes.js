@@ -5,7 +5,7 @@
 
 import { Router } from 'express'
 import pool from '../config/database.js'
-import { authenticateToken, authorizeRole } from '../middleware/auth.js'
+import { authenticateToken, authorizeRole } from '../middleware/auth.middleware.js'
 
 const router = Router()
 
