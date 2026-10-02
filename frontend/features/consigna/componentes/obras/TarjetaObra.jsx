@@ -2,6 +2,19 @@ import { useState } from 'react';
 import { desglosar, gananciaDesdePublico, formatoMXN } from '../../shared/precios';
 import { color } from '../../tema';
 
+// CSS para ocultar spinners de input number
+const estilosSpinner = `
+  .input-sin-spinner::-webkit-outer-spin-button,
+  .input-sin-spinner::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .input-sin-spinner[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+`;
+
 /**
  * Versión móvil de FilaObra (misma lógica, layout en tarjeta). Inputs a 16px para evitar zoom en iOS.
  * @param {Object} props
@@ -28,6 +41,8 @@ export function TarjetaObra({ obra, ganancia, onGanancia }) {
     <span style={{ fontSize: fuerte ? 14 : 13.5, fontWeight: fuerte ? 800 : 400, color: fuerte ? color.rojoOscuro : undefined, textAlign: 'right' }}>{v}</span>
   </>);
   return (
+    <>
+    <style dangerouslySetInnerHTML={{ __html: estilosSpinner }} />
     <div style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 12, overflow: 'hidden' }}>
       <div style={{ padding: '14px 16px 10px' }}>
         <b style={{ fontSize: 15 }}>{obra.titulo}</b>
@@ -37,6 +52,7 @@ export function TarjetaObra({ obra, ganancia, onGanancia }) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px 12px', alignItems: 'center', padding: '12px 16px', borderTop: '1px solid rgba(0,0,0,0.08)' }}>
         <label style={{ fontSize: 13, fontWeight: 700, color: color.rojo }}>Tu ganancia</label>
         <input type="number" inputMode="numeric" min={0} step={100} value={Math.round(ganancia)} aria-label={`Ganancia ${obra.titulo}`}
+          className="input-sin-spinner"
           onChange={e => {
             const valor = parseFloat(e.target.value);
             onGanancia(!isNaN(valor) && valor >= 0 ? valor : 0);
@@ -57,6 +73,7 @@ export function TarjetaObra({ obra, ganancia, onGanancia }) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 12, alignItems: 'center', padding: '12px 16px', background: '#000' }}>
         <label style={{ fontSize: 13, fontWeight: 800, fontStyle: 'italic', textTransform: 'uppercase', color: color.crema }}>Precio público</label>
         <input type="number" inputMode="numeric" min={0} step={100} aria-label={`Precio público ${obra.titulo}`}
+          className="input-sin-spinner"
           value={borrador ?? Math.round(d.precioPublico)} onChange={e => setBorrador(e.target.value)} onBlur={aplicar}
           onKeyDown={e => {
             if (e.key === 'Enter') {

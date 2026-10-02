@@ -3,7 +3,26 @@ import { desglosar, gananciaDesdePublico, formatoMXN } from '../../shared/precio
 import { color } from '../../tema';
 
 const celda = { padding: '12px 10px', textAlign: 'right', color: 'rgba(0,0,0,0.75)' };
-const input = { textAlign: 'right', padding: '8px 9px', borderRadius: 8, fontSize: 16, background: '#fff' };
+const input = {
+  textAlign: 'right',
+  padding: '8px 9px',
+  borderRadius: 8,
+  fontSize: 16,
+  background: '#fff',
+};
+
+// CSS para ocultar spinners de input number
+const estilosSpinner = `
+  .input-sin-spinner::-webkit-outer-spin-button,
+  .input-sin-spinner::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .input-sin-spinner[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+`;
 
 /**
  * @param {Object} props
@@ -27,45 +46,50 @@ export function FilaObra({ obra, ganancia, onGanancia }) {
   const modificada = Math.round(ganancia) !== obra.gananciaRegistrada;
 
   return (
-    <tr style={{ borderTop: '1px solid rgba(0,0,0,0.08)' }}>
-      <td style={{ padding: '12px 14px', minWidth: 180 }}>
-        <b style={{ fontSize: 14 }}>{obra.titulo}</b><br />
-        <span style={{ fontSize: 11.5, color: 'rgba(0,0,0,0.6)' }}>{obra.tecnica} · {obra.medida}</span>
-        {modificada && (<><br /><span style={{ display: 'inline-block', marginTop: 4, background: color.rojo, color: color.crema, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', padding: '2px 7px', borderRadius: 4 }}>
-          Ajustada · antes {formatoMXN(obra.gananciaRegistrada)}</span></>)}
-      </td>
-      <td style={{ padding: 10, textAlign: 'right' }}>
-        <input type="number" min={0} step={100} value={Math.round(ganancia)} aria-label={`Ganancia ${obra.titulo}`}
-          onChange={e => {
-            const valor = parseFloat(e.target.value);
-            onGanancia(!isNaN(valor) && valor >= 0 ? valor : 0);
-          }}
-          onKeyDown={e => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              e.target.blur();
-            }
-          }}
-          style={{ ...input, width: 96, border: `1.5px solid ${color.rojo}`, fontWeight: 600 }} />
-      </td>
-      <td style={celda}>{formatoMXN(d.comision)}</td>
-      <td style={celda}>{formatoMXN(d.ajuste)}</td>
-      <td style={{ ...celda, fontWeight: 800, color: color.rojoOscuro, background: 'rgba(185,50,50,0.06)' }}>{formatoMXN(d.precioVenta)}</td>
-      <td style={celda}>{formatoMXN(d.iva)}</td>
-      <td style={celda}>{formatoMXN(d.gestionAdmin)}</td>
-      <td style={{ padding: '10px 14px', textAlign: 'right', background: 'rgba(0,0,0,0.04)' }}>
-        <input type="number" min={0} step={100} aria-label={`Precio público ${obra.titulo}`}
-          value={borrador ?? Math.round(d.precioPublico)}
-          onChange={e => setBorrador(e.target.value)} onBlur={aplicar}
-          onKeyDown={e => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              aplicar();
-              e.target.blur();
-            }
-          }}
-          style={{ ...input, width: 106, border: '1.5px solid #000', fontWeight: 800 }} />
-      </td>
-    </tr>
+    <>
+      <style dangerouslySetInnerHTML={{ __html: estilosSpinner }} />
+      <tr style={{ borderTop: '1px solid rgba(0,0,0,0.08)' }}>
+        <td style={{ padding: '12px 14px', minWidth: 180 }}>
+          <b style={{ fontSize: 14 }}>{obra.titulo}</b><br />
+          <span style={{ fontSize: 11.5, color: 'rgba(0,0,0,0.6)' }}>{obra.tecnica} · {obra.medida}</span>
+          {modificada && (<><br /><span style={{ display: 'inline-block', marginTop: 4, background: color.rojo, color: color.crema, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', padding: '2px 7px', borderRadius: 4 }}>
+            Ajustada · antes {formatoMXN(obra.gananciaRegistrada)}</span></>)}
+        </td>
+        <td style={{ padding: 10, textAlign: 'right' }}>
+          <input type="number" min={0} step={100} value={Math.round(ganancia)} aria-label={`Ganancia ${obra.titulo}`}
+            className="input-sin-spinner"
+            onChange={e => {
+              const valor = parseFloat(e.target.value);
+              onGanancia(!isNaN(valor) && valor >= 0 ? valor : 0);
+            }}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                e.target.blur();
+              }
+            }}
+            style={{ ...input, width: 96, border: `1.5px solid ${color.rojo}`, fontWeight: 600 }} />
+        </td>
+        <td style={celda}>{formatoMXN(d.comision)}</td>
+        <td style={celda}>{formatoMXN(d.ajuste)}</td>
+        <td style={{ ...celda, fontWeight: 800, color: color.rojoOscuro, background: 'rgba(185,50,50,0.06)' }}>{formatoMXN(d.precioVenta)}</td>
+        <td style={celda}>{formatoMXN(d.iva)}</td>
+        <td style={celda}>{formatoMXN(d.gestionAdmin)}</td>
+        <td style={{ padding: '10px 14px', textAlign: 'right', background: 'rgba(0,0,0,0.04)' }}>
+          <input type="number" min={0} step={100} aria-label={`Precio público ${obra.titulo}`}
+            className="input-sin-spinner"
+            value={borrador ?? Math.round(d.precioPublico)}
+            onChange={e => setBorrador(e.target.value)} onBlur={aplicar}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                aplicar();
+                e.target.blur();
+              }
+            }}
+            style={{ ...input, width: 106, border: '1.5px solid #000', fontWeight: 800 }} />
+        </td>
+      </tr>
+    </>
   );
 }
