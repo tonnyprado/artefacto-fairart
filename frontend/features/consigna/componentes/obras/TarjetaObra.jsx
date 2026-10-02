@@ -94,5 +94,6 @@ export function TarjetaObra({ obra, ganancia, onGanancia }) {
         </div>
       </div>
     </div>
+    </>
   );
 }
