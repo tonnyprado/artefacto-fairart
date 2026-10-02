@@ -76,6 +76,8 @@ export class PdfKitGenerador extends GeneradorPdf {
 
     // Info evento
     const infoY = y;
+    const fechaFormateada = datos.fecha.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
+
     doc
       .fontSize(8.5)
       .font('Helvetica')
@@ -83,14 +85,23 @@ export class PdfKitGenerador extends GeneradorPdf {
       .text('ARTE FACTO | Éticas Creativas — Segunda Edición', 350, infoY, {
         align: 'right',
         width: 195,
-      })
-      .text(
-        `Fecha: ${datos.fecha.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })} · Lugar: Ciudad de México`,
-        350,
-        doc.y,
-        { align: 'right', width: 195 }
-      )
-      .text(`Folio: ${a.folio}`, 350, doc.y, { align: 'right', width: 195 });
+      });
+
+    // Fecha con negrita
+    const fechaY = doc.y;
+    doc
+      .text('Fecha: ', 350, fechaY, { align: 'right', width: 195, continued: true })
+      .font('Helvetica-Bold')
+      .text(fechaFormateada, { continued: true })
+      .font('Helvetica')
+      .text(' · Lugar: Ciudad de México');
+
+    // Folio con negrita
+    doc
+      .text('Folio: ', 350, doc.y, { align: 'right', width: 195, continued: true })
+      .font('Helvetica-Bold')
+      .text(a.folio)
+      .font('Helvetica');
 
     // Línea horizontal roja
     y = doc.y + 10;
