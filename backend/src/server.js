@@ -84,6 +84,7 @@ import preregistroRoutes from './routes/preregistro.routes.js'
 import obrasRoutes from './routes/obras.routes.js'
 import concursoRoutes from './routes/concurso.routes.js'
 import consignaAdminRoutes from './routes/consigna.routes.js'
+import cleanupRoutes from './routes/cleanup.routes.js' // TEMPORAL - Para limpiar perfiles dobles
 
 // Importar cron job de recordatorios
 import { iniciarCronRecordatorios } from './jobs/recordatorios.job.js'
@@ -233,6 +234,12 @@ try {
     console.error(error.stack)
   }
 }
+
+// ==========================================
+// CLEANUP - Rutas temporales para limpieza
+// ==========================================
+app.use('/api/cleanup', cleanupRoutes)
+console.log('⚠️ Rutas de cleanup cargadas (TEMPORAL)')
 
 // Ruta 404
 app.use('*', (req, res) => {
