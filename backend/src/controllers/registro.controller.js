@@ -297,7 +297,20 @@ export const registrarArtista = async (req, res) => {
           aprobado = false,
           estado_registro = 'pendiente',
           fecha_registro_completo = NOW(),
-          updated_at = NOW()
+          updated_at = NOW(),
+          tags = CASE
+            WHEN $21 = true THEN (
+              SELECT ARRAY[CASE
+                WHEN numero_fase IS NOT NULL THEN 'Fase ' || numero_fase::TEXT
+                ELSE nombre
+              END]
+              FROM fases
+              WHERE tipo = 'concurso' OR inscripciones_abiertas = true
+              ORDER BY CASE WHEN tipo = 'concurso' THEN 1 ELSE 2 END, created_at DESC
+              LIMIT 1
+            )
+            ELSE '{}'::TEXT[]
+          END
         WHERE id = $22
         RETURNING *`,
         [
@@ -329,6 +342,27 @@ export const registrarArtista = async (req, res) => {
       console.log('✅ Pre-registro convertido a registro completo')
     } else {
       // INSERT: Nuevo registro desde cero
+      // Primero obtener la fase activa si acepta concurso
+      let tagsInicial = []
+      if (acepta_concurso === 'true' || acepta_concurso === true) {
+        try {
+          const faseActivaResult = await pool.query(
+            `SELECT numero_fase, nombre FROM fases
+             WHERE tipo = 'concurso' OR inscripciones_abiertas = true
+             ORDER BY CASE WHEN tipo = 'concurso' THEN 1 ELSE 2 END, created_at DESC
+             LIMIT 1`
+          )
+          if (faseActivaResult.rows.length > 0) {
+            const fase = faseActivaResult.rows[0]
+            const tagFase = fase.numero_fase ? `Fase ${fase.numero_fase}` : fase.nombre
+            tagsInicial = [tagFase]
+            console.log(`🏷️  Tag a agregar: "${tagFase}"`)
+          }
+        } catch (err) {
+          console.error('Error obteniendo fase para tag:', err)
+        }
+      }
+
       artistaResult = await pool.query(
         `INSERT INTO artistas (
           nombre, apellido, nombre_artistico, email, telefono, fecha_nacimiento,
@@ -336,8 +370,8 @@ export const registrarArtista = async (req, res) => {
           instagram, facebook, website,
           cv_url, portfolio_url, identificacion_url,
           paquete_id, layout_canvas_url, layout_canvas_pdf, layout_canvas_data,
-          acepta_concurso, aprobado, estado_registro
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)
+          acepta_concurso, aprobado, estado_registro, tags
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)
         RETURNING *`,
         [
           nombre,
@@ -363,7 +397,8 @@ export const registrarArtista = async (req, res) => {
           parsedLayoutData,
           acepta_concurso === 'true' || acepta_concurso === true, // acepta_concurso
           false, // aprobado
-          'pendiente' // estado_registro
+          'pendiente', // estado_registro
+          tagsInicial // tags
         ]
       )
     }
@@ -416,11 +451,13 @@ export const registrarArtista = async (req, res) => {
     // ========================================
     if (acepta_concurso === 'true' || acepta_concurso === true) {
       try {
-        // Buscar la fase de tipo 'concurso'
+        // Buscar la fase de tipo 'concurso' O la fase activa con inscripciones abiertas
         const faseConcursoResult = await pool.query(
-          `SELECT id, nombre FROM fases
-           WHERE tipo = 'concurso'
-           ORDER BY created_at DESC
+          `SELECT id, nombre, tipo, numero_fase FROM fases
+           WHERE tipo = 'concurso' OR inscripciones_abiertas = true
+           ORDER BY
+             CASE WHEN tipo = 'concurso' THEN 1 ELSE 2 END,
+             created_at DESC
            LIMIT 1`
         )
 
