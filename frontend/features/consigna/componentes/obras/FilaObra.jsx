@@ -32,7 +32,7 @@ const estilosSpinner = `
  */
 export function FilaObra({ obra, ganancia, onGanancia }) {
   const d = desglosar(ganancia);
-  // Borrador local del precio público: se aplica al salir del campo o con Enter
+  // Borrador local del precio público: se aplica al hacer clic en "Aplicar"
   const [borrador, setBorrador] = useState(null);
   const aplicar = () => {
     if (borrador !== null) {
@@ -62,12 +62,6 @@ export function FilaObra({ obra, ganancia, onGanancia }) {
               const valor = parseFloat(e.target.value);
               onGanancia(!isNaN(valor) && valor >= 0 ? valor : 0);
             }}
-            onKeyDown={e => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                e.target.blur();
-              }
-            }}
             style={{ ...input, width: 96, border: `1.5px solid ${color.rojo}`, fontWeight: 600 }} />
         </td>
         <td style={celda}>{formatoMXN(d.comision)}</td>
@@ -76,18 +70,32 @@ export function FilaObra({ obra, ganancia, onGanancia }) {
         <td style={celda}>{formatoMXN(d.iva)}</td>
         <td style={celda}>{formatoMXN(d.gestionAdmin)}</td>
         <td style={{ padding: '10px 14px', textAlign: 'right', background: 'rgba(0,0,0,0.04)' }}>
-          <input type="number" min={0} step={100} aria-label={`Precio público ${obra.titulo}`}
-            className="input-sin-spinner"
-            value={borrador ?? Math.round(d.precioPublico)}
-            onChange={e => setBorrador(e.target.value)} onBlur={aplicar}
-            onKeyDown={e => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                aplicar();
-                e.target.blur();
-              }
-            }}
-            style={{ ...input, width: 106, border: '1.5px solid #000', fontWeight: 800 }} />
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center', justifyContent: 'flex-end' }}>
+            <input type="number" min={0} step={100} aria-label={`Precio público ${obra.titulo}`}
+              className="input-sin-spinner"
+              value={borrador ?? Math.round(d.precioPublico)}
+              onChange={e => setBorrador(e.target.value)}
+              style={{ ...input, width: 140, border: '1.5px solid #000', fontWeight: 800 }} />
+            {borrador !== null && (
+              <button
+                onClick={aplicar}
+                aria-label="Aplicar precio público"
+                style={{
+                  background: '#000',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 6,
+                  padding: '8px 12px',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                Aplicar
+              </button>
+            )}
+          </div>
         </td>
       </tr>
     </>

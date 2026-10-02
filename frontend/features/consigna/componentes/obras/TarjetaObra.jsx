@@ -57,12 +57,6 @@ export function TarjetaObra({ obra, ganancia, onGanancia }) {
             const valor = parseFloat(e.target.value);
             onGanancia(!isNaN(valor) && valor >= 0 ? valor : 0);
           }}
-          onKeyDown={e => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              e.target.blur();
-            }
-          }}
           style={{ ...input, border: `1.5px solid ${color.rojo}`, fontWeight: 600 }} />
         {fila('+ Comisión 25%', formatoMXN(d.comision))}
         {fila('+ Ajuste a cifra cerrada', formatoMXN(d.ajuste))}
@@ -70,19 +64,34 @@ export function TarjetaObra({ obra, ganancia, onGanancia }) {
         {fila('IVA 16%', formatoMXN(d.iva))}
         {fila('Gestión adm. 3%', formatoMXN(d.gestionAdmin))}
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 12, alignItems: 'center', padding: '12px 16px', background: '#000' }}>
-        <label style={{ fontSize: 13, fontWeight: 800, fontStyle: 'italic', textTransform: 'uppercase', color: color.crema }}>Precio público</label>
-        <input type="number" inputMode="numeric" min={0} step={100} aria-label={`Precio público ${obra.titulo}`}
-          className="input-sin-spinner"
-          value={borrador ?? Math.round(d.precioPublico)} onChange={e => setBorrador(e.target.value)} onBlur={aplicar}
-          onKeyDown={e => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              aplicar();
-              e.target.blur();
-            }
-          }}
-          style={{ ...input, border: 'none', fontWeight: 800 }} />
+      <div style={{ padding: '12px 16px', background: '#000' }}>
+        <label style={{ fontSize: 13, fontWeight: 800, fontStyle: 'italic', textTransform: 'uppercase', color: color.crema, display: 'block', marginBottom: 8 }}>Precio público</label>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <input type="number" inputMode="numeric" min={0} step={100} aria-label={`Precio público ${obra.titulo}`}
+            className="input-sin-spinner"
+            value={borrador ?? Math.round(d.precioPublico)}
+            onChange={e => setBorrador(e.target.value)}
+            style={{ ...input, border: 'none', fontWeight: 800, flex: 1 }} />
+          {borrador !== null && (
+            <button
+              onClick={aplicar}
+              aria-label="Aplicar precio público"
+              style={{
+                background: color.crema,
+                color: '#000',
+                border: 'none',
+                borderRadius: 6,
+                padding: '10px 16px',
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Aplicar
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
