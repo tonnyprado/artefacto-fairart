@@ -11,7 +11,7 @@ const DEFAULT_POSITION = { x: null, y: null } // null = usar posición por defec
 /**
  * FloatingRegistrationButton - Botón flotante de registro
  *
- * - Aparece en toda la plataforma excepto en admin y registro
+ * - Aparece en toda la plataforma excepto en admin, registro, curador y consigna
  * - Solo se muestra cuando hay una fase con inscripciones abiertas
  * - Diseño similar a botones de chatbot
  * - Fixed position en la esquina inferior derecha
@@ -78,8 +78,9 @@ export default function FloatingRegistrationButton() {
     const isAdminPage = pathname?.startsWith('/admin')
     const isRegistroPage = pathname?.startsWith('/registro')
     const isCuradorPage = pathname?.startsWith('/curador')
+    const isConsignaPage = pathname?.startsWith('/consigna')
     const faseActiva = getFaseConInscripcionesAbiertas()
-    setIsVisible(!isAdminPage && !isRegistroPage && !isCuradorPage && !!faseActiva)
+    setIsVisible(!isAdminPage && !isRegistroPage && !isCuradorPage && !isConsignaPage && !!faseActiva)
   }, [pathname, fases, getFaseConInscripcionesAbiertas])
 
   // Guardar posición en localStorage
