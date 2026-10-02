@@ -5,13 +5,13 @@
 
 import { Router } from 'express'
 import pool from '../config/database.js'
-import { authenticateToken, authorizeRole } from '../middleware/auth.middleware.js'
+import { verifyToken, isAdmin } from '../middleware/auth.middleware.js'
 
 const router = Router()
 
 // Middleware: solo admin
-router.use(authenticateToken)
-router.use(authorizeRole(['admin']))
+router.use(verifyToken)
+router.use(isAdmin)
 
 /**
  * GET /api/cleanup/check-duplicates
