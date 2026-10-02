@@ -318,6 +318,7 @@ export class PdfKitGenerador extends GeneradorPdf {
     doc.fontSize(8).fillColor('#444').text(datos.datosPago.plazos, 60, pagoY + 30, { width: 475 });
 
     doc.y = y + 55;
+    doc.x = 50; // Resetear posición X
     doc.moveDown(1.5);
 
     // ══════════════════════════════════════════════════════════════
