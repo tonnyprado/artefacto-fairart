@@ -299,7 +299,7 @@ export class PdfKitGenerador extends GeneradorPdf {
     }
 
     y = doc.y;
-    doc.rect(50, y, 495, 50).strokeColor(COLOR_ROJO).lineWidth(1.5).stroke();
+    doc.rect(50, y, 495, 60).strokeColor(COLOR_ROJO).lineWidth(1.5).stroke();
 
     doc
       .fontSize(9)
@@ -308,16 +308,22 @@ export class PdfKitGenerador extends GeneradorPdf {
       .text('Datos de transferencia para el pago del paquete', 60, y + 8);
 
     doc.fontSize(8.5).font('Helvetica').fillColor('#111');
-    const pagoY = y + 20;
-    doc.text(`Beneficiario: ${datos.datosPago.beneficiario}`, 60, pagoY, { width: 200 });
-    doc.text(`Banco: ${datos.datosPago.banco}`, 265, pagoY, { width: 150 });
-    doc.text(`CLABE: ${datos.datosPago.clabe}`, 60, pagoY + 10, { width: 200 });
-    doc.text(`Cuenta: ${datos.datosPago.cuenta}`, 265, pagoY + 10, { width: 150 });
-    doc.text(`Concepto: ${datos.datosPago.concepto}`, 60, pagoY + 20, { width: 400 });
+    let pagoY = y + 22;
 
-    doc.fontSize(8).fillColor('#444').text(datos.datosPago.plazos, 60, pagoY + 30, { width: 475 });
+    // Layout en dos columnas cuando cabe, sino en una sola línea
+    doc.text(`Beneficiario: ${datos.datosPago.beneficiario}`, 60, pagoY, { width: 230, continued: false });
+    doc.text(`Banco: ${datos.datosPago.banco}`, 300, pagoY, { width: 150, continued: false });
 
-    doc.y = y + 55;
+    pagoY += 10;
+    doc.text(`CLABE: ${datos.datosPago.clabe}`, 60, pagoY, { width: 230, continued: false });
+    doc.text(`Cuenta: ${datos.datosPago.cuenta}`, 300, pagoY, { width: 150, continued: false });
+
+    pagoY += 10;
+    doc.text(`Concepto: ${datos.datosPago.concepto}`, 60, pagoY, { width: 475, continued: false });
+
+    doc.fontSize(8).fillColor('#444').text(datos.datosPago.plazos, 60, y + 52, { width: 475, continued: false });
+
+    doc.y = y + 65;
     doc.x = 50; // Resetear posición X
     doc.moveDown(1.5);
 
