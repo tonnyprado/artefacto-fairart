@@ -511,14 +511,21 @@ export default function ArtistasTable() {
     const file = e.target.files?.[0]
     if (!file || !obraModal.obra?.id) return
 
+    // Validar que el ID sea numérico (de la base de datos)
+    const isValidId = typeof obraModal.obra.id === 'number' || (typeof obraModal.obra.id === 'string' && !isNaN(parseInt(obraModal.obra.id)) && !obraModal.obra.id.includes('-'))
+    if (!isValidId) {
+      alert('Esta obra no está guardada en la base de datos aún. No se puede subir foto.')
+      return
+    }
+
     setUploadingFoto(true)
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
       const formData = new FormData()
       formData.append('foto', file)
 
       const token = localStorage.getItem('token')
-      const response = await fetch(`${apiUrl}/api/obras/${obraModal.obra.id}/foto`, {
+      const response = await fetch(`${apiUrl}/obras/${obraModal.obra.id}/foto`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -568,24 +575,27 @@ export default function ArtistasTable() {
   const handleSaveObra = async (obraData) => {
     if (!selectedArtista) return
 
+    console.log('🔍 obraData recibido:', obraData)
+
     // Validar que el ID sea numérico si es una actualización
     if (obraData.id) {
       const isValidId = typeof obraData.id === 'number' || (typeof obraData.id === 'string' && !isNaN(parseInt(obraData.id)) && !obraData.id.includes('-'))
       if (!isValidId) {
-        alert('Esta obra no está guardada en la base de datos aún. No se puede actualizar.')
+        alert(`Esta obra no está guardada en la base de datos aún. ID recibido: ${obraData.id}`)
         return
       }
     }
 
     setSavingObra(true)
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
       const token = localStorage.getItem('token')
 
       let response
       if (obraData.id) {
         // Actualizar obra existente
-        response = await fetch(`${apiUrl}/api/obras/${obraData.id}`, {
+        console.log('📝 Actualizando obra con ID:', obraData.id)
+        response = await fetch(`${apiUrl}/obras/${obraData.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -602,7 +612,8 @@ export default function ArtistasTable() {
         })
       } else {
         // Crear nueva obra
-        response = await fetch(`${apiUrl}/api/obras`, {
+        console.log('➕ Creando nueva obra para artista:', selectedArtista.id)
+        response = await fetch(`${apiUrl}/obras`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -651,15 +662,16 @@ export default function ArtistasTable() {
 
     const isValidId = typeof obraId === 'number' || (typeof obraId === 'string' && !isNaN(parseInt(obraId)) && !obraId.includes('-'))
     if (!isValidId) {
-      alert('Esta obra no está guardada en la base de datos aún.')
+      alert(`Esta obra no está guardada en la base de datos aún. ID: ${obraId}`)
       return
     }
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
       const token = localStorage.getItem('token')
 
-      const response = await fetch(`${apiUrl}/api/obras/${obraId}`, {
+      console.log('🗑️ Eliminando obra con ID:', obraId)
+      const response = await fetch(`${apiUrl}/obras/${obraId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -1695,7 +1707,11 @@ export default function ArtistasTable() {
                   ...obraCanvas,
                   // Usar imagen_url de la DB si no hay preview en el canvas
                   preview: obraCanvas.preview || obraDB?.imagen_url || null,
-                  imagen_url: obraDB?.imagen_url || null
+                  imagen_url: obraDB?.imagen_url || null,
+                  // IMPORTANTE: Usar el ID de la DB si existe, no el ID temporal del canvas
+                  id: obraDB?.id || obraCanvas.id,
+                  // También incluir otras propiedades de la DB que puedan estar actualizadas
+                  fotos_detalle_urls: obraDB?.fotos_detalle_urls || obraCanvas.fotos_detalle_urls || []
                 }
               })
 
