@@ -382,7 +382,7 @@ export class PdfKitGenerador extends GeneradorPdf {
 
     // Filas de obras
     obras.forEach((o, idx) => {
-      const ganancia = ganancias?.[o.id] ?? o.gananciaRegistrada;
+      const ganancia = ganancias?.[o.obraId] ?? o.gananciaOriginal;
       const d = desglosar(ganancia);
 
       // Verificar si necesitamos nueva página

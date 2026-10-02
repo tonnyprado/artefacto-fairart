@@ -186,9 +186,17 @@ export class ConsignaService {
   async vistaPrevia(inv, dto) {
     const a = await this.artista(inv);
     const { apellido, ...artista } = a;
+
+    // Crear objeto ganancias para el PDF (mismo formato que HTML)
+    const ganancias = {};
+    (dto.obras ?? []).forEach(o => {
+      ganancias[o.obraId] = o.gananciaFinal;
+    });
+
     return this.pdf.generar({
       artista,
       obras: await this.obrasAcordadas(inv, { obras: dto.obras ?? [] }),
+      ganancias,
       estadoFiscal: dto.estadoFiscal ?? 'pendiente',
       constanciaNombre: this.constanciaNombre(dto.constanciaKey ?? null),
       descuentoMax: dto.descuentoMax ?? 0,
@@ -217,9 +225,17 @@ export class ConsignaService {
     const { apellido, ...artista } = a;
     const firma = this.firmaBuffer(dto.firmaPng);
     const obras = await this.obrasAcordadas(inv, dto);
+
+    // Crear objeto ganancias para el PDF (mismo formato que HTML)
+    const ganancias = {};
+    dto.obras.forEach(o => {
+      ganancias[o.obraId] = o.gananciaFinal;
+    });
+
     const pdf = await this.pdf.generar({
       artista,
       obras,
+      ganancias,
       estadoFiscal: dto.estadoFiscal,
       constanciaNombre: this.constanciaNombre(dto.constanciaKey),
       descuentoMax: dto.descuentoMax,
