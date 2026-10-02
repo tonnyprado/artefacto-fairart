@@ -55,16 +55,21 @@ export function gananciaDesdePublico(precioPublico) {
   // precioPublico = precioVenta * (1 + IVA) * (1 + GESTION_ADMIN)
   const precioVentaSinRedondeo = p / ((1 + IVA) * (1 + GESTION_ADMIN));
 
-  // Redondear al múltiplo de 500 MÁS CERCANO para minimizar diferencia
-  const precioVenta = Math.round(precioVentaSinRedondeo / REDONDEO) * REDONDEO;
+  // Probar múltiplo de 500 inferior y superior
+  const precioVentaFloor = Math.floor(precioVentaSinRedondeo / REDONDEO) * REDONDEO;
+  const precioVentaCeil = Math.ceil(precioVentaSinRedondeo / REDONDEO) * REDONDEO;
 
-  // Para un precioVenta dado (múltiplo de 500), la ganancia que lo produce es:
-  // En desglosar: precioVenta = Math.ceil(bruto / REDONDEO) * REDONDEO
-  // donde bruto = ganancia / (1 - COMISION)
-  // Para que Math.ceil(bruto / 500) * 500 = precioVenta, necesitamos:
-  // bruto <= precioVenta y bruto > precioVenta - 500
-  // Maximizando ganancia, tomamos bruto = precioVenta
-  // Entonces: ganancia = bruto * (1 - COMISION) = precioVenta * (1 - COMISION)
+  // Calcular qué precio público produciría cada uno
+  const precioPublicoFloor = precioVentaFloor * (1 + IVA) * (1 + GESTION_ADMIN);
+  const precioPublicoCeil = precioVentaCeil * (1 + IVA) * (1 + GESTION_ADMIN);
+
+  // Elegir el que esté más cerca del precio público deseado
+  const diffFloor = Math.abs(precioPublicoFloor - p);
+  const diffCeil = Math.abs(precioPublicoCeil - p);
+  const precioVenta = diffFloor < diffCeil ? precioVentaFloor : precioVentaCeil;
+
+  // Para un precioVenta dado (múltiplo de 500), la ganancia máxima que lo produce es:
+  // ganancia = precioVenta * (1 - COMISION)
   const ganancia = precioVenta * (1 - COMISION);
 
   return Math.round(ganancia);
