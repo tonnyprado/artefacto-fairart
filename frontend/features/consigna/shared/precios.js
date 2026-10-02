@@ -1,76 +1,75 @@
 // ⚠ Mantener IDÉNTICO en backend/src/consigna/shared y frontend/features/consigna/shared.
 // El backend SIEMPRE recalcula: nunca confiar en montos enviados por el cliente.
 
-export const COMISION = 0.25;   // 20% ARTE FACTO + 5% asesor
-export const IVA = 0.16;
-export const GESTION_ADMIN = 0.03; // gastos de gestión administrativa (siempre incluido)
-export const REDONDEO = 500;    // precio de venta cerrado al múltiplo superior
+export const ARTISTA = 0.75;        // 75% para el artista
+export const COMISION = 0.25;       // 25% comisión ARTE FACTO
+export const IVA = 0.16;            // 16% IVA
+export const GESTION = 0.03;        // 3% gestión administrativa
+export const PASO = 100;            // redondeo al múltiplo de 100
 
 /**
  * @typedef {Object} Desglose
- * @property {number} ganancia - Lo que recibe el artista (75%)
- * @property {number} comision - 25% sobre el bruto
- * @property {number} ajuste - Diferencia para cerrar al múltiplo de 500
- * @property {number} precioVenta - Ganancia + comisión + ajuste
+ * @property {number} ganancia - Lo que recibe el artista (75% de la base)
+ * @property {number} comision - 25% comisión ARTE FACTO
+ * @property {number} precioVenta - Base (100%) = ganancia + comisión
  * @property {number} iva - 16% sobre precio de venta
- * @property {number} gestionAdmin - 3% gastos de gestión administrativa sobre (venta + IVA)
- * @property {number} precioPublico - Precio que ve el comprador
+ * @property {number} gestionAdmin - 3% sobre precio de venta
+ * @property {number} precioPublico - Precio último que ve el comprador (cerrado a múltiplo de 100)
  */
 
 const r2 = (n) => Math.round(n * 100) / 100;
 
 /**
  * Calcula el desglose completo de precios a partir de la ganancia del artista
- * @param {number} ganancia - Ganancia deseada del artista
+ * @param {number} ganancia - Ganancia deseada del artista (lo que quiere recibir)
  * @returns {Desglose}
  */
 export function desglosar(ganancia) {
   const g = Math.max(0, ganancia);
-  const bruto = g / (1 - COMISION);
-  const precioVenta = Math.ceil(bruto / REDONDEO - 1e-9) * REDONDEO;
-  const iva = precioVenta * IVA;
-  const gestionAdmin = (precioVenta + iva) * GESTION_ADMIN;
+
+  // PASO 1: Obtener la base (precio de venta = 100%)
+  const base = g / ARTISTA;  // si captura lo que quiere recibir
+
+  // PASO 2: Total = base + IVA + gestión
+  const total = base * (1 + IVA + GESTION);  // = base * 1.19
+
+  // PASO 3: Cerrar hacia arriba → precio último
+  const ultimo = PASO ? Math.ceil(total / PASO) * PASO : total;
+
+  // DESGLOSE — SOLO PARA MOSTRAR EN PANTALLA
+  // ⚠️ NO sumar estas líneas al total: ya están dentro de base * 1.19
+  const parteArtista = base * ARTISTA;
+  const parteArtefacto = base * COMISION;
+  const iva = base * IVA;
+  const gestion = base * GESTION;
+
   return {
-    ganancia: r2(g),
-    comision: r2(bruto - g),
-    ajuste: r2(precioVenta - bruto),
-    precioVenta,
+    ganancia: r2(parteArtista),
+    comision: r2(parteArtefacto),
+    ajuste: r2(ultimo - total),  // diferencia por redondeo
+    precioVenta: r2(base),
     iva: r2(iva),
-    gestionAdmin: r2(gestionAdmin),
-    precioPublico: r2(precioVenta + iva + gestionAdmin),
+    gestionAdmin: r2(gestion),
+    precioPublico: r2(ultimo),
   };
 }
 
 /**
  * Cuando el artista edita el precio público, despejamos su ganancia
- * IMPORTANTE: Debe considerar el redondeo a múltiplo de 500 del precio de venta
- * para evitar que el precio público cambie al recalcular
- * @param {number} precioPublico - Precio público deseado
+ * @param {number} precioPublico - Precio último deseado
  * @returns {number} Ganancia calculada
  */
 export function gananciaDesdePublico(precioPublico) {
-  const p = Math.max(0, precioPublico);
+  const ultimo = Math.max(0, precioPublico);
 
-  // Despejar precio de venta desde precio público
-  // precioPublico = precioVenta * (1 + IVA) * (1 + GESTION_ADMIN)
-  const precioVentaSinRedondeo = p / ((1 + IVA) * (1 + GESTION_ADMIN));
+  // Redondear al múltiplo de PASO más cercano para minimizar diferencia
+  const ultimoRedondeado = PASO ? Math.round(ultimo / PASO) * PASO : ultimo;
 
-  // Probar múltiplo de 500 inferior y superior
-  const precioVentaFloor = Math.floor(precioVentaSinRedondeo / REDONDEO) * REDONDEO;
-  const precioVentaCeil = Math.ceil(precioVentaSinRedondeo / REDONDEO) * REDONDEO;
+  // Despejar: ultimo = base * 1.19, entonces base = ultimo / 1.19
+  const base = ultimoRedondeado / (1 + IVA + GESTION);
 
-  // Calcular qué precio público produciría cada uno
-  const precioPublicoFloor = precioVentaFloor * (1 + IVA) * (1 + GESTION_ADMIN);
-  const precioPublicoCeil = precioVentaCeil * (1 + IVA) * (1 + GESTION_ADMIN);
-
-  // Elegir el que esté más cerca del precio público deseado
-  const diffFloor = Math.abs(precioPublicoFloor - p);
-  const diffCeil = Math.abs(precioPublicoCeil - p);
-  const precioVenta = diffFloor < diffCeil ? precioVentaFloor : precioVentaCeil;
-
-  // Para un precioVenta dado (múltiplo de 500), la ganancia máxima que lo produce es:
-  // ganancia = precioVenta * (1 - COMISION)
-  const ganancia = precioVenta * (1 - COMISION);
+  // La ganancia es el 75% de la base
+  const ganancia = base * ARTISTA;
 
   return Math.round(ganancia);
 }
