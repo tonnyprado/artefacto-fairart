@@ -19,7 +19,7 @@ export class ConsignaEmailService {
   async enviarInvitacionAceptado(artista, linkConsigna) {
     const templateId = parseInt(process.env.BREVO_TEMPLATE_CONSIGNA_INVITACION || '0', 10);
     const edicion = process.env.EDICION_SUFIJO || 'AF2';
-    const diasVigencia = process.env.INVITACION_DIAS_VIGENCIA || '21';
+    const diasVigencia = process.env.INVITACION_DIAS_VIGENCIA || '4';
     const nombrePila = artista.nombrePila || artista.nombre.split(' ')[0];
 
     // Si hay template de Brevo configurado, usarlo
@@ -93,13 +93,13 @@ export class ConsignaEmailService {
             </div>
 
             <p class="message">
-              Para formalizar tu participación, necesitamos que completes tu <strong>hoja de consignación</strong>
+              Para formalizar tu participación, necesitamos que completes tu <strong>acuerdo de consignación</strong>
               con la información de tus obras y datos fiscales.
             </p>
 
             <center>
               <a href="${linkConsigna}" class="cta-button">
-                COMPLETAR HOJA DE CONSIGNACIÓN
+                COMPLETAR ACUERDO DE CONSIGNACIÓN
               </a>
             </center>
 
@@ -110,11 +110,11 @@ export class ConsignaEmailService {
               </div>
               <div class="info-item">
                 <span class="info-icon">🎨</span>
-                <span>Podrás registrar tus obras y dimensiones</span>
+                <span>Podrás revisar tus obras y sus precios</span>
               </div>
               <div class="info-item">
                 <span class="info-icon">📄</span>
-                <span>Necesitarás tu Constancia de Situación Fiscal</span>
+                <span>Necesitarás indicarnos tus opciones para facturación</span>
               </div>
               <div class="info-item">
                 <span class="info-icon">✍️</span>

@@ -78,6 +78,7 @@ export class PdfKitGenerador extends GeneradorPdf {
     const infoY = y;
     const fechaFormateada = datos.fecha.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
 
+    // Línea 1: ARTE FACTO
     doc
       .fontSize(8.5)
       .font('Helvetica')
@@ -87,17 +88,31 @@ export class PdfKitGenerador extends GeneradorPdf {
         width: 195,
       });
 
-    // Fecha (sin negritas inline para evitar empalme)
-    doc.text(`Fecha: ${fechaFormateada} · Lugar: Ciudad de México`, 350, doc.y, {
-      align: 'right',
-      width: 195,
-    });
+    // Línea 2: Fecha con negrita
+    const lineaFechaY = doc.y;
+    doc
+      .font('Helvetica')
+      .text('Fecha: ', 350, lineaFechaY, {
+        align: 'right',
+        width: 195,
+        continued: true,
+      })
+      .font('Helvetica-Bold')
+      .text(fechaFormateada, { continued: true })
+      .font('Helvetica')
+      .text(' · Lugar: Ciudad de México');
 
-    // Folio (sin negritas inline para evitar empalme)
-    doc.text(`Folio: ${a.folio}`, 350, doc.y, {
-      align: 'right',
-      width: 195,
-    });
+    // Línea 3: Folio con negrita
+    const lineaFolioY = doc.y;
+    doc
+      .font('Helvetica')
+      .text('Folio: ', 350, lineaFolioY, {
+        align: 'right',
+        width: 195,
+        continued: true,
+      })
+      .font('Helvetica-Bold')
+      .text(a.folio);
 
     // Línea horizontal roja
     y = doc.y + 10;
@@ -108,9 +123,18 @@ export class PdfKitGenerador extends GeneradorPdf {
     // ══════════════════════════════════════════════════════════════
     // PREÁMBULO
     // ══════════════════════════════════════════════════════════════
-    doc.fontSize(9.5).font('Helvetica').fillColor('#111').text(PREAMBULO, {
-      align: 'justify',
-      lineGap: 2,
+    // Dividir preámbulo en párrafos (respetando \n como en el HTML con whiteSpace: 'pre-line')
+    const parrafosPreambulo = PREAMBULO.split('\n');
+    doc.fontSize(9.5).font('Helvetica').fillColor('#111');
+
+    parrafosPreambulo.forEach((parrafo, idx) => {
+      doc.text(parrafo, {
+        align: 'left',
+        lineGap: 1.5,
+      });
+      if (idx < parrafosPreambulo.length - 1) {
+        doc.moveDown(0.4);
+      }
     });
 
     doc.moveDown(0.8);
@@ -146,7 +170,7 @@ export class PdfKitGenerador extends GeneradorPdf {
       .fontSize(9)
       .font('Helvetica')
       .fillColor('#111')
-      .text(CLAUSULA_1_DOCUMENTO.intro, { lineGap: 2 });
+      .text(CLAUSULA_1_DOCUMENTO.intro, { lineGap: 1.5 });
 
     doc.moveDown(0.5);
 
@@ -165,9 +189,17 @@ export class PdfKitGenerador extends GeneradorPdf {
       .text(' sobre el precio de venta.');
 
     doc.moveDown(0.3);
-    doc.text(CLAUSULA_1_DOCUMENTO.estado, { lineGap: 2 });
+    doc.text(CLAUSULA_1_DOCUMENTO.estado, { lineGap: 1.5 });
     doc.moveDown(0.3);
-    doc.text(CLAUSULA_1_DOCUMENTO.cierre, { lineGap: 2 });
+
+    // Dividir cierre en párrafos (tiene \n)
+    const parrafosCierre = CLAUSULA_1_DOCUMENTO.cierre.split('\n');
+    parrafosCierre.forEach((parrafo, idx) => {
+      doc.text(parrafo, { lineGap: 1.5 });
+      if (idx < parrafosCierre.length - 1) {
+        doc.moveDown(0.3);
+      }
+    });
 
     doc.moveDown(0.8);
 
@@ -186,11 +218,19 @@ export class PdfKitGenerador extends GeneradorPdf {
         .fillColor(COLOR_ROJO)
         .text(`${c.n} · ${c.titulo}`, { continued: false });
 
-      doc
-        .fontSize(9)
-        .font('Helvetica')
-        .fillColor('#222')
-        .text(c.textoLegal, { align: 'justify', lineGap: 2 });
+      // Dividir texto legal en párrafos (respetando \n como en el HTML con whiteSpace: 'pre-line')
+      const parrafosClausula = c.textoLegal.split('\n');
+      doc.fontSize(9).font('Helvetica').fillColor('#222');
+
+      parrafosClausula.forEach((parrafo, idx) => {
+        doc.text(parrafo, {
+          align: 'left',
+          lineGap: 1.5,
+        });
+        if (idx < parrafosClausula.length - 1) {
+          doc.moveDown(0.3);
+        }
+      });
 
       doc.moveDown(0.7);
     });
@@ -215,7 +255,7 @@ export class PdfKitGenerador extends GeneradorPdf {
     });
 
     doc.moveDown(0.3);
-    doc.text(CIERRE_DOCUMENTO, { lineGap: 2 });
+    doc.text(CIERRE_DOCUMENTO, { lineGap: 1.5 });
 
     doc.moveDown(1);
 
