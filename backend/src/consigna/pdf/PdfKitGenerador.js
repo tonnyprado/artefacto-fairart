@@ -88,37 +88,38 @@ export class PdfKitGenerador extends GeneradorPdf {
         width: 195,
       });
 
-    // Línea 2: Fecha con negrita
+    // Línea 2: Fecha con formato rico
     const lineaFechaY = doc.y;
-    doc
-      .font('Helvetica')
-      .text('Fecha: ', 350, lineaFechaY, {
-        align: 'right',
-        width: 195,
-        continued: true,
-      })
-      .font('Helvetica-Bold')
-      .text(fechaFormateada, { continued: true })
-      .font('Helvetica')
-      .text(' · Lugar: Ciudad de México');
+    doc.fontSize(8.5).fillColor('#444');
+
+    // Calcular el ancho de cada parte con su fuente correspondiente
+    const anchoFecha1 = doc.font('Helvetica').widthOfString('Fecha: ');
+    const anchoFecha2 = doc.font('Helvetica-Bold').widthOfString(fechaFormateada);
+    const anchoFecha3 = doc.font('Helvetica').widthOfString(' · Lugar: Ciudad de México');
+    const anchoTotalFecha = anchoFecha1 + anchoFecha2 + anchoFecha3;
+    const xInicioFecha = 545 - anchoTotalFecha;
+
+    doc.font('Helvetica').text('Fecha: ', xInicioFecha, lineaFechaY, { continued: true });
+    doc.font('Helvetica-Bold').text(fechaFormateada, { continued: true });
+    doc.font('Helvetica').text(' · Lugar: Ciudad de México');
 
     // Línea 3: Folio con negrita
     const lineaFolioY = doc.y;
-    doc
-      .font('Helvetica')
-      .text('Folio: ', 350, lineaFolioY, {
-        align: 'right',
-        width: 195,
-        continued: true,
-      })
-      .font('Helvetica-Bold')
-      .text(a.folio);
+    const anchoFolio1 = doc.font('Helvetica').widthOfString('Folio: ');
+    const anchoFolio2 = doc.font('Helvetica-Bold').widthOfString(a.folio);
+    const anchoTotalFolio = anchoFolio1 + anchoFolio2;
+    const xInicioFolio = 545 - anchoTotalFolio;
+
+    doc.font('Helvetica').text('Folio: ', xInicioFolio, lineaFolioY, { continued: true });
+    doc.font('Helvetica-Bold').text(a.folio);
 
     // Línea horizontal roja
     y = doc.y + 10;
     doc.moveTo(50, y).lineTo(545, y).lineWidth(2).strokeColor(COLOR_ROJO).stroke();
 
+    // Resetear posición para el preámbulo
     doc.y = y + 12;
+    doc.x = 50;
 
     // ══════════════════════════════════════════════════════════════
     // PREÁMBULO
@@ -128,8 +129,9 @@ export class PdfKitGenerador extends GeneradorPdf {
     doc.fontSize(9.5).font('Helvetica').fillColor('#111');
 
     parrafosPreambulo.forEach((parrafo, idx) => {
-      doc.text(parrafo, {
+      doc.text(parrafo, 50, doc.y, {
         align: 'left',
+        width: 495, // Ancho completo de la página (545 - 50)
         lineGap: 1.5,
       });
       if (idx < parrafosPreambulo.length - 1) {
