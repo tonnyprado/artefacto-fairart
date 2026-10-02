@@ -43,11 +43,31 @@ export function desglosar(ganancia) {
 
 /**
  * Cuando el artista edita el precio público, despejamos su ganancia
+ * IMPORTANTE: Debe considerar el redondeo a múltiplo de 500 del precio de venta
+ * para evitar que el precio público cambie al recalcular
  * @param {number} precioPublico - Precio público deseado
  * @returns {number} Ganancia calculada
  */
 export function gananciaDesdePublico(precioPublico) {
-  return Math.round((Math.max(0, precioPublico) / ((1 + IVA) * (1 + GESTION_ADMIN))) * (1 - COMISION));
+  const p = Math.max(0, precioPublico);
+
+  // Despejar precio de venta desde precio público
+  // precioPublico = precioVenta * (1 + IVA) * (1 + GESTION_ADMIN)
+  const precioVentaSinRedondeo = p / ((1 + IVA) * (1 + GESTION_ADMIN));
+
+  // Redondear al múltiplo de 500 MÁS CERCANO para minimizar diferencia
+  const precioVenta = Math.round(precioVentaSinRedondeo / REDONDEO) * REDONDEO;
+
+  // Para un precioVenta dado (múltiplo de 500), la ganancia que lo produce es:
+  // En desglosar: precioVenta = Math.ceil(bruto / REDONDEO) * REDONDEO
+  // donde bruto = ganancia / (1 - COMISION)
+  // Para que Math.ceil(bruto / 500) * 500 = precioVenta, necesitamos:
+  // bruto <= precioVenta y bruto > precioVenta - 500
+  // Maximizando ganancia, tomamos bruto = precioVenta
+  // Entonces: ganancia = bruto * (1 - COMISION) = precioVenta * (1 - COMISION)
+  const ganancia = precioVenta * (1 - COMISION);
+
+  return Math.round(ganancia);
 }
 
 /**
