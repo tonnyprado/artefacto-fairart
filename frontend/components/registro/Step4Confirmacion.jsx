@@ -732,23 +732,16 @@ export default function Step4Confirmacion({ formData, errors, onEdit, onSubmit, 
               />
               <div style={{ flex: 1 }}>
                 <span style={{
-                  fontWeight: '600',
-                  display: 'block',
-                  marginBottom: '8px',
-                  fontSize: '16px'
-                }}>
-                  Participar solo en Concurso ARTEFACTO (Opcional)
-                </span>
-                <span style={{
                   lineHeight: '1.7',
-                  opacity: 0.9,
+                  opacity: 0.95,
                   fontSize: '14px',
                   display: 'block'
                 }}>
-                  Al registrarte, entras automáticamente al concurso ARTEFACTO. El premio consiste en la{' '}
+                  Al registrarte en nuestra convocatoria, entras automáticamente al concurso ARTEFACTO. El premio consiste en la{' '}
                   <strong>selección curatorial de una a cuatro piezas</strong> de tu propuesta{' '}
                   <strong>sin costo de inscripción</strong> y desistes de sumarte mediante la adquisición de tu{' '}
-                  paquete completo. Marca esta casilla si gustas <strong>participar solamente en el concurso</strong>.
+                  paquete completo. Marca esta casilla si gustas <strong>participar SOLAMENTE en el concurso</strong>{' '}
+                  [no ganas el espacio completo del paquete al que te postulas].
                 </span>
               </div>
             </label>
