@@ -8,11 +8,12 @@ import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
 import ExcelJS from 'exceljs'
-import { Download, Mail, MessageCircle, Phone, X, UserPlus, Plus, Upload, Loader2 } from 'lucide-react'
+import { Download, Mail, MessageCircle, Phone, X, UserPlus, Plus, Upload, Loader2, Edit2, Trash2 } from 'lucide-react'
 import AdminArtistasPorFase from './AdminArtistasPorFase'
 import ArtistasInscritos from './ArtistasInscritos'
 import ArtistasAceptados from './ArtistasAceptados'
 import ConcursoPanel from './ConcursoPanel'
+import { useAuth } from '@/hooks/useAuth'
 
 // Sub-tabs para diferentes vistas
 const SUB_TABS = [
@@ -69,6 +70,180 @@ const CATEGORIAS = [
   { value: 'otro_general', label: 'Otro' },
 ]
 
+// Componente para el modal de formulario de obra
+function ObraFormModal({ obra, onSave, onClose, saving }) {
+  const [formData, setFormData] = useState({
+    titulo: obra?.titulo || '',
+    alto_cm: obra?.alto_cm || '',
+    ancho_cm: obra?.ancho_cm || '',
+    largo_cm: obra?.largo_cm || '',
+    precio_mxn: obra?.precio_mxn || '',
+    tecnica: obra?.tecnica || '',
+    imagen_url: obra?.imagen_url || ''
+  })
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    onSave({
+      ...obra,
+      ...formData,
+      alto_cm: formData.alto_cm ? parseFloat(formData.alto_cm) : null,
+      ancho_cm: formData.ancho_cm ? parseFloat(formData.ancho_cm) : null,
+      largo_cm: formData.largo_cm ? parseFloat(formData.largo_cm) : null,
+      precio_mxn: formData.precio_mxn ? parseFloat(formData.precio_mxn) : null
+    })
+  }
+
+  return (
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+      onClick={() => !saving && onClose()}
+    >
+      <div
+        className="bg-white rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="text-xl font-semibold mb-4">
+          {obra ? 'Editar Obra' : 'Crear Nueva Obra'}
+        </h3>
+        <form onSubmit={handleSubmit}>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Título
+              </label>
+              <input
+                type="text"
+                value={formData.titulo}
+                onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Título de la obra"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Técnica
+              </label>
+              <input
+                type="text"
+                value={formData.tecnica}
+                onChange={(e) => setFormData({ ...formData, tecnica: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ej: Óleo sobre tela"
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Alto (cm)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={formData.alto_cm}
+                  onChange={(e) => setFormData({ ...formData, alto_cm: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="0.00"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Ancho (cm)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={formData.ancho_cm}
+                  onChange={(e) => setFormData({ ...formData, ancho_cm: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="0.00"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Largo (cm)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={formData.largo_cm}
+                  onChange={(e) => setFormData({ ...formData, largo_cm: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="0.00"
+                />
+                <p className="text-xs text-gray-500 mt-1">Opcional (3D)</p>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Precio (MXN)
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                value={formData.precio_mxn}
+                onChange={(e) => setFormData({ ...formData, precio_mxn: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="0.00"
+                required
+              />
+            </div>
+
+            {!obra && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  URL de la imagen (opcional)
+                </label>
+                <input
+                  type="text"
+                  value={formData.imagen_url}
+                  onChange={(e) => setFormData({ ...formData, imagen_url: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="https://..."
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Puedes subir la foto después de crear la obra
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-2 mt-6">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={saving}
+              className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 disabled:opacity-50"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Guardando...
+                </>
+              ) : (
+                obra ? 'Actualizar' : 'Crear'
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
 // Helper para mostrar el formato/categoría del artista
 const getFormatoDisplay = (artista) => {
   // Si eligió tipo OTRO o tiene formato_otro_texto
@@ -111,6 +286,7 @@ const getFormatoDisplay = (artista) => {
 export default function ArtistasTable() {
   const { artistas, fetchArtistas, fetchArtistaById, deleteArtista, cambiarEstadoArtista } = useArtistasStore()
   const { fases, fetchFases, inscribirArtistas } = useFasesStore()
+  const { hasRole } = useAuth()
 
   // Estado para sub-tabs
   const [activeView, setActiveView] = useState('lista')
@@ -130,6 +306,10 @@ export default function ArtistasTable() {
   const [obraModal, setObraModal] = useState({ open: false, obra: null })
   // Estado para upload de fotos
   const [uploadingFoto, setUploadingFoto] = useState(false)
+  // Estado para editar/crear obras
+  const [editObraModal, setEditObraModal] = useState({ open: false, obra: null })
+  const [createObraModal, setCreateObraModal] = useState(false)
+  const [savingObra, setSavingObra] = useState(false)
   // Estado para modal de mensaje
   const [mensajeModal, setMensajeModal] = useState({ open: false, artista: null })
   const [mensajeForm, setMensajeForm] = useState({ asunto: '', mensaje: '' })
@@ -338,7 +518,7 @@ export default function ArtistasTable() {
       formData.append('foto', file)
 
       const token = localStorage.getItem('token')
-      const response = await fetch(`${apiUrl}/obras/${obraModal.obra.id}/foto`, {
+      const response = await fetch(`${apiUrl}/api/obras/${obraModal.obra.id}/foto`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -370,6 +550,139 @@ export default function ArtistasTable() {
       alert('Error al subir foto: ' + err.message)
     } finally {
       setUploadingFoto(false)
+    }
+  }
+
+  // Editar obra - abrir modal de edición
+  const handleEditObra = (obra) => {
+    setEditObraModal({ open: true, obra })
+    setObraModal({ open: false, obra: null })
+  }
+
+  // Crear nueva obra - abrir modal de creación
+  const handleOpenCreateObra = () => {
+    setCreateObraModal(true)
+  }
+
+  // Guardar obra (crear o actualizar)
+  const handleSaveObra = async (obraData) => {
+    if (!selectedArtista) return
+
+    // Validar que el ID sea numérico si es una actualización
+    if (obraData.id) {
+      const isValidId = typeof obraData.id === 'number' || (typeof obraData.id === 'string' && !isNaN(parseInt(obraData.id)) && !obraData.id.includes('-'))
+      if (!isValidId) {
+        alert('Esta obra no está guardada en la base de datos aún. No se puede actualizar.')
+        return
+      }
+    }
+
+    setSavingObra(true)
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+      const token = localStorage.getItem('token')
+
+      let response
+      if (obraData.id) {
+        // Actualizar obra existente
+        response = await fetch(`${apiUrl}/api/obras/${obraData.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            titulo: obraData.titulo,
+            alto_cm: parseFloat(obraData.alto_cm),
+            ancho_cm: parseFloat(obraData.ancho_cm),
+            precio_mxn: parseFloat(obraData.precio_mxn),
+            tecnica: obraData.tecnica,
+            largo_cm: obraData.largo_cm ? parseFloat(obraData.largo_cm) : null
+          })
+        })
+      } else {
+        // Crear nueva obra
+        response = await fetch(`${apiUrl}/api/obras`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            artista_id: selectedArtista.id,
+            titulo: obraData.titulo,
+            alto_cm: parseFloat(obraData.alto_cm),
+            ancho_cm: parseFloat(obraData.ancho_cm),
+            precio_mxn: parseFloat(obraData.precio_mxn),
+            tecnica: obraData.tecnica,
+            largo_cm: obraData.largo_cm ? parseFloat(obraData.largo_cm) : null
+          })
+        })
+      }
+
+      if (response.ok) {
+        const data = await response.json()
+        alert(obraData.id ? 'Obra actualizada exitosamente' : 'Obra creada exitosamente')
+
+        // Cerrar modales
+        setEditObraModal({ open: false, obra: null })
+        setCreateObraModal(false)
+
+        // Recargar los datos del artista
+        const result = await fetchArtistaById(selectedArtista.id)
+        if (result.success) {
+          setSelectedArtista(result.data)
+        }
+      } else {
+        const error = await response.json()
+        alert('Error al guardar obra: ' + (error.error || 'Error desconocido'))
+      }
+    } catch (err) {
+      console.error('Error al guardar obra:', err)
+      alert('Error al guardar obra: ' + err.message)
+    } finally {
+      setSavingObra(false)
+    }
+  }
+
+  // Eliminar obra
+  const handleDeleteObra = async (obraId) => {
+    if (!confirm('¿Estás seguro de que quieres eliminar esta obra?')) return
+
+    const isValidId = typeof obraId === 'number' || (typeof obraId === 'string' && !isNaN(parseInt(obraId)) && !obraId.includes('-'))
+    if (!isValidId) {
+      alert('Esta obra no está guardada en la base de datos aún.')
+      return
+    }
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+      const token = localStorage.getItem('token')
+
+      const response = await fetch(`${apiUrl}/api/obras/${obraId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        alert('Obra eliminada exitosamente')
+
+        // Recargar los datos del artista
+        if (selectedArtista) {
+          const result = await fetchArtistaById(selectedArtista.id)
+          if (result.success) {
+            setSelectedArtista(result.data)
+          }
+        }
+      } else {
+        const error = await response.json()
+        alert('Error al eliminar obra: ' + (error.error || 'Error desconocido'))
+      }
+    } catch (err) {
+      console.error('Error al eliminar obra:', err)
+      alert('Error al eliminar obra: ' + err.message)
     }
   }
 
@@ -770,9 +1083,18 @@ export default function ArtistasTable() {
   }
 
   // Handler para ver detalles desde otros componentes
-  const handleVerDetallesFromChild = (artista) => {
-    setSelectedArtista(artista)
+  const handleVerDetallesFromChild = async (artista) => {
     setShowDetailModal(true)
+    setLoadingArtista(true)
+    // Cargar datos completos del artista (incluyendo obras con URLs de S3)
+    const result = await fetchArtistaById(artista.id)
+    if (result.success) {
+      setSelectedArtista(result.data)
+    } else {
+      // Fallback a los datos básicos si falla
+      setSelectedArtista(artista)
+    }
+    setLoadingArtista(false)
   }
 
   return (
@@ -1381,9 +1703,21 @@ export default function ArtistasTable() {
 
               return (
                 <div className="bg-green-50 p-4 rounded-lg">
-                  <h4 className="text-sm font-semibold text-gray-900 mb-3">
-                    Obras para Exhibición ({obrasEnriquecidas.length})
-                  </h4>
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-sm font-semibold text-gray-900">
+                      Obras para Exhibición ({obrasEnriquecidas.length})
+                    </h4>
+                    {/* Botón para añadir obra - solo admin */}
+                    {hasRole('admin') && (
+                      <button
+                        onClick={handleOpenCreateObra}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs font-medium"
+                      >
+                        <Plus size={14} />
+                        Nueva Obra
+                      </button>
+                    )}
+                  </div>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {obrasEnriquecidas.map((obra, index) => {
                       const imagenUrl = obra.preview || obra.imagen_url
@@ -1391,7 +1725,7 @@ export default function ArtistasTable() {
                         <div
                           key={index}
                           onClick={() => setObraModal({ open: true, obra: { ...obra, preview: imagenUrl } })}
-                          className="bg-white p-3 rounded-lg border border-gray-200 hover:border-green-400 hover:shadow-md transition-all cursor-pointer group"
+                          className="bg-white p-3 rounded-lg border border-gray-200 hover:border-green-400 hover:shadow-md transition-all cursor-pointer group relative"
                         >
                           {imagenUrl ? (
                             <div className="aspect-square rounded-lg overflow-hidden mb-2 bg-gray-100 relative">
@@ -1455,6 +1789,31 @@ export default function ArtistasTable() {
                                   <span className="font-bold text-green-600">${obra.precio_sugerido?.toLocaleString('es-MX')}</span>
                                 </div>
                               )}
+                            </div>
+                          )}
+                          {/* Botones de admin - solo visible para admin */}
+                          {hasRole('admin') && (
+                            <div className="mt-2 pt-2 border-t border-gray-100 flex gap-2">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleEditObra(obra)
+                                }}
+                                className="flex-1 inline-flex items-center justify-center gap-1 px-2 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-[10px] font-medium"
+                              >
+                                <Edit2 size={12} />
+                                Editar
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleDeleteObra(obra.id)
+                                }}
+                                className="flex-1 inline-flex items-center justify-center gap-1 px-2 py-1.5 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-[10px] font-medium"
+                              >
+                                <Trash2 size={12} />
+                                Eliminar
+                              </button>
                             </div>
                           )}
                         </div>
@@ -1836,6 +2195,26 @@ export default function ArtistasTable() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal de Editar Obra */}
+      {editObraModal.open && (
+        <ObraFormModal
+          obra={editObraModal.obra}
+          onSave={handleSaveObra}
+          onClose={() => setEditObraModal({ open: false, obra: null })}
+          saving={savingObra}
+        />
+      )}
+
+      {/* Modal de Crear Obra */}
+      {createObraModal && (
+        <ObraFormModal
+          obra={null}
+          onSave={handleSaveObra}
+          onClose={() => setCreateObraModal(false)}
+          saving={savingObra}
+        />
       )}
 
       {/* Modal de Mensaje al Artista */}
