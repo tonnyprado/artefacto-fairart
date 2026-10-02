@@ -87,21 +87,17 @@ export class PdfKitGenerador extends GeneradorPdf {
         width: 195,
       });
 
-    // Fecha con negrita
-    const fechaY = doc.y;
-    doc
-      .text('Fecha: ', 350, fechaY, { align: 'right', width: 195, continued: true })
-      .font('Helvetica-Bold')
-      .text(fechaFormateada, { align: 'right', width: 195, continued: true })
-      .font('Helvetica')
-      .text(' · Lugar: Ciudad de México', { align: 'right', width: 195 });
+    // Fecha (sin negritas inline para evitar empalme)
+    doc.text(`Fecha: ${fechaFormateada} · Lugar: Ciudad de México`, 350, doc.y, {
+      align: 'right',
+      width: 195,
+    });
 
-    // Folio con negrita
-    doc
-      .text('Folio: ', 350, doc.y, { align: 'right', width: 195, continued: true })
-      .font('Helvetica-Bold')
-      .text(a.folio, { align: 'right', width: 195 })
-      .font('Helvetica');
+    // Folio (sin negritas inline para evitar empalme)
+    doc.text(`Folio: ${a.folio}`, 350, doc.y, {
+      align: 'right',
+      width: 195,
+    });
 
     // Línea horizontal roja
     y = doc.y + 10;
