@@ -92,15 +92,15 @@ export class PdfKitGenerador extends GeneradorPdf {
     doc
       .text('Fecha: ', 350, fechaY, { align: 'right', width: 195, continued: true })
       .font('Helvetica-Bold')
-      .text(fechaFormateada, { continued: true })
+      .text(fechaFormateada, { align: 'right', width: 195, continued: true })
       .font('Helvetica')
-      .text(' · Lugar: Ciudad de México');
+      .text(' · Lugar: Ciudad de México', { align: 'right', width: 195 });
 
     // Folio con negrita
     doc
       .text('Folio: ', 350, doc.y, { align: 'right', width: 195, continued: true })
       .font('Helvetica-Bold')
-      .text(a.folio)
+      .text(a.folio, { align: 'right', width: 195 })
       .font('Helvetica');
 
     // Línea horizontal roja
@@ -128,13 +128,10 @@ export class PdfKitGenerador extends GeneradorPdf {
     doc.fontSize(9).font('Helvetica').fillColor('#111');
     const dataY = y + 8;
     doc.text(`Artista o colectivo: ${a.nombre}`, 60, dataY, { width: 475 });
-    doc.text(`RFC: ${a.rfc}`, 60, dataY + 12, { width: 150, continued: true });
-    doc.text(`Folio de participación: ${a.folio}`, 215, dataY + 12, {
-      width: 150,
-      continued: true,
-    });
+    doc.text(`RFC: ${a.rfc}`, 60, dataY + 12, { width: 150 });
+    doc.text(`Folio de participación: ${a.folio}`, 215, dataY + 12, { width: 150 });
     doc.text(`Paquete: ${a.paquete}`, 370, dataY + 12, { width: 150 });
-    doc.text(`Correo: ${a.correo}`, 60, dataY + 24, { width: 150, continued: true });
+    doc.text(`Correo: ${a.correo}`, 60, dataY + 24, { width: 150 });
     doc.text(`Teléfono: ${a.telefono}`, 215, dataY + 24, { width: 150 });
 
     doc.y = y + 40;
@@ -270,15 +267,9 @@ export class PdfKitGenerador extends GeneradorPdf {
 
     doc.fontSize(8.5).font('Helvetica').fillColor('#111');
     const pagoY = y + 20;
-    doc.text(`Beneficiario: ${datos.datosPago.beneficiario}`, 60, pagoY, {
-      width: 200,
-      continued: true,
-    });
+    doc.text(`Beneficiario: ${datos.datosPago.beneficiario}`, 60, pagoY, { width: 200 });
     doc.text(`Banco: ${datos.datosPago.banco}`, 265, pagoY, { width: 150 });
-    doc.text(`CLABE: ${datos.datosPago.clabe}`, 60, pagoY + 10, {
-      width: 200,
-      continued: true,
-    });
+    doc.text(`CLABE: ${datos.datosPago.clabe}`, 60, pagoY + 10, { width: 200 });
     doc.text(`Cuenta: ${datos.datosPago.cuenta}`, 265, pagoY + 10, { width: 150 });
     doc.text(`Concepto: ${datos.datosPago.concepto}`, 60, pagoY + 20, { width: 400 });
 

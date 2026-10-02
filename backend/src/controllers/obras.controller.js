@@ -191,7 +191,9 @@ export const createObra = async (req, res) => {
 export const updateObra = async (req, res) => {
   try {
     const { id } = req.params
-    const { titulo, imagen_url, alto_cm, ancho_cm, precio_mxn, en_lienzo, orden_lienzo } = req.body
+    const { titulo, imagen_url, alto_cm, ancho_cm, largo_cm, precio_mxn, tecnica, en_lienzo, orden_lienzo } = req.body
+
+    console.log('📝 Actualizando obra ID:', id, 'con datos:', req.body)
 
     if (useDatabase()) {
       const updates = []
@@ -218,9 +220,19 @@ export const updateObra = async (req, res) => {
         values.push(ancho_cm)
         paramCount++
       }
+      if (largo_cm !== undefined) {
+        updates.push(`largo_cm = $${paramCount}`)
+        values.push(largo_cm)
+        paramCount++
+      }
       if (precio_mxn !== undefined) {
         updates.push(`precio_mxn = $${paramCount}`)
         values.push(precio_mxn)
+        paramCount++
+      }
+      if (tecnica !== undefined) {
+        updates.push(`tecnica = $${paramCount}`)
+        values.push(tecnica)
         paramCount++
       }
       if (en_lienzo !== undefined) {
