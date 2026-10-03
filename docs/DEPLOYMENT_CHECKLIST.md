@@ -81,7 +81,7 @@ Editar `/backend/.env` en staging y agregar:
 
 # URLs y configuración general
 PUBLIC_APP_URL=https://staging.arte-facto.mx/consigna
-INVITACION_DIAS_VIGENCIA=21
+INVITACION_DIAS_VIGENCIA=4
 EDICION_SUFIJO=AF2
 
 # Datos de pago (usar datos reales de producción)
@@ -92,7 +92,7 @@ PAGO_CUENTA="0123456789"
 PAGO_PLAZOS="Feria: 15 días o 10 mar 2027; Post-evento: 15 días (hasta 6 meses)"
 
 # Contacto
-CONTACTO_WHATSAPP="+52XXXXXXXXXX"
+CONTACTO_WHATSAPP="+525578363207"
 CONTACTO_URL="https://staging.arte-facto.mx/#contacto"
 
 # S3 (usar bucket de staging)
@@ -602,7 +602,7 @@ Editar `/backend/.env` en producción:
 ```bash
 # SISTEMA DE CONSIGNA - PRODUCCIÓN
 PUBLIC_APP_URL=https://arte-facto.mx/consigna
-INVITACION_DIAS_VIGENCIA=21
+INVITACION_DIAS_VIGENCIA=4
 EDICION_SUFIJO=AF2
 
 # Datos de pago (USAR DATOS REALES)
@@ -613,7 +613,7 @@ PAGO_CUENTA="[CUENTA REAL]"
 PAGO_PLAZOS="Feria: 15 días o 10 mar 2027; Post-evento: 15 días (hasta 6 meses)"
 
 # Contacto (USAR DATOS REALES)
-CONTACTO_WHATSAPP="+52 [NÚMERO REAL]"
+CONTACTO_WHATSAPP="+525578363207"
 CONTACTO_URL="https://arte-facto.mx/#contacto"
 
 # S3 Producción

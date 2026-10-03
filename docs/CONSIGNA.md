@@ -120,7 +120,7 @@ Agregar al archivo `/backend/.env`:
 ```bash
 # Sistema de Consigna
 PUBLIC_APP_URL=https://arte-facto.mx/consigna
-INVITACION_DIAS_VIGENCIA=21
+INVITACION_DIAS_VIGENCIA=4
 EDICION_SUFIJO=AF2
 
 # Datos de Pago
@@ -131,7 +131,7 @@ PAGO_CUENTA="0123456789"
 PAGO_PLAZOS="Feria: 15 días o 10 mar 2027; Post-evento: 15 días (hasta 6 meses)"
 
 # Contacto
-CONTACTO_WHATSAPP="+52XXXXXXXXXX"
+CONTACTO_WHATSAPP="+525578363207"
 CONTACTO_URL="https://arte-facto.mx/#contacto"
 
 # AWS S3

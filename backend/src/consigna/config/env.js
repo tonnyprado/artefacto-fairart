@@ -6,7 +6,7 @@
 export const config = {
   nodeEnv: process.env.NODE_ENV || 'development',
   publicAppUrl: process.env.PUBLIC_APP_URL || '',
-  diasVigencia: parseInt(process.env.INVITACION_DIAS_VIGENCIA || '21', 10),
+  diasVigencia: parseInt(process.env.INVITACION_DIAS_VIGENCIA || '4', 10),
   edicionSufijo: process.env.EDICION_SUFIJO || 'AF2',
 
   // AWS S3
