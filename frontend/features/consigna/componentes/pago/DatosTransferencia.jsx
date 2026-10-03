@@ -17,8 +17,7 @@ export function DatosTransferencia({ datos }) {
   const campo = (k, v) => <div><div style={etiqueta}>{k}</div>{v}</div>;
   return (
     <div style={{ background: '#000', color: color.crema, borderRadius: 12, padding: '20px 22px', margin: '0 0 22px', maxWidth: 620 }}>
-      <div style={{ fontWeight: 900, fontStyle: 'italic', textTransform: 'uppercase', fontSize: 15, marginBottom: 4 }}>Datos para transferir tu paquete</div>
-      <div style={{ fontSize: 12.5, opacity: 0.85, marginBottom: 14 }}>{datos.plazos} Envíanos tu comprobante por WhatsApp.</div>
+      <div style={{ fontWeight: 900, fontStyle: 'italic', textTransform: 'uppercase', fontSize: 15, marginBottom: 14 }}>Datos para transferir tu paquete</div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '14px 22px' }}>
         {campo('Beneficiario', <div style={{ fontSize: 14, fontWeight: 700 }}>{datos.beneficiario}</div>)}
         {campo('Banco', <div style={{ fontSize: 14, fontWeight: 700 }}>{datos.banco}</div>)}

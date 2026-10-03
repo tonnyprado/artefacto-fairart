@@ -155,9 +155,8 @@ export class PdfKitGenerador extends GeneradorPdf {
     doc.fontSize(9).font('Helvetica').fillColor('#111');
     const dataY = y + 8;
     doc.text(`Artista o colectivo: ${a.nombre}`, 60, dataY, { width: 475 });
-    doc.text(`RFC: ${a.rfc}`, 60, dataY + 12, { width: 150 });
-    doc.text(`Folio de participación: ${a.folio}`, 215, dataY + 12, { width: 150 });
-    doc.text(`Paquete: ${a.paquete}`, 370, dataY + 12, { width: 150 });
+    doc.text(`Folio de participación: ${a.folio}`, 60, dataY + 12, { width: 150 });
+    doc.text(`Paquete: ${a.paquete}`, 215, dataY + 12, { width: 150 });
     doc.text(`Correo: ${a.correo}`, 60, dataY + 24, { width: 150 });
     doc.text(`Teléfono: ${a.telefono}`, 215, dataY + 24, { width: 150 });
 
