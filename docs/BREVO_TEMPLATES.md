@@ -180,7 +180,7 @@ Este documento contiene las 3 plantillas de email que deben crearse en Brevo par
 - `{{ params.edicion }}` - Código de edición (ej: AF2, AF3)
 - `{{ params.link_consigna }}` - URL única con token
 - `{{ params.folio }}` - Folio del artista
-- `{{ params.dias_vigencia }}` - Días de vigencia del link (21)
+- `{{ params.dias_vigencia }}` - Días de vigencia del link (4)
 
 ---
 
@@ -570,7 +570,7 @@ await sendEmailWithTemplate({
     edicion: 'AF2',
     link_consigna: 'https://arte-facto.mx/consigna/TOKEN_PRUEBA',
     folio: 'AF2-001',
-    dias_vigencia: 21
+    dias_vigencia: 4
   }
 })
 ```
