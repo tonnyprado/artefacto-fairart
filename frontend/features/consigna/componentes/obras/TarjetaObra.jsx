@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { desglosar, gananciaDesdePublico, formatoMXN } from '../../shared/precios';
+import { desglosar, desglosarDesdePublico, gananciaDesdePublico, formatoMXN } from '../../shared/precios';
 import { color } from '../../tema';
 
 // CSS para ocultar spinners de input number
@@ -23,8 +23,14 @@ const estilosSpinner = `
  * @param {(g: number) => void} props.onGanancia
  */
 export function TarjetaObra({ obra, ganancia, onGanancia }) {
-  const d = desglosar(ganancia);
   const [borrador, setBorrador] = useState(null);
+
+  // Cuando hay borrador activo, calculamos desde precio público (sin redondeo)
+  // Cuando no hay borrador, calculamos desde ganancia (con redondeo)
+  const d = borrador !== null
+    ? desglosarDesdePublico(parseFloat(borrador) || 0)
+    : desglosar(ganancia);
+
   const aplicar = () => {
     if (borrador !== null) {
       const valorNumerico = parseFloat(borrador);

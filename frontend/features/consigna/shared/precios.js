@@ -55,6 +55,39 @@ export function desglosar(ganancia) {
 }
 
 /**
+ * Cuando el artista edita el precio público, calculamos el desglose inverso
+ * SIN aplicar redondeo - el precio público YA es el valor final
+ * @param {number} precioPublico - Precio último deseado (exacto, sin redondear)
+ * @returns {Desglose}
+ */
+export function desglosarDesdePublico(precioPublico) {
+  const ultimo = Math.max(0, precioPublico);
+
+  // PASO 1: Obtener la base desde el precio público (cálculo inverso)
+  // Según spec: base = valor / 1.19 (si captura el precio último)
+  const base = ultimo / (1 + IVA + GESTION);
+
+  // DESGLOSE — SOLO PARA MOSTRAR EN PANTALLA
+  const parteArtista = base * ARTISTA;
+  const parteArtefacto = base * COMISION;
+  const iva = base * IVA;
+  const gestion = base * GESTION;
+  const total = base * (1 + IVA + GESTION);
+
+  // ⚠️ NO redondear el precio público - es el valor exacto que ingresó el usuario
+  // El ajuste es 0 porque no estamos redondeando hacia arriba
+  return {
+    ganancia: r2(parteArtista),
+    comision: r2(parteArtefacto),
+    ajuste: 0,  // sin ajuste cuando se edita desde precio público
+    precioVenta: r2(base),
+    iva: r2(iva),
+    gestionAdmin: r2(gestion),
+    precioPublico: r2(ultimo),
+  };
+}
+
+/**
  * Cuando el artista edita el precio público, despejamos su ganancia
  * @param {number} precioPublico - Precio último deseado
  * @returns {number} Ganancia calculada (CON decimales para mantener exactitud)

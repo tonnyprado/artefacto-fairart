@@ -57,7 +57,7 @@ export function consignaReducer(s, a) {
     case 'FISCAL': return { ...s, estadoFiscal: a.valor };
     case 'CONSTANCIA': return { ...s, constancia: a.valor, estadoFiscal: 'cargada' };
     case 'DESCUENTO': return { ...s, descuentoMax: a.valor };
-    case 'GANANCIA': return { ...s, ganancias: { ...s.ganancias, [a.obraId]: Math.max(0, Math.round(a.valor)) } };
+    case 'GANANCIA': return { ...s, ganancias: { ...s.ganancias, [a.obraId]: Math.max(0, a.valor) } };
     case 'ACEPTO': return { ...s, acepto: a.valor };
     case 'FIRMA': return { ...s, firma: a.valor };
     case 'ENVIADO': return { ...s, enviado: true, paso: PASO_ENVIADO };

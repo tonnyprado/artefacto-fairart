@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { desglosar, gananciaDesdePublico, formatoMXN } from '../../shared/precios';
+import { desglosar, desglosarDesdePublico, gananciaDesdePublico, formatoMXN } from '../../shared/precios';
 import { color } from '../../tema';
 
 const celda = { padding: '12px 10px', textAlign: 'right', color: 'rgba(0,0,0,0.75)' };
@@ -31,9 +31,15 @@ const estilosSpinner = `
  * @param {(g: number) => void} props.onGanancia
  */
 export function FilaObra({ obra, ganancia, onGanancia }) {
-  const d = desglosar(ganancia);
   // Borrador local del precio público: se aplica al hacer clic en "Aplicar"
   const [borrador, setBorrador] = useState(null);
+
+  // Cuando hay borrador activo, calculamos desde precio público (sin redondeo)
+  // Cuando no hay borrador, calculamos desde ganancia (con redondeo)
+  const d = borrador !== null
+    ? desglosarDesdePublico(parseFloat(borrador) || 0)
+    : desglosar(ganancia);
+
   const aplicar = () => {
     if (borrador !== null) {
       const valorNumerico = parseFloat(borrador);
