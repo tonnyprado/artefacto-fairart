@@ -82,6 +82,22 @@ function ObraFormModal({ obra, onSave, onClose, saving }) {
     imagen_url: obra?.imagen_url || ''
   })
 
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [previewUrl, setPreviewUrl] = useState(obra?.imagen_url || null)
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setSelectedFile(file)
+      // Crear URL de vista previa
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
     onSave({
@@ -91,7 +107,7 @@ function ObraFormModal({ obra, onSave, onClose, saving }) {
       ancho_cm: formData.ancho_cm ? parseFloat(formData.ancho_cm) : null,
       largo_cm: formData.largo_cm ? parseFloat(formData.largo_cm) : null,
       precio_mxn: formData.precio_mxn ? parseFloat(formData.precio_mxn) : null
-    })
+    }, selectedFile)
   }
 
   return (
@@ -196,20 +212,75 @@ function ObraFormModal({ obra, onSave, onClose, saving }) {
             </div>
 
             {!obra && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  URL de la imagen (opcional)
-                </label>
-                <input
-                  type="text"
-                  value={formData.imagen_url}
-                  onChange={(e) => setFormData({ ...formData, imagen_url: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="https://..."
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Puedes subir la foto después de crear la obra
-                </p>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Foto de la obra
+                  </label>
+
+                  {/* Input de archivo */}
+                  <div className="flex flex-col gap-2">
+                    <label className="cursor-pointer">
+                      <div className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 border-2 border-blue-200 border-dashed rounded-lg hover:bg-blue-100 transition-colors">
+                        <Upload size={18} />
+                        <span className="text-sm font-medium">
+                          {selectedFile ? selectedFile.name : 'Seleccionar imagen desde computadora'}
+                        </span>
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
+                    </label>
+
+                    {/* Vista previa */}
+                    {previewUrl && (
+                      <div className="relative w-full h-48 rounded-lg overflow-hidden border border-gray-200">
+                        <img
+                          src={previewUrl}
+                          alt="Vista previa"
+                          className="w-full h-full object-contain bg-gray-50"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedFile(null)
+                            setPreviewUrl(null)
+                            setFormData({ ...formData, imagen_url: '' })
+                          }}
+                          className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Separador o URL alternativa */}
+                {!selectedFile && (
+                  <div>
+                    <div className="relative flex items-center py-2">
+                      <div className="flex-grow border-t border-gray-300"></div>
+                      <span className="flex-shrink mx-4 text-xs text-gray-400">o ingresar URL</span>
+                      <div className="flex-grow border-t border-gray-300"></div>
+                    </div>
+                    <input
+                      type="text"
+                      value={formData.imagen_url}
+                      onChange={(e) => {
+                        setFormData({ ...formData, imagen_url: e.target.value })
+                        if (e.target.value) {
+                          setPreviewUrl(e.target.value)
+                        }
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="https://ejemplo.com/imagen.jpg"
+                    />
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -587,10 +658,11 @@ export default function ArtistasTable() {
   }
 
   // Guardar obra (crear o actualizar)
-  const handleSaveObra = async (obraData) => {
+  const handleSaveObra = async (obraData, file = null) => {
     if (!selectedArtista) return
 
     console.log('🔍 obraData recibido:', obraData)
+    console.log('🔍 archivo recibido:', file)
 
     // Validar que el ID sea numérico si es una actualización
     if (obraData.id) {
@@ -637,6 +709,7 @@ export default function ArtistasTable() {
           body: JSON.stringify({
             artista_id: selectedArtista.id,
             titulo: obraData.titulo,
+            imagen_url: obraData.imagen_url || 'https://via.placeholder.com/400x400?text=Sin+imagen',
             alto_cm: parseFloat(obraData.alto_cm),
             ancho_cm: parseFloat(obraData.ancho_cm),
             precio_mxn: parseFloat(obraData.precio_mxn),
@@ -648,6 +721,31 @@ export default function ArtistasTable() {
 
       if (response.ok) {
         const data = await response.json()
+        console.log('✅ Respuesta de guardado:', data)
+
+        // Si es una nueva obra y hay un archivo, subirlo
+        if (!obraData.id && file && data.obra?.id) {
+          console.log('📸 Subiendo foto para obra ID:', data.obra.id)
+          const formData = new FormData()
+          formData.append('foto', file)
+
+          const fotoResponse = await fetch(`${apiUrl}/obras/${data.obra.id}/foto`, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            },
+            body: formData
+          })
+
+          if (!fotoResponse.ok) {
+            const fotoError = await fotoResponse.json()
+            console.error('Error al subir foto:', fotoError)
+            alert('Obra creada pero hubo un error al subir la foto: ' + (fotoError.error || 'Error desconocido'))
+          } else {
+            console.log('✅ Foto subida exitosamente')
+          }
+        }
+
         alert(obraData.id ? 'Obra actualizada exitosamente' : 'Obra creada exitosamente')
 
         // Cerrar modales
