@@ -34,7 +34,8 @@ export function desglosar(ganancia) {
   const total = base * (1 + IVA + GESTION);  // = base * 1.19
 
   // PASO 3: Cerrar hacia arriba → precio último
-  const ultimo = PASO ? Math.ceil(total / PASO) * PASO : total;
+  // Usar -1e-9 para evitar redondear hacia arriba cuando ya es exacto (errores de punto flotante)
+  const ultimo = PASO ? Math.ceil(total / PASO - 1e-9) * PASO : total;
 
   // DESGLOSE — SOLO PARA MOSTRAR EN PANTALLA
   // ⚠️ NO sumar estas líneas al total: ya están dentro de base * 1.19
@@ -57,21 +58,22 @@ export function desglosar(ganancia) {
 /**
  * Cuando el artista edita el precio público, despejamos su ganancia
  * @param {number} precioPublico - Precio último deseado
- * @returns {number} Ganancia calculada
+ * @returns {number} Ganancia calculada (CON decimales para mantener exactitud)
  */
 export function gananciaDesdePublico(precioPublico) {
   const ultimo = Math.max(0, precioPublico);
 
-  // Redondear al múltiplo de PASO más cercano para minimizar diferencia
+  // Redondear al múltiplo de PASO más cercano
   const ultimoRedondeado = PASO ? Math.round(ultimo / PASO) * PASO : ultimo;
 
-  // Despejar: ultimo = base * 1.19, entonces base = ultimo / 1.19
+  // Según spec: base = valor / 1.19 (si captura el precio último)
   const base = ultimoRedondeado / (1 + IVA + GESTION);
 
   // La ganancia es el 75% de la base
+  // ⚠️ NO redondear - mantener decimales para que al recalcular llegue al mismo precio
   const ganancia = base * ARTISTA;
 
-  return Math.round(ganancia);
+  return ganancia;  // retornar con decimales, no redondear
 }
 
 /**
