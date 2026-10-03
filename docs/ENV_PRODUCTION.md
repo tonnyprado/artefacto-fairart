@@ -29,7 +29,7 @@ PAGO_PLAZOS=Feria: 15 días o 10 mar 2027; Post-evento: 15 días (hasta 6 meses)
 ### Contacto
 
 ```bash
-CONTACTO_WHATSAPP=+525578363207
+CONTACTO_WHATSAPP=+5215578363207
 CONTACTO_URL=https://arte-facto.mx/#contacto
 ```
 
@@ -76,7 +76,7 @@ PAGO_BANCO=BBVA
 PAGO_CLABE=012180015495173640
 PAGO_CUENTA=0154951736
 PAGO_PLAZOS=Feria: 15 días o 10 mar 2027; Post-evento: 15 días (hasta 6 meses)
-CONTACTO_WHATSAPP=+525578363207
+CONTACTO_WHATSAPP=+5215578363207
 CONTACTO_URL=https://arte-facto.mx/#contacto
 S3_CONSIGNA_BUCKET=artefacto-artistas
 S3_CONSIGNA_PREFIX=consigna/

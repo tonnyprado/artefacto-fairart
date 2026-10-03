@@ -92,7 +92,7 @@ PAGO_CUENTA="0123456789"
 PAGO_PLAZOS="Feria: 15 días o 10 mar 2027; Post-evento: 15 días (hasta 6 meses)"
 
 # Contacto
-CONTACTO_WHATSAPP="+525578363207"
+CONTACTO_WHATSAPP="+5215578363207"
 CONTACTO_URL="https://staging.arte-facto.mx/#contacto"
 
 # S3 (usar bucket de staging)
@@ -613,7 +613,7 @@ PAGO_CUENTA="[CUENTA REAL]"
 PAGO_PLAZOS="Feria: 15 días o 10 mar 2027; Post-evento: 15 días (hasta 6 meses)"
 
 # Contacto (USAR DATOS REALES)
-CONTACTO_WHATSAPP="+525578363207"
+CONTACTO_WHATSAPP="+5215578363207"
 CONTACTO_URL="https://arte-facto.mx/#contacto"
 
 # S3 Producción
