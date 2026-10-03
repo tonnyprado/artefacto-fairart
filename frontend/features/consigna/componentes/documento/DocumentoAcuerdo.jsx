@@ -71,7 +71,7 @@ export function DocumentoAcuerdo(p) {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '6px 18px', background: color.cremaPapel, borderRadius: 6, padding: '12px 14px', margin: '12px 0 14px', fontSize: 11 }}>
         <span style={{ gridColumn: '1/-1' }}><b>Artista o colectivo:</b> {a.nombre}</span>
-        <span><b>RFC:</b> {a.rfc}</span><span><b>Folio de participación:</b> {a.folio}</span><span><b>Paquete:</b> {a.paquete}</span>
+        <span><b>Folio de participación:</b> {a.folio}</span><span><b>Paquete:</b> {a.paquete}</span>
         <span><b>Correo:</b> {a.correo}</span><span><b>Teléfono:</b> {a.telefono}</span>
       </div>
 
