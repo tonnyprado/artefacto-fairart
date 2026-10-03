@@ -146,12 +146,12 @@ function ObraFormModal({ obra, onSave, onClose, saving }) {
                 type="text"
                 value={formData.tecnica}
                 onChange={(e) => setFormData({ ...formData, tecnica: e.target.value })}
-                maxLength={100}
+                maxLength={25}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Ej: Óleo sobre tela"
               />
               <p className="text-xs text-gray-500 mt-1">
-                {formData.tecnica?.length || 0}/100 caracteres
+                {formData.tecnica?.length || 0}/25 caracteres
               </p>
             </div>
 

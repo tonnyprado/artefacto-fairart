@@ -127,7 +127,7 @@ export const getObrasByArtista = async (req, res) => {
 
 export const createObra = async (req, res) => {
   try {
-    const { titulo, artista_id, imagen_url, alto_cm, ancho_cm, precio_mxn, en_lienzo, orden_lienzo } = req.body
+    const { titulo, artista_id, imagen_url, alto_cm, ancho_cm, largo_cm, precio_mxn, tecnica, en_lienzo, orden_lienzo } = req.body
 
     if (!artista_id || !imagen_url) {
       return res.status(400).json({
@@ -138,8 +138,8 @@ export const createObra = async (req, res) => {
 
     if (useDatabase()) {
       const result = await pool.query(
-        `INSERT INTO obras (artista_id, titulo, imagen_url, alto_cm, ancho_cm, precio_mxn, en_lienzo, orden_lienzo)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        `INSERT INTO obras (artista_id, titulo, imagen_url, alto_cm, ancho_cm, largo_cm, precio_mxn, tecnica, en_lienzo, orden_lienzo)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
          RETURNING *`,
         [
           artista_id,
@@ -147,7 +147,9 @@ export const createObra = async (req, res) => {
           imagen_url,
           alto_cm || null,
           ancho_cm || null,
+          largo_cm || null,
           precio_mxn || null,
+          tecnica || null,
           en_lienzo || false,
           orden_lienzo || null
         ]
@@ -168,7 +170,9 @@ export const createObra = async (req, res) => {
       imagen_url,
       alto_cm: alto_cm || null,
       ancho_cm: ancho_cm || null,
+      largo_cm: largo_cm || null,
       precio_mxn: precio_mxn || null,
+      tecnica: tecnica || null,
       en_lienzo: en_lienzo || false,
       orden_lienzo: orden_lienzo || null,
       created_at: now()
@@ -287,7 +291,9 @@ export const updateObra = async (req, res) => {
       ...(imagen_url !== undefined && { imagen_url }),
       ...(alto_cm !== undefined && { alto_cm }),
       ...(ancho_cm !== undefined && { ancho_cm }),
+      ...(largo_cm !== undefined && { largo_cm }),
       ...(precio_mxn !== undefined && { precio_mxn }),
+      ...(tecnica !== undefined && { tecnica }),
       ...(en_lienzo !== undefined && { en_lienzo }),
       ...(orden_lienzo !== undefined && { orden_lienzo })
     }
