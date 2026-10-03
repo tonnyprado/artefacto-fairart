@@ -16,7 +16,9 @@ import {
   XCircle,
   Loader2,
   Package,
-  Flag
+  Flag,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react'
 
 // Helper para nombres de paquetes
@@ -36,11 +38,20 @@ export default function ArtistasTable() {
     categoria: '',
     estado_registro: ''
   })
+  // Estados de paginación
+  const [currentPage, setCurrentPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const limit = 50
 
-  // Fetch artistas al montar y cuando cambien filtros
+  // Resetear a página 1 cuando cambien los filtros
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filters])
+
+  // Fetch artistas al montar y cuando cambien filtros o página
   useEffect(() => {
     fetchArtistas()
-  }, [filters])
+  }, [currentPage])
 
   const fetchArtistas = async () => {
     try {
@@ -53,6 +64,11 @@ export default function ArtistasTable() {
       if (filters.categoria) params.append('categoria', filters.categoria)
       if (filters.estado_registro) params.append('estado_registro', filters.estado_registro)
 
+      // Parámetros de paginación
+      const offset = (currentPage - 1) * limit
+      params.append('limit', limit.toString())
+      params.append('offset', offset.toString())
+
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
       const response = await fetch(`${apiUrl}/api/artistas?${params}`)
 
@@ -63,6 +79,7 @@ export default function ArtistasTable() {
       const data = await response.json()
       console.log('Artistas cargados:', data)
       setArtistas(data.data || [])
+      setTotal(data.total || 0)
     } catch (err) {
       console.error('Error fetching artistas:', err)
       setError(err.message)
@@ -146,7 +163,17 @@ export default function ArtistasTable() {
         <h1 className="text-3xl font-bold">Artistas Registrados</h1>
         <div className="flex items-center gap-4">
           <div className="text-sm text-gray-600">
-            Total: {artistas.length} artistas
+            {total > 0 ? (
+              <>
+                <span className="font-semibold">Total: {total} artistas</span>
+                <span className="text-gray-400 mx-2">|</span>
+                <span>
+                  Mostrando {Math.min((currentPage - 1) * limit + 1, total)} - {Math.min(currentPage * limit, total)}
+                </span>
+              </>
+            ) : (
+              'Sin artistas'
+            )}
           </div>
           <button
             onClick={fetchArtistas}
@@ -377,6 +404,104 @@ export default function ArtistasTable() {
           </tbody>
         </table>
       </div>
+
+      {/* Controles de Paginación */}
+      {total > limit && (
+        <div className="mt-6 flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            Página {currentPage} de {Math.ceil(total / limit)}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Botón Anterior */}
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Anterior
+            </button>
+
+            {/* Números de Página */}
+            <div className="flex gap-1">
+              {(() => {
+                const totalPages = Math.ceil(total / limit)
+                const pages = []
+                const maxVisible = 5
+
+                let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2))
+                let endPage = Math.min(totalPages, startPage + maxVisible - 1)
+
+                if (endPage - startPage < maxVisible - 1) {
+                  startPage = Math.max(1, endPage - maxVisible + 1)
+                }
+
+                // Primera página
+                if (startPage > 1) {
+                  pages.push(
+                    <button
+                      key={1}
+                      onClick={() => setCurrentPage(1)}
+                      className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+                    >
+                      1
+                    </button>
+                  )
+                  if (startPage > 2) {
+                    pages.push(<span key="ellipsis-start" className="px-2 text-gray-400">...</span>)
+                  }
+                }
+
+                // Páginas visibles
+                for (let i = startPage; i <= endPage; i++) {
+                  pages.push(
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPage(i)}
+                      className={`px-3 py-2 rounded-lg border ${
+                        currentPage === i
+                          ? 'bg-blue-600 text-white border-blue-600'
+                          : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {i}
+                    </button>
+                  )
+                }
+
+                // Última página
+                if (endPage < totalPages) {
+                  if (endPage < totalPages - 1) {
+                    pages.push(<span key="ellipsis-end" className="px-2 text-gray-400">...</span>)
+                  }
+                  pages.push(
+                    <button
+                      key={totalPages}
+                      onClick={() => setCurrentPage(totalPages)}
+                      className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+                    >
+                      {totalPages}
+                    </button>
+                  )
+                }
+
+                return pages
+              })()}
+            </div>
+
+            {/* Botón Siguiente */}
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(Math.ceil(total / limit), prev + 1))}
+              disabled={currentPage >= Math.ceil(total / limit)}
+              className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+            >
+              Siguiente
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
