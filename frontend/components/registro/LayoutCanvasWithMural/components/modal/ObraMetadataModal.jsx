@@ -346,9 +346,18 @@ export function ObraMetadataModal({ obra, es3D, onUpdateMetadata, onClose }) {
                 type="text"
                 value={obra.tecnica || ''}
                 onChange={(e) => handleUpdate('tecnica', e.target.value)}
+                maxLength={100}
                 placeholder="Ej: Óleo sobre lienzo, Acrílico, Acuarela, Técnica mixta..."
                 className={styles.formInput}
               />
+              <p style={{
+                fontSize: '11px',
+                color: '#6B6B6B',
+                margin: '4px 0 0 0',
+                textAlign: 'right'
+              }}>
+                {(obra.tecnica || '').length}/100 caracteres
+              </p>
             </div>
 
             {/* Año */}
