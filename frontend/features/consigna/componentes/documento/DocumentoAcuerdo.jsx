@@ -125,7 +125,6 @@ export function DocumentoAcuerdo(p) {
           <span><b>CLABE:</b> {p.datosPago.clabe}</span><span><b>Cuenta:</b> {p.datosPago.cuenta}</span>
           <span><b>Concepto:</b> {p.datosPago.concepto}</span>
         </div>
-        <div style={{ marginTop: 4, color: '#444' }}>{p.datosPago.plazos}</div>
       </div>
 
       <b style={{ display: 'block', margin: '20px 0 0' }}>Firmas de conformidad</b>
