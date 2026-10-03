@@ -284,7 +284,7 @@ const getFormatoDisplay = (artista) => {
 }
 
 export default function ArtistasTable() {
-  const { artistas, fetchArtistas, fetchArtistaById, deleteArtista, cambiarEstadoArtista } = useArtistasStore()
+  const { artistas, totalArtistas, fetchArtistas, fetchArtistaById, deleteArtista, cambiarEstadoArtista } = useArtistasStore()
   const { fases, fetchFases, inscribirArtistas } = useFasesStore()
   const { hasRole } = useAuth()
 
@@ -1239,7 +1239,7 @@ export default function ArtistasTable() {
             {artistasFiltrados.length > 0 ? (
               <>
                 Mostrando {startIndex + 1}-{Math.min(endIndex, artistasFiltrados.length)} de {artistasFiltrados.length} artistas
-                {artistasFiltrados.length !== artistas.length && ` (${artistas.length} total)`}
+                {artistasFiltrados.length !== totalArtistas && ` (${totalArtistas} total en BD)`}
               </>
             ) : (
               'Sin artistas'

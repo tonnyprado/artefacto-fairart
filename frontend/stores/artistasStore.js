@@ -19,6 +19,7 @@ import { artistasApi } from '@/lib/api'
 
 export const useArtistasStore = create((set, get) => ({
   artistas: [],
+  totalArtistas: 0,
   isLoading: false,
   error: null,
 
@@ -28,12 +29,15 @@ export const useArtistasStore = create((set, get) => ({
   fetchArtistas: async (params = {}) => {
     set({ isLoading: true, error: null })
     try {
-      const response = await artistasApi.getAll(params)
+      // Obtener TODOS los artistas (sin límite) para paginación local
+      const paramsConLimit = { ...params, limit: 999999 }
+      const response = await artistasApi.getAll(paramsConLimit)
       set({
         artistas: response.data,
+        totalArtistas: response.total || response.data.length,
         isLoading: false
       })
-      return { success: true, data: response.data }
+      return { success: true, data: response.data, total: response.total }
     } catch (error) {
       set({
         error: error.message,
