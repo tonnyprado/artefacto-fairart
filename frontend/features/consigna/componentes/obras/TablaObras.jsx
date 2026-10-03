@@ -5,7 +5,7 @@ import { useEsAngosto } from '../../hooks/useEsVertical';
 
 const COLUMNAS = [
   ['Obra'], ['Tu ganancia 75%'], ['Comisión 25%'], ['= Precio base', color.rojoOscuro],
-  ['+ IVA 16%'], ['+ Gestión adm. 3%'], ['Precio público', '#000'], ['+ Ajuste'],
+  ['+ IVA 16%'], ['+ Gestión adm. 3%'], ['+ Ajuste'], ['Precio público', '#000'],
 ];
 
 /**
