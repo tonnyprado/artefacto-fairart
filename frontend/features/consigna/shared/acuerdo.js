@@ -45,7 +45,7 @@ export const CLAUSULAS = [
       "Revisamos tu obra juntos y levantamos un reporte de condición con fotos, firmado por ambos. Lleva también tu propio registro.",
       "Entrega tus obras listas para montaje: con su sistema de montaje ya instalado, ficha técnica al reverso, certificado de autenticidad y tal como las postulaste. Embalaje y transporte (entrega y retiro) corren por tu cuenta.",
       "El montaje lo hace ARTE FACTO con una empresa especializada en montaje museográfico.",
-      "Obra vendida: el comprador la recoge el lunes 8 de febrero o se le envía a domicilio, a su costo.",
+      "Obra vendida: el comprador la recoge el lunes 8 de febrero o se le envía a domicilio, a su costo. Corre por cuenta del comprador",
       "Obra no vendida: retírala el domingo 7 al cierre o el lunes 8 de febrero. Si no puedes, avísanos antes; si vienes de otro estado, ten lista tu guía prepagada.",
       "Después del 8 de febrero las piezas no retiradas pasan a resguardo y ARTE FACTO deja de ser responsable por ellas."
     ],
