@@ -39,7 +39,7 @@ export const config = {
   // Contacto
   contacto: {
     whatsapp: process.env.CONTACTO_WHATSAPP || '',
-    url: process.env.CONTACTO_URL || '',
+    url: process.env.CONTACTO_URL || '/#contacto',
   },
 
   // Assets

@@ -23,6 +23,12 @@ PAGO_CUENTA=0128046123
 - CLABE: 012180015495173640 → 012180001280461237
 - Cuenta: 0154951736 → 0128046123
 
+### 4. URL de contacto (agregar si no existe)
+```bash
+CONTACTO_URL=/#contacto
+```
+**Agregar esta variable** para que el botón de contacto en la consigna lleve a la sección correcta.
+
 ---
 
 ## 🔧 Cómo actualizar (según tu servicio):
@@ -39,7 +45,7 @@ PAGO_CUENTA=0128046123
 
 ### Si usas otro servicio:
 - Ve al dashboard de variables de entorno
-- Actualiza los 5 valores arriba
+- Actualiza los 6 valores arriba
 - Redeploya la aplicación
 
 ---
@@ -49,6 +55,7 @@ PAGO_CUENTA=0128046123
 1. **Correo de consigna**: debe decir "4 días" no "21 días"
 2. **WhatsApp**: el enlace debe abrir correctamente
 3. **CLABE**: en el PDF debe aparecer 012180001280461237
+4. **Botón de contacto**: debe llevar a /#contacto, no al Hero
 
 ---
 

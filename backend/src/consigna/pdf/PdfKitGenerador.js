@@ -423,9 +423,9 @@ export class PdfKitGenerador extends GeneradorPdf {
     doc
       .fontSize(8)
       .font('Helvetica-BoldOblique')
-      .fillColor(COLOR_CREMA)
       .rect(50, tableTop, 495, 16)
-      .fillAndStroke(COLOR_ROJO, COLOR_ROJO);
+      .fillAndStroke(COLOR_ROJO, COLOR_ROJO)
+      .fillColor(COLOR_CREMA); // Restablecer color para el texto
 
     const headers = ['Título', 'Técnica y año', 'Medida (con marco)', 'Precio de venta', 'Precio público con IVA'];
     headers.forEach((header, i) => {
