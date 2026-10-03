@@ -71,7 +71,6 @@ export function FilaObra({ obra, ganancia, onGanancia }) {
             style={{ ...input, width: 96, border: `1.5px solid ${color.rojo}`, fontWeight: 600 }} />
         </td>
         <td style={celda}>{formatoMXN(d.comision)}</td>
-        <td style={celda}>{formatoMXN(d.ajuste)}</td>
         <td style={{ ...celda, fontWeight: 800, color: color.rojoOscuro, background: 'rgba(185,50,50,0.06)' }}>{formatoMXN(d.precioVenta)}</td>
         <td style={celda}>{formatoMXN(d.iva)}</td>
         <td style={celda}>{formatoMXN(d.gestionAdmin)}</td>
@@ -103,6 +102,7 @@ export function FilaObra({ obra, ganancia, onGanancia }) {
             )}
           </div>
         </td>
+        <td style={celda}>{formatoMXN(d.ajuste)}</td>
       </tr>
     </>
   );

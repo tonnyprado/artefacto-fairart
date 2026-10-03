@@ -56,7 +56,7 @@ export function TarjetaObra({ obra, ganancia, onGanancia }) {
         {modificada && <span style={{ display: 'inline-block', marginTop: 6, background: color.rojo, color: color.crema, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', padding: '2px 7px', borderRadius: 4 }}>Ajustada · antes {formatoMXN(obra.gananciaRegistrada)}</span>}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px 12px', alignItems: 'center', padding: '12px 16px', borderTop: '1px solid rgba(0,0,0,0.08)' }}>
-        <label style={{ fontSize: 13, fontWeight: 700, color: color.rojo }}>Tu ganancia</label>
+        <label style={{ fontSize: 13, fontWeight: 700, color: color.rojo }}>Tu ganancia 75%</label>
         <input type="number" inputMode="numeric" min={0} step={100} value={Math.round(ganancia)} aria-label={`Ganancia ${obra.titulo}`}
           className="input-sin-spinner"
           onChange={e => {
@@ -64,11 +64,10 @@ export function TarjetaObra({ obra, ganancia, onGanancia }) {
             onGanancia(!isNaN(valor) && valor >= 0 ? valor : 0);
           }}
           style={{ ...input, border: `1.5px solid ${color.rojo}`, fontWeight: 600 }} />
-        {fila('+ Comisión 25%', formatoMXN(d.comision))}
-        {fila('+ Ajuste a cifra cerrada', formatoMXN(d.ajuste))}
-        {fila('= Precio de venta', formatoMXN(d.precioVenta), true)}
-        {fila('IVA 16%', formatoMXN(d.iva))}
-        {fila('Gestión adm. 3%', formatoMXN(d.gestionAdmin))}
+        {fila('Comisión 25%', formatoMXN(d.comision))}
+        {fila('= Precio base', formatoMXN(d.precioVenta), true)}
+        {fila('+ IVA 16%', formatoMXN(d.iva))}
+        {fila('+ Gestión adm. 3%', formatoMXN(d.gestionAdmin))}
       </div>
       <div style={{ padding: '12px 16px', background: '#000' }}>
         <label style={{ fontSize: 13, fontWeight: 800, fontStyle: 'italic', textTransform: 'uppercase', color: color.crema, display: 'block', marginBottom: 8 }}>Precio público</label>
@@ -97,6 +96,10 @@ export function TarjetaObra({ obra, ganancia, onGanancia }) {
               Aplicar
             </button>
           )}
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 12, marginTop: 12, fontSize: 12 }}>
+          <span style={{ color: 'rgba(255,255,255,0.8)' }}>+ Ajuste</span>
+          <span style={{ textAlign: 'right', fontWeight: 600 }}>{formatoMXN(d.ajuste)}</span>
         </div>
       </div>
     </div>

@@ -4,8 +4,8 @@ import { TarjetaObra } from './TarjetaObra';
 import { useEsAngosto } from '../../hooks/useEsVertical';
 
 const COLUMNAS = [
-  ['Obra'], ['Tu ganancia'], ['+ Comisión 25%'], ['+ Ajuste'], ['= Precio de venta', color.rojoOscuro],
-  ['IVA 16%'], ['Gestión adm. 3%'], ['Precio público', '#000'],
+  ['Obra'], ['Tu ganancia 75%'], ['Comisión 25%'], ['= Precio base', color.rojoOscuro],
+  ['+ IVA 16%'], ['+ Gestión adm. 3%'], ['Precio público', '#000'], ['+ Ajuste'],
 ];
 
 /**
@@ -40,7 +40,7 @@ export function TablaObras({ obras, ganancias, onGanancia }) {
       </div>
       )}
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap', marginTop: 12, fontSize: 12.5, color: 'rgba(0,0,0,0.62)', lineHeight: 1.45 }}>
-        <span style={{ maxWidth: 560 }}>El ajuste cierra el precio de venta al múltiplo de $500 inmediato superior y también se reparte 75/25. IVA y gestión administrativa los paga el comprador; tú recibes el 75% del precio de venta más su IVA.</span>
+        <span style={{ maxWidth: 560 }}>El ajuste cierra el precio base al múltiplo de $500 inmediato superior y también se reparte 75/25. IVA y gestión administrativa los paga el comprador; tú recibes el 75% del precio base más su IVA.</span>
         <b style={{ color: '#000' }}>
           {cambios ? cambios === 1 ? 'precio ajustado — registraremos la diferencia' : 'precios ajustados — registraremos las diferencias' : 'Sin cambios sobre tu registro'}
         </b>
