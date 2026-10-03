@@ -76,7 +76,12 @@ export class PdfKitGenerador extends GeneradorPdf {
 
     // Info evento
     const infoY = y;
-    const fechaFormateada = datos.fecha.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
+    const fechaFormateada = datos.fecha.toLocaleDateString('es-MX', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'America/Mexico_City'
+    });
 
     // Línea 1: ARTE FACTO
     doc
@@ -323,10 +328,6 @@ export class PdfKitGenerador extends GeneradorPdf {
     // Tercera línea: Concepto
     pagoY += 10;
     doc.text(`Concepto: ${datos.datosPago.concepto}`, 60, pagoY, { width: 475, continued: false });
-
-    // Cuarta línea: Plazos (con espacio dinámico)
-    pagoY += 10;
-    doc.fontSize(8).fillColor('#444').text(datos.datosPago.plazos, 60, pagoY, { width: 475, continued: false });
 
     // Ajustar altura del cuadro y posición Y final
     const cuadroHeight = pagoY - y + 15; // Altura dinámica del contenido + padding
