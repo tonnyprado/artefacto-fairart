@@ -40,7 +40,7 @@ export function TablaObras({ obras, ganancias, onGanancia }) {
       </div>
       )}
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap', marginTop: 12, fontSize: 12.5, color: 'rgba(0,0,0,0.62)', lineHeight: 1.45 }}>
-        <span style={{ maxWidth: 560 }}>El ajuste cierra el precio base al múltiplo de $500 inmediato superior y también se reparte 75/25. IVA y gestión administrativa los paga el comprador; tú recibes el 75% del precio base más su IVA.</span>
+        <span style={{ maxWidth: 560 }}>El ajuste cierra el precio base al múltiplo de $100 inmediato superior y también se reparte 75/25. IVA y gestión administrativa los paga el comprador; tú recibes el 75% del precio base más su IVA.</span>
         <b style={{ color: '#000' }}>
           {cambios ? cambios === 1 ? 'precio ajustado — registraremos la diferencia' : 'precios ajustados — registraremos las diferencias' : 'Sin cambios sobre tu registro'}
         </b>
