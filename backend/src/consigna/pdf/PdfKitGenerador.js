@@ -170,13 +170,13 @@ export class PdfKitGenerador extends GeneradorPdf {
       .fontSize(10)
       .font('Helvetica-Bold')
       .fillColor(COLOR_ROJO)
-      .text('1 · Obra en consignación', { continued: false });
+      .text('1 · Obra en consignación', 50, doc.y, { width: 495, align: 'left' });
 
     doc
       .fontSize(9)
       .font('Helvetica')
       .fillColor('#111')
-      .text(CLAUSULA_1_DOCUMENTO.intro, { lineGap: 1.5 });
+      .text(CLAUSULA_1_DOCUMENTO.intro, 50, doc.y, { width: 495, align: 'left', lineGap: 1.5 });
 
     doc.moveDown(0.5);
 
