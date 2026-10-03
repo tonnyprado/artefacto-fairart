@@ -8,7 +8,7 @@ import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
 import ExcelJS from 'exceljs'
-import { Download, Mail, MessageCircle, Phone, X, UserPlus, Plus, Upload, Loader2, Edit2, Trash2 } from 'lucide-react'
+import { Download, Mail, MessageCircle, Phone, X, UserPlus, Plus, Upload, Loader2, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react'
 import AdminArtistasPorFase from './AdminArtistasPorFase'
 import ArtistasInscritos from './ArtistasInscritos'
 import ArtistasAceptados from './ArtistasAceptados'
@@ -342,11 +342,20 @@ export default function ArtistasTable() {
     notas_admin: ''
   })
 
+  // Estados de paginación
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 50
+
   // Cargar artistas y fases al montar
   useEffect(() => {
     fetchArtistas()
     fetchFases()
   }, [])
+
+  // Resetear página al cambiar filtros
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, estadoFilter, categoriaFilter, faseFilter])
 
   // Filtrar artistas
   const artistasFiltrados = artistas.filter(artista => {
@@ -363,6 +372,12 @@ export default function ArtistasTable() {
 
     return matchesSearch && matchesEstado && matchesCategoria && matchesFase
   })
+
+  // Paginación
+  const totalPages = Math.ceil(artistasFiltrados.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const artistasPaginados = artistasFiltrados.slice(startIndex, endIndex)
 
   const [loadingArtista, setLoadingArtista] = useState(false)
 
@@ -1220,7 +1235,16 @@ export default function ArtistasTable() {
 
         {/* Resumen y Botones */}
         <div className="flex items-center justify-between text-sm text-gray-600">
-          <span>Mostrando {artistasFiltrados.length} de {artistas.length} artistas</span>
+          <span>
+            {artistasFiltrados.length > 0 ? (
+              <>
+                Mostrando {startIndex + 1}-{Math.min(endIndex, artistasFiltrados.length)} de {artistasFiltrados.length} artistas
+                {artistasFiltrados.length !== artistas.length && ` (${artistas.length} total)`}
+              </>
+            ) : (
+              'Sin artistas'
+            )}
+          </span>
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowAddModal(true)}
@@ -1270,14 +1294,14 @@ export default function ArtistasTable() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {artistasFiltrados.length === 0 ? (
+            {artistasPaginados.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={9} className="text-center text-gray-500 py-8">
                   No se encontraron artistas
                 </TableCell>
               </TableRow>
             ) : (
-              artistasFiltrados.map(artista => (
+              artistasPaginados.map(artista => (
                 <TableRow key={artista.id}>
                   {/* Artista */}
                   <TableCell>
@@ -1426,6 +1450,103 @@ export default function ArtistasTable() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Controles de Paginación */}
+      {totalPages > 1 && (
+        <div className="mt-6 flex items-center justify-between bg-white rounded-2xl shadow p-4">
+          <div className="text-sm text-gray-600">
+            Página {currentPage} de {totalPages}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Botón Anterior */}
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 transition-colors"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Anterior
+            </button>
+
+            {/* Números de Página */}
+            <div className="flex gap-1">
+              {(() => {
+                const pages = []
+                const maxVisible = 5
+
+                let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2))
+                let endPage = Math.min(totalPages, startPage + maxVisible - 1)
+
+                if (endPage - startPage < maxVisible - 1) {
+                  startPage = Math.max(1, endPage - maxVisible + 1)
+                }
+
+                // Primera página
+                if (startPage > 1) {
+                  pages.push(
+                    <button
+                      key={1}
+                      onClick={() => setCurrentPage(1)}
+                      className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      1
+                    </button>
+                  )
+                  if (startPage > 2) {
+                    pages.push(<span key="ellipsis-start" className="px-2 text-gray-400">...</span>)
+                  }
+                }
+
+                // Páginas visibles
+                for (let i = startPage; i <= endPage; i++) {
+                  pages.push(
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPage(i)}
+                      className={`px-3 py-2 rounded-lg border transition-colors ${
+                        currentPage === i
+                          ? 'bg-red-600 text-white border-red-600'
+                          : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {i}
+                    </button>
+                  )
+                }
+
+                // Última página
+                if (endPage < totalPages) {
+                  if (endPage < totalPages - 1) {
+                    pages.push(<span key="ellipsis-end" className="px-2 text-gray-400">...</span>)
+                  }
+                  pages.push(
+                    <button
+                      key={totalPages}
+                      onClick={() => setCurrentPage(totalPages)}
+                      className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      {totalPages}
+                    </button>
+                  )
+                }
+
+                return pages
+              })()}
+            </div>
+
+            {/* Botón Siguiente */}
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage >= totalPages}
+              className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 transition-colors"
+            >
+              Siguiente
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
         </>
       )}
 
