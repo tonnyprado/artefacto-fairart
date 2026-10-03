@@ -667,6 +667,11 @@ export default function ArtistasTable() {
 
     console.log('🔍 obraData recibido:', obraData)
     console.log('🔍 archivo recibido:', file)
+    if (file) {
+      console.log('  📎 Nombre:', file.name)
+      console.log('  📦 Tamaño:', (file.size / 1024).toFixed(2), 'KB')
+      console.log('  🎨 Tipo:', file.type)
+    }
 
     // Validar que el ID sea numérico si es una actualización
     if (obraData.id) {
@@ -704,6 +709,14 @@ export default function ArtistasTable() {
       } else {
         // Crear nueva obra
         console.log('➕ Creando nueva obra para artista:', selectedArtista.id)
+
+        // Si hay archivo, usar placeholder temporal (se actualizará al subir la foto)
+        // Si solo hay URL, usar esa URL
+        // Si no hay ni archivo ni URL, usar placeholder
+        const imagenUrl = file
+          ? 'https://via.placeholder.com/400x400?text=Subiendo+imagen'
+          : (obraData.imagen_url || 'https://via.placeholder.com/400x400?text=Sin+imagen')
+
         response = await fetch(`${apiUrl}/obras`, {
           method: 'POST',
           headers: {
@@ -713,7 +726,7 @@ export default function ArtistasTable() {
           body: JSON.stringify({
             artista_id: selectedArtista.id,
             titulo: obraData.titulo,
-            imagen_url: obraData.imagen_url || 'https://via.placeholder.com/400x400?text=Sin+imagen',
+            imagen_url: imagenUrl,
             alto_cm: parseFloat(obraData.alto_cm),
             ancho_cm: parseFloat(obraData.ancho_cm),
             precio_mxn: parseFloat(obraData.precio_mxn),
@@ -730,6 +743,9 @@ export default function ArtistasTable() {
         // Si es una nueva obra y hay un archivo, subirlo
         if (!obraData.id && file && data.obra?.id) {
           console.log('📸 Subiendo foto para obra ID:', data.obra.id)
+          console.log('📎 Tipo de archivo:', file.type)
+          console.log('📦 Tamaño del archivo:', (file.size / 1024).toFixed(2), 'KB')
+
           const formData = new FormData()
           formData.append('foto', file)
 
@@ -743,11 +759,17 @@ export default function ArtistasTable() {
 
           if (!fotoResponse.ok) {
             const fotoError = await fotoResponse.json()
-            console.error('Error al subir foto:', fotoError)
+            console.error('❌ Error al subir foto:', fotoError)
             alert('Obra creada pero hubo un error al subir la foto: ' + (fotoError.error || 'Error desconocido'))
           } else {
-            console.log('✅ Foto subida exitosamente')
+            const fotoData = await fotoResponse.json()
+            console.log('✅ Foto subida exitosamente:', fotoData.obra?.imagen_url)
           }
+        } else {
+          console.log('ℹ️ Info de subida de foto:')
+          console.log('  - Es nueva obra?', !obraData.id)
+          console.log('  - Hay archivo?', !!file)
+          console.log('  - ID de obra creada?', data.obra?.id)
         }
 
         alert(obraData.id ? 'Obra actualizada exitosamente' : 'Obra creada exitosamente')
