@@ -157,8 +157,8 @@ export class PdfKitGenerador extends GeneradorPdf {
     doc.text(`Artista o colectivo: ${a.nombre}`, 60, dataY, { width: 475 });
     doc.text(`Folio de participación: ${a.folio}`, 60, dataY + 12, { width: 150 });
     doc.text(`Paquete: ${a.paquete}`, 215, dataY + 12, { width: 150 });
-    doc.text(`Correo: ${a.correo}`, 60, dataY + 24, { width: 150 });
-    doc.text(`Teléfono: ${a.telefono}`, 215, dataY + 24, { width: 150 });
+    doc.text(`Correo: ${a.correo}`, 60, dataY + 24, { width: 235 });
+    doc.text(`Teléfono: ${a.telefono}`, 300, dataY + 24, { width: 150 });
 
     doc.y = y + 40;
     doc.moveDown(0.8);
