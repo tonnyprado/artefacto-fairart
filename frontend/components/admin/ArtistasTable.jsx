@@ -85,6 +85,22 @@ function ObraFormModal({ obra, onSave, onClose, saving }) {
   const [selectedFile, setSelectedFile] = useState(null)
   const [previewUrl, setPreviewUrl] = useState(obra?.imagen_url || null)
 
+  // Sincronizar formData cuando el prop 'obra' cambie
+  useEffect(() => {
+    if (obra) {
+      setFormData({
+        titulo: obra.titulo || '',
+        alto_cm: obra.alto_cm || '',
+        ancho_cm: obra.ancho_cm || '',
+        largo_cm: obra.largo_cm || '',
+        precio_mxn: obra.precio_mxn || '',
+        tecnica: obra.tecnica || '',
+        imagen_url: obra.imagen_url || ''
+      })
+      setPreviewUrl(obra.imagen_url || null)
+    }
+  }, [obra])
+
   const handleFileChange = (e) => {
     const file = e.target.files?.[0]
     if (file) {
