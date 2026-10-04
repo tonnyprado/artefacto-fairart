@@ -40,7 +40,7 @@ export function validarDatosAcuerdo(datos) {
     throw Invalido('Falta la firma digital');
   }
 
-  if (!datos.estadoFiscal || !['pendiente', 'cargada'].includes(datos.estadoFiscal)) {
+  if (!datos.estadoFiscal || !['pendiente', 'cargada', 'tercero_sin_datos'].includes(datos.estadoFiscal)) {
     throw Invalido('Estado fiscal inválido');
   }
 
