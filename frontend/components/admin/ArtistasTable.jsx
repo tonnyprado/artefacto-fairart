@@ -691,20 +691,25 @@ export default function ArtistasTable() {
       if (obraData.id) {
         // Actualizar obra existente
         console.log('📝 Actualizando obra con ID:', obraData.id)
+
+        const updateData = {
+          titulo: obraData.titulo,
+          alto_cm: parseFloat(obraData.alto_cm),
+          ancho_cm: parseFloat(obraData.ancho_cm),
+          precio_mxn: parseFloat(obraData.precio_mxn),
+          tecnica: obraData.tecnica,
+          largo_cm: obraData.largo_cm ? parseFloat(obraData.largo_cm) : null
+        }
+
+        console.log('📤 Datos de actualización enviados:', updateData)
+
         response = await fetch(`${apiUrl}/obras/${obraData.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({
-            titulo: obraData.titulo,
-            alto_cm: parseFloat(obraData.alto_cm),
-            ancho_cm: parseFloat(obraData.ancho_cm),
-            precio_mxn: parseFloat(obraData.precio_mxn),
-            tecnica: obraData.tecnica,
-            largo_cm: obraData.largo_cm ? parseFloat(obraData.largo_cm) : null
-          })
+          body: JSON.stringify(updateData)
         })
       } else {
         // Crear nueva obra
@@ -783,9 +788,20 @@ export default function ArtistasTable() {
         setCreateObraModal(false)
 
         // Recargar los datos del artista
+        console.log('🔄 Recargando datos del artista ID:', selectedArtista.id)
         const result = await fetchArtistaById(selectedArtista.id)
+        console.log('📥 Resultado de recarga:', result)
         if (result.success) {
           setSelectedArtista(result.data)
+          console.log('✅ Artista actualizado en state')
+
+          // Si fue una actualización, verificar que la obra tenga los datos actualizados
+          if (obraData.id && result.data.obras) {
+            const obraActualizada = result.data.obras.find(o => o.id === obraData.id)
+            console.log('🔍 Obra actualizada en la respuesta:', obraActualizada)
+          }
+        } else {
+          console.error('❌ Error al recargar artista:', result)
         }
       } else {
         const error = await response.json()
