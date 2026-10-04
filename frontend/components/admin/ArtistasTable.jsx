@@ -1999,25 +1999,28 @@ export default function ArtistasTable() {
 
             {/* Obras del Lienzo - Clickeables */}
             {(() => {
-              // Combinar datos: metadata de layout_canvas_data + URLs de documentos.portfolio_images
-              const obrasCanvas = selectedArtista.layout_canvas_data?.obras || []
-              const obrasDB = selectedArtista.documentos?.portfolio_images || selectedArtista.obras || []
+              // En el panel de admin, mostrar TODAS las obras de la DB, no solo las del canvas
+              const obrasDB = selectedArtista.obras || selectedArtista.documentos?.portfolio_images || []
 
-              // Enriquecer obras del canvas con URLs de la DB
-              const obrasEnriquecidas = obrasCanvas.map((obraCanvas, index) => {
-                // Buscar la obra correspondiente en la DB por título o por índice
-                const obraDB = obrasDB.find(o => o.titulo === obraCanvas.titulo) || obrasDB[index]
-                return {
-                  ...obraCanvas,
-                  // Usar imagen_url de la DB si no hay preview en el canvas
-                  preview: obraCanvas.preview || obraDB?.imagen_url || null,
-                  imagen_url: obraDB?.imagen_url || null,
-                  // IMPORTANTE: Usar el ID de la DB si existe, no el ID temporal del canvas
-                  id: obraDB?.id || obraCanvas.id,
-                  // También incluir otras propiedades de la DB que puedan estar actualizadas
-                  fotos_detalle_urls: obraDB?.fotos_detalle_urls || obraCanvas.fotos_detalle_urls || []
-                }
-              })
+              // Si no hay obras en la DB, usar las del canvas como fallback
+              if (obrasDB.length === 0) {
+                const obrasCanvas = selectedArtista.layout_canvas_data?.obras || []
+                if (obrasCanvas.length === 0) return null
+
+                return (
+                  <div className="bg-green-50 p-4 rounded-lg">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-sm font-semibold text-gray-900">
+                        Obras para Exhibición ({obrasCanvas.length})
+                      </h4>
+                    </div>
+                    <p className="text-sm text-gray-600">No hay obras guardadas en la base de datos.</p>
+                  </div>
+                )
+              }
+
+              // Obras finales = todas las obras de la DB
+              const obrasEnriquecidas = obrasDB
 
               if (obrasEnriquecidas.length === 0) return null
 
