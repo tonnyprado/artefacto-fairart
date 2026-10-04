@@ -811,10 +811,31 @@ export default function ArtistasTable() {
           setSelectedArtista(result.data)
           console.log('✅ Artista actualizado en state')
 
+          // Log de las obras recargadas
+          if (result.data.obras) {
+            console.log('📚 Total de obras del artista:', result.data.obras.length)
+            console.log('📋 Lista de obras:', result.data.obras.map(o => ({
+              id: o.id,
+              titulo: o.titulo,
+              imagen_url: o.imagen_url?.substring(0, 80) + '...'
+            })))
+          }
+
           // Si fue una actualización, verificar que la obra tenga los datos actualizados
           if (obraData.id && result.data.obras) {
             const obraActualizada = result.data.obras.find(o => o.id === obraData.id)
             console.log('🔍 Obra actualizada en la respuesta:', obraActualizada)
+          }
+
+          // Si fue una creación, verificar que la nueva obra esté en la lista
+          if (!obraData.id && data.obra?.id && result.data.obras) {
+            const obraCreada = result.data.obras.find(o => o.id === data.obra.id)
+            console.log('🆕 Obra creada encontrada en lista:', obraCreada ? 'SÍ ✅' : 'NO ❌')
+            if (obraCreada) {
+              console.log('   Título:', obraCreada.titulo)
+              console.log('   ID:', obraCreada.id)
+              console.log('   Imagen:', obraCreada.imagen_url)
+            }
           }
         } else {
           console.error('❌ Error al recargar artista:', result)
