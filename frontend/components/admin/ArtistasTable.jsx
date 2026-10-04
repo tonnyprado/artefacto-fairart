@@ -717,22 +717,26 @@ export default function ArtistasTable() {
           ? 'https://via.placeholder.com/400x400?text=Subiendo+imagen'
           : (obraData.imagen_url || 'https://via.placeholder.com/400x400?text=Sin+imagen')
 
+        const bodyData = {
+          artista_id: selectedArtista.id,
+          titulo: obraData.titulo,
+          imagen_url: imagenUrl,
+          alto_cm: parseFloat(obraData.alto_cm),
+          ancho_cm: parseFloat(obraData.ancho_cm),
+          precio_mxn: parseFloat(obraData.precio_mxn),
+          tecnica: obraData.tecnica,
+          largo_cm: obraData.largo_cm ? parseFloat(obraData.largo_cm) : null
+        }
+
+        console.log('📤 Body enviado al backend:', bodyData)
+
         response = await fetch(`${apiUrl}/obras`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({
-            artista_id: selectedArtista.id,
-            titulo: obraData.titulo,
-            imagen_url: imagenUrl,
-            alto_cm: parseFloat(obraData.alto_cm),
-            ancho_cm: parseFloat(obraData.ancho_cm),
-            precio_mxn: parseFloat(obraData.precio_mxn),
-            tecnica: obraData.tecnica,
-            largo_cm: obraData.largo_cm ? parseFloat(obraData.largo_cm) : null
-          })
+          body: JSON.stringify(bodyData)
         })
       }
 
@@ -785,6 +789,8 @@ export default function ArtistasTable() {
         }
       } else {
         const error = await response.json()
+        console.error('❌ Error del backend:', error)
+        console.error('❌ Status code:', response.status)
         alert('Error al guardar obra: ' + (error.error || 'Error desconocido'))
       }
     } catch (err) {
