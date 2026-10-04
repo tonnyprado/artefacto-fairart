@@ -435,6 +435,7 @@ export const getArtistaById = async (req, res) => {
             identificacion: identificacionUrl,
             portfolio_images: obrasConUrls
           },
+          obras: obrasConUrls,
           paquete: paqueteInfo ? {
             id: paqueteInfo.id,
             nombre: paqueteInfo.nombre,

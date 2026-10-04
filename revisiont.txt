@@ -1,0 +1,269 @@
+si mira, acabo de actualizar la obra pero otra vez no se actualiza aunque en los logs me sale que si mira logs: [Log] 🔍 obraData recibido: (page-61a402ec906e8c40.js, line 1)
+Object
+
+alto_cm: 100
+
+ancho_cm: 100
+
+anio: 2026
+
+fotos_detalle_urls: [] (0)
+
+height: 141.6
+
+id: 381
+
+imagen_url: "https://artefacto-artistas.s3.us-east-2.amazonaws.com/artistas/obras/1791141068582-am1w2f.jpg"
+
+largo_cm: null
+
+notas_montaje: ""
+
+precio_mxn: 8000
+
+preview: "https://artefacto-artistas.s3.us-east-2.amazonaws.com/artistas/obras/1791141068582-am1w2f.jpg"
+
+tecnica: "DFGHdasdsda"
+
+titulo: "DFGHJasdasd"
+
+width: 141.6
+
+x: 645
+
+y: 146.6875
+
+Object Prototype
+[Log] 🔍 archivo recibido: – null (page-61a402ec906e8c40.js, line 1)
+[Log] 📝 Actualizando obra con ID: – 381 (page-61a402ec906e8c40.js, line 1)
+[Log] 📤 Datos de actualización enviados: (page-61a402ec906e8c40.js, line 1)
+Object
+
+alto_cm: 100
+
+ancho_cm: 100
+
+largo_cm: null
+
+precio_mxn: 8000
+
+tecnica: "DFGHdasdsda"
+
+titulo: "DFGHJasdasd"
+
+Object Prototype
+[Log] ✅ Respuesta de guardado: (page-61a402ec906e8c40.js, line 1)
+Object
+
+message: "Obra actualizada"
+
+obra: {id: 381, artista_id: 132, titulo: "DFGHJasdasd", imagen_url: "https://artefacto-artistas.s3.us-east-2.amazonaws.com/artistas/obras/1791141068582-am1w2f.jpg", alto_cm: "100.00", …}
+
+success: true
+
+Object Prototype
+[Log] ℹ️ Info de subida de foto: (page-61a402ec906e8c40.js, line 1)
+[Log]   - Es nueva obra? – false (page-61a402ec906e8c40.js, line 1)
+[Log]   - Hay archivo? – false (page-61a402ec906e8c40.js, line 1)
+[Log]   - ID de obra creada? – 381 (page-61a402ec906e8c40.js, line 1)
+[Log] 🔄 Recargando datos del artista ID: – 132 (page-61a402ec906e8c40.js, line 1)
+[Log] 📥 Resultado de recarga: (page-61a402ec906e8c40.js, line 1)
+Object
+
+data: {id: 132, nombre: "BENBEN", apellido: "Garcia Prieto Perez", nombre_artistico: null, email: "artefacto.curatorial@gmail.com", …}
+
+success: true
+
+Object Prototype
+[Log] ✅ Artista actualizado en state (page-61a402ec906e8c40.js, line 1) -- y aqui estan los logs de backend: 
+📨 GET /api/fases - Origin: https://arte-facto.mx
+GET /api/fases 304 123.558 ms - -
+✅ CORS: Origin permitido - https://arte-facto.mx
+📨 GET /api/fases - Origin: https://arte-facto.mx
+GET /api/fases 304 125.016 ms - -
+✅ CORS: Origin permitido - https://arte-facto.mx
+✅ CORS: Origin permitido - https://arte-facto.mx
+📨 PUT /api/obras/381 - Origin: https://arte-facto.mx
+📝 Actualizando obra ID: 381 con datos: {
+  titulo: 'DFGHJasdasd',
+  alto_cm: 100,
+  ancho_cm: 100,
+  precio_mxn: 8000,
+  tecnica: 'DFGHdasdsda',
+  largo_cm: null
+}
+PUT /api/obras/381 200 148.709 ms - 681
+✅ CORS: Origin permitido - https://arte-facto.mx
+✅ CORS: Origin permitido - https://arte-facto.mx
+📨 GET /api/artistas/132 - Origin: https://arte-facto.mx
+GET /api/artistas/132 200 209.597 ms - 3215
+✅ CORS: Origin permitido - https://arte-facto.mx
+✅ CORS: Origin permitido - https://arte-facto.mx
+📨 GET /api/fases - Origin: https://arte-facto.mx
+GET /api/fases 304 117.828 ms - -
+✅ CORS: Origin permitido - https://arte-facto.mx
+✅ CORS: Origin permitido - https://arte-facto.mx
+✅ CORS: Origin permitido - https://arte-facto.mx
+📨 GET /api/fases - Origin: https://arte-facto.mx
+GET /api/fases 304 104.252 ms - -
+✅ CORS: Origin permitido - https://arte-facto.mx
+📨 GET /api/f
+
+
+--- ahora aqui hice un nueva obra pero mira los screenshots, se interpuso la foto dentro de la obra antigua: /Users/tonyprado/Documents/Proyectos/Benito-web/Screenshot 2026-10-04 at 1.23.41 p.m..png y esta es la obra antigua: /Users/tonyprado/Documents/Proyectos/Benito-web/frontend/Screenshot 2026-10-04 at 1.16.59 p.m..png
+
+logs al crear obra: [Log] 🔍 obraData recibido: (page-61a402ec906e8c40.js, line 1)
+Object
+
+alto_cm: 100
+
+ancho_cm: 100
+
+anio: 2026
+
+fotos_detalle_urls: [] (0)
+
+height: 141.6
+
+id: 381
+
+imagen_url: "https://artefacto-artistas.s3.us-east-2.amazonaws.com/artistas/obras/1791141068582-am1w2f.jpg"
+
+largo_cm: null
+
+notas_montaje: ""
+
+precio_mxn: 8000
+
+preview: "https://artefacto-artistas.s3.us-east-2.amazonaws.com/artistas/obras/1791141068582-am1w2f.jpg"
+
+tecnica: "DFGHdasdsda"
+
+titulo: "DFGHJasdasd"
+
+width: 141.6
+
+x: 645
+
+y: 146.6875
+
+Object Prototype
+[Log] 🔍 archivo recibido: – null (page-61a402ec906e8c40.js, line 1)
+[Log] 📝 Actualizando obra con ID: – 381 (page-61a402ec906e8c40.js, line 1)
+[Log] 📤 Datos de actualización enviados: (page-61a402ec906e8c40.js, line 1)
+Object
+
+alto_cm: 100
+
+ancho_cm: 100
+
+largo_cm: null
+
+precio_mxn: 8000
+
+tecnica: "DFGHdasdsda"
+
+titulo: "DFGHJasdasd"
+
+Object Prototype
+[Log] ✅ Respuesta de guardado: (page-61a402ec906e8c40.js, line 1)
+Object
+
+message: "Obra actualizada"
+
+obra: {id: 381, artista_id: 132, titulo: "DFGHJasdasd", imagen_url: "https://artefacto-artistas.s3.us-east-2.amazonaws.com/artistas/obras/1791141068582-am1w2f.jpg", alto_cm: "100.00", …}
+
+success: true
+
+Object Prototype
+[Log] ℹ️ Info de subida de foto: (page-61a402ec906e8c40.js, line 1)
+[Log]   - Es nueva obra? – false (page-61a402ec906e8c40.js, line 1)
+[Log]   - Hay archivo? – false (page-61a402ec906e8c40.js, line 1)
+[Log]   - ID de obra creada? – 381 (page-61a402ec906e8c40.js, line 1)
+[Log] 🔄 Recargando datos del artista ID: – 132 (page-61a402ec906e8c40.js, line 1)
+[Log] 📥 Resultado de recarga: (page-61a402ec906e8c40.js, line 1)
+Object
+
+data: {id: 132, nombre: "BENBEN", apellido: "Garcia Prieto Perez", nombre_artistico: null, email: "artefacto.curatorial@gmail.com", …}
+
+success: true
+
+Object Prototype
+[Log] ✅ Artista actualizado en state (page-61a402ec906e8c40.js, line 1)
+[Log] 🔍 obraData recibido: – {titulo: "asdasdfsa", alto_cm: 120, ancho_cm: 100, …} (page-61a402ec906e8c40.js, line 1)
+{titulo: "asdasdfsa", alto_cm: 120, ancho_cm: 100, largo_cm: null, precio_mxn: 1000, …}Object
+[Log] 🔍 archivo recibido: – File {name: "PlantillasPaquetes__Icono 2.jpg", lastModified: 1786411030000, webkitRelativePath: "", …} (page-61a402ec906e8c40.js, line 1)
+File {name: "PlantillasPaquetes__Icono 2.jpg", lastModified: 1786411030000, webkitRelativePath: "", size: 41213, type: "image/jpeg", …}File
+[Log]   📎 Nombre: – "PlantillasPaquetes__Icono 2.jpg" (page-61a402ec906e8c40.js, line 1)
+[Log]   📦 Tamaño: – "40.25" – "KB" (page-61a402ec906e8c40.js, line 1)
+[Log]   🎨 Tipo: – "image/jpeg" (page-61a402ec906e8c40.js, line 1)
+[Log] ➕ Creando nueva obra para artista: – 132 (page-61a402ec906e8c40.js, line 1)
+[Log] 📤 Body enviado al backend: (page-61a402ec906e8c40.js, line 1)
+Object
+
+alto_cm: 120
+
+ancho_cm: 100
+
+artista_id: 132
+
+imagen_url: "https://via.placeholder.com/400x400?text=Subiendo+imagen"
+
+largo_cm: null
+
+precio_mxn: 1000
+
+tecnica: "adfadf"
+
+titulo: "asdasdfsa"
+
+Object Prototype
+[Log] ✅ Respuesta de guardado: (page-61a402ec906e8c40.js, line 1)
+Object
+
+message: "Obra creada"
+
+obra: {id: 382, artista_id: 132, titulo: "asdasdfsa", imagen_url: "https://via.placeholder.com/400x400?text=Subiendo+imagen", alto_cm: "120.00", …}
+
+success: true
+
+Object Prototype
+[Log] 📸 Subiendo foto para obra ID: – 382 (page-61a402ec906e8c40.js, line 1)
+[Log] 📎 Tipo de archivo: – "image/jpeg" (page-61a402ec906e8c40.js, line 1)
+[Log] 📦 Tamaño del archivo: – "40.25" – "KB" (page-61a402ec906e8c40.js, line 1)
+[Log] ✅ Foto subida exitosamente: – "https://artefacto-artistas.s3.us-east-2.amazonaws.com/artistas/obras/1791141813074-v4bd21.jpg" (page-61a402ec906e8c40.js, line 1)
+[Log] 🔄 Recargando datos del artista ID: – 132 (page-61a402ec906e8c40.js, line 1)
+[Log] 📥 Resultado de recarga: (page-61a402ec906e8c40.js, line 1)
+Object
+
+data: {id: 132, nombre: "BENBEN", apellido: "Garcia Prieto Perez", nombre_artistico: null, email: "artefacto.curatorial@gmail.com", …}
+
+success: true
+
+Object Prototype
+[Log] ✅ Artista actualizado en state (page-61a402ec906e8c40.js, line 1)
+---
+GET /api/fases 304 137.575 ms - -
+✅ CORS: Origin permitido - https://arte-facto.mx
+✅ CORS: Origin permitido - https://arte-facto.mx
+📨 POST /api/obras - Origin: https://arte-facto.mx
+POST /api/obras 201 110.227 ms - 629
+✅ CORS: Origin permitido - https://arte-facto.mx
+✅ CORS: Origin permitido - https://arte-facto.mx
+📨 PUT /api/obras/382/foto - Origin: https://arte-facto.mx
+📁 Archivo recibido: foto - PlantillasPaquetes__Icono 2.jpg (image/jpeg)
+📸 Actualizando foto de obra 382...
+📤 Iniciando upload: PlantillasPaquetes__Icono 2.jpg (0.04MB)
+📸 Imagen original: 0.04MB, 262x245
+✅ Imagen comprimida: 0.01MB (ahorro: 81.2%)
+☁️  Subiendo a S3: artistas/obras/1791141813074-v4bd21.jpg (7.58KB)
+✅ Archivo subido a S3: https://artefacto-artistas.s3.us-east-2.amazonaws.com/artistas/obras/1791141813074-v4bd21.jpg
+✅ Imagen subida a S3: https://artefacto-artistas.s3.us-east-2.amazonaws.com/artistas/obras/1791141813074-v4bd21.jpg
+PUT /api/obras/382/foto 200 482.519 ms - 692
+✅ CORS: Origin permitido - https://arte-facto.mx
+✅ CORS: Origin permitido - https://arte-facto.mx
+📨 GET /api/artistas/132 - Origin: https://arte-facto.mx
+GET /api/artistas/132 200 220.295 ms - 3834
+✅ CORS: Origin permitido - https://arte-facto.mx
+✅ CORS: Origin permitido - https://arte-facto.mx
+📨 GET /api/
