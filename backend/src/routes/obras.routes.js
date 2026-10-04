@@ -17,10 +17,11 @@ router.post('/',
   verifyToken,
   isAdmin,
   [
-    body('titulo').notEmpty().withMessage('El título es requerido'),
     body('artista_id').isInt().withMessage('ID de artista inválido'),
-    body('precio').isFloat({ min: 0 }).withMessage('El precio debe ser un número positivo'),
-    body('categoria').notEmpty().withMessage('La categoría es requerida'),
+    body('imagen_url').notEmpty().withMessage('La imagen_url es requerida'),
+    body('alto_cm').optional().isFloat({ min: 0 }).withMessage('El alto debe ser un número positivo'),
+    body('ancho_cm').optional().isFloat({ min: 0 }).withMessage('El ancho debe ser un número positivo'),
+    body('precio_mxn').optional().isFloat({ min: 0 }).withMessage('El precio debe ser un número positivo'),
     validate
   ],
   obrasController.createObra
