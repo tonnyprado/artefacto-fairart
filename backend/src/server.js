@@ -140,7 +140,8 @@ console.log('🔐 CORS - Orígenes permitidos:', allowedOrigins)
 app.use(cors({
   origin: function (origin, callback) {
     // Permitir requests sin origin (como Postman, curl, o server-side requests)
-    if (!origin) {
+    // También permitir origin 'null' (enviado por navegadores en ciertos casos: redirects, sandboxed iframes, etc)
+    if (!origin || origin === 'null') {
       console.log('✅ CORS: Request sin origin - permitido')
       return callback(null, true)
     }
