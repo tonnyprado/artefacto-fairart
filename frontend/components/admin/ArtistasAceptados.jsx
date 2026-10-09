@@ -21,6 +21,7 @@ import {
   Users,
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import ModalConstanciaFiscal from './ModalConstanciaFiscal'
 
 /**
  * Componente para gestionar artistas aceptados y sus hojas de consignación
@@ -35,6 +36,7 @@ export default function ArtistasAceptados() {
   const [loading, setLoading] = useState(true)
   const [generando, setGenerando] = useState(false)
   const [edicion, setEdicion] = useState('AF2')
+  const [modalConstancia, setModalConstancia] = useState({ isOpen: false, acuerdo: null })
 
   useEffect(() => {
     cargarDatos()
@@ -219,6 +221,7 @@ export default function ArtistasAceptados() {
       pendiente: { color: 'bg-gray-400', label: 'Sin constancia' },
       cargada: { color: 'bg-yellow-500', label: 'Cargada' },
       verificada: { color: 'bg-green-500', label: 'Verificada' },
+      tercero_sin_datos: { color: 'bg-orange-400', label: 'Tercero sin datos' },
     }
 
     const config = badges[estadoFiscal] || badges.pendiente
@@ -229,6 +232,18 @@ export default function ArtistasAceptados() {
         {config.label}
       </Badge>
     )
+  }
+
+  const abrirModalConstancia = (acuerdo) => {
+    setModalConstancia({ isOpen: true, acuerdo })
+  }
+
+  const cerrarModalConstancia = () => {
+    setModalConstancia({ isOpen: false, acuerdo: null })
+  }
+
+  const handleConstanciaActualizada = () => {
+    cargarDatos()
   }
 
   if (loading) {
@@ -243,9 +258,10 @@ export default function ArtistasAceptados() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header con botón de generar todas */}
-      <div className="flex items-center justify-between">
+    <>
+      <div className="space-y-6">
+        {/* Header con botón de generar todas */}
+        <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold">Artistas Aprobados</h3>
           <p className="text-sm text-gray-600">
@@ -273,24 +289,25 @@ export default function ArtistasAceptados() {
         </Button>
       </div>
 
-      {/* Tabla Unificada */}
-      <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Folio</TableHead>
-              <TableHead>Nombre</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Teléfono</TableHead>
-              <TableHead>Estado Invitación</TableHead>
-              <TableHead>Estado Consigna</TableHead>
-              <TableHead className="text-right">Acciones</TableHead>
-            </TableRow>
-          </TableHeader>
+        {/* Tabla Unificada */}
+        <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Folio</TableHead>
+                <TableHead>Nombre</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Teléfono</TableHead>
+                <TableHead>Estado Invitación</TableHead>
+                <TableHead>Estado Consigna</TableHead>
+                <TableHead>Constancia Fiscal</TableHead>
+                <TableHead className="text-right">Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
           <TableBody>
             {artistasAprobados.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={8} className="text-center py-8 text-gray-500">
                   <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
                   <p>No hay artistas aprobados</p>
                   <p className="text-sm mt-1">
@@ -340,6 +357,13 @@ export default function ArtistasAceptados() {
                         </Badge>
                       )}
                     </TableCell>
+                    <TableCell>
+                      {acuerdo ? (
+                        getEstadoFiscalBadge(acuerdo.estado_fiscal)
+                      ) : (
+                        <span className="text-sm text-gray-400">-</span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
                         {!invitacion && (
@@ -353,14 +377,25 @@ export default function ArtistasAceptados() {
                           </Button>
                         )}
                         {acuerdo && (
-                          <Button
-                            onClick={() => descargarPDF(acuerdo.id, artista.folio)}
-                            size="sm"
-                            variant="outline"
-                          >
-                            <Download className="w-3 h-3 mr-1" />
-                            PDF
-                          </Button>
+                          <>
+                            <Button
+                              onClick={() => abrirModalConstancia(acuerdo)}
+                              size="sm"
+                              variant="outline"
+                              className="border-orange-300 text-orange-600 hover:bg-orange-50"
+                            >
+                              <FileText className="w-3 h-3 mr-1" />
+                              Constancia
+                            </Button>
+                            <Button
+                              onClick={() => descargarPDF(acuerdo.id, artista.folio)}
+                              size="sm"
+                              variant="outline"
+                            >
+                              <Download className="w-3 h-3 mr-1" />
+                              PDF
+                            </Button>
+                          </>
                         )}
                       </div>
                     </TableCell>
@@ -368,10 +403,18 @@ export default function ArtistasAceptados() {
                 )
               })
             )}
-          </TableBody>
-        </Table>
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
-    </div>
+      {/* Modal de Constancia Fiscal */}
+      <ModalConstanciaFiscal
+        isOpen={modalConstancia.isOpen}
+        onClose={cerrarModalConstancia}
+        acuerdo={modalConstancia.acuerdo}
+        onActualizado={handleConstanciaActualizada}
+      />
+    </>
   )
 }

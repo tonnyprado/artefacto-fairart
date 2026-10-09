@@ -272,6 +272,7 @@ router.get('/acuerdos', async (req, res) => {
         ac.firmado_en,
         ac.snapshot_artista,
         ac.estado_fiscal,
+        ac.constancia_key,
         ac.pdf_key,
         a.nombre,
         a.correo,
@@ -426,6 +427,189 @@ router.get('/estadisticas', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Error al obtener estadísticas',
+    });
+  }
+});
+
+/**
+ * GET /api/admin/consigna/acuerdos/:acuerdoId/constancia
+ * Obtiene información y URL de descarga de la constancia fiscal
+ */
+router.get('/acuerdos/:acuerdoId/constancia', async (req, res) => {
+  try {
+    const { acuerdoId } = req.params;
+
+    const result = await pool.query(
+      `SELECT ac.constancia_key, ac.estado_fiscal, a.folio, a.nombre
+       FROM consigna.acuerdos ac
+       JOIN consigna.v_artistas_seleccionados a
+         ON a.artista_id = ac.artista_id
+       WHERE ac.id = $1`,
+      [acuerdoId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Acuerdo no encontrado',
+      });
+    }
+
+    const { constancia_key, estado_fiscal, folio, nombre } = result.rows[0];
+
+    // Si no hay constancia cargada
+    if (!constancia_key) {
+      return res.json({
+        success: true,
+        data: {
+          existe: false,
+          estadoFiscal: estado_fiscal,
+          folio,
+          nombre,
+        },
+      });
+    }
+
+    // Generar URL de descarga temporal (válida por 15 minutos)
+    const { archivos } = obtenerContenedor();
+    const ext = constancia_key.split('.').pop();
+    const url = await archivos.urlDescarga(
+      constancia_key,
+      900, // 15 minutos
+      `Constancia-${folio}.${ext}`
+    );
+
+    res.json({
+      success: true,
+      data: {
+        existe: true,
+        url,
+        estadoFiscal: estado_fiscal,
+        folio,
+        nombre,
+        nombreArchivo: constancia_key.split('/').pop(),
+      },
+    });
+  } catch (error) {
+    console.error('Error obteniendo constancia:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error al obtener constancia',
+    });
+  }
+});
+
+/**
+ * POST /api/admin/consigna/acuerdos/:acuerdoId/constancia/upload-url
+ * Genera URL presignada para que el admin suba/reemplace la constancia
+ */
+router.post('/acuerdos/:acuerdoId/constancia/upload-url', async (req, res) => {
+  try {
+    const { acuerdoId } = req.params;
+    const { tipo, tamano } = req.body;
+
+    // Validar tipo de archivo
+    const TIPOS_PERMITIDOS = ['application/pdf', 'image/jpeg', 'image/png'];
+    if (!TIPOS_PERMITIDOS.includes(tipo)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Solo se permiten archivos PDF, JPG o PNG',
+      });
+    }
+
+    // Validar tamaño (máx 10MB)
+    if (tamano > 10 * 1024 * 1024) {
+      return res.status(400).json({
+        success: false,
+        error: 'El archivo debe pesar menos de 10 MB',
+      });
+    }
+
+    // Verificar que el acuerdo existe
+    const acuerdoResult = await pool.query(
+      `SELECT ac.artista_id, a.folio
+       FROM consigna.acuerdos ac
+       JOIN consigna.v_artistas_seleccionados a
+         ON a.artista_id = ac.artista_id
+       WHERE ac.id = $1`,
+      [acuerdoId]
+    );
+
+    if (acuerdoResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Acuerdo no encontrado',
+      });
+    }
+
+    const { artista_id } = acuerdoResult.rows[0];
+
+    // Generar key y URL de subida
+    const { archivos } = obtenerContenedor();
+    const crypto = await import('crypto');
+    const ext = tipo === 'application/pdf' ? 'pdf' : tipo.split('/')[1];
+    const key = `constancias/${artista_id}/${crypto.randomUUID()}.${ext}`;
+    const uploadUrl = await archivos.urlSubida(key, tipo);
+
+    res.json({
+      success: true,
+      data: {
+        key,
+        uploadUrl,
+      },
+    });
+  } catch (error) {
+    console.error('Error generando URL de subida:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error al generar URL de subida',
+    });
+  }
+});
+
+/**
+ * PUT /api/admin/consigna/acuerdos/:acuerdoId/constancia
+ * Actualiza la referencia de la constancia en el acuerdo después de subirla
+ */
+router.put('/acuerdos/:acuerdoId/constancia', async (req, res) => {
+  try {
+    const { acuerdoId } = req.params;
+    const { constanciaKey } = req.body;
+
+    if (!constanciaKey) {
+      return res.status(400).json({
+        success: false,
+        error: 'Se requiere la clave de la constancia',
+      });
+    }
+
+    // Actualizar el acuerdo
+    const result = await pool.query(
+      `UPDATE consigna.acuerdos
+       SET constancia_key = $1,
+           estado_fiscal = 'cargada'
+       WHERE id = $2
+       RETURNING id, artista_id, constancia_key, estado_fiscal`,
+      [constanciaKey, acuerdoId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Acuerdo no encontrado',
+      });
+    }
+
+    res.json({
+      success: true,
+      data: result.rows[0],
+      message: 'Constancia actualizada exitosamente',
+    });
+  } catch (error) {
+    console.error('Error actualizando constancia:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error al actualizar constancia',
     });
   }
 });
