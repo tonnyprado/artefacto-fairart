@@ -5,7 +5,7 @@
  */
 
 import pool from '../config/database.js'
-import { getPresignedUrl } from '../services/upload.service.js'
+import { getPresignedUrl, uploadToS3, deleteFromS3 } from '../services/upload.service.js'
 import {
   artistas,
   artistas_fases,
@@ -1495,6 +1495,101 @@ export const getArtistasForExport = async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Error al obtener datos para exportación'
+    })
+  }
+}
+
+/**
+ * PUT /api/artistas/:id/foto
+ * Actualizar foto de perfil del artista
+ * Sube la nueva imagen a S3 y elimina la foto anterior
+ */
+export const updateArtistaFoto = async (req, res) => {
+  try {
+    const { id } = req.params
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        error: 'No se proporcionó ninguna imagen'
+      })
+    }
+
+    console.log(`📸 Actualizando foto de perfil del artista ${id}...`)
+
+    // Obtener la foto antigua para eliminarla después
+    let fotoAntigua = null
+    if (useDatabase()) {
+      const result = await pool.query(
+        'SELECT foto FROM artistas WHERE id = $1',
+        [id]
+      )
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Artista no encontrado'
+        })
+      }
+
+      fotoAntigua = result.rows[0].foto
+    }
+
+    // Subir nueva imagen a S3
+    const imageUrl = await uploadToS3(
+      req.file.buffer,
+      req.file.originalname,
+      req.file.mimetype,
+      'artistas/fotos'
+    )
+
+    console.log(`✅ Imagen subida a S3: ${imageUrl}`)
+
+    // Actualizar foto en base de datos
+    if (useDatabase()) {
+      const result = await pool.query(
+        'UPDATE artistas SET foto = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
+        [imageUrl, id]
+      )
+
+      // Eliminar foto antigua de S3 si existe
+      if (fotoAntigua && fotoAntigua !== imageUrl) {
+        console.log(`🗑️  Eliminando foto antigua del artista...`)
+        await deleteFromS3(fotoAntigua)
+      }
+
+      return res.json({
+        success: true,
+        message: 'Foto de perfil actualizada exitosamente',
+        artista: result.rows[0]
+      })
+    }
+
+    // Fallback a mockData
+    const index = artistas.findIndex(a => a.id === parseInt(id))
+    if (index === -1) {
+      return res.status(404).json({
+        success: false,
+        error: 'Artista no encontrado'
+      })
+    }
+
+    // Eliminar foto antigua de S3 si existe (mockData)
+    if (artistas[index].foto && artistas[index].foto !== imageUrl) {
+      await deleteFromS3(artistas[index].foto)
+    }
+
+    artistas[index].foto = imageUrl
+    res.json({
+      success: true,
+      message: 'Foto de perfil actualizada exitosamente',
+      artista: artistas[index]
+    })
+  } catch (error) {
+    console.error('❌ Error al actualizar foto de perfil:', error)
+    res.status(500).json({
+      success: false,
+      error: `Error al actualizar foto de perfil: ${error.message}`
     })
   }
 }

@@ -8,7 +8,7 @@
 import dotenv from 'dotenv'
 dotenv.config()
 
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3'
+import { S3Client, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { Upload } from '@aws-sdk/lib-storage'
 import sharp from 'sharp'
@@ -362,4 +362,39 @@ export const getPresignedDocumentos = async (documentos, expiresIn = 3600) => {
     }
   }
   return result
+}
+
+/**
+ * Eliminar archivo de S3
+ * @param {string} url - URL del archivo en S3
+ * @returns {Promise<boolean>} - true si se eliminó correctamente
+ */
+export const deleteFromS3 = async (url) => {
+  try {
+    if (!url) {
+      console.log('⚠️ No se proporcionó URL para eliminar')
+      return false
+    }
+
+    const key = extractKeyFromUrl(url)
+    if (!key) {
+      console.error('❌ No se pudo extraer key de URL:', url)
+      return false
+    }
+
+    console.log(`🗑️  Eliminando archivo de S3: ${key}`)
+
+    const command = new DeleteObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key
+    })
+
+    await s3Client.send(command)
+    console.log(`✅ Archivo eliminado de S3: ${key}`)
+    return true
+  } catch (error) {
+    console.error('❌ Error eliminando archivo de S3:', error)
+    // No lanzar error, solo registrar y retornar false
+    return false
+  }
 }

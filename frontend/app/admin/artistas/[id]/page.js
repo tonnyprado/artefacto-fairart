@@ -197,6 +197,7 @@ export default function ArtistaDetalle() {
   const [error, setError] = useState(null)
   const [imageModal, setImageModal] = useState(null)
   const [editFotoModal, setEditFotoModal] = useState(null)
+  const [editFotoPerfilModal, setEditFotoPerfilModal] = useState(false)
   const [editObraModal, setEditObraModal] = useState(null)
   const [createObraModal, setCreateObraModal] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -387,6 +388,47 @@ export default function ArtistaDetalle() {
     }
   }
 
+  const handleUploadFotoPerfil = async (e) => {
+    try {
+      const file = e.target.files?.[0]
+      if (!file) return
+
+      setUploading(true)
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
+      const formData = new FormData()
+      formData.append('foto', file)
+
+      const token = localStorage.getItem('token')
+      const response = await fetch(`${apiUrl}/api/artistas/${params.id}/foto`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        console.log('Foto de perfil actualizada:', data)
+
+        // Recargar datos del artista
+        await fetchArtista()
+        alert('Foto de perfil actualizada exitosamente')
+        setEditFotoPerfilModal(false)
+      } else {
+        const error = await response.json()
+        alert('Error al subir foto: ' + (error.error || 'Error desconocido'))
+        throw new Error(error.error)
+      }
+    } catch (err) {
+      console.error('Error al subir foto de perfil:', err)
+      alert('Error al subir foto: ' + err.message)
+    } finally {
+      setUploading(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 p-8 flex items-center justify-center">
@@ -499,6 +541,70 @@ export default function ArtistaDetalle() {
         </div>
       )}
 
+      {/* Modal de edición de foto de perfil */}
+      {editFotoPerfilModal && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+          onClick={() => !uploading && setEditFotoPerfilModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl p-6 max-w-md w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-xl font-semibold mb-4">
+              Cambiar foto de perfil
+            </h3>
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 mb-2">
+                {artista.nombre} {artista.apellido}
+              </p>
+              {artista.foto && (
+                <img
+                  src={artista.foto}
+                  alt={`${artista.nombre} ${artista.apellido}`}
+                  className="w-full h-64 object-cover rounded-lg mb-4"
+                />
+              )}
+              <label className="block">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleUploadFotoPerfil}
+                  disabled={uploading}
+                  className="hidden"
+                  id="foto-perfil-upload"
+                />
+                <div className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 cursor-pointer">
+                  {uploading ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Subiendo...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-5 w-5" />
+                      Seleccionar nueva foto
+                    </>
+                  )}
+                </div>
+              </label>
+              <p className="text-xs text-gray-500 mt-2">
+                La foto anterior será reemplazada automáticamente
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setEditFotoPerfilModal(false)}
+                disabled={uploading}
+                className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Modal de edición de obra */}
       {editObraModal && <ObraFormModal obra={editObraModal} onSave={handleUpdateObra} onClose={() => setEditObraModal(null)} saving={saving} />}
 
@@ -590,11 +696,25 @@ export default function ArtistaDetalle() {
                       <Download className="h-4 w-4" /> Descargar
                     </a>
                   </div>
+                  <button
+                    onClick={() => setEditFotoPerfilModal(true)}
+                    className="w-full flex items-center justify-center gap-2 bg-green-600 text-white py-2 px-3 rounded-lg hover:bg-green-700 text-sm mt-2"
+                  >
+                    <Upload className="h-4 w-4" /> Cambiar Foto
+                  </button>
                 </>
               ) : (
-                <div className="w-full aspect-square bg-gray-200 rounded-xl flex items-center justify-center">
-                  <User className="h-24 w-24 text-gray-400" />
-                </div>
+                <>
+                  <div className="w-full aspect-square bg-gray-200 rounded-xl flex items-center justify-center mb-3">
+                    <User className="h-24 w-24 text-gray-400" />
+                  </div>
+                  <button
+                    onClick={() => setEditFotoPerfilModal(true)}
+                    className="w-full flex items-center justify-center gap-2 bg-green-600 text-white py-2 px-3 rounded-lg hover:bg-green-700 text-sm"
+                  >
+                    <Upload className="h-4 w-4" /> Subir Foto
+                  </button>
+                </>
               )}
             </div>
 
