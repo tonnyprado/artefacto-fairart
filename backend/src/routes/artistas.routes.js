@@ -17,7 +17,7 @@ import {
   updateArtistaFoto
 } from '../controllers/artistas.controller.js'
 import { verifyToken, isAdmin, isAdminOrCurador } from '../middleware/auth.middleware.js'
-import { uploadSingle } from '../middleware/upload.middleware.js'
+import { uploadSingle, handleMulterError } from '../middleware/upload.middleware.js'
 
 const router = express.Router()
 
@@ -34,7 +34,7 @@ router.get('/:id', verifyToken, isAdminOrCurador, getArtistaById)
 router.put('/:id', verifyToken, isAdmin, updateArtista)
 router.put('/:id/aprobar', verifyToken, isAdmin, aprobarArtista)
 router.put('/:id/rechazar', verifyToken, isAdmin, rechazarArtista)
-router.put('/:id/foto', verifyToken, isAdmin, uploadSingle('foto'), updateArtistaFoto)
+router.put('/:id/foto', verifyToken, isAdmin, uploadSingle('foto'), handleMulterError, updateArtistaFoto)
 router.delete('/:id', verifyToken, isAdmin, deleteArtista)
 
 export default router

@@ -318,6 +318,9 @@ export default function ArtistaDetalle() {
       setUploading(true)
       await handleUploadFoto(file, obraId)
       setEditFotoModal(null)
+
+      // Resetear el input para permitir subir el mismo archivo de nuevo
+      e.target.value = ''
     } finally {
       setUploading(false)
     }
@@ -416,6 +419,9 @@ export default function ArtistaDetalle() {
         await fetchArtista()
         alert('Foto de perfil actualizada exitosamente')
         setEditFotoPerfilModal(false)
+
+        // Resetear el input para permitir subir el mismo archivo de nuevo
+        e.target.value = ''
       } else {
         const error = await response.json()
         alert('Error al subir foto: ' + (error.error || 'Error desconocido'))
@@ -504,7 +510,7 @@ export default function ArtistaDetalle() {
                   className="w-full h-48 object-cover rounded-lg mb-4"
                 />
               )}
-              <label className="block">
+              <div>
                 <input
                   type="file"
                   accept="image/*"
@@ -513,20 +519,22 @@ export default function ArtistaDetalle() {
                   className="hidden"
                   id="foto-upload"
                 />
-                <div className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 cursor-pointer">
-                  {uploading ? (
-                    <>
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                      Subiendo...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="h-5 w-5" />
-                      Seleccionar nueva foto
-                    </>
-                  )}
-                </div>
-              </label>
+                <label htmlFor="foto-upload" className="block">
+                  <div className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 cursor-pointer">
+                    {uploading ? (
+                      <>
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        Subiendo...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="h-5 w-5" />
+                        Seleccionar nueva foto
+                      </>
+                    )}
+                  </div>
+                </label>
+              </div>
             </div>
             <div className="flex gap-2">
               <button
@@ -565,7 +573,7 @@ export default function ArtistaDetalle() {
                   className="w-full h-64 object-cover rounded-lg mb-4"
                 />
               )}
-              <label className="block">
+              <div>
                 <input
                   type="file"
                   accept="image/*"
@@ -574,20 +582,22 @@ export default function ArtistaDetalle() {
                   className="hidden"
                   id="foto-perfil-upload"
                 />
-                <div className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 cursor-pointer">
-                  {uploading ? (
-                    <>
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                      Subiendo...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="h-5 w-5" />
-                      Seleccionar nueva foto
-                    </>
-                  )}
-                </div>
-              </label>
+                <label htmlFor="foto-perfil-upload" className="block">
+                  <div className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 cursor-pointer">
+                    {uploading ? (
+                      <>
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        Subiendo...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="h-5 w-5" />
+                        Seleccionar nueva foto
+                      </>
+                    )}
+                  </div>
+                </label>
+              </div>
               <p className="text-xs text-gray-500 mt-2">
                 La foto anterior será reemplazada automáticamente
               </p>
