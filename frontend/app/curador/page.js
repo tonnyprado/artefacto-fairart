@@ -115,7 +115,7 @@ function CuradorDashboardContent() {
 
   const { fetchArtistasByFase } = useArtistasStore()
   const { fetchFases, getFaseActiva } = useFasesStore()
-  const { fetchMisVotaciones } = useVotacionesStore()
+  const { getMisVotaciones } = useVotacionesStore()
 
   const faseActiva = getFaseActiva()
 
@@ -124,7 +124,7 @@ function CuradorDashboardContent() {
       setIsLoadingData(true)
       try {
         await fetchFases()
-        await fetchMisVotaciones()
+        await getMisVotaciones()
       } catch (error) {
         console.error('Error loading data:', error)
       } finally {
@@ -132,7 +132,7 @@ function CuradorDashboardContent() {
       }
     }
     if (user) loadData()
-  }, [user, fetchFases, fetchMisVotaciones])
+  }, [user, fetchFases, getMisVotaciones])
 
   useEffect(() => {
     if (faseActiva) fetchArtistasByFase(faseActiva.id)
