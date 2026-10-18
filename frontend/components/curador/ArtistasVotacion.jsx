@@ -47,7 +47,7 @@ export default function ArtistasVotacion() {
   const { user } = useAuth()
   const { artistas, fetchArtistasByFase, fetchArtistaById, isLoading: isLoadingArtistas } = useArtistasStore()
   const { getFaseActiva } = useFasesStore()
-  const { hasVotado, getVotacion, fetchMisVotaciones, votaciones } = useVotacionesStore()
+  const { hasVotado, getVotacion, getMisVotaciones, votaciones } = useVotacionesStore()
   const { favoritos, fetchMisFavoritos, toggleFavorito, isFavorito } = useFavoritosStore()
 
   const faseActiva = getFaseActiva()
@@ -64,12 +64,12 @@ export default function ArtistasVotacion() {
     const loadData = async () => {
       if (faseActiva) {
         await fetchArtistasByFase(faseActiva.id)
-        await fetchMisVotaciones(faseActiva.id)
+        await getMisVotaciones(faseActiva.id)
         await fetchMisFavoritos(faseActiva.id)
       }
     }
     loadData()
-  }, [faseActiva, fetchArtistasByFase, fetchMisVotaciones, fetchMisFavoritos])
+  }, [faseActiva, fetchArtistasByFase, getMisVotaciones, fetchMisFavoritos])
 
   // Artistas are already filtered by fase from the API
   // fetchArtistasByFase returns only artistas for that specific fase
