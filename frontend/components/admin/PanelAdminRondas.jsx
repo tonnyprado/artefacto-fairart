@@ -298,7 +298,12 @@ export default function PanelAdminRondas({ faseId }) {
 
       {/* Modal estadísticas */}
       {showEstadisticas && (
-        <Modal onClose={() => setShowEstadisticas(null)} maxWidth="6xl">
+        <Modal
+          isOpen={true}
+          onClose={() => setShowEstadisticas(null)}
+          title={`Estadísticas - Ronda ${showEstadisticas.numero}`}
+          size="xl"
+        >
           <EstadisticasRonda ronda={showEstadisticas} />
         </Modal>
       )}
@@ -325,12 +330,14 @@ function ModalCrearRonda({ faseId, onClose, onCreate }) {
   }
 
   return (
-    <Modal onClose={onClose} maxWidth="md">
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      title="Crear Nueva Ronda"
+      size="md"
+    >
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-2">
-            Crear Nueva Ronda
-          </h3>
           <p className="text-gray-600">
             Define los parámetros de la ronda de votación
           </p>
