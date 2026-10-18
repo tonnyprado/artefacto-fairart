@@ -115,15 +115,15 @@ export const login = async (req, res) => {
 
       console.log('✅ Login exitoso')
 
-      // Si es curador, buscar su curadorId
-      let curadorId = null
+      // Si es curador, buscar sus datos completos
+      let curadorData = null
       if (user.role === 'curador') {
         const curadorResult = await pool.query(
-          'SELECT id FROM curadores WHERE usuario_id = $1',
+          'SELECT id, nombre, apellido, foto, especialidad, bio, telefono FROM curadores WHERE usuario_id = $1',
           [user.id]
         )
         if (curadorResult.rows.length > 0) {
-          curadorId = curadorResult.rows[0].id
+          curadorData = curadorResult.rows[0]
         }
       }
 
@@ -134,8 +134,8 @@ export const login = async (req, res) => {
         role: user.role
       }
 
-      if (curadorId) {
-        tokenPayload.curadorId = curadorId
+      if (curadorData) {
+        tokenPayload.curadorId = curadorData.id
       }
 
       const token = jwt.sign(
@@ -147,12 +147,17 @@ export const login = async (req, res) => {
       const userData = {
         id: user.id,
         email: user.email,
-        nombre: user.nombre,
+        nombre: curadorData ? curadorData.nombre : user.nombre,
         role: user.role
       }
 
-      if (curadorId) {
-        userData.curadorId = curadorId
+      if (curadorData) {
+        userData.curadorId = curadorData.id
+        userData.apellido = curadorData.apellido
+        userData.foto = curadorData.foto
+        userData.especialidad = curadorData.especialidad
+        userData.bio = curadorData.bio
+        userData.telefono = curadorData.telefono
       }
 
       return res.json({
@@ -251,27 +256,32 @@ export const verifyToken = async (req, res) => {
 
       const user = userResult.rows[0]
 
-      // Si es curador, buscar su curadorId
-      let curadorId = null
+      // Si es curador, buscar sus datos completos
+      let curadorData = null
       if (user.role === 'curador') {
         const curadorResult = await pool.query(
-          'SELECT id FROM curadores WHERE usuario_id = $1',
+          'SELECT id, nombre, apellido, foto, especialidad, bio, telefono FROM curadores WHERE usuario_id = $1',
           [user.id]
         )
         if (curadorResult.rows.length > 0) {
-          curadorId = curadorResult.rows[0].id
+          curadorData = curadorResult.rows[0]
         }
       }
 
       const userData = {
         id: user.id,
         email: user.email,
-        nombre: user.nombre,
+        nombre: curadorData ? curadorData.nombre : user.nombre,
         role: user.role
       }
 
-      if (curadorId) {
-        userData.curadorId = curadorId
+      if (curadorData) {
+        userData.curadorId = curadorData.id
+        userData.apellido = curadorData.apellido
+        userData.foto = curadorData.foto
+        userData.especialidad = curadorData.especialidad
+        userData.bio = curadorData.bio
+        userData.telefono = curadorData.telefono
       }
 
       return res.json({

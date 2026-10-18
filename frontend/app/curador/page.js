@@ -266,12 +266,20 @@ function CuradorDashboardContent() {
 
           {/* User */}
           <div className="flex items-center gap-3 px-3 py-2 mb-2 rounded-lg overflow-hidden" style={{ backgroundColor: `${COLORS.cream}08` }}>
-            <div
-              className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-semibold"
-              style={{ backgroundColor: COLORS.red, color: COLORS.cream }}
-            >
-              {user?.nombre?.charAt(0)?.toUpperCase() || 'C'}
-            </div>
+            {user?.foto ? (
+              <img
+                src={user.foto}
+                alt={user.nombre}
+                className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+              />
+            ) : (
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-semibold"
+                style={{ backgroundColor: COLORS.red, color: COLORS.cream }}
+              >
+                {user?.nombre?.charAt(0)?.toUpperCase() || 'C'}
+              </div>
+            )}
             <span
               ref={el => labelsRef.current[TABS.length] = el}
               className="text-sm whitespace-nowrap truncate"
