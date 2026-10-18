@@ -85,10 +85,10 @@ export const useFasesStore = create((set, get) => ({
   },
 
   /**
-   * Obtener fase con inscripciones abiertas
+   * Obtener fase con inscripciones abiertas (solo tipo 'fase', no concursos)
    */
   getFaseConInscripcionesAbiertas: () => {
-    return get().fases.find(f => f.inscripciones_abiertas && !f.finalizada)
+    return get().fases.find(f => f.inscripciones_abiertas && !f.finalizada && f.tipo === 'fase')
   },
 
   /**

@@ -271,7 +271,7 @@ export default function FasesControl() {
                     </Button>
 
                     {/* Control de inscripciones (solo fases, no concurso) */}
-                    {fase.tipo === 'fase' && fase.numero_fase === 1 && (
+                    {fase.tipo === 'fase' && (
                       <Button
                         variant={fase.inscripciones_abiertas ? 'secondary' : 'primary'}
                         size="sm"
@@ -361,7 +361,7 @@ export default function FasesControl() {
         <div className="p-6">
           <div className="space-y-4">
             {/* Inscripciones */}
-            {editingFase?.tipo === 'fase' && editingFase?.numero_fase === 1 && (
+            {editingFase?.tipo === 'fase' && (
               <div className="space-y-3">
                 <h4 className="font-semibold text-gray-900 text-sm">Inscripciones</h4>
                 <div className="grid grid-cols-2 gap-3">

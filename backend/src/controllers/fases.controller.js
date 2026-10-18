@@ -253,6 +253,8 @@ export const updateFase = async (req, res) => {
     const {
       nombre,
       descripcion,
+      fecha_inicio_inscripciones,
+      fecha_fin_inscripciones,
       fecha_inicio_votaciones,
       fecha_fin_votaciones,
       votaciones_abiertas,
@@ -273,6 +275,16 @@ export const updateFase = async (req, res) => {
       if (descripcion !== undefined) {
         updates.push(`descripcion = $${paramCount}`)
         values.push(descripcion)
+        paramCount++
+      }
+      if (fecha_inicio_inscripciones !== undefined) {
+        updates.push(`fecha_inicio_inscripciones = $${paramCount}`)
+        values.push(fecha_inicio_inscripciones)
+        paramCount++
+      }
+      if (fecha_fin_inscripciones !== undefined) {
+        updates.push(`fecha_fin_inscripciones = $${paramCount}`)
+        values.push(fecha_fin_inscripciones)
         paramCount++
       }
       if (fecha_inicio_votaciones !== undefined) {
@@ -340,6 +352,8 @@ export const updateFase = async (req, res) => {
       ...fases[faseIndex],
       ...(nombre && { nombre }),
       ...(descripcion !== undefined && { descripcion }),
+      ...(fecha_inicio_inscripciones && { fecha_inicio_inscripciones }),
+      ...(fecha_fin_inscripciones && { fecha_fin_inscripciones }),
       ...(fecha_inicio_votaciones && { fecha_inicio_votaciones }),
       ...(fecha_fin_votaciones && { fecha_fin_votaciones }),
       ...(votaciones_abiertas !== undefined && { votaciones_abiertas }),
@@ -482,9 +496,11 @@ export const toggleVotaciones = async (req, res) => {
         })
       }
 
-      // Si se están abriendo votaciones, cerrar las de otras fases
+      // Si se están abriendo votaciones, cerrar las de otras fases Y cerrar inscripciones de esta fase
       if (abiertas) {
         await pool.query('UPDATE fases SET votaciones_abiertas = false WHERE id != $1', [id])
+        // Cerrar inscripciones de esta fase al abrir votaciones
+        await pool.query('UPDATE fases SET inscripciones_abiertas = false WHERE id = $1', [id])
       }
 
       // Actualizar votaciones de esta fase
@@ -573,13 +589,15 @@ export const toggleVotaciones = async (req, res) => {
       })
     }
 
-    // Si se están abriendo votaciones, cerrar las de otras fases
+    // Si se están abriendo votaciones, cerrar las de otras fases Y cerrar inscripciones de esta fase
     if (abiertas) {
       fases.forEach((f, idx) => {
         if (idx !== faseIndex) {
           fases[idx].votaciones_abiertas = false
         }
       })
+      // Cerrar inscripciones de esta fase al abrir votaciones
+      fases[faseIndex].inscripciones_abiertas = false
     }
 
     fases[faseIndex].votaciones_abiertas = abiertas
