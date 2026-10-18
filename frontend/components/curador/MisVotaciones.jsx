@@ -34,7 +34,7 @@ const CATEGORIAS = {
 
 export default function MisVotaciones() {
   const { user } = useAuth()
-  const { fetchMisVotaciones } = useVotacionesStore()
+  const { getMisVotaciones } = useVotacionesStore()
   const artistas = useArtistasStore(state => state.artistas)
   const fases = useFasesStore(state => state.fases)
 
@@ -50,8 +50,8 @@ export default function MisVotaciones() {
   const loadVotaciones = async () => {
     if (!user) return
     setIsLoading(true)
-    // fetchMisVotaciones gets curator from token, no need to pass user.id
-    const data = await fetchMisVotaciones()
+    // getMisVotaciones gets curator from token, no need to pass user.id
+    const data = await getMisVotaciones()
     setVotaciones(data || [])
     setIsLoading(false)
   }
