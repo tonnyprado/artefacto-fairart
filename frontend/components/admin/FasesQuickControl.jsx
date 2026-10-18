@@ -1,9 +1,11 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useFasesStore } from '@/stores/fasesStore'
 import Button from '@/components/ui/Button'
 import Badge from '@/components/ui/Badge'
+import Modal from '@/components/ui/Modal'
+import PanelAdminRondas from './PanelAdminRondas'
 import { COLORS, FONTS } from '@/components/artefacto/theme'
 
 /**
@@ -29,6 +31,7 @@ const cardStyle = {
 
 export default function FasesQuickControl() {
   const { fases, fetchFases, toggleInscripciones, toggleVotaciones } = useFasesStore()
+  const [faseRondasModal, setFaseRondasModal] = useState(null)
 
   useEffect(() => {
     fetchFases()
@@ -217,6 +220,24 @@ export default function FasesQuickControl() {
                     </>
                   )}
                 </Button>
+
+                {/* Gestionar Rondas - Solo cuando votaciones están abiertas */}
+                {fase.votaciones_abiertas && (
+                  <Button
+                    variant="info"
+                    size="sm"
+                    onClick={() => setFaseRondasModal(fase)}
+                    style={{
+                      fontSize: '0.75rem',
+                      padding: '0.5rem 0.75rem'
+                    }}
+                  >
+                    <svg style={{ width: '0.875rem', height: '0.875rem', marginRight: '0.25rem' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                    </svg>
+                    Gestionar Rondas
+                  </Button>
+                )}
               </div>
             )}
 
@@ -249,6 +270,20 @@ export default function FasesQuickControl() {
         }}>
           No hay fases configuradas
         </div>
+      )}
+
+      {/* Modal de Gestión de Rondas */}
+      {faseRondasModal && (
+        <Modal
+          isOpen={true}
+          onClose={() => setFaseRondasModal(null)}
+          title={`Gestión de Rondas - ${faseRondasModal.nombre}`}
+          size="full"
+        >
+          <div style={{ maxHeight: '80vh', overflowY: 'auto' }}>
+            <PanelAdminRondas faseId={faseRondasModal.id} />
+          </div>
+        </Modal>
       )}
     </div>
   )
