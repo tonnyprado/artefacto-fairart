@@ -152,6 +152,25 @@ export const useVotacionesStore = create((set, get) => ({
   },
 
   /**
+   * Obtener resultados consolidados de una fase
+   * Solo disponible para admin o cuando la fase está finalizada
+   */
+  getResultadosFase: async (faseId) => {
+    try {
+      const response = await votacionesApi.getResultados(faseId)
+
+      if (response.success) {
+        return response.data
+      } else {
+        return []
+      }
+    } catch (error) {
+      console.error('Error al obtener resultados de fase:', error)
+      return []
+    }
+  },
+
+  /**
    * Obtener estadísticas generales del curador
    */
   getEstadisticasCurador: async (faseId = null) => {
