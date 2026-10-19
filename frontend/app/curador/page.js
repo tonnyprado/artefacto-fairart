@@ -105,7 +105,7 @@ function LogoutModal({ isOpen, onConfirm, onCancel }) {
 
 function CuradorDashboardContent() {
   const { user, logout } = useAuth()
-  const [activeTab, setActiveTab] = useState('artistas-fase')
+  const [activeTab, setActiveTab] = useState('votar')
   const [isLoadingData, setIsLoadingData] = useState(true)
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false)
   const [showLogoutModal, setShowLogoutModal] = useState(false)
