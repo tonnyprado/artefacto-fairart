@@ -289,6 +289,48 @@ export const cerrarRonda = async (req, res) => {
       ganadoresAprobados = await calcularResultadosRonda3(client, ronda.fase_id, id, config)
     }
 
+    // Crear automáticamente la siguiente ronda (cerrada, lista para que el admin la abra)
+    let siguienteRondaCreada = null
+    if (ronda.numero === 1) {
+      // Verificar si ya existe Ronda 2
+      const existeR2 = await client.query(
+        'SELECT id FROM rondas WHERE fase_id = $1 AND numero = 2',
+        [ronda.fase_id]
+      )
+
+      if (existeR2.rows.length === 0) {
+        // Crear Ronda 2 con votos limitados
+        const votosR2 = config.votos_r2 || 10
+        const ronda2Result = await client.query(
+          `INSERT INTO rondas (fase_id, numero, votos_asignados, estado)
+           VALUES ($1, 2, $2, 'cerrada')
+           RETURNING *`,
+          [ronda.fase_id, votosR2]
+        )
+        siguienteRondaCreada = ronda2Result.rows[0]
+        console.log(`✅ Ronda 2 creada automáticamente (cerrada) con ${votosR2} votos por curador`)
+      }
+    } else if (ronda.numero === 2) {
+      // Verificar si ya existe Ronda 3
+      const existeR3 = await client.query(
+        'SELECT id FROM rondas WHERE fase_id = $1 AND numero = 3',
+        [ronda.fase_id]
+      )
+
+      if (existeR3.rows.length === 0) {
+        // Crear Ronda 3 sin límite de votos
+        const ronda3Result = await client.query(
+          `INSERT INTO rondas (fase_id, numero, votos_asignados, estado)
+           VALUES ($1, 3, NULL, 'cerrada')
+           RETURNING *`,
+          [ronda.fase_id]
+        )
+        siguienteRondaCreada = ronda3Result.rows[0]
+        console.log(`✅ Ronda 3 creada automáticamente (cerrada)`)
+      }
+    }
+    // Si es Ronda 3, no crear nada (es la última)
+
     // Log de cierre
     await client.query(
       `INSERT INTO log_votaciones (fase_id, ronda_id, accion, valor_nuevo)
@@ -357,7 +399,13 @@ export const cerrarRonda = async (req, res) => {
       data: {
         total_votantes: totalVotantes,
         quorum_requerido: quorumRequerido,
-        artistas_aprobados: ganadoresAprobados.length
+        artistas_aprobados: ganadoresAprobados.length,
+        siguiente_ronda_creada: siguienteRondaCreada ? {
+          id: siguienteRondaCreada.id,
+          numero: siguienteRondaCreada.numero,
+          estado: siguienteRondaCreada.estado,
+          votos_asignados: siguienteRondaCreada.votos_asignados
+        } : null
       }
     })
   } catch (error) {

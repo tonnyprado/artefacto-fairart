@@ -64,7 +64,22 @@ export default function PanelAdminRondas({ faseId }) {
     setError(null)
     const result = await cerrarRonda(rondaId)
     if (result.success) {
-      alert(`Ronda cerrada exitosamente.\n\nTotal votantes: ${result.data.total_votantes}\nQuórum requerido: ${result.data.quorum_requerido}`)
+      let mensaje = `Ronda cerrada exitosamente.\n\nTotal votantes: ${result.data.total_votantes}\nQuórum requerido: ${result.data.quorum_requerido}`
+
+      if (result.data.artistas_aprobados > 0) {
+        mensaje += `\n\n✅ ${result.data.artistas_aprobados} artista(s) aprobado(s) automáticamente`
+      }
+
+      if (result.data.siguiente_ronda_creada) {
+        const siguienteRonda = result.data.siguiente_ronda_creada
+        mensaje += `\n\n🎯 Ronda ${siguienteRonda.numero} creada automáticamente`
+        if (siguienteRonda.votos_asignados) {
+          mensaje += ` (${siguienteRonda.votos_asignados} votos por curador)`
+        }
+        mensaje += `\nPuedes abrirla cuando estés listo.`
+      }
+
+      alert(mensaje)
       loadData()
     } else {
       setError(result.error)
