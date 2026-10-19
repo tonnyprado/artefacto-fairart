@@ -4,6 +4,7 @@
  */
 
 import pool from '../config/database.js'
+import { sendEmail } from '../services/email.service.js'
 
 /**
  * GET /api/rondas/fase/:fase_id
@@ -276,15 +277,16 @@ export const cerrarRonda = async (req, res) => {
     )
 
     // Calcular y actualizar métricas según el número de ronda
+    let ganadoresAprobados = []
     if (ronda.numero === 1) {
       // RONDA 1: Calcular índice de respaldo y actualizar estados
       await calcularResultadosRonda1(client, ronda.fase_id, id, config)
     } else if (ronda.numero === 2) {
       // RONDA 2: Calcular respaldo y actualizar estados
-      await calcularResultadosRonda2(client, ronda.fase_id, id, config)
+      ganadoresAprobados = await calcularResultadosRonda2(client, ronda.fase_id, id, config)
     } else if (ronda.numero === 3) {
       // RONDA 3: Calcular aprobación final y seleccionar ganadores
-      await calcularResultadosRonda3(client, ronda.fase_id, id, config)
+      ganadoresAprobados = await calcularResultadosRonda3(client, ronda.fase_id, id, config)
     }
 
     // Log de cierre
@@ -296,12 +298,66 @@ export const cerrarRonda = async (req, res) => {
 
     await client.query('COMMIT')
 
+    // Enviar emails a los artistas aprobados automáticamente
+    if (ganadoresAprobados && ganadoresAprobados.length > 0) {
+      console.log(`📧 Enviando emails a ${ganadoresAprobados.length} artistas aprobados...`)
+
+      // Obtener nombre de la fase
+      const faseResult = await client.query('SELECT nombre FROM fases WHERE id = $1', [ronda.fase_id])
+      const faseNombre = faseResult.rows[0]?.nombre || 'Fase desconocida'
+
+      // Enviar emails en paralelo (sin esperar a que terminen)
+      ganadoresAprobados.forEach(async (artista) => {
+        try {
+          await sendEmail({
+            to: artista.email,
+            toName: `${artista.nombre} ${artista.apellido}`,
+            subject: '🎉 ¡Felicidades! Has sido seleccionado en ARTEFACTO',
+            htmlContent: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h1 style="color: #C41E3A;">¡Felicidades ${artista.nombre}!</h1>
+                <p style="font-size: 16px; line-height: 1.6;">
+                  Nos complace informarte que has sido <strong>seleccionado</strong> en la ${faseNombre} de ARTEFACTO Feria de Arte.
+                </p>
+                <p style="font-size: 16px; line-height: 1.6;">
+                  Tu obra ha sido evaluada por nuestro panel de curadores y ha sido elegida para formar parte de nuestra exposición.
+                </p>
+                <div style="background-color: #f5f5f5; padding: 20px; margin: 20px 0; border-left: 4px solid #C41E3A;">
+                  <h3 style="margin-top: 0;">Próximos pasos:</h3>
+                  <ol style="line-height: 1.8;">
+                    <li>Recibirás un correo con más detalles sobre el proceso de consignación</li>
+                    <li>Deberás confirmar tu participación en los próximos días</li>
+                    <li>Te enviaremos la información sobre entrega de obras y montaje</li>
+                  </ol>
+                </div>
+                <p style="font-size: 16px; line-height: 1.6;">
+                  Si tienes alguna pregunta, no dudes en contactarnos.
+                </p>
+                <p style="font-size: 16px; line-height: 1.6;">
+                  ¡Felicidades nuevamente!
+                </p>
+                <p style="font-size: 14px; color: #666; margin-top: 30px;">
+                  Equipo ARTEFACTO<br>
+                  <a href="https://arte-facto.mx" style="color: #C41E3A;">arte-facto.mx</a>
+                </p>
+              </div>
+            `,
+            textContent: `¡Felicidades ${artista.nombre}! Has sido seleccionado en la ${faseNombre} de ARTEFACTO Feria de Arte. Recibirás más información sobre los próximos pasos en breve.`
+          })
+          console.log(`✅ Email enviado a ${artista.email}`)
+        } catch (emailError) {
+          console.error(`❌ Error enviando email a ${artista.email}:`, emailError)
+        }
+      })
+    }
+
     res.json({
       success: true,
       message: `Ronda ${ronda.numero} cerrada exitosamente`,
       data: {
         total_votantes: totalVotantes,
-        quorum_requerido: quorumRequerido
+        quorum_requerido: quorumRequerido,
+        artistas_aprobados: ganadoresAprobados.length
       }
     })
   } catch (error) {
@@ -384,6 +440,26 @@ async function calcularResultadosRonda2(client, faseId, rondaId, config) {
     WHERE p.id = subq.postulacion_id
       AND p.fase_actual_id = $2
   `, [rondaId, faseId])
+
+  // Aprobar automáticamente los artistas ganadores (estado = 'seleccionada')
+  const ganadoresResult = await client.query(`
+    UPDATE artistas a
+    SET estado_registro = 'aprobado'
+    FROM postulaciones p
+    WHERE p.artista_id = a.id
+      AND p.fase_actual_id = $1
+      AND p.estado = 'seleccionada'
+      AND a.estado_registro != 'aprobado'
+    RETURNING a.id, a.nombre, a.apellido, a.email
+  `, [faseId])
+
+  // Registrar log de artistas aprobados automáticamente
+  if (ganadoresResult.rows.length > 0) {
+    console.log(`[Ronda 2] ${ganadoresResult.rows.length} artistas aprobados automáticamente:`,
+      ganadoresResult.rows.map(a => `${a.nombre} ${a.apellido} (${a.email})`))
+  }
+
+  return ganadoresResult.rows
 }
 
 /**
@@ -460,6 +536,26 @@ async function calcularResultadosRonda3(client, faseId, rondaId, config) {
     WHERE fase_actual_id = $1
       AND estado = 'deliberacion'
   `, [faseId])
+
+  // Aprobar automáticamente los artistas ganadores (estado = 'seleccionada')
+  const ganadoresResult = await client.query(`
+    UPDATE artistas a
+    SET estado_registro = 'aprobado'
+    FROM postulaciones p
+    WHERE p.artista_id = a.id
+      AND p.fase_actual_id = $1
+      AND p.estado = 'seleccionada'
+      AND a.estado_registro != 'aprobado'
+    RETURNING a.id, a.nombre, a.apellido, a.email
+  `, [faseId])
+
+  // Registrar log de artistas aprobados automáticamente
+  if (ganadoresResult.rows.length > 0) {
+    console.log(`[Ronda 3] ${ganadoresResult.rows.length} artistas aprobados automáticamente:`,
+      ganadoresResult.rows.map(a => `${a.nombre} ${a.apellido} (${a.email})`))
+  }
+
+  return ganadoresResult.rows
 }
 
 /**
