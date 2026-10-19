@@ -48,10 +48,9 @@ export default function ArtistasInscritos({ onVerDetalles }) {
         const artistas = response.data || []
 
         // Filtrar SOLO artistas que pasaron votaciones:
-        // - estado_fase === 'aprobado' (pasaron la votacion de la fase)
-        // - O seleccionado === true (marcados como seleccionados)
+        // - estado_registro === 'aprobado' (aprobados por admin o automáticamente por rondas)
         const aceptados = artistas.filter(a =>
-          a.estado_fase === 'aprobado' || a.seleccionado === true
+          a.estado_registro === 'aprobado' || a.estado === 'aprobado'
         )
 
         setArtistasAceptados(aceptados)

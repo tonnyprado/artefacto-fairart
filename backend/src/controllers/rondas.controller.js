@@ -467,7 +467,7 @@ async function calcularResultadosRonda2(client, faseId, rondaId, config) {
   )
   const totalCuradores = parseInt(totalCuradoresResult.rows[0].total)
 
-  // Actualizar respaldo y estados
+  // Actualizar respaldo y estados para los que recibieron votos
   await client.query(`
     UPDATE postulaciones p
     SET
@@ -488,6 +488,18 @@ async function calcularResultadosRonda2(client, faseId, rondaId, config) {
     WHERE p.id = subq.postulacion_id
       AND p.fase_actual_id = $2
   `, [rondaId, faseId])
+
+  // Marcar como 'no_continua' a los artistas de shortlist que NO recibieron NINGÚN voto
+  await client.query(`
+    UPDATE postulaciones p
+    SET estado = 'no_continua', respaldo_r2 = 0
+    WHERE p.fase_actual_id = $1
+      AND p.estado = 'shortlist'
+      AND NOT EXISTS (
+        SELECT 1 FROM votaciones v
+        WHERE v.ronda_id = $2 AND v.postulacion_id = p.id
+      )
+  `, [faseId, rondaId])
 
   // Aprobar automáticamente los artistas ganadores (estado = 'seleccionada')
   const ganadoresResult = await client.query(`
@@ -519,7 +531,7 @@ async function calcularResultadosRonda3(client, faseId, rondaId, config) {
   const cupo2d = config.cupo_2d || 8
   const cupo3d = config.cupo_3d
 
-  // Actualizar aprobación
+  // Actualizar aprobación para los que recibieron votos
   await client.query(`
     UPDATE postulaciones p
     SET aprobacion_r3 = subq.aprobacion
@@ -534,6 +546,18 @@ async function calcularResultadosRonda3(client, faseId, rondaId, config) {
     WHERE p.id = subq.postulacion_id
       AND p.fase_actual_id = $2
   `, [rondaId, faseId])
+
+  // Marcar aprobacion_r3 = 0 para los que están en deliberación pero NO recibieron votos
+  await client.query(`
+    UPDATE postulaciones p
+    SET aprobacion_r3 = 0
+    WHERE p.fase_actual_id = $1
+      AND p.estado = 'deliberacion'
+      AND NOT EXISTS (
+        SELECT 1 FROM votaciones v
+        WHERE v.ronda_id = $2 AND v.postulacion_id = p.id
+      )
+  `, [faseId, rondaId])
 
   // Seleccionar ganadores 2D (ordenados por respaldo_r2, luego por indice_r1)
   await client.query(`
