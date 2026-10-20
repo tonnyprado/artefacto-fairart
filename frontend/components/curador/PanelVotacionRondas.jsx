@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useRondasStore } from '@/stores/rondasStore'
 import { usePostulacionesStore } from '@/stores/postulacionesStore'
@@ -349,16 +349,20 @@ export default function PanelVotacionRondas({ faseId }) {
 }
 
 function PostulacionCard({ postulacion, onClick, esFaseAnterior = false }) {
+  const [imageError, setImageError] = React.useState(false)
+
   return (
     <Card hover className={`cursor-pointer ${esFaseAnterior ? 'border-2 border-amber-300' : ''}`} onClick={onClick}>
       <div className="relative">
         {/* Imagen principal */}
         <div className="aspect-square rounded-xl overflow-hidden bg-gray-100 mb-4">
-          {postulacion.artista_foto ? (
+          {postulacion.artista_foto && !imageError ? (
             <img
               src={postulacion.artista_foto}
               alt={`${postulacion.nombre} ${postulacion.apellido}`}
               className="w-full h-full object-cover"
+              onError={() => setImageError(true)}
+              crossOrigin="anonymous"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-400">

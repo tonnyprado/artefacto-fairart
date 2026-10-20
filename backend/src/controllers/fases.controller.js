@@ -258,7 +258,8 @@ export const updateFase = async (req, res) => {
       fecha_inicio_votaciones,
       fecha_fin_votaciones,
       votaciones_abiertas,
-      finalizada
+      finalizada,
+      config_json
     } = req.body
 
     if (useDatabase()) {
@@ -307,6 +308,11 @@ export const updateFase = async (req, res) => {
         values.push(finalizada)
         paramCount++
       }
+      if (config_json !== undefined) {
+        updates.push(`config_json = $${paramCount}`)
+        values.push(JSON.stringify(config_json))
+        paramCount++
+      }
 
       if (updates.length === 0) {
         return res.status(400).json({
@@ -329,6 +335,8 @@ export const updateFase = async (req, res) => {
           error: 'Fase no encontrada'
         })
       }
+
+      console.log(`[Fase ${id}] Configuración actualizada:`, result.rows[0].config_json)
 
       return res.json({
         success: true,

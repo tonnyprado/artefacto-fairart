@@ -18,6 +18,7 @@ export default function PanelAdminRondas({ faseId }) {
   const [isLoading, setIsLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEstadisticas, setShowEstadisticas] = useState(null)
+  const [showEditConfigModal, setShowEditConfigModal] = useState(false)
   const [error, setError] = useState(null)
 
   useEffect(() => {
@@ -141,7 +142,16 @@ export default function PanelAdminRondas({ faseId }) {
       {/* Configuración de fase */}
       <Card>
         <CardHeader>
-          <CardTitle>Configuración de Fase</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Configuración de Fase</CardTitle>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => setShowEditConfigModal(true)}
+            >
+              ✏️ Editar Configuración
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -322,6 +332,29 @@ export default function PanelAdminRondas({ faseId }) {
           <EstadisticasRonda ronda={showEstadisticas} />
         </Modal>
       )}
+
+      {/* Modal editar configuración */}
+      {showEditConfigModal && fase && (
+        <ModalEditarConfiguracion
+          fase={fase}
+          onClose={() => setShowEditConfigModal(false)}
+          onSave={async (newConfig) => {
+            try {
+              const { updateFase } = useFasesStore.getState()
+              const result = await updateFase(faseId, { config_json: newConfig })
+              if (result.success) {
+                setShowEditConfigModal(false)
+                loadData()
+                alert('Configuración actualizada exitosamente')
+              } else {
+                alert(result.error || 'Error al actualizar configuración')
+              }
+            } catch (err) {
+              alert('Error: ' + err.message)
+            }
+          }}
+        />
+      )}
     </div>
   )
 }
@@ -399,6 +432,285 @@ function ModalCrearRonda({ faseId, onClose, onCreate }) {
           </Button>
           <Button type="submit">
             Crear Ronda
+          </Button>
+        </div>
+      </form>
+    </Modal>
+  )
+}
+
+function ModalEditarConfiguracion({ fase, onClose, onSave }) {
+  const config = fase?.config_json || {}
+
+  const [formData, setFormData] = useState({
+    curadores: config.curadores || 6,
+    quorum: config.quorum || 5,
+    cupo_2d: config.cupo_2d || 8,
+    cupo_3d: config.cupo_3d || null,
+    votos_r2: config.votos_r2 || 10,
+    umbral_r1: (config.umbral_r1 || 0.60) * 100,
+    umbral_reserva: (config.umbral_reserva || 0.30) * 100,
+    umbral_consenso: (config.umbral_consenso || 0.80) * 100,
+    umbral_delib: (config.umbral_delib || 0.50) * 100,
+    cortesia_max: config.cortesia_max || 4,
+    piezas_cortesia_min: config.piezas_cortesia_min || 1,
+    piezas_cortesia_max: config.piezas_cortesia_max || 3
+  })
+
+  const handleChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+
+    // Convertir porcentajes de vuelta a decimales
+    const newConfig = {
+      curadores: parseInt(formData.curadores),
+      quorum: parseInt(formData.quorum),
+      cupo_2d: parseInt(formData.cupo_2d),
+      cupo_3d: formData.cupo_3d ? parseInt(formData.cupo_3d) : null,
+      votos_r2: parseInt(formData.votos_r2),
+      umbral_r1: parseFloat(formData.umbral_r1) / 100,
+      umbral_reserva: parseFloat(formData.umbral_reserva) / 100,
+      umbral_consenso: parseFloat(formData.umbral_consenso) / 100,
+      umbral_delib: parseFloat(formData.umbral_delib) / 100,
+      cortesia_max: parseInt(formData.cortesia_max),
+      piezas_cortesia_min: parseInt(formData.piezas_cortesia_min),
+      piezas_cortesia_max: parseInt(formData.piezas_cortesia_max)
+    }
+
+    onSave(newConfig)
+  }
+
+  return (
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      title="Editar Configuración de Rondas"
+      size="xl"
+    >
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+          <p className="text-sm text-amber-800">
+            ⚠️ <strong>Importante:</strong> Los cambios afectarán las rondas futuras y los cálculos de resultados.
+            Las rondas cerradas no se verán afectadas.
+          </p>
+        </div>
+
+        {/* Configuración General */}
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Configuración General</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Total de Curadores
+              </label>
+              <input
+                type="number"
+                value={formData.curadores}
+                onChange={(e) => handleChange('curadores', e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                min="1"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Quórum Mínimo
+              </label>
+              <input
+                type="number"
+                value={formData.quorum}
+                onChange={(e) => handleChange('quorum', e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                min="1"
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">Mínimo de curadores que deben votar</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Ronda 1 - Cribado */}
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Ronda 1 - Cribado</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Umbral Shortlist (%)
+              </label>
+              <input
+                type="number"
+                value={formData.umbral_r1}
+                onChange={(e) => handleChange('umbral_r1', e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                min="0"
+                max="100"
+                step="1"
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">Artistas que pasan a Ronda 2</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Umbral Reserva (%)
+              </label>
+              <input
+                type="number"
+                value={formData.umbral_reserva}
+                onChange={(e) => handleChange('umbral_reserva', e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                min="0"
+                max="100"
+                step="1"
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">Artistas en lista de reserva</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Ronda 2 - Votos Limitados */}
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Ronda 2 - Votos Limitados</h3>
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Votos por Curador
+              </label>
+              <input
+                type="number"
+                value={formData.votos_r2}
+                onChange={(e) => handleChange('votos_r2', e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                min="1"
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">Máximo de votos en R2</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Umbral Consenso (%)
+              </label>
+              <input
+                type="number"
+                value={formData.umbral_consenso}
+                onChange={(e) => handleChange('umbral_consenso', e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                min="0"
+                max="100"
+                step="1"
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">Selección directa</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Umbral Deliberación (%)
+              </label>
+              <input
+                type="number"
+                value={formData.umbral_delib}
+                onChange={(e) => handleChange('umbral_delib', e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                min="0"
+                max="100"
+                step="1"
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">Pasan a Ronda 3</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Ronda 3 - Deliberación */}
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Ronda 3 - Deliberación (Cupos Finales)</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Cupo Artistas 2D
+              </label>
+              <input
+                type="number"
+                value={formData.cupo_2d}
+                onChange={(e) => handleChange('cupo_2d', e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                min="1"
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">TOP N artistas 2D seleccionados</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Cupo Artistas 3D
+              </label>
+              <input
+                type="number"
+                value={formData.cupo_3d || ''}
+                onChange={(e) => handleChange('cupo_3d', e.target.value || null)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                min="1"
+                placeholder="Ilimitado"
+              />
+              <p className="text-xs text-gray-500 mt-1">Dejar vacío para ilimitado</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Cortesía */}
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Obras de Cortesía</h3>
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Artistas Cortesía Max
+              </label>
+              <input
+                type="number"
+                value={formData.cortesia_max}
+                onChange={(e) => handleChange('cortesia_max', e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                min="0"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Piezas Cortesía Min
+              </label>
+              <input
+                type="number"
+                value={formData.piezas_cortesia_min}
+                onChange={(e) => handleChange('piezas_cortesia_min', e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                min="1"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Piezas Cortesía Max
+              </label>
+              <input
+                type="number"
+                value={formData.piezas_cortesia_max}
+                onChange={(e) => handleChange('piezas_cortesia_max', e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                min="1"
+                required
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex gap-3 justify-end pt-4 border-t">
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button type="submit">
+            Guardar Cambios
           </Button>
         </div>
       </form>
