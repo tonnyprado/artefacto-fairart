@@ -121,6 +121,25 @@ export const createInscripcion = async (req, res) => {
         })
       }
 
+      // Obtener datos del artista para crear postulación
+      const artistaResult = await pool.query(
+        'SELECT id, categoria FROM artistas WHERE id = $1',
+        [artista_id]
+      )
+
+      if (artistaResult.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Artista no encontrado'
+        })
+      }
+
+      const artista = artistaResult.rows[0]
+
+      // Determinar tipo 2D/3D basado en categoría
+      const categorias2D = ['pintura', 'fotografia', 'ilustracion', 'arte_digital', 'dibujo', 'grafica', 'collage_mixta']
+      const tipo = categorias2D.includes(artista.categoria) ? '2d' : '3d'
+
       // Crear inscripción
       const result = await pool.query(
         `INSERT INTO artistas_fases (artista_id, fase_id, seleccionado)
@@ -129,10 +148,21 @@ export const createInscripcion = async (req, res) => {
         [artista_id, fase_id, false]
       )
 
+      // Crear postulación automáticamente para votaciones
+      await pool.query(
+        `INSERT INTO postulaciones (
+          fase_origen_id, artista_id, disciplina, tipo, estado, fase_actual_id
+        ) VALUES ($1, $2, $3, $4, 'admitida', $1)
+        ON CONFLICT (artista_id, fase_origen_id) DO NOTHING`,
+        [fase_id, artista_id, artista.categoria, tipo]
+      )
+
+      console.log(`✅ Artista ${artista_id} inscrito en fase ${fase_id} con postulación automática creada`)
+
       return res.status(201).json({
         success: true,
         data: result.rows[0],
-        message: 'Artista inscrito exitosamente'
+        message: 'Artista inscrito exitosamente con postulación creada'
       })
     }
 

@@ -431,10 +431,22 @@ export const registrarArtista = async (req, res) => {
             [nuevoArtista.id, faseActiva.id, false]
           )
 
+          // Crear postulación automáticamente
+          const categorias2D = ['pintura', 'fotografia', 'ilustracion', 'arte_digital', 'dibujo', 'grafica', 'collage_mixta']
+          const tipo = categorias2D.includes(categoria) ? '2d' : '3d'
+
+          await pool.query(
+            `INSERT INTO postulaciones (
+              fase_origen_id, artista_id, disciplina, tipo, estado, fase_actual_id
+            ) VALUES ($1, $2, $3, $4, 'admitida', $1)
+            ON CONFLICT (artista_id, fase_origen_id) DO NOTHING`,
+            [faseActiva.id, nuevoArtista.id, categoria, tipo]
+          )
+
           // Guardar info de fase para emails
           nuevoArtista.fase = faseActiva
 
-          console.log(`✅ Artista inscrito a la FASE ${faseActiva.id} (${faseActiva.nombre})`)
+          console.log(`✅ Artista inscrito a la FASE ${faseActiva.id} (${faseActiva.nombre}) con postulación creada`)
         } else {
           console.log('⚠️  No hay fases activas con inscripciones abiertas')
         }
@@ -472,7 +484,19 @@ export const registrarArtista = async (req, res) => {
             [nuevoArtista.id, faseConcurso.id, false]
           )
 
-          console.log(`✅ Artista inscrito automáticamente al CONCURSO (Fase ${faseConcurso.id}: ${faseConcurso.nombre})`)
+          // Crear postulación automáticamente para el concurso
+          const categorias2DConcurso = ['pintura', 'fotografia', 'ilustracion', 'arte_digital', 'dibujo', 'grafica', 'collage_mixta']
+          const tipoConcurso = categorias2DConcurso.includes(categoria) ? '2d' : '3d'
+
+          await pool.query(
+            `INSERT INTO postulaciones (
+              fase_origen_id, artista_id, disciplina, tipo, estado, fase_actual_id
+            ) VALUES ($1, $2, $3, $4, 'admitida', $1)
+            ON CONFLICT (artista_id, fase_origen_id) DO NOTHING`,
+            [faseConcurso.id, nuevoArtista.id, categoria, tipoConcurso]
+          )
+
+          console.log(`✅ Artista inscrito automáticamente al CONCURSO (Fase ${faseConcurso.id}: ${faseConcurso.nombre}) con postulación creada`)
         } else {
           console.warn('⚠️  No se encontró fase de tipo concurso. El artista NO fue inscrito al concurso.')
         }
