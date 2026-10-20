@@ -443,6 +443,14 @@ export const getPostulacionesParaVotacion = async (req, res) => {
       estadosPermitidos = ['deliberacion', 'ronda_3']
     }
 
+    // Obtener información de la fase actual para determinar número de fase
+    const faseActualResult = await pool.query(
+      'SELECT numero_fase, tipo FROM fases WHERE id = $1',
+      [fase_id]
+    )
+
+    const faseActual = faseActualResult.rows[0]
+
     // Orden aleatorio estable por curador (semilla = curador_id + ronda_id)
     const seed = (curadorId * 1000) + parseInt(ronda_id)
     const seedValue = seed / 1000000.0
@@ -452,8 +460,11 @@ export const getPostulacionesParaVotacion = async (req, res) => {
 
     const result = await pool.query(`
       WITH postulaciones_base AS (
+        -- Postulaciones de la fase actual
         SELECT DISTINCT ON (p.id)
           p.*,
+          f.numero_fase as fase_numero,
+          f.nombre as fase_nombre,
           a.nombre,
           a.apellido,
           a.email as artista_email,
@@ -467,11 +478,50 @@ export const getPostulacionesParaVotacion = async (req, res) => {
           a.identificacion_url,
           a.layout_canvas_url,
           a.layout_canvas_data,
-          (SELECT COUNT(*) FROM obras WHERE postulacion_id = p.id) as total_obras
+          (SELECT COUNT(*) FROM obras WHERE postulacion_id = p.id) as total_obras,
+          false as es_fase_anterior
         FROM postulaciones p
         JOIN artistas a ON a.id = p.artista_id
+        JOIN fases f ON f.id = p.fase_actual_id
         WHERE p.fase_actual_id = $3
           AND p.estado = ANY($4::varchar[])
+
+        UNION ALL
+
+        -- Postulaciones de fases anteriores NO seleccionadas (dar segunda oportunidad)
+        SELECT DISTINCT ON (p.id)
+          p.*,
+          f.numero_fase as fase_numero,
+          f.nombre as fase_nombre,
+          a.nombre,
+          a.apellido,
+          a.email as artista_email,
+          a.foto as artista_foto,
+          a.bio,
+          a.instagram,
+          a.facebook,
+          a.website,
+          a.cv_url,
+          a.portfolio_url,
+          a.identificacion_url,
+          a.layout_canvas_url,
+          a.layout_canvas_data,
+          (SELECT COUNT(*) FROM obras WHERE postulacion_id = p.id) as total_obras,
+          true as es_fase_anterior
+        FROM postulaciones p
+        JOIN artistas a ON a.id = p.artista_id
+        JOIN fases f ON f.id = p.fase_actual_id
+        WHERE f.numero_fase < $5  -- Fases anteriores
+          AND f.tipo = 'fase'  -- Solo fases normales, NO concursos
+          AND a.estado_registro != 'aprobado'  -- NO están en Aceptados
+          AND p.estado != 'seleccionada'  -- NO fueron seleccionados en su fase
+          AND NOT EXISTS (
+            -- Excluir artistas que están en concurso
+            SELECT 1 FROM artistas_fases af2
+            JOIN fases f2 ON f2.id = af2.fase_id
+            WHERE af2.artista_id = a.id AND f2.tipo = 'concurso'
+          )
+
         ORDER BY p.id
       )
       SELECT
@@ -482,10 +532,13 @@ export const getPostulacionesParaVotacion = async (req, res) => {
         v.conoce_artista as mi_conoce_artista
       FROM postulaciones_base pb
       LEFT JOIN votaciones v ON v.postulacion_id = pb.id AND v.curador_id = $1 AND v.ronda_id = $2
-      ORDER BY RANDOM()
-    `, [curadorId, ronda_id, fase_id, estadosPermitidos])
+      ORDER BY pb.es_fase_anterior ASC, RANDOM()  -- Primero fase actual, luego fases anteriores
+    `, [curadorId, ronda_id, fase_id, estadosPermitidos, faseActual.numero_fase])
 
-    console.log(`[Votación] Fase ${fase_id}, Ronda ${ronda.numero}: Encontradas ${result.rows.length} postulaciones con estados ${estadosPermitidos.join(', ')}`)
+    const faseActualCount = result.rows.filter(r => !r.es_fase_anterior).length
+    const faseAnteriorCount = result.rows.filter(r => r.es_fase_anterior).length
+
+    console.log(`[Votación] Fase ${fase_id}, Ronda ${ronda.numero}: ${result.rows.length} postulaciones totales (${faseActualCount} de fase actual, ${faseAnteriorCount} de fases anteriores)`)
 
     // Cargar las obras de cada postulación y construir redes_sociales
     const postulacionesConObras = await Promise.all(

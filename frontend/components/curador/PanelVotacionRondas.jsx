@@ -246,15 +246,92 @@ export default function PanelVotacionRondas({ faseId }) {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {postulacionesFiltradas.map(postulacion => (
-              <PostulacionCard
-                key={postulacion.id}
-                postulacion={postulacion}
-                onClick={() => setPostulacionSeleccionada(postulacion)}
-              />
-            ))}
-          </div>
+          <>
+            {/* Postulaciones de fase actual */}
+            {(() => {
+              const postulacionesFaseActual = postulacionesFiltradas.filter(p => !p.es_fase_anterior)
+              const postulacionesFasesAnteriores = postulacionesFiltradas.filter(p => p.es_fase_anterior)
+
+              return (
+                <>
+                  {postulacionesFaseActual.length > 0 && (
+                    <div className="mb-8">
+                      <div className="mb-4">
+                        <h2 className="text-xl font-bold text-gray-900">
+                          Artistas de la Fase Actual
+                        </h2>
+                        <p className="text-sm text-gray-600">
+                          {postulacionesFaseActual.length} postulacion{postulacionesFaseActual.length !== 1 ? 'es' : ''}
+                        </p>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {postulacionesFaseActual.map(postulacion => (
+                          <PostulacionCard
+                            key={postulacion.id}
+                            postulacion={postulacion}
+                            onClick={() => setPostulacionSeleccionada(postulacion)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Separador visual entre fases */}
+                  {postulacionesFaseActual.length > 0 && postulacionesFasesAnteriores.length > 0 && (
+                    <div className="my-8">
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                          <div className="w-full border-t-2 border-gray-300"></div>
+                        </div>
+                        <div className="relative flex justify-center">
+                          <span className="px-4 py-2 bg-amber-50 text-amber-800 text-sm font-semibold rounded-full border-2 border-amber-300">
+                            Segunda Oportunidad - Artistas de Fases Anteriores
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Postulaciones de fases anteriores */}
+                  {postulacionesFasesAnteriores.length > 0 && (
+                    <div>
+                      <div className="bg-amber-50 border-l-4 border-amber-400 p-4 mb-4 rounded-r-lg">
+                        <div className="flex items-start">
+                          <div className="flex-shrink-0">
+                            <svg className="h-5 w-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                          <div className="ml-3">
+                            <h3 className="text-sm font-medium text-amber-800">
+                              Segunda Oportunidad
+                            </h3>
+                            <p className="mt-1 text-sm text-amber-700">
+                              Los siguientes artistas participaron en fases anteriores pero no fueron seleccionados.
+                              Se les da una segunda oportunidad en esta ronda de votación.
+                            </p>
+                            <p className="mt-1 text-xs text-amber-600 font-semibold">
+                              {postulacionesFasesAnteriores.length} artista{postulacionesFasesAnteriores.length !== 1 ? 's' : ''} de fases anteriores
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {postulacionesFasesAnteriores.map(postulacion => (
+                          <PostulacionCard
+                            key={postulacion.id}
+                            postulacion={postulacion}
+                            onClick={() => setPostulacionSeleccionada(postulacion)}
+                            esFaseAnterior={true}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )
+            })()}
+          </>
         )}
       </div>
 
@@ -271,9 +348,9 @@ export default function PanelVotacionRondas({ faseId }) {
   )
 }
 
-function PostulacionCard({ postulacion, onClick }) {
+function PostulacionCard({ postulacion, onClick, esFaseAnterior = false }) {
   return (
-    <Card hover className="cursor-pointer" onClick={onClick}>
+    <Card hover className={`cursor-pointer ${esFaseAnterior ? 'border-2 border-amber-300' : ''}`} onClick={onClick}>
       <div className="relative">
         {/* Imagen principal */}
         <div className="aspect-square rounded-xl overflow-hidden bg-gray-100 mb-4">
@@ -293,12 +370,17 @@ function PostulacionCard({ postulacion, onClick }) {
         </div>
 
         {/* Badges */}
-        <div className="absolute top-2 right-2 flex gap-2">
+        <div className="absolute top-2 right-2 flex gap-2 flex-col items-end">
           {postulacion.ya_votado && (
             <Badge variant="success">Votado</Badge>
           )}
           {postulacion.es_carryover && (
             <Badge variant="warning">Carryover</Badge>
+          )}
+          {esFaseAnterior && postulacion.fase_nombre && (
+            <Badge variant="warning" className="bg-amber-500 text-white">
+              {postulacion.fase_nombre}
+            </Badge>
           )}
         </div>
       </div>
@@ -309,7 +391,7 @@ function PostulacionCard({ postulacion, onClick }) {
           {postulacion.nombre} {postulacion.apellido}
         </h3>
         <p className="text-sm text-gray-600 mb-2">{postulacion.disciplina}</p>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Badge variant={postulacion.tipo === '2d' ? 'primary' : 'secondary'}>
             {postulacion.tipo.toUpperCase()}
           </Badge>
