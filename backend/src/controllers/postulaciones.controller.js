@@ -521,8 +521,6 @@ export const getPostulacionesParaVotacion = async (req, res) => {
             JOIN fases f2 ON f2.id = af2.fase_id
             WHERE af2.artista_id = a.id AND f2.tipo = 'concurso'
           )
-
-        ORDER BY p.id
       )
       SELECT
         pb.*,
