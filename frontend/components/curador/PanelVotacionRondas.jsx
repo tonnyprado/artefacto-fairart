@@ -362,7 +362,6 @@ function PostulacionCard({ postulacion, onClick, esFaseAnterior = false }) {
               alt={`${postulacion.nombre} ${postulacion.apellido}`}
               className="w-full h-full object-cover"
               onError={() => setImageError(true)}
-              crossOrigin="anonymous"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-400">
