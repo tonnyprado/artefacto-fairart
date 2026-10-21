@@ -49,7 +49,12 @@ export default function PanelVotacionRondas({ faseId }) {
 
   const loadPostulaciones = async () => {
     if (!rondaActual) return
-    await fetchPostulacionesParaVotar(faseId, rondaActual.id)
+    const data = await fetchPostulacionesParaVotar(faseId, rondaActual.id)
+    console.log('🔍 DEBUG - Postulaciones recibidas:', data)
+    if (data && data.length > 0) {
+      console.log('🔍 DEBUG - Primera postulación:', data[0])
+      console.log('🔍 DEBUG - artista_foto de primera postulación:', data[0].artista_foto)
+    }
   }
 
   const loadProgreso = async () => {
@@ -351,6 +356,9 @@ export default function PanelVotacionRondas({ faseId }) {
 function PostulacionCard({ postulacion, onClick, esFaseAnterior = false }) {
   const [imageError, setImageError] = React.useState(false)
 
+  console.log('🖼️ DEBUG - PostulacionCard - artista_foto:', postulacion.artista_foto)
+  console.log('🖼️ DEBUG - PostulacionCard - imageError:', imageError)
+
   return (
     <Card hover className={`cursor-pointer ${esFaseAnterior ? 'border-2 border-amber-300' : ''}`} onClick={onClick}>
       <div className="relative">
@@ -361,7 +369,11 @@ function PostulacionCard({ postulacion, onClick, esFaseAnterior = false }) {
               src={postulacion.artista_foto}
               alt={`${postulacion.nombre} ${postulacion.apellido}`}
               className="w-full h-full object-cover"
-              onError={() => setImageError(true)}
+              onError={(e) => {
+                console.error('❌ DEBUG - Error cargando imagen:', postulacion.artista_foto)
+                console.error('❌ DEBUG - Error event:', e)
+                setImageError(true)
+              }}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-400">
