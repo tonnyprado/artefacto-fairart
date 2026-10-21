@@ -405,7 +405,7 @@ export default function ArtistasTable() {
   const [mensajeModal, setMensajeModal] = useState({ open: false, artista: null })
   const [mensajeForm, setMensajeForm] = useState({ asunto: '', mensaje: '' })
   // Estado para modal de foto de perfil ampliada
-  const [fotoPerfilModal, setFotoPerfilModal] = useState({ open: false, url: '', nombre: '' })
+  const [fotoPerfilModal, setFotoPerfilModal] = useState({ open: false, url: '', nombre: '', artistaId: null })
   // Estado para modal de inscripción a fase
   const [inscripcionModal, setInscripcionModal] = useState({ open: false, artista: null })
   const [selectedFaseId, setSelectedFaseId] = useState('')
@@ -609,6 +609,59 @@ export default function ArtistasTable() {
       alert('Error al inscribir artista: ' + error.message)
     } finally {
       setInscribiendoArtista(false)
+    }
+  }
+
+  // Subir foto de perfil de artista
+  const handleUploadFotoPerfil = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file || !fotoPerfilModal.artistaId) return
+
+    setUploadingFoto(true)
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
+      const formData = new FormData()
+      formData.append('foto', file)
+
+      const token = localStorage.getItem('token')
+      const response = await fetch(`${apiUrl}/artistas/${fotoPerfilModal.artistaId}/foto`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        console.log('Foto de perfil actualizada:', data)
+        alert('Foto de perfil actualizada exitosamente')
+
+        // Actualizar la URL de la foto en el modal
+        setFotoPerfilModal({ ...fotoPerfilModal, url: data.artista.foto })
+
+        // Recargar artistas
+        await fetchArtistas()
+
+        // Si hay un artista seleccionado, recargarlo también
+        if (selectedArtista && selectedArtista.id === fotoPerfilModal.artistaId) {
+          const result = await fetchArtistaById(fotoPerfilModal.artistaId)
+          if (result.success) {
+            setSelectedArtista(result.data)
+          }
+        }
+
+        // Resetear el input
+        e.target.value = ''
+      } else {
+        const error = await response.json()
+        alert('Error al subir foto: ' + (error.error || 'Error desconocido'))
+      }
+    } catch (err) {
+      console.error('Error al subir foto:', err)
+      alert('Error al subir foto: ' + err.message)
+    } finally {
+      setUploadingFoto(false)
     }
   }
 
@@ -1755,7 +1808,8 @@ export default function ArtistasTable() {
                 onClick={() => setFotoPerfilModal({
                   open: true,
                   url: selectedArtista.foto,
-                  nombre: `${selectedArtista.nombre} ${selectedArtista.apellido}`
+                  nombre: `${selectedArtista.nombre} ${selectedArtista.apellido}`,
+                  artistaId: selectedArtista.id
                 })}
               >
                 <img
@@ -2613,7 +2667,7 @@ export default function ArtistasTable() {
       {fotoPerfilModal.open && fotoPerfilModal.url && (
         <div
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4"
-          onClick={() => setFotoPerfilModal({ open: false, url: '', nombre: '' })}
+          onClick={() => setFotoPerfilModal({ open: false, url: '', nombre: '', artistaId: null })}
         >
           <div
             className="relative max-w-3xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl"
@@ -2625,6 +2679,30 @@ export default function ArtistasTable() {
                 Foto de perfil - {fotoPerfilModal.nombre}
               </h3>
               <div className="flex items-center gap-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleUploadFotoPerfil}
+                  disabled={uploadingFoto}
+                  className="hidden"
+                  id="foto-perfil-upload-modal"
+                />
+                <label
+                  htmlFor="foto-perfil-upload-modal"
+                  className={`inline-flex items-center gap-2 px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium ${uploadingFoto ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                >
+                  {uploadingFoto ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      Subiendo...
+                    </>
+                  ) : (
+                    <>
+                      <Upload size={16} />
+                      Cambiar foto
+                    </>
+                  )}
+                </label>
                 <a
                   href={fotoPerfilModal.url}
                   download={`foto-${fotoPerfilModal.nombre.replace(/\s+/g, '-').toLowerCase()}.jpg`}
@@ -2635,7 +2713,7 @@ export default function ArtistasTable() {
                   Descargar
                 </a>
                 <button
-                  onClick={() => setFotoPerfilModal({ open: false, url: '', nombre: '' })}
+                  onClick={() => setFotoPerfilModal({ open: false, url: '', nombre: '', artistaId: null })}
                   className="p-2 hover:bg-gray-200 rounded-full transition-colors"
                 >
                   <X size={20} />
