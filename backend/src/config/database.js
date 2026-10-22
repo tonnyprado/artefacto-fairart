@@ -26,8 +26,9 @@ if (shouldConnectDB) {
         connectionString: connectionString,
         ssl: sslConfig,
         max: 20,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 5000,
+        idleTimeoutMillis: 600000, // 10 minutos en lugar de 30 segundos
+        connectionTimeoutMillis: 10000, // 10 segundos para conectar
+        allowExitOnIdle: false, // No cerrar el pool automáticamente
       }
     : {
         host: process.env.DB_HOST || 'localhost',
@@ -37,8 +38,9 @@ if (shouldConnectDB) {
         password: process.env.DB_PASSWORD,
         ssl: sslConfig,
         max: 20,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 5000,
+        idleTimeoutMillis: 600000, // 10 minutos en lugar de 30 segundos
+        connectionTimeoutMillis: 10000, // 10 segundos para conectar
+        allowExitOnIdle: false, // No cerrar el pool automáticamente
       }
 
   pool = new Pool(config)
@@ -50,10 +52,11 @@ if (shouldConnectDB) {
 
   // Evento cuando hay un error
   pool.on('error', (err) => {
-    console.error('❌ Error inesperado en PostgreSQL:', err)
-    // No matar el proceso en producción, solo logear el error
-    if (process.env.NODE_ENV !== 'production') {
-      process.exit(-1)
+    console.error('❌ Error inesperado en PostgreSQL:', err.message)
+    // Logear detalles del error sin matar el proceso
+    // El pool manejará automáticamente la reconexión
+    if (err.code === 'ETIMEDOUT' || err.code === 'ECONNRESET') {
+      console.log('⚠️  Conexión perdida, el pool creará nuevas conexiones automáticamente')
     }
   })
 
