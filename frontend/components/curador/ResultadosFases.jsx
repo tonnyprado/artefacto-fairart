@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useVotacionesStore } from '@/stores/votacionesStore'
 import { useRondasStore } from '@/stores/rondasStore'
+import { useFasesStore } from '@/stores/fasesStore'
 import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell } from '@/components/ui/Table'
 import Badge from '@/components/ui/Badge'
 
@@ -15,7 +16,8 @@ import Badge from '@/components/ui/Badge'
 
 export default function ResultadosFases() {
   const { getResultadosRonda } = useVotacionesStore()
-  const { rondas, fetchRondas } = useRondasStore()
+  const { rondas, fetchRondasPorFase } = useRondasStore()
+  const { faseActual } = useFasesStore()
 
   const [selectedRondaId, setSelectedRondaId] = useState(null)
   const [resultados, setResultados] = useState(null)
@@ -27,8 +29,10 @@ export default function ResultadosFases() {
 
   // Cargar rondas al montar
   useEffect(() => {
-    fetchRondas()
-  }, [])
+    if (faseActual?.id) {
+      fetchRondasPorFase(faseActual.id)
+    }
+  }, [faseActual])
 
   // Seleccionar primera ronda cerrada por defecto
   useEffect(() => {
