@@ -1,4 +1,4 @@
-# Dockerfile para AWS App Runner
+# Dockerfile para Fly.io (compatible con AWS App Runner)
 FROM node:18-alpine
 
 # Establecer directorio de trabajo
