@@ -258,6 +258,11 @@ export default function FichaPostulacion({ postulacion, ronda, onClose, onVotoGu
 function GaleriaObras({ postulacion, onObraClick }) {
   const obras = postulacion.obras || []
 
+  console.log('🎨 DEBUG - GaleriaObras - postulacion:', postulacion.nombre, postulacion.apellido)
+  console.log('🎨 DEBUG - GaleriaObras - es_fase_anterior:', postulacion.es_fase_anterior)
+  console.log('🎨 DEBUG - GaleriaObras - obras:', obras)
+  console.log('🎨 DEBUG - GaleriaObras - obras.length:', obras.length)
+
   if (obras.length === 0) {
     return (
       <div className="bg-gray-50 rounded-lg p-8">

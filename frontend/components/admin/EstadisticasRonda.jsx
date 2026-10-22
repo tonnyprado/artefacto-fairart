@@ -115,6 +115,103 @@ export default function EstadisticasRonda({ ronda }) {
         </CardContent>
       </Card>
 
+      {/* Resumen de estados (solo ronda cerrada) */}
+      {ronda.estado === 'cerrada' && resultados.postulaciones && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Resumen de Resultados</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {ronda.numero === 1 && (() => {
+              const shortlist = resultados.postulaciones.filter(p => p.estado === 'shortlist').length
+              const reserva = resultados.postulaciones.filter(p => p.estado === 'reserva').length
+              const noContinua = resultados.postulaciones.filter(p => p.estado === 'no_continua').length
+              const total = resultados.postulaciones.length
+
+              return (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-500 mb-1">Total Votados</p>
+                    <p className="text-2xl font-bold text-gray-900">{total}</p>
+                  </div>
+                  <div className="bg-green-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-500 mb-1">Shortlist (≥60%)</p>
+                    <p className="text-2xl font-bold text-green-700">{shortlist}</p>
+                    <p className="text-xs text-gray-500 mt-1">Pasan a Ronda 2</p>
+                  </div>
+                  <div className="bg-amber-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-500 mb-1">Reserva (≥30%)</p>
+                    <p className="text-2xl font-bold text-amber-700">{reserva}</p>
+                    <p className="text-xs text-gray-500 mt-1">Pasan a Ronda 2</p>
+                  </div>
+                  <div className="bg-red-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-500 mb-1">No Continúa (&lt;30%)</p>
+                    <p className="text-2xl font-bold text-red-700">{noContinua}</p>
+                    <p className="text-xs text-gray-500 mt-1">Eliminados</p>
+                  </div>
+                </div>
+              )
+            })()}
+
+            {ronda.numero === 2 && (() => {
+              const seleccionadas = resultados.postulaciones.filter(p => p.estado === 'seleccionada').length
+              const deliberacion = resultados.postulaciones.filter(p => p.estado === 'deliberacion').length
+              const noContinua = resultados.postulaciones.filter(p => p.estado === 'no_continua').length
+              const total = resultados.postulaciones.length
+
+              return (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-500 mb-1">Total Votados</p>
+                    <p className="text-2xl font-bold text-gray-900">{total}</p>
+                  </div>
+                  <div className="bg-green-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-500 mb-1">Seleccionadas (≥80%)</p>
+                    <p className="text-2xl font-bold text-green-700">{seleccionadas}</p>
+                    <p className="text-xs text-gray-500 mt-1">Aprobados directamente</p>
+                  </div>
+                  <div className="bg-amber-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-500 mb-1">Deliberación (≥50%)</p>
+                    <p className="text-2xl font-bold text-amber-700">{deliberacion}</p>
+                    <p className="text-xs text-gray-500 mt-1">Pasan a Ronda 3</p>
+                  </div>
+                  <div className="bg-red-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-500 mb-1">No Continúa (&lt;50%)</p>
+                    <p className="text-2xl font-bold text-red-700">{noContinua}</p>
+                    <p className="text-xs text-gray-500 mt-1">Eliminados</p>
+                  </div>
+                </div>
+              )
+            })()}
+
+            {ronda.numero === 3 && (() => {
+              const seleccionadas = resultados.postulaciones.filter(p => p.estado === 'seleccionada').length
+              const noSeleccionadas = resultados.postulaciones.filter(p => p.estado !== 'seleccionada').length
+              const total = resultados.postulaciones.length
+
+              return (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-500 mb-1">Total Votados</p>
+                    <p className="text-2xl font-bold text-gray-900">{total}</p>
+                  </div>
+                  <div className="bg-green-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-500 mb-1">Seleccionadas</p>
+                    <p className="text-2xl font-bold text-green-700">{seleccionadas}</p>
+                    <p className="text-xs text-gray-500 mt-1">Ganadores finales</p>
+                  </div>
+                  <div className="bg-red-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-500 mb-1">No Seleccionadas</p>
+                    <p className="text-2xl font-bold text-red-700">{noSeleccionadas}</p>
+                    <p className="text-xs text-gray-500 mt-1">No clasificaron</p>
+                  </div>
+                </div>
+              )
+            })()}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Detalle por curador */}
       <Card>
         <CardHeader>
