@@ -1350,7 +1350,23 @@ export const getArtistasByFase = async (req, res) => {
           layout_canvas_url: layoutCanvasUrl,
           layout_canvas_pdf: layoutCanvasPdf,
           layout_canvas_data: layoutCanvasData, // Layout actualizado con obras de la tabla
-          obras: obrasArtista // Agregar obras directamente también
+          obras: obrasArtista, // Agregar obras directamente también
+          // Agregar estructura de documentos compatible con el modal de curador
+          redes_sociales: {
+            instagram: artista.instagram,
+            facebook: artista.facebook,
+            website: artista.website,
+            sitio_web: artista.website
+          },
+          documentos: {
+            cv_url: cvUrl,
+            cv: cvUrl,
+            portfolio_url: portfolioUrl,
+            portfolio: portfolioUrl,
+            identificacion_url: identificacionUrl,
+            identificacion: identificacionUrl,
+            portfolio_images: obrasArtista // ¡Esto es lo que faltaba!
+          }
         }
       })
 
