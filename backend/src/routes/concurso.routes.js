@@ -12,7 +12,8 @@ import {
   deseleccionarObra,
   getObrasSeleccionadas,
   getEstadisticas,
-  limpiarDuplicados
+  limpiarDuplicados,
+  prepararVotaciones
 } from '../controllers/concurso.controller.js'
 import { verifyToken, isAdmin } from '../middleware/auth.middleware.js'
 
@@ -65,5 +66,11 @@ router.get('/:fase_id/estadisticas', getEstadisticas)
  * Limpiar artistas que están duplicados en múltiples fases
  */
 router.post('/limpiar-duplicados', limpiarDuplicados)
+
+/**
+ * POST /api/concurso/:fase_id/preparar-votaciones
+ * Crear postulaciones para iniciar votaciones de concurso
+ */
+router.post('/:fase_id/preparar-votaciones', prepararVotaciones)
 
 export default router

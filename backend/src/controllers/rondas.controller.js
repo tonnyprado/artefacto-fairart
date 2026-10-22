@@ -190,6 +190,24 @@ export const abrirRonda = async (req, res) => {
       [ronda.fase_id, id, JSON.stringify(result.rows[0])]
     )
 
+    // Si es primera ronda de concurso, crear postulaciones automáticamente
+    const faseResult = await client.query(
+      'SELECT tipo FROM fases WHERE id = $1',
+      [ronda.fase_id]
+    )
+    const fase = faseResult.rows[0]
+
+    if (ronda.numero === 1 && fase && fase.tipo === 'concurso') {
+      console.log('📋 Preparando postulaciones para votación de concurso...')
+
+      const concursoService = await import('../services/concurso.service.js')
+      const resultado = await concursoService.default.crearPostulacionesParaVotacionConcurso(ronda.fase_id)
+
+      console.log(`✅ Votaciones de concurso preparadas: ${resultado.total} postulaciones`)
+      console.log(`   - Grupo concurso: ${resultado.grupo_concurso} artistas`)
+      console.log(`   - Segunda oportunidad: ${resultado.grupo_segunda_oportunidad} artistas`)
+    }
+
     await client.query('COMMIT')
 
     res.json({

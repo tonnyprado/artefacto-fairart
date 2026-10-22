@@ -288,3 +288,37 @@ export const limpiarDuplicados = async (req, res) => {
     })
   }
 }
+
+/**
+ * POST /api/concurso/:fase_id/preparar-votaciones
+ * Crear postulaciones para iniciar votaciones de concurso
+ */
+export const prepararVotaciones = async (req, res) => {
+  try {
+    const { fase_id } = req.params
+
+    if (!fase_id || isNaN(parseInt(fase_id))) {
+      return res.status(400).json({
+        success: false,
+        error: 'ID de fase inválido'
+      })
+    }
+
+    const resultado = await concursoService.crearPostulacionesParaVotacionConcurso(
+      parseInt(fase_id)
+    )
+
+    res.json({
+      success: true,
+      data: resultado,
+      message: `Votaciones preparadas: ${resultado.total} postulaciones creadas (${resultado.grupo_concurso} concurso, ${resultado.grupo_segunda_oportunidad} segunda oportunidad)`
+    })
+  } catch (error) {
+    console.error('Error al preparar votaciones:', error)
+    res.status(500).json({
+      success: false,
+      error: 'Error al preparar votaciones de concurso',
+      details: error.message
+    })
+  }
+}

@@ -339,6 +339,72 @@ class ConcursoService {
       client.release()
     }
   }
+
+  /**
+   * Crear postulaciones para votación de concurso
+   * Genera postulaciones para dos grupos:
+   * 1. Artistas con obras seleccionadas en concurso
+   * 2. Artistas no seleccionados de fases anteriores
+   *
+   * @param {number} faseId - ID de la fase de concurso
+   * @returns {Promise<{grupo_concurso: number, grupo_segunda_oportunidad: number, total: number}>}
+   */
+  async crearPostulacionesParaVotacionConcurso(faseId) {
+    const client = await pool.connect()
+
+    try {
+      await client.query('BEGIN')
+
+      // Grupo 1: Artistas con obras seleccionadas en concurso
+      const grupo1 = await client.query(`
+        INSERT INTO postulaciones (artista_id, fase_actual_id, estado, tipo)
+        SELECT DISTINCT
+          osc.artista_id,
+          $1,
+          'admitida',
+          'concurso'
+        FROM obras_seleccionadas_concurso osc
+        WHERE osc.fase_id = $1
+        ON CONFLICT (artista_id, fase_actual_id) DO UPDATE
+          SET tipo = 'concurso', estado = 'admitida'
+        RETURNING id
+      `, [faseId])
+
+      // Grupo 2: Artistas NO seleccionados de fases anteriores
+      const grupo2 = await client.query(`
+        INSERT INTO postulaciones (artista_id, fase_actual_id, estado, tipo)
+        SELECT DISTINCT ON (p.artista_id)
+          p.artista_id,
+          $1,
+          'admitida',
+          'segunda_oportunidad'
+        FROM postulaciones p
+        JOIN fases f ON f.id = p.fase_actual_id
+        WHERE f.tipo = 'fase'
+          AND p.estado != 'seleccionada'
+          AND NOT EXISTS (
+            SELECT 1 FROM obras_seleccionadas_concurso osc
+            WHERE osc.artista_id = p.artista_id AND osc.fase_id = $1
+          )
+        ON CONFLICT (artista_id, fase_actual_id) DO UPDATE
+          SET tipo = 'segunda_oportunidad', estado = 'admitida'
+        RETURNING id
+      `, [faseId])
+
+      await client.query('COMMIT')
+
+      return {
+        grupo_concurso: grupo1.rows.length,
+        grupo_segunda_oportunidad: grupo2.rows.length,
+        total: grupo1.rows.length + grupo2.rows.length
+      }
+    } catch (error) {
+      await client.query('ROLLBACK')
+      throw error
+    } finally {
+      client.release()
+    }
+  }
 }
 
 // Exportar instancia única del servicio (Singleton pattern)

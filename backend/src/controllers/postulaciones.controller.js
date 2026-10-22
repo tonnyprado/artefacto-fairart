@@ -587,16 +587,41 @@ export const getPostulacionesParaVotacion = async (req, res) => {
     // Cargar las obras de cada postulación y construir redes_sociales
     const postulacionesConObras = await Promise.all(
       result.rows.map(async (postulacion) => {
-        const obrasResult = await pool.query(
-          'SELECT * FROM obras WHERE postulacion_id = $1 ORDER BY orden ASC',
-          [postulacion.id]
-        )
+        let obrasResult
+
+        // Filtrar obras según tipo de postulación
+        if (postulacion.tipo === 'concurso') {
+          // Artistas de concurso: solo obras seleccionadas
+          obrasResult = await pool.query(
+            `SELECT o.*
+             FROM obras o
+             JOIN obras_seleccionadas_concurso osc ON osc.obra_id = o.id
+             WHERE osc.artista_id = $1 AND osc.fase_id = $2
+             ORDER BY o.orden ASC`,
+            [postulacion.artista_id, fase_id]
+          )
+        } else if (postulacion.tipo === 'segunda_oportunidad') {
+          // Segunda oportunidad: TODAS las obras del artista
+          obrasResult = await pool.query(
+            `SELECT o.*
+             FROM obras o
+             WHERE o.artista_id = $1
+             ORDER BY o.created_at DESC`,
+            [postulacion.artista_id]
+          )
+        } else {
+          // Lógica normal: obras de la postulación
+          obrasResult = await pool.query(
+            'SELECT * FROM obras WHERE postulacion_id = $1 ORDER BY orden ASC',
+            [postulacion.id]
+          )
+        }
 
         // Debug: Mostrar artistas sin obras
         if (obrasResult.rows.length === 0) {
-          console.log(`⚠️  [Votación] Artista SIN OBRAS: ${postulacion.nombre} ${postulacion.apellido} (postulacion_id: ${postulacion.id}, artista_id: ${postulacion.artista_id}, fase: ${postulacion.fase_nombre || 'actual'}, es_fase_anterior: ${postulacion.es_fase_anterior})`)
+          console.log(`⚠️  [Votación] Artista SIN OBRAS: ${postulacion.nombre} ${postulacion.apellido} (tipo: ${postulacion.tipo || 'normal'}, postulacion_id: ${postulacion.id}, artista_id: ${postulacion.artista_id})`)
         } else {
-          console.log(`✅ [Votación] Artista con ${obrasResult.rows.length} obras: ${postulacion.nombre} ${postulacion.apellido} (postulacion_id: ${postulacion.id})`)
+          console.log(`✅ [Votación] Artista con ${obrasResult.rows.length} obras: ${postulacion.nombre} ${postulacion.apellido} (tipo: ${postulacion.tipo || 'normal'})`)
         }
 
         // Construir objeto redes_sociales desde columnas individuales
