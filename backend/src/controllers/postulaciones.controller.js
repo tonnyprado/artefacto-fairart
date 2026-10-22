@@ -547,6 +547,11 @@ export const getPostulacionesParaVotacion = async (req, res) => {
           [postulacion.id]
         )
 
+        // Debug: Mostrar si un artista de fase anterior no tiene obras
+        if (postulacion.es_fase_anterior && obrasResult.rows.length === 0) {
+          console.log(`⚠️  [Votación] Artista de fase anterior sin obras: ${postulacion.nombre} ${postulacion.apellido} (postulacion_id: ${postulacion.id}, fase: ${postulacion.fase_nombre})`)
+        }
+
         // Construir objeto redes_sociales desde columnas individuales
         const redes_sociales = {}
         if (postulacion.instagram) redes_sociales.instagram = postulacion.instagram
