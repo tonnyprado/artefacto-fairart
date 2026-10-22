@@ -695,5 +695,92 @@ export const verificarVoto = async (req, res) => {
   }
 }
 
-// Alias para compatibilidad
-export const getResultadosFase = getResultadosRonda
+/**
+ * GET /api/votaciones/resultados/:fase_id
+ * Obtener resultados consolidados de una fase (todas las rondas cerradas)
+ */
+export const getResultadosFase = async (req, res) => {
+  try {
+    const { fase_id } = req.params
+    const esAdmin = req.user.role === 'admin'
+
+    // Verificar que la fase existe
+    const faseResult = await pool.query(
+      'SELECT * FROM fases WHERE id = $1',
+      [fase_id]
+    )
+
+    if (faseResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Fase no encontrada'
+      })
+    }
+
+    const fase = faseResult.rows[0]
+
+    // VOTO CIEGO: Solo admin puede ver resultados de fase no finalizada
+    if (!fase.finalizada && !esAdmin) {
+      return res.status(403).json({
+        success: false,
+        error: 'No se pueden ver los resultados de una fase no finalizada'
+      })
+    }
+
+    // Obtener resultados consolidados de todas las postulaciones de la fase
+    // Ordenados por el índice de la última ronda completada
+    const result = await pool.query(`
+      SELECT
+        p.id as postulacion_id,
+        p.disciplina,
+        p.tipo,
+        p.estado,
+        p.indice_r1,
+        p.respaldo_r2,
+        p.aprobacion_r3,
+        p.posicion,
+        a.id as artista_id,
+        a.nombre,
+        a.apellido,
+        a.foto as artista_foto,
+
+        -- Determinar el índice final según la última ronda completada
+        CASE
+          WHEN p.aprobacion_r3 IS NOT NULL THEN p.aprobacion_r3
+          WHEN p.respaldo_r2 IS NOT NULL THEN p.respaldo_r2
+          WHEN p.indice_r1 IS NOT NULL THEN p.indice_r1
+          ELSE 0
+        END as indice_final,
+
+        CASE
+          WHEN p.aprobacion_r3 IS NOT NULL THEN 'R3'
+          WHEN p.respaldo_r2 IS NOT NULL THEN 'R2'
+          WHEN p.indice_r1 IS NOT NULL THEN 'R1'
+          ELSE 'Sin votos'
+        END as ultima_ronda
+
+      FROM postulaciones p
+      JOIN artistas a ON a.id = p.artista_id
+      WHERE p.fase_actual_id = $1
+      ORDER BY
+        -- Prioridad: R3 > R2 > R1
+        CASE
+          WHEN p.aprobacion_r3 IS NOT NULL THEN p.aprobacion_r3
+          WHEN p.respaldo_r2 IS NOT NULL THEN p.respaldo_r2
+          WHEN p.indice_r1 IS NOT NULL THEN p.indice_r1
+          ELSE 0
+        END DESC
+    `, [fase_id])
+
+    res.json({
+      success: true,
+      data: result.rows
+    })
+  } catch (error) {
+    console.error('Error al obtener resultados de fase:', error)
+    res.status(500).json({
+      success: false,
+      error: 'Error al obtener resultados de fase'
+    })
+  }
+}
