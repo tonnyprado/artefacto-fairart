@@ -311,22 +311,35 @@ export const cerrarRonda = async (req, res) => {
         console.log(`✅ Ronda 2 creada automáticamente (cerrada) con ${votosR2} votos por curador`)
       }
     } else if (ronda.numero === 2) {
-      // Verificar si ya existe Ronda 3
-      const existeR3 = await client.query(
-        'SELECT id FROM rondas WHERE fase_id = $1 AND numero = 3',
+      // Verificar si hay artistas en deliberación que requieren R3
+      const artistasEnDelibResult = await client.query(
+        `SELECT COUNT(*) as total FROM postulaciones
+         WHERE fase_actual_id = $1 AND estado = 'deliberacion'`,
         [ronda.fase_id]
       )
 
-      if (existeR3.rows.length === 0) {
-        // Crear Ronda 3 sin límite de votos
-        const ronda3Result = await client.query(
-          `INSERT INTO rondas (fase_id, numero, votos_asignados, estado)
-           VALUES ($1, 3, NULL, 'cerrada')
-           RETURNING *`,
+      const hayDeliberacion = parseInt(artistasEnDelibResult.rows[0].total) > 0
+
+      if (hayDeliberacion) {
+        // Verificar si ya existe Ronda 3
+        const existeR3 = await client.query(
+          'SELECT id FROM rondas WHERE fase_id = $1 AND numero = 3',
           [ronda.fase_id]
         )
-        siguienteRondaCreada = ronda3Result.rows[0]
-        console.log(`✅ Ronda 3 creada automáticamente (cerrada)`)
+
+        if (existeR3.rows.length === 0) {
+          // Crear Ronda 3 sin límite de votos
+          const ronda3Result = await client.query(
+            `INSERT INTO rondas (fase_id, numero, votos_asignados, estado)
+             VALUES ($1, 3, NULL, 'cerrada')
+             RETURNING *`,
+            [ronda.fase_id]
+          )
+          siguienteRondaCreada = ronda3Result.rows[0]
+          console.log(`✅ Ronda 3 creada automáticamente (cerrada) - ${artistasEnDelibResult.rows[0].total} artistas en deliberación`)
+        }
+      } else {
+        console.log(`ℹ️  No se crea Ronda 3 - No hay artistas en deliberación (todos fueron seleccionados o eliminados en R2)`)
       }
     }
     // Si es Ronda 3, no crear nada (es la última)
