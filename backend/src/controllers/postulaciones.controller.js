@@ -459,10 +459,91 @@ export const getPostulacionesParaVotacion = async (req, res) => {
     // Ejecutar setseed primero
     await pool.query('SELECT setseed($1)', [seedValue])
 
-    const result = await pool.query(`
-      WITH postulaciones_base AS (
-        -- Postulaciones de la fase actual
-        SELECT DISTINCT ON (p.id)
+    // Query diferente según si es Ronda 1 (con segunda oportunidad) o no
+    let query, params
+
+    if (ronda.numero === 1) {
+      // RONDA 1: Incluir artistas de fase actual + segunda oportunidad de fases anteriores
+      query = `
+        WITH postulaciones_base AS (
+          -- Postulaciones de la fase actual
+          SELECT DISTINCT ON (p.id)
+            p.*,
+            f.numero_fase as fase_numero,
+            f.nombre as fase_nombre,
+            a.nombre,
+            a.apellido,
+            a.email as artista_email,
+            a.foto as artista_foto,
+            a.bio,
+            a.instagram,
+            a.facebook,
+            a.website,
+            a.cv_url,
+            a.portfolio_url,
+            a.identificacion_url,
+            a.layout_canvas_url,
+            a.layout_canvas_data,
+            (SELECT COUNT(*) FROM obras WHERE postulacion_id = p.id) as total_obras,
+            false as es_fase_anterior
+          FROM postulaciones p
+          JOIN artistas a ON a.id = p.artista_id
+          JOIN fases f ON f.id = p.fase_actual_id
+          WHERE p.fase_actual_id = $3
+            AND p.estado = ANY($4::varchar[])
+
+          UNION ALL
+
+          -- Postulaciones de fases anteriores NO seleccionadas (dar segunda oportunidad)
+          SELECT DISTINCT ON (p.id)
+            p.*,
+            f.numero_fase as fase_numero,
+            f.nombre as fase_nombre,
+            a.nombre,
+            a.apellido,
+            a.email as artista_email,
+            a.foto as artista_foto,
+            a.bio,
+            a.instagram,
+            a.facebook,
+            a.website,
+            a.cv_url,
+            a.portfolio_url,
+            a.identificacion_url,
+            a.layout_canvas_url,
+            a.layout_canvas_data,
+            (SELECT COUNT(*) FROM obras WHERE postulacion_id = p.id) as total_obras,
+            true as es_fase_anterior
+          FROM postulaciones p
+          JOIN artistas a ON a.id = p.artista_id
+          JOIN fases f ON f.id = p.fase_actual_id
+          WHERE f.numero_fase < $5  -- Fases anteriores
+            AND f.tipo = 'fase'  -- Solo fases normales, NO concursos
+            AND a.estado_registro != 'aprobado'  -- NO están en Aceptados
+            AND p.estado != 'seleccionada'  -- NO fueron seleccionados en su fase
+            AND NOT EXISTS (
+              -- Excluir artistas que están en concurso
+              SELECT 1 FROM artistas_fases af2
+              JOIN fases f2 ON f2.id = af2.fase_id
+              WHERE af2.artista_id = a.id AND f2.tipo = 'concurso'
+            )
+        )
+        SELECT
+          pb.*,
+          COALESCE(v.id IS NOT NULL, false) as ya_votado,
+          v.valor as mi_voto,
+          v.comentario as mi_comentario,
+          v.conoce_artista as mi_conoce_artista
+        FROM postulaciones_base pb
+        LEFT JOIN votaciones v ON v.postulacion_id = pb.id AND v.curador_id = $1 AND v.ronda_id = $2
+        ORDER BY pb.es_fase_anterior ASC, RANDOM()  -- Primero fase actual, luego fases anteriores
+      `
+      params = [curadorId, ronda_id, fase_id, estadosPermitidos, faseActual.numero_fase]
+    } else {
+      // RONDA 2 y 3: Solo artistas de fase actual que pasaron la ronda anterior
+      // No incluir segunda oportunidad, solo los que ya están en el proceso
+      query = `
+        SELECT
           p.*,
           f.numero_fase as fase_numero,
           f.nombre as fase_nombre,
@@ -480,59 +561,23 @@ export const getPostulacionesParaVotacion = async (req, res) => {
           a.layout_canvas_url,
           a.layout_canvas_data,
           (SELECT COUNT(*) FROM obras WHERE postulacion_id = p.id) as total_obras,
-          false as es_fase_anterior
+          false as es_fase_anterior,
+          COALESCE(v.id IS NOT NULL, false) as ya_votado,
+          v.valor as mi_voto,
+          v.comentario as mi_comentario,
+          v.conoce_artista as mi_conoce_artista
         FROM postulaciones p
         JOIN artistas a ON a.id = p.artista_id
         JOIN fases f ON f.id = p.fase_actual_id
+        LEFT JOIN votaciones v ON v.postulacion_id = p.id AND v.curador_id = $1 AND v.ronda_id = $2
         WHERE p.fase_actual_id = $3
           AND p.estado = ANY($4::varchar[])
+        ORDER BY RANDOM()
+      `
+      params = [curadorId, ronda_id, fase_id, estadosPermitidos]
+    }
 
-        UNION ALL
-
-        -- Postulaciones de fases anteriores NO seleccionadas (dar segunda oportunidad)
-        SELECT DISTINCT ON (p.id)
-          p.*,
-          f.numero_fase as fase_numero,
-          f.nombre as fase_nombre,
-          a.nombre,
-          a.apellido,
-          a.email as artista_email,
-          a.foto as artista_foto,
-          a.bio,
-          a.instagram,
-          a.facebook,
-          a.website,
-          a.cv_url,
-          a.portfolio_url,
-          a.identificacion_url,
-          a.layout_canvas_url,
-          a.layout_canvas_data,
-          (SELECT COUNT(*) FROM obras WHERE postulacion_id = p.id) as total_obras,
-          true as es_fase_anterior
-        FROM postulaciones p
-        JOIN artistas a ON a.id = p.artista_id
-        JOIN fases f ON f.id = p.fase_actual_id
-        WHERE f.numero_fase < $5  -- Fases anteriores
-          AND f.tipo = 'fase'  -- Solo fases normales, NO concursos
-          AND a.estado_registro != 'aprobado'  -- NO están en Aceptados
-          AND p.estado != 'seleccionada'  -- NO fueron seleccionados en su fase
-          AND NOT EXISTS (
-            -- Excluir artistas que están en concurso
-            SELECT 1 FROM artistas_fases af2
-            JOIN fases f2 ON f2.id = af2.fase_id
-            WHERE af2.artista_id = a.id AND f2.tipo = 'concurso'
-          )
-      )
-      SELECT
-        pb.*,
-        COALESCE(v.id IS NOT NULL, false) as ya_votado,
-        v.valor as mi_voto,
-        v.comentario as mi_comentario,
-        v.conoce_artista as mi_conoce_artista
-      FROM postulaciones_base pb
-      LEFT JOIN votaciones v ON v.postulacion_id = pb.id AND v.curador_id = $1 AND v.ronda_id = $2
-      ORDER BY pb.es_fase_anterior ASC, RANDOM()  -- Primero fase actual, luego fases anteriores
-    `, [curadorId, ronda_id, fase_id, estadosPermitidos, faseActual.numero_fase])
+    const result = await pool.query(query, params)
 
     const faseActualCount = result.rows.filter(r => !r.es_fase_anterior).length
     const faseAnteriorCount = result.rows.filter(r => r.es_fase_anterior).length
