@@ -11,6 +11,7 @@ const router = Router()
 router.get('/', obrasController.getObras)
 router.get('/:id', obrasController.getObraById)
 router.get('/artista/:artistaId', obrasController.getObrasByArtista)
+router.get('/postulacion/:postulacion_id', obrasController.getObrasByPostulacion)
 
 // Rutas protegidas
 router.post('/',
@@ -44,6 +45,17 @@ router.delete('/:id',
   verifyToken,
   isAdmin,
   obrasController.deleteObra
+)
+
+router.post('/copiar-de-fase-anterior',
+  verifyToken,
+  isAdmin,
+  [
+    body('artista_id').isInt().withMessage('ID de artista inválido'),
+    body('postulacion_destino_id').isInt().withMessage('ID de postulación destino inválido'),
+    validate
+  ],
+  obrasController.copiarObrasDePostulacionAnterior
 )
 
 export default router

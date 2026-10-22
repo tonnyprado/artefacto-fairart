@@ -426,3 +426,131 @@ export const updateObraFoto = async (req, res) => {
     })
   }
 }
+
+/**
+ * GET /api/obras/postulacion/:postulacion_id
+ * Obtener obras de una postulación específica
+ */
+export const getObrasByPostulacion = async (req, res) => {
+  try {
+    const { postulacion_id } = req.params
+
+    if (useDatabase()) {
+      const result = await pool.query(
+        'SELECT * FROM obras WHERE postulacion_id = $1 ORDER BY orden ASC, created_at ASC',
+        [postulacion_id]
+      )
+
+      return res.json({
+        success: true,
+        obras: result.rows.map(parseFotosDetalle)
+      })
+    }
+
+    // Fallback a mockData
+    const obrasFiltradas = obras.filter(o => o.postulacion_id === parseInt(postulacion_id))
+    res.json({
+      success: true,
+      obras: obrasFiltradas
+    })
+  } catch (error) {
+    console.error('Error al obtener obras por postulación:', error)
+    res.status(500).json({
+      success: false,
+      error: 'Error al obtener obras'
+    })
+  }
+}
+
+/**
+ * POST /api/obras/copiar-de-fase-anterior
+ * Copiar obras de una postulación anterior a una nueva
+ * Útil para cuando un artista se inscribe a una nueva fase
+ */
+export const copiarObrasDePostulacionAnterior = async (req, res) => {
+  try {
+    const { artista_id, postulacion_destino_id } = req.body
+
+    if (!artista_id || !postulacion_destino_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'artista_id y postulacion_destino_id son requeridos'
+      })
+    }
+
+    if (useDatabase()) {
+      // Buscar la postulación más reciente del artista que tenga obras (excluyendo la destino)
+      const postulacionOrigenResult = await pool.query(`
+        SELECT DISTINCT p.id, f.numero_fase, f.nombre as fase_nombre, COUNT(o.id) as total_obras
+        FROM postulaciones p
+        JOIN fases f ON f.id = p.fase_actual_id
+        JOIN obras o ON o.postulacion_id = p.id
+        WHERE p.artista_id = $1 AND p.id != $2
+        GROUP BY p.id, f.numero_fase, f.nombre
+        ORDER BY f.numero_fase DESC
+        LIMIT 1
+      `, [artista_id, postulacion_destino_id])
+
+      if (postulacionOrigenResult.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'No se encontraron obras en postulaciones anteriores de este artista'
+        })
+      }
+
+      const postulacionOrigen = postulacionOrigenResult.rows[0]
+
+      // Verificar que la postulación destino no tenga obras ya
+      const obrasDestinoResult = await pool.query(
+        'SELECT COUNT(*) as total FROM obras WHERE postulacion_id = $1',
+        [postulacion_destino_id]
+      )
+
+      if (parseInt(obrasDestinoResult.rows[0].total) > 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'La postulación destino ya tiene obras. Elimínalas primero si deseas copiar obras nuevas.'
+        })
+      }
+
+      // Copiar obras (compartiendo las mismas imágenes en S3, no duplicándolas)
+      const result = await pool.query(`
+        INSERT INTO obras (
+          postulacion_id, titulo, imagen, imagen_url, tecnica, dimensiones, ano, descripcion, orden,
+          precio, fotos_detalle_urls
+        )
+        SELECT
+          $1, titulo, imagen, imagen_url, tecnica, dimensiones, ano, descripcion, orden,
+          precio, fotos_detalle_urls
+        FROM obras
+        WHERE postulacion_id = $2
+        ORDER BY orden ASC, created_at ASC
+        RETURNING *
+      `, [postulacion_destino_id, postulacionOrigen.id])
+
+      console.log(`✅ ${result.rows.length} obras copiadas de "${postulacionOrigen.fase_nombre}" (postulacion ${postulacionOrigen.id}) a postulacion ${postulacion_destino_id}`)
+
+      return res.json({
+        success: true,
+        data: result.rows.map(parseFotosDetalle),
+        message: `${result.rows.length} obras copiadas desde ${postulacionOrigen.fase_nombre}`,
+        origen: {
+          fase: postulacionOrigen.fase_nombre,
+          postulacion_id: postulacionOrigen.id
+        }
+      })
+    }
+
+    // Fallback a mockData
+    res.status(501).json({
+      success: false,
+      error: 'Función no disponible en modo mockData'
+    })
+  } catch (error) {
+    console.error('Error al copiar obras:', error)
+    res.status(500).json({
+      success: false,
+      error: 'Error al copiar obras: ' + error.message
+    })
+  }
+}

@@ -949,6 +949,64 @@ export default function ArtistasTable() {
     }
   }
 
+  // Copiar obras de postulación anterior
+  const handleCopiarObrasAnterior = async () => {
+    if (!selectedArtista) return
+
+    // Confirmar acción
+    if (!confirm('¿Deseas copiar las obras de la postulación anterior de este artista a su postulación actual?')) return
+
+    // Necesitamos obtener el postulacion_id actual del artista
+    // El artista puede tener una postulación activa o varias
+    const artistaId = selectedArtista.id
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
+      const token = localStorage.getItem('token')
+
+      // Primero obtener la postulación actual del artista
+      // Asumimos que el artista tiene una propiedad postulacion_id o similar
+      const postulacionDestinoId = selectedArtista.postulacion_id
+
+      if (!postulacionDestinoId) {
+        alert('Este artista no tiene una postulación activa para copiar obras.')
+        return
+      }
+
+      console.log('📋 Copiando obras de postulación anterior para artista ID:', artistaId)
+      console.log('📋 Postulación destino ID:', postulacionDestinoId)
+
+      const response = await fetch(`${apiUrl}/obras/copiar-de-fase-anterior`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          artista_id: artistaId,
+          postulacion_destino_id: postulacionDestinoId
+        })
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success) {
+        alert(data.message || `${data.data?.length || 0} obras copiadas exitosamente`)
+
+        // Recargar los datos del artista
+        const result = await fetchArtistaById(selectedArtista.id)
+        if (result.success) {
+          setSelectedArtista(result.data)
+        }
+      } else {
+        alert('Error: ' + (data.error || 'No se pudieron copiar las obras'))
+      }
+    } catch (err) {
+      console.error('Error al copiar obras:', err)
+      alert('Error al copiar obras: ' + err.message)
+    }
+  }
+
   // Manejar cambios en el formulario de nuevo artista
   const handleNuevoArtistaChange = (e) => {
     const { name, value } = e.target
@@ -2065,8 +2123,30 @@ export default function ArtistasTable() {
                   <div className="bg-green-50 p-4 rounded-lg">
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="text-sm font-semibold text-gray-900">
-                        Obras para Exhibición ({obrasCanvas.length})
+                        Obras para Exhibición (0)
                       </h4>
+                      {/* Botones de acción - solo admin */}
+                      {hasRole('admin') && (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={handleCopiarObrasAnterior}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xs font-medium"
+                            title="Copiar obras de la postulación anterior de este artista"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            Copiar de Fase Anterior
+                          </button>
+                          <button
+                            onClick={handleOpenCreateObra}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs font-medium"
+                          >
+                            <Plus size={14} />
+                            Nueva Obra
+                          </button>
+                        </div>
+                      )}
                     </div>
                     <p className="text-sm text-gray-600">No hay obras guardadas en la base de datos.</p>
                   </div>
@@ -2084,15 +2164,27 @@ export default function ArtistasTable() {
                     <h4 className="text-sm font-semibold text-gray-900">
                       Obras para Exhibición ({obrasEnriquecidas.length})
                     </h4>
-                    {/* Botón para añadir obra - solo admin */}
+                    {/* Botones de acción - solo admin */}
                     {hasRole('admin') && (
-                      <button
-                        onClick={handleOpenCreateObra}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs font-medium"
-                      >
-                        <Plus size={14} />
-                        Nueva Obra
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleCopiarObrasAnterior}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xs font-medium"
+                          title="Copiar obras de la postulación anterior de este artista"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          Copiar de Fase Anterior
+                        </button>
+                        <button
+                          onClick={handleOpenCreateObra}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs font-medium"
+                        >
+                          <Plus size={14} />
+                          Nueva Obra
+                        </button>
+                      </div>
                     )}
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
