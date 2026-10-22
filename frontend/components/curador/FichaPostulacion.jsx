@@ -31,9 +31,16 @@ export default function FichaPostulacion({ postulacion, ronda, onClose, onVotoGu
               <div className="border-b border-gray-200 px-6 py-4">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-1">
-                      {postulacion.nombre} {postulacion.apellido}
-                    </h2>
+                    <div className="flex items-center gap-3 mb-1">
+                      <h2 className="text-2xl font-bold text-gray-900">
+                        {postulacion.nombre} {postulacion.apellido}
+                      </h2>
+                      {postulacion.es_fase_anterior && postulacion.fase_nombre && (
+                        <Badge variant="warning" className="text-sm">
+                          {postulacion.fase_nombre}
+                        </Badge>
+                      )}
+                    </div>
                     <p className="text-gray-600">{postulacion.disciplina}</p>
                   </div>
                   <div className="flex gap-2 items-start">

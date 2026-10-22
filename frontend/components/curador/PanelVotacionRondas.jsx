@@ -54,6 +54,17 @@ export default function PanelVotacionRondas({ faseId }) {
     if (data && data.length > 0) {
       console.log('🔍 DEBUG - Primera postulación:', data[0])
       console.log('🔍 DEBUG - artista_foto de primera postulación:', data[0].artista_foto)
+
+      // Log de artistas de fase anterior para identificación
+      const faseAnterior = data.filter(p => p.es_fase_anterior)
+      const faseActual = data.filter(p => !p.es_fase_anterior)
+      console.log(`📊 DEBUG - Total artistas: ${data.length} (${faseActual.length} de fase actual, ${faseAnterior.length} de fases anteriores)`)
+      if (faseAnterior.length > 0) {
+        console.log('📌 DEBUG - Artistas de fases anteriores:')
+        faseAnterior.forEach(p => {
+          console.log(`   - ${p.nombre} ${p.apellido} (${p.fase_nombre}) - Obras: ${p.obras?.length || 0}`)
+        })
+      }
     }
   }
 
@@ -402,9 +413,16 @@ function PostulacionCard({ postulacion, onClick, esFaseAnterior = false }) {
 
       {/* Info */}
       <div>
-        <h3 className="font-bold text-lg text-gray-900 mb-1">
-          {postulacion.nombre} {postulacion.apellido}
-        </h3>
+        <div className="flex items-center gap-2 mb-1">
+          <h3 className="font-bold text-lg text-gray-900">
+            {postulacion.nombre} {postulacion.apellido}
+          </h3>
+          {esFaseAnterior && (
+            <Badge variant="warning" className="text-xs">
+              {postulacion.fase_nombre || 'Fase anterior'}
+            </Badge>
+          )}
+        </div>
         <p className="text-sm text-gray-600 mb-2">{postulacion.disciplina}</p>
         <div className="flex gap-2 flex-wrap">
           <Badge variant={postulacion.tipo === '2d' ? 'primary' : 'secondary'}>
