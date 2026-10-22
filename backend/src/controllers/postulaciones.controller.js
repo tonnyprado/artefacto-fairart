@@ -438,7 +438,8 @@ export const getPostulacionesParaVotacion = async (req, res) => {
     if (ronda.numero === 1) {
       estadosPermitidos = ['admitida', 'ronda_1']
     } else if (ronda.numero === 2) {
-      estadosPermitidos = ['shortlist', 'ronda_2']
+      // Ronda 2: Solo artistas que pasaron R1 (shortlist o reserva)
+      estadosPermitidos = ['shortlist', 'reserva', 'ronda_2']
     } else if (ronda.numero === 3) {
       estadosPermitidos = ['deliberacion', 'ronda_3']
     }
