@@ -365,6 +365,8 @@ export const getResultadosRonda = async (req, res) => {
 
     // Si la ronda está cerrada, también obtener todos los votos individuales
     let votosDetalle = []
+    let votacionesPorCurador = []
+
     if (ronda.estado === 'cerrada' || esAdmin) {
       const votosResult = await pool.query(`
         SELECT
@@ -383,13 +385,39 @@ export const getResultadosRonda = async (req, res) => {
       `, [ronda_id])
 
       votosDetalle = votosResult.rows
+
+      // Agregar votaciones por curador (para las estadísticas del admin)
+      const votacionesPorCuradorResult = await pool.query(`
+        SELECT
+          v.curador_id,
+          COUNT(v.id) as total_votos,
+          ${ronda.numero === 1 ? `
+            COUNT(CASE WHEN v.valor = 2 THEN 1 END) as votos_si,
+            COUNT(CASE WHEN v.valor = 1 THEN 1 END) as votos_talvez,
+            COUNT(CASE WHEN v.valor = 0 THEN 1 END) as votos_no
+          ` : ''}
+          ${ronda.numero === 2 ? `
+            COUNT(CASE WHEN v.valor = 1 THEN 1 END) as votos_favor,
+            COUNT(CASE WHEN v.valor = 0 THEN 1 END) as votos_en_contra
+          ` : ''}
+          ${ronda.numero === 3 ? `
+            COUNT(CASE WHEN v.valor = 1 THEN 1 END) as votos_si,
+            COUNT(CASE WHEN v.valor = 0 THEN 1 END) as votos_no
+          ` : ''}
+        FROM votaciones v
+        WHERE v.ronda_id = $1
+        GROUP BY v.curador_id
+      `, [ronda_id])
+
+      votacionesPorCurador = votacionesPorCuradorResult.rows
     }
 
     res.json({
       success: true,
       data: {
         ronda,
-        resultados: result.rows,
+        postulaciones: result.rows,
+        votaciones_por_curador: votacionesPorCurador,
         votos_detalle: votosDetalle
       }
     })
