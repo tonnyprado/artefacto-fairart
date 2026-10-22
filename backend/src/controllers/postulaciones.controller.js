@@ -592,9 +592,11 @@ export const getPostulacionesParaVotacion = async (req, res) => {
           [postulacion.id]
         )
 
-        // Debug: Mostrar si un artista de fase anterior no tiene obras
-        if (postulacion.es_fase_anterior && obrasResult.rows.length === 0) {
-          console.log(`⚠️  [Votación] Artista de fase anterior sin obras: ${postulacion.nombre} ${postulacion.apellido} (postulacion_id: ${postulacion.id}, fase: ${postulacion.fase_nombre})`)
+        // Debug: Mostrar artistas sin obras
+        if (obrasResult.rows.length === 0) {
+          console.log(`⚠️  [Votación] Artista SIN OBRAS: ${postulacion.nombre} ${postulacion.apellido} (postulacion_id: ${postulacion.id}, artista_id: ${postulacion.artista_id}, fase: ${postulacion.fase_nombre || 'actual'}, es_fase_anterior: ${postulacion.es_fase_anterior})`)
+        } else {
+          console.log(`✅ [Votación] Artista con ${obrasResult.rows.length} obras: ${postulacion.nombre} ${postulacion.apellido} (postulacion_id: ${postulacion.id})`)
         }
 
         // Construir objeto redes_sociales desde columnas individuales
