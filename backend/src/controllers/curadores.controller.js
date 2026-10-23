@@ -177,6 +177,15 @@ export const createCurador = async (req, res) => {
       })
     }
 
+    // Limpiar espacios de la contraseña
+    const cleanPassword = password.trim()
+    if (cleanPassword.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'La contraseña no puede estar vacía'
+      })
+    }
+
     if (useDatabase()) {
       const client = await pool.connect()
       try {
@@ -193,9 +202,9 @@ export const createCurador = async (req, res) => {
           })
         }
 
-        // Hash password
+        // Hash password (limpia de espacios)
         console.log('🔐 Hasheando contraseña...')
-        const hashedPassword = await bcrypt.hash(password, 10)
+        const hashedPassword = await bcrypt.hash(cleanPassword, 10)
 
         // Crear usuario
         console.log('👤 Creando usuario...')
@@ -225,7 +234,7 @@ export const createCurador = async (req, res) => {
             bio || null,
             foto || null,
             true,
-            password // Guardar password en texto plano para admin
+            cleanPassword // Guardar password en texto plano para admin (limpia de espacios)
           ]
         )
 
@@ -740,8 +749,11 @@ export const resetPasswordCurador = async (req, res) => {
       })
     }
 
-    if (password.length < 8) {
-      console.log('❌ Password too short:', password.length)
+    // Limpiar espacios de la contraseña
+    const cleanPassword = password.trim()
+
+    if (cleanPassword.length < 8) {
+      console.log('❌ Password too short:', cleanPassword.length)
       return res.status(400).json({
         success: false,
         error: 'La contraseña debe tener al menos 8 caracteres'
@@ -767,8 +779,8 @@ export const resetPasswordCurador = async (req, res) => {
       const curador = curadorResult.rows[0]
       console.log('👤 Curador found:', curador.nombre, curador.apellido, 'Usuario ID:', curador.usuario_id)
 
-      // Hash nueva contraseña
-      const hashedPassword = await bcrypt.hash(password, 10)
+      // Hash nueva contraseña (limpia de espacios)
+      const hashedPassword = await bcrypt.hash(cleanPassword, 10)
       console.log('🔐 Password hashed successfully')
 
       // Actualizar contraseña del usuario
@@ -778,10 +790,10 @@ export const resetPasswordCurador = async (req, res) => {
       )
       console.log('✅ Password updated in DB, rows affected:', updateResult.rowCount)
 
-      // Actualizar password_visible en curadores para que el admin pueda verla
+      // Actualizar password_visible en curadores para que el admin pueda verla (limpia de espacios)
       await pool.query(
         'UPDATE curadores SET password_visible = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
-        [password, id]
+        [cleanPassword, id]
       )
       console.log('✅ Password visible updated in curadores table')
 

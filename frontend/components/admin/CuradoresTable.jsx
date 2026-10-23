@@ -150,15 +150,21 @@ export default function CuradoresTable() {
     setIsCreating(true)
     setCreateError(null)
 
+    // Limpiar espacios de la contraseña antes de enviar
+    const cleanedData = {
+      ...formData,
+      password: formData.password.trim()
+    }
+
     try {
-      const result = await createCurador(formData)
+      const result = await createCurador(cleanedData)
       console.log('Resultado de createCurador:', result)
 
       if (result.success) {
         console.log('Curador creado exitosamente')
         setShowCreateModal(false)
         resetForm()
-        alert(`Curador creado exitosamente.\n\nEmail: ${formData.email}\nContraseña: ${formData.password}\n\nAsegúrate de copiar esta contraseña y entregarla al curador de forma segura.`)
+        alert(`Curador creado exitosamente.\n\nEmail: ${cleanedData.email}\nContraseña: ${cleanedData.password}\n\nAsegúrate de copiar esta contraseña y entregarla al curador de forma segura.`)
       } else {
         console.error('Error al crear curador:', result.error)
         setCreateError(result.error || 'Error al crear curador')
@@ -201,13 +207,16 @@ export default function CuradoresTable() {
   }
 
   const handleResetPassword = async () => {
-    if (!newPassword || newPassword.length < 8) {
+    // Limpiar espacios de la contraseña
+    const cleanPassword = newPassword.trim()
+
+    if (!cleanPassword || cleanPassword.length < 8) {
       alert('La contraseña debe tener al menos 8 caracteres')
       return
     }
-    const result = await resetPassword(selectedCurador.id, newPassword)
+    const result = await resetPassword(selectedCurador.id, cleanPassword)
     if (result.success) {
-      alert(`Contraseña actualizada.\n\nNueva contraseña: ${newPassword}\n\nCópiala y entrégala al curador de forma segura.`)
+      alert(`Contraseña actualizada.\n\nNueva contraseña: ${cleanPassword}\n\nCópiala y entrégala al curador de forma segura.`)
       setShowPasswordModal(false)
       setSelectedCurador(null)
       setNewPassword('')

@@ -85,6 +85,9 @@ export const login = async (req, res) => {
       })
     }
 
+    // Limpiar espacios del password para prevenir problemas de autenticación
+    const cleanPassword = password.trim()
+
     if (useDatabase()) {
       console.log('🔍 Buscando usuario en PostgreSQL:', email)
       // Buscar usuario en PostgreSQL
@@ -100,10 +103,10 @@ export const login = async (req, res) => {
       const user = userResult.rows[0]
       console.log('✅ Usuario encontrado:', { id: user.id, email: user.email, role: user.role })
       console.log('🔐 Password de DB:', user.password.substring(0, 20) + '...')
-      console.log('🔑 Password recibido:', password)
+      console.log('🔑 Password recibido (limpio):', cleanPassword)
 
-      // Verificar contraseña
-      const isValidPassword = await bcrypt.compare(password, user.password)
+      // Verificar contraseña (limpia de espacios)
+      const isValidPassword = await bcrypt.compare(cleanPassword, user.password)
       console.log('🔓 bcrypt.compare resultado:', isValidPassword)
 
       if (!isValidPassword) {
@@ -176,8 +179,8 @@ export const login = async (req, res) => {
       })
     }
 
-    // Verificar contraseña
-    const isValidPassword = await comparePassword(password, user.password)
+    // Verificar contraseña (limpia de espacios)
+    const isValidPassword = await comparePassword(cleanPassword, user.password)
 
     if (!isValidPassword) {
       return res.status(401).json({

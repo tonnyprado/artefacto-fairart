@@ -102,8 +102,12 @@ export default function LoginPage() {
       // Delay mínimo para mostrar el loading
       const minDelay = new Promise(resolve => setTimeout(resolve, 800))
 
+      // Limpiar espacios de las credenciales antes de enviar
+      const cleanEmail = formData.email.trim()
+      const cleanPassword = formData.password.trim()
+
       // Intentar login con credenciales del formulario
-      const loginPromise = login(formData.email, formData.password)
+      const loginPromise = login(cleanEmail, cleanPassword)
 
       // Esperar tanto el login como el delay mínimo
       const [result] = await Promise.all([loginPromise, minDelay])
