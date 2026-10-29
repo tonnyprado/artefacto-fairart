@@ -151,9 +151,9 @@ function AdminDashboardContent() {
 
       {/* Content */}
       <main style={{
-        maxWidth: '1240px',
+        maxWidth: activeTab === 'analytics' ? 'none' : '1240px',
         margin: '0 auto',
-        padding: '2rem 1rem'
+        padding: activeTab === 'analytics' ? '2rem 2rem' : '2rem 1rem'
       }}>
         {/* Dashboard Tab */}
         {activeTab === 'dashboard' && (
