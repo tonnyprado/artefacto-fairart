@@ -9,7 +9,7 @@
  * - Flush automático cada 30 segundos
  */
 
-import { pool } from '../config/database.js'
+import pool from '../config/database.js'
 import crypto from 'crypto'
 
 // =====================================================
