@@ -4,8 +4,6 @@
  * Para uso del equipo de marketing
  */
 
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
 import * as XLSX from 'xlsx'
 import { EVENTS_CATALOG, EVENT_CATEGORIES } from './eventsCatalog'
 
@@ -14,7 +12,11 @@ import { EVENTS_CATALOG, EVENT_CATEGORIES } from './eventsCatalog'
  * @param {Object} data - Datos de analytics
  * @param {string} dateRange - Rango de fechas del reporte
  */
-export function exportToPDF(data, dateRange = '30 días') {
+export async function exportToPDF(data, dateRange = '30 días') {
+  // Importación dinámica de jsPDF y autotable
+  const { default: jsPDF } = await import('jspdf')
+  await import('jspdf-autotable')
+
   const doc = new jsPDF()
 
   // Verificar que autoTable esté disponible

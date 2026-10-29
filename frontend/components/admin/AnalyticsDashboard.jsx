@@ -131,7 +131,7 @@ export default function AnalyticsDashboard() {
   }, [dateRange])
 
   // Export handlers
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     const data = {
       stats,
       realtimeData,
@@ -140,11 +140,18 @@ export default function AnalyticsDashboard() {
       distributionData,
       conversionMetrics
     }
-    exportToPDF(data, dateRange)
+
+    try {
+      await exportToPDF(data, dateRange)
+    } catch (error) {
+      console.error('Error exportando PDF:', error)
+      alert('Error al generar el PDF. Por favor intenta de nuevo.')
+    }
+
     setShowExportMenu(false)
   }
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
     const data = {
       stats,
       realtimeData,
@@ -153,7 +160,14 @@ export default function AnalyticsDashboard() {
       distributionData,
       conversionMetrics
     }
-    exportToExcel(data, dateRange)
+
+    try {
+      await exportToExcel(data, dateRange)
+    } catch (error) {
+      console.error('Error exportando Excel:', error)
+      alert('Error al generar el Excel. Por favor intenta de nuevo.')
+    }
+
     setShowExportMenu(false)
   }
 
