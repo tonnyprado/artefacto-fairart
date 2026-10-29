@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { COLORS, FONTS, container } from './theme';
+import { trackContact } from '@/lib/metaPixel';
 
 const inputStyle = { border: 'none', background: COLORS.creamDark, padding: 14, fontFamily: FONTS.body, fontSize: 15, fontWeight: 400, borderRadius: 16 };
 const labelStyle = { display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' };
@@ -25,6 +26,13 @@ export default function ContactSection({ onSubmit }) {
     try {
       if (onSubmit) await onSubmit(data); // conecta aquí tu API real
       else await new Promise((r) => setTimeout(r, 1200)); // demo
+
+      // Disparar evento de Meta Pixel para contacto
+      trackContact({
+        content_name: 'Formulario de Contacto ARTEFACTO',
+        asunto: data.asunto || 'Sin asunto'
+      });
+
       setStatus('sent');
       form.reset();
     } catch {

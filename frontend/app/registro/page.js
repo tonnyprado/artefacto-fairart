@@ -14,6 +14,7 @@ import Step5Paquetes from '@/components/registro/Step5Paquetes'
 import { usePageTransition } from '@/components/artefacto/TransitionLink'
 import CustomCursor from '@/components/artefacto/CustomCursor'
 import MobileBlocker from '@/components/registro/MobileBlocker'
+import { trackSubmitApplication } from '@/lib/metaPixel'
 
 const COLORS = {
   red: '#B83030',
@@ -592,6 +593,14 @@ export default function RegistroPage() {
       }
 
       console.log('Registro exitoso:', result)
+
+      // Disparar evento de Meta Pixel para conversión
+      trackSubmitApplication({
+        content_name: 'Registro Artista ARTEFACTO 2027',
+        status: 'completed',
+        folio: result.data?.folio || result.folio || 'ART-2027-XXX'
+      })
+
       // Guardar datos del canvas para la página de confirmación
       // Incluir URL del PDF que viene del backend (subido a S3)
       const confirmacionData = {

@@ -82,6 +82,7 @@ import opinionesRoutes from './routes/opiniones.routes.js'
 import favoritosRoutes from './routes/favoritos.routes.js'
 import preregistroRoutes from './routes/preregistro.routes.js'
 import obrasRoutes from './routes/obras.routes.js'
+import analyticsRoutes from './routes/analytics.routes.js'
 import concursoRoutes from './routes/concurso.routes.js'
 import consignaAdminRoutes from './routes/consigna.routes.js'
 import cleanupRoutes from './routes/cleanup.routes.js' // TEMPORAL - Para limpiar perfiles dobles
@@ -215,6 +216,12 @@ app.use('/api/opiniones', createLimiter, opinionesRoutes) // Rate limit para opi
 app.use('/api/favoritos', favoritosRoutes)
 app.use('/api/preregistro', createLimiter, preregistroRoutes) // Rate limit para pre-registro
 app.use('/api/obras', obrasRoutes)
+
+// ==========================================
+// ANALYTICS - Sistema de Tracking
+// ==========================================
+app.use('/api/analytics', analyticsRoutes)
+console.log('✅ Módulo Analytics cargado')
 
 // ==========================================
 // CONCURSO - Sistema de Votación
