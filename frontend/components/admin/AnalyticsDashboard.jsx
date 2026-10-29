@@ -179,8 +179,8 @@ export default function AnalyticsDashboard() {
       {/* Events Documentation Modal */}
       <EventsDocModal isOpen={showEventsDoc} onClose={() => setShowEventsDoc(false)} />
 
-      {/* Header - Full Width */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-gradient-to-r from-red-50 to-orange-50 p-6 rounded-xl border border-red-100">
+      {/* Header - Floating */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Analytics</h1>
           <p className="text-gray-600 mt-1">
@@ -325,9 +325,10 @@ export default function AnalyticsDashboard() {
         </p>
       </div>
 
-      {/* Overview Stats - 4 Modern Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Overview Stats - 4 Floating Metrics */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         <MetricCard
+          floating={true}
           label="Sesiones"
           value={stats?.total_sessions || 0}
           context={`${stats?.unique_users || 0} usuarios únicos`}
@@ -340,6 +341,7 @@ export default function AnalyticsDashboard() {
         />
 
         <MetricCard
+          floating={true}
           label="Vistas"
           value={stats?.total_page_views || 0}
           context={`${((stats?.total_page_views || 0) / (stats?.total_sessions || 1)).toFixed(1)} por sesión`}
@@ -353,6 +355,7 @@ export default function AnalyticsDashboard() {
         />
 
         <MetricCard
+          floating={true}
           label="Conversiones"
           value={stats?.total_conversions || 0}
           context={`${conversionMetrics?.conversion_rate || 0}% tasa`}
@@ -365,6 +368,7 @@ export default function AnalyticsDashboard() {
         />
 
         <MetricCard
+          floating={true}
           label="Tiempo Promedio"
           value={Math.round(stats?.avg_time_on_page_seconds || 0)}
           suffix="s"

@@ -17,6 +17,7 @@ export function MetricCard({
   change,
   suffix = '',
   variant = 'default',
+  floating = false,
   className = ''
 }) {
   const variants = {
@@ -74,12 +75,13 @@ export function MetricCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
       className={cn(
-        'group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border',
-        config.border,
+        'group transition-all duration-300',
+        !floating && 'bg-white rounded-xl shadow-md hover:shadow-xl overflow-hidden border',
+        !floating && config.border,
         className
       )}
     >
-      <div className="p-6">
+      <div className={!floating ? 'p-6' : ''}>
         <div className="flex items-center justify-between mb-4">
           {Icon && (
             <motion.div
@@ -118,7 +120,7 @@ export function MetricCard({
         )}
       </div>
 
-      <div className={cn('h-1 w-full bg-gradient-to-r', config.accent)}></div>
+      {!floating && <div className={cn('h-1 w-full bg-gradient-to-r', config.accent)}></div>}
     </motion.div>
   )
 }
