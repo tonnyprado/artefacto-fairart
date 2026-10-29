@@ -5,7 +5,7 @@
  */
 
 import jsPDF from 'jspdf'
-import 'jspdf-autotable'
+import autoTable from 'jspdf-autotable'
 import * as XLSX from 'xlsx'
 import { EVENTS_CATALOG, EVENT_CATEGORIES } from './eventsCatalog'
 
@@ -16,6 +16,14 @@ import { EVENTS_CATALOG, EVENT_CATEGORIES } from './eventsCatalog'
  */
 export function exportToPDF(data, dateRange = '30 días') {
   const doc = new jsPDF()
+
+  // Verificar que autoTable esté disponible
+  if (typeof doc.autoTable !== 'function') {
+    console.error('jspdf-autotable no está cargado correctamente')
+    alert('Error: No se puede generar el PDF. Intenta recargar la página.')
+    return
+  }
+
   const pageWidth = doc.internal.pageSize.width
 
   // ==========================================
