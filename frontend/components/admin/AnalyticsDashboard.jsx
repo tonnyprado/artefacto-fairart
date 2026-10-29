@@ -31,6 +31,11 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts'
+import { MetricCard } from '@/components/ui/metric-card'
+import { AnimatedCounter } from '@/components/ui/animated-counter'
+import { EmptyState } from '@/components/ui/empty-state'
+import { PulseIndicator } from '@/components/ui/pulse-indicator'
+import Badge from '@/components/ui/Badge'
 
 const COLORS = {
   red: '#B83030',
@@ -187,13 +192,17 @@ export default function AnalyticsDashboard() {
       <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl shadow-lg p-6 text-white">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-green-100 font-medium mb-2">Usuarios Activos Ahora</p>
-            <p className="text-5xl font-bold">
-              {realtimeData?.active_users || 0}
+            <p className="text-green-100 font-medium mb-2 flex items-center gap-2">
+              <PulseIndicator size="md" color="green" className="opacity-80" />
+              Usuarios Activos Ahora
             </p>
+            <AnimatedCounter
+              value={realtimeData?.active_users || 0}
+              className="text-5xl font-bold"
+            />
           </div>
           <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-            <div className="w-4 h-4 bg-white rounded-full animate-pulse shadow-lg"></div>
+            <PulseIndicator size="lg" />
           </div>
         </div>
         <p className="text-green-100 text-sm mt-3 flex items-center gap-2">
@@ -206,97 +215,55 @@ export default function AnalyticsDashboard() {
 
       {/* Overview Stats - 4 Modern Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Sesiones */}
-        <div className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-gray-300">
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                <svg className="w-6 h-6 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
-                </svg>
-              </div>
-              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Sesiones</span>
-            </div>
-            <p className="text-4xl font-bold text-gray-900 mb-2">{stats?.total_sessions || 0}</p>
-            <div className="flex items-center text-sm text-gray-600">
-              <svg className="w-4 h-4 mr-1.5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-              </svg>
-              {stats?.unique_users || 0} usuarios únicos
-            </div>
-          </div>
-          <div className="h-1 w-full bg-gradient-to-r from-gray-400 to-gray-600"></div>
-        </div>
+        <MetricCard
+          label="Sesiones"
+          value={stats?.total_sessions || 0}
+          context={`${stats?.unique_users || 0} usuarios únicos`}
+          icon={({ className }) => (
+            <svg className={className} fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
+            </svg>
+          )}
+          variant="default"
+        />
 
-        {/* Páginas Vistas */}
-        <div className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-blue-300">
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                <svg className="w-6 h-6 text-blue-700" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                  <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <span className="text-xs font-semibold text-blue-400 uppercase tracking-wider">Vistas</span>
-            </div>
-            <p className="text-4xl font-bold text-blue-600 mb-2">{stats?.total_page_views || 0}</p>
-            <div className="flex items-center text-sm text-gray-600">
-              <svg className="w-4 h-4 mr-1.5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z" clipRule="evenodd" />
-              </svg>
-              {((stats?.total_page_views || 0) / (stats?.total_sessions || 1)).toFixed(1)} por sesión
-            </div>
-          </div>
-          <div className="h-1 w-full bg-gradient-to-r from-blue-400 to-blue-600"></div>
-        </div>
+        <MetricCard
+          label="Vistas"
+          value={stats?.total_page_views || 0}
+          context={`${((stats?.total_page_views || 0) / (stats?.total_sessions || 1)).toFixed(1)} por sesión`}
+          icon={({ className }) => (
+            <svg className={className} fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+              <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+            </svg>
+          )}
+          variant="blue"
+        />
 
-        {/* Conversiones */}
-        <div className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-green-300">
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                <svg className="w-6 h-6 text-green-700" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <span className="text-xs font-semibold text-green-400 uppercase tracking-wider">Conversiones</span>
-            </div>
-            <p className="text-4xl font-bold text-green-600 mb-2">{stats?.total_conversions || 0}</p>
-            <div className="flex items-center text-sm text-gray-600">
-              <svg className="w-4 h-4 mr-1.5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
-              </svg>
-              {conversionMetrics?.conversion_rate || 0}% tasa
-            </div>
-          </div>
-          <div className="h-1 w-full bg-gradient-to-r from-green-400 to-green-600"></div>
-        </div>
+        <MetricCard
+          label="Conversiones"
+          value={stats?.total_conversions || 0}
+          context={`${conversionMetrics?.conversion_rate || 0}% tasa`}
+          icon={({ className }) => (
+            <svg className={className} fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+          )}
+          variant="green"
+        />
 
-        {/* Tiempo Promedio */}
-        <div className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-purple-300">
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                <svg className="w-6 h-6 text-purple-700" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <span className="text-xs font-semibold text-purple-400 uppercase tracking-wider">Tiempo</span>
-            </div>
-            <p className="text-4xl font-bold text-purple-600 mb-2">
-              {stats?.avg_time_on_page_seconds ? `${Math.round(stats.avg_time_on_page_seconds)}s` : '0s'}
-            </p>
-            <div className="flex items-center text-sm text-gray-600">
-              <svg className="w-4 h-4 mr-1.5 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-                <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
-              </svg>
-              Por página vista
-            </div>
-          </div>
-          <div className="h-1 w-full bg-gradient-to-r from-purple-400 to-purple-600"></div>
-        </div>
+        <MetricCard
+          label="Tiempo Promedio"
+          value={Math.round(stats?.avg_time_on_page_seconds || 0)}
+          suffix="s"
+          context="Por página vista"
+          icon={({ className }) => (
+            <svg className={className} fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+            </svg>
+          )}
+          variant="purple"
+        />
       </div>
 
       {/* Charts Row - Full Width */}
@@ -332,12 +299,15 @@ export default function AnalyticsDashboard() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <p className="text-gray-500">No hay datos disponibles</p>
-            </div>
+            <EmptyState
+              icon={({ className }) => (
+                <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              )}
+              title="No hay páginas visitadas"
+              description="Aún no hay datos de páginas visitadas en este periodo"
+            />
           )}
         </div>
 
@@ -372,13 +342,16 @@ export default function AnalyticsDashboard() {
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="text-center py-12">
-              <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
-              </svg>
-              <p className="text-gray-500">No hay datos disponibles</p>
-            </div>
+            <EmptyState
+              icon={({ className }) => (
+                <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                </svg>
+              )}
+              title="No hay eventos"
+              description="Aún no hay datos de distribución de eventos"
+            />
           )}
         </div>
       </div>
@@ -431,9 +404,9 @@ export default function AnalyticsDashboard() {
                 className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-gray-50 to-white hover:from-gray-100 hover:to-gray-50 transition-all border border-gray-100"
               >
                 <div className="flex items-center gap-4 flex-1 min-w-0">
-                  <span className="px-3 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full whitespace-nowrap">
+                  <Badge variant="info" size="sm">
                     {event.event_type}
-                  </span>
+                  </Badge>
                   <span className="font-medium text-gray-900 truncate">
                     {event.event_name || event.page_title || 'Sin nombre'}
                   </span>
@@ -449,28 +422,55 @@ export default function AnalyticsDashboard() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p className="text-gray-500">No hay actividad reciente</p>
-          </div>
+          <EmptyState
+            icon={({ className }) => (
+              <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            )}
+            title="No hay actividad reciente"
+            description="Los eventos aparecerán aquí cuando haya actividad en el sitio"
+          />
         )}
       </div>
 
       {/* Additional Stats Grid - Full Width */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
-          <p className="text-sm text-blue-700 font-semibold mb-2 uppercase tracking-wide">Total Clicks</p>
-          <p className="text-3xl font-bold text-blue-900">{stats?.total_clicks || 0}</p>
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200 hover:border-blue-300 transition-all hover:shadow-md">
+          <p className="text-sm text-blue-700 font-semibold mb-2 uppercase tracking-wide flex items-center gap-2">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M6.672 1.911a1 1 0 10-1.932.518l.259.966a1 1 0 001.932-.518l-.26-.966zM2.429 4.74a1 1 0 10-.517 1.932l.966.259a1 1 0 00.517-1.932l-.966-.26zm8.814-.569a1 1 0 00-1.415-1.414l-.707.707a1 1 0 101.415 1.415l.707-.708zm-7.071 7.072l.707-.707A1 1 0 003.465 9.12l-.708.707a1 1 0 001.415 1.415zm3.2-5.171a1 1 0 00-1.3 1.3l4 10a1 1 0 001.823.075l1.38-2.759 3.018 3.02a1 1 0 001.414-1.415l-3.019-3.02 2.76-1.379a1 1 0 00-.076-1.822l-10-4z" clipRule="evenodd" />
+            </svg>
+            Total Clicks
+          </p>
+          <AnimatedCounter
+            value={stats?.total_clicks || 0}
+            className="text-3xl font-bold text-blue-900"
+          />
         </div>
-        <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border border-red-200">
-          <p className="text-sm text-red-700 font-semibold mb-2 uppercase tracking-wide">Errores</p>
-          <p className="text-3xl font-bold text-red-900">{stats?.total_errors || 0}</p>
+        <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border border-red-200 hover:border-red-300 transition-all hover:shadow-md">
+          <p className="text-sm text-red-700 font-semibold mb-2 uppercase tracking-wide flex items-center gap-2">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            Errores
+          </p>
+          <AnimatedCounter
+            value={stats?.total_errors || 0}
+            className="text-3xl font-bold text-red-900"
+          />
         </div>
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
-          <p className="text-sm text-purple-700 font-semibold mb-2 uppercase tracking-wide">Eventos Totales</p>
-          <p className="text-3xl font-bold text-purple-900">{stats?.total_events || 0}</p>
+        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200 hover:border-purple-300 transition-all hover:shadow-md">
+          <p className="text-sm text-purple-700 font-semibold mb-2 uppercase tracking-wide flex items-center gap-2">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+            </svg>
+            Eventos Totales
+          </p>
+          <AnimatedCounter
+            value={stats?.total_events || 0}
+            className="text-3xl font-bold text-purple-900"
+          />
         </div>
       </div>
     </div>
