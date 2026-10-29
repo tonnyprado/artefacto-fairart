@@ -36,6 +36,8 @@ import { AnimatedCounter } from '@/components/ui/animated-counter'
 import { EmptyState } from '@/components/ui/empty-state'
 import { PulseIndicator } from '@/components/ui/pulse-indicator'
 import Badge from '@/components/ui/Badge'
+import EventsDocModal from './EventsDocModal'
+import { exportToPDF, exportToExcel, exportToCSV } from '@/lib/analyticsExport'
 
 const COLORS = {
   red: '#B83030',
@@ -59,6 +61,8 @@ export default function AnalyticsDashboard() {
   const [dateRange, setDateRange] = useState('7')
   const [isLoading, setIsLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [showEventsDoc, setShowEventsDoc] = useState(false)
+  const [showExportMenu, setShowExportMenu] = useState(false)
 
   // Fetch all data
   const fetchData = async () => {
@@ -126,6 +130,42 @@ export default function AnalyticsDashboard() {
     fetchData()
   }, [dateRange])
 
+  // Export handlers
+  const handleExportPDF = () => {
+    const data = {
+      stats,
+      realtimeData,
+      topPages,
+      funnelData,
+      distributionData,
+      conversionMetrics
+    }
+    exportToPDF(data, dateRange)
+    setShowExportMenu(false)
+  }
+
+  const handleExportExcel = () => {
+    const data = {
+      stats,
+      realtimeData,
+      topPages,
+      funnelData,
+      distributionData,
+      conversionMetrics
+    }
+    exportToExcel(data, dateRange)
+    setShowExportMenu(false)
+  }
+
+  const handleExportCSV = () => {
+    const data = {
+      stats,
+      conversionMetrics
+    }
+    exportToCSV(data)
+    setShowExportMenu(false)
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -136,6 +176,9 @@ export default function AnalyticsDashboard() {
 
   return (
     <div className="space-y-6 w-full">
+      {/* Events Documentation Modal */}
+      <EventsDocModal isOpen={showEventsDoc} onClose={() => setShowEventsDoc(false)} />
+
       {/* Header - Full Width */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-gradient-to-r from-red-50 to-orange-50 p-6 rounded-xl border border-red-100">
         <div>
@@ -145,7 +188,7 @@ export default function AnalyticsDashboard() {
           </p>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           {/* Date Range Selector */}
           <select
             value={dateRange}
@@ -157,6 +200,75 @@ export default function AnalyticsDashboard() {
             <option value="30">Últimos 30 días</option>
             <option value="90">Últimos 90 días</option>
           </select>
+
+          {/* Documentation Button */}
+          <button
+            onClick={() => setShowEventsDoc(true)}
+            className="px-5 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Documentación
+          </button>
+
+          {/* Export Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              className="px-5 py-2.5 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Exportar
+              <svg className={`w-4 h-4 transition-transform ${showExportMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {/* Export Menu */}
+            {showExportMenu && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-10">
+                <button
+                  onClick={handleExportPDF}
+                  className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 text-gray-700 hover:text-red-600 transition-colors first:rounded-t-lg"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+                  </svg>
+                  <div>
+                    <p className="font-medium">Exportar PDF</p>
+                    <p className="text-xs text-gray-500">Reporte completo</p>
+                  </div>
+                </button>
+                <button
+                  onClick={handleExportExcel}
+                  className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 text-gray-700 hover:text-green-600 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                  </svg>
+                  <div>
+                    <p className="font-medium">Exportar Excel</p>
+                    <p className="text-xs text-gray-500">Análisis detallado</p>
+                  </div>
+                </button>
+                <button
+                  onClick={handleExportCSV}
+                  className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 text-gray-700 hover:text-blue-600 transition-colors last:rounded-b-lg"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                  <div>
+                    <p className="font-medium">Exportar CSV</p>
+                    <p className="text-xs text-gray-500">Datos básicos</p>
+                  </div>
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Refresh Button */}
           <button
