@@ -13,6 +13,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { v4 as uuidv4 } from 'uuid'
+import { trackFromAnalytics } from '@/lib/metaPixel'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
 
@@ -159,6 +160,16 @@ const useAnalyticsStore = create(
           await Promise.all(promises)
 
           console.log(`✅ Analytics: ${queue.length} eventos enviados exitosamente`)
+
+          // Enviar eventos a Meta Pixel automáticamente
+          queue.forEach((event) => {
+            try {
+              trackFromAnalytics(event)
+            } catch (error) {
+              console.warn('⚠️ Error enviando evento a Meta Pixel:', error)
+              // No re-lanzar el error, solo logear
+            }
+          })
         } catch (error) {
           console.error('❌ Error enviando eventos:', error)
 

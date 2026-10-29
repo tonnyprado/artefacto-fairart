@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import { usePathname } from 'next/navigation'
 import { useFasesStore } from '@/stores/fasesStore'
 import { COLORS } from '../artefacto/theme'
+import { useAnalytics } from '@/hooks/useAnalytics'
 
 const STORAGE_KEY = 'floating-btn-position'
 const DEFAULT_POSITION = { x: null, y: null } // null = usar posición por defecto (esquina inferior derecha)
@@ -21,6 +22,7 @@ const DEFAULT_POSITION = { x: null, y: null } // null = usar posición por defec
 export default function FloatingRegistrationButton() {
   const pathname = usePathname()
   const { fases, fetchFases, getFaseConInscripcionesAbiertas } = useFasesStore()
+  const { trackClick } = useAnalytics()
   const [isVisible, setIsVisible] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -166,8 +168,16 @@ export default function FloatingRegistrationButton() {
     if (hasMoved.current) {
       e.preventDefault()
       e.stopPropagation()
+    } else {
+      // Solo trackear si no fue un drag
+      trackClick('btn_registro_flotante', 'Regístrate', {
+        important: true,
+        location: 'floating_button',
+        action: 'start_registration',
+        is_mobile: isMobile
+      })
     }
-  }, [])
+  }, [trackClick, isMobile])
 
   if (!isVisible) return null
 

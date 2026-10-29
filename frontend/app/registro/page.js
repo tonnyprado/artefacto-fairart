@@ -15,6 +15,7 @@ import { usePageTransition } from '@/components/artefacto/TransitionLink'
 import CustomCursor from '@/components/artefacto/CustomCursor'
 import MobileBlocker from '@/components/registro/MobileBlocker'
 import { trackSubmitApplication } from '@/lib/metaPixel'
+import { useAnalytics } from '@/hooks/useAnalytics'
 
 const COLORS = {
   red: '#B83030',
@@ -62,6 +63,7 @@ const FONTS = {
 export default function RegistroPage() {
   const router = useRouter()
   const transition = usePageTransition()
+  const { trackFormStart, trackFormSubmit, trackFormAbandon, trackConversion, trackEvent } = useAnalytics()
   const [currentStep, setCurrentStep] = useState(1)
   const [highestStepReached, setHighestStepReached] = useState(1) // Trackea el paso más alto alcanzado
 
@@ -83,7 +85,10 @@ export default function RegistroPage() {
     }
 
     registrarPageview()
-  }, []) // Solo ejecutar una vez al montar
+
+    // Track inicio de formulario en sistema de analytics
+    trackFormStart('registro_artista')
+  }, [trackFormStart]) // Solo ejecutar una vez al montar
 
   const handleVolver = () => {
     transition.navigateTo('/#convocatoria', {
@@ -322,6 +327,12 @@ export default function RegistroPage() {
   const handleNext = async (skipValidation = false) => {
     console.log('handleNext llamado con skipValidation:', skipValidation)
     if (skipValidation || validateStep(currentStep)) {
+      // Track paso completado
+      trackEvent('registro_step_completed', `Paso ${currentStep}`, currentStep, {
+        step_name: steps[currentStep - 1],
+        step_number: currentStep
+      })
+
       // Si completó Step 1 (Datos Personales), guardar pre-registro con loading
       if (currentStep === 1) {
         await guardarPreRegistro()
@@ -594,6 +605,21 @@ export default function RegistroPage() {
 
       console.log('Registro exitoso:', result)
 
+      // Analytics: Track form submit
+      trackFormSubmit('registro_artista', {
+        paquete_id: formData.paquete_id,
+        categoria: formData.categoria,
+        folio: result.data?.folio || result.folio
+      })
+
+      // Analytics: Track conversión
+      trackConversion('registro_complete', 1, {
+        conversion_type: 'registro_artista',
+        paquete_tipo: formData.layout_canvas_data?.paquete_nombre,
+        obras_count: formData.obras_lienzo?.length || 0,
+        folio: result.data?.folio || result.folio
+      })
+
       // Disparar evento de Meta Pixel para conversión
       trackSubmitApplication({
         content_name: 'Registro Artista ARTEFACTO 2027',
@@ -776,6 +802,19 @@ export default function RegistroPage() {
       console.warn('Error guardando highestStepReached:', error)
     }
   }, [highestStepReached])
+
+  // Track abandono de formulario
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // Solo trackear abandono si no llegó al último paso (Confirmación)
+      if (currentStep < 5) {
+        trackFormAbandon('registro_artista', currentStep)
+      }
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [currentStep, trackFormAbandon])
 
   // Animar transición entre pasos
   useEffect(() => {

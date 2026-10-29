@@ -4,6 +4,7 @@ import { COLORS, FONTS, container } from './theme';
 import { useTextScramble } from './useTextScramble';
 import TransitionLink from './TransitionLink';
 import { useFasesStore } from '@/stores/fasesStore';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 // Componente de card con hover
 function HoverCard({ children, style }) {
@@ -30,7 +31,7 @@ function HoverCard({ children, style }) {
 }
 
 // Componente de botón con hover
-function HoverButton({ href, bg, color, hoverBg, hoverColor, children, download, external, isTransitionLink, disabled, ...props }) {
+function HoverButton({ href, bg, color, hoverBg, hoverColor, children, download, external, isTransitionLink, disabled, onClick, ...props }) {
   const [isHovered, setIsHovered] = useState(false);
 
   const style = {
@@ -53,6 +54,13 @@ function HoverButton({ href, bg, color, hoverBg, hoverColor, children, download,
     ...props.style,
   };
 
+  const handleInternalClick = (e) => {
+    // Call custom onClick if provided
+    if (onClick) {
+      onClick(e);
+    }
+  };
+
   if (isTransitionLink) {
     return (
       <TransitionLink
@@ -60,6 +68,7 @@ function HoverButton({ href, bg, color, hoverBg, hoverColor, children, download,
         style={style}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        onClick={handleInternalClick}
       >
         {children}
       </TransitionLink>
@@ -68,6 +77,11 @@ function HoverButton({ href, bg, color, hoverBg, hoverColor, children, download,
 
   // Si es download + external, abrir nueva pestaña Y descargar simultáneamente
   const handleClick = (e) => {
+    // Call custom onClick if provided
+    if (onClick) {
+      onClick(e);
+    }
+
     if (download && external) {
       e.preventDefault();
       // Abrir en nueva pestaña
@@ -100,6 +114,7 @@ function HoverButton({ href, bg, color, hoverBg, hoverColor, children, download,
 
 export default function ConvocatoriaSection({ edicion = '2027', abierta = true, urlRegistro = '/registro' }) {
   const { fetchFases, getFaseConInscripcionesAbiertas } = useFasesStore();
+  const { trackClick } = useAnalytics();
 
   const titleScramble = useTextScramble('Convocatoria Abierta', {
     duration: 1200,
@@ -252,6 +267,11 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
               hoverColor={COLORS.cream}
               download
               external
+              onClick={() => trackClick('btn_descargar_convocatoria', 'Descargar PDF', {
+                important: true,
+                location: 'hero_convocatoria',
+                action: 'download_pdf'
+              })}
             >
               Descargar PDF
             </HoverButton>
@@ -263,6 +283,16 @@ export default function ConvocatoriaSection({ edicion = '2027', abierta = true, 
               hoverColor={COLORS.black}
               isTransitionLink
               disabled={!inscripcionesAbiertas}
+              onClick={() => {
+                if (inscripcionesAbiertas) {
+                  trackClick('btn_registrarse_hero', 'Registrarse', {
+                    important: true,
+                    location: 'hero_convocatoria',
+                    action: 'start_registration',
+                    inscripciones_abiertas: inscripcionesAbiertas
+                  })
+                }
+              }}
             >
               {inscripcionesAbiertas ? 'Registrarse' : 'Registro cerrado'}
             </HoverButton>

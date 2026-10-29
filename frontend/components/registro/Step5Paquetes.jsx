@@ -9,6 +9,7 @@ import { ChevronDown, ChevronUp, Check, Plus, Edit2, Trash2, GripVertical, Alert
 import gsap from 'gsap'
 import { compressImage } from '@/lib/imageCompression'
 import CompressingOverlay from '@/components/ui/CompressingOverlay'
+import { useAnalytics } from '@/hooks/useAnalytics'
 
 const LayoutCanvas = dynamic(() => import('./LayoutCanvasWithMural'), {
   ssr: false,
@@ -95,6 +96,7 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
 
   const { paquetes, fetchPaquetes, isLoading } = usePaquetesStore()
   const { fetchFases, getFaseConInscripcionesAbiertas } = useFasesStore()
+  const { trackClick } = useAnalytics()
   const faseActiva = getFaseConInscripcionesAbiertas()
 
   // Obras
@@ -348,6 +350,16 @@ export default function Step5Paquetes({ formData, updateFormData, errors, onCont
   }
 
   const handleConfirmPaquete = (paquete) => {
+    // Track package selection
+    trackClick(`paquete_${paquete.nombre}`, `Seleccionar ${paquete.nombre}`, {
+      important: true,
+      location: 'registro_paquetes',
+      action: 'select_package',
+      paquete_id: paquete.id,
+      paquete_nombre: paquete.nombre,
+      paquete_precio: paquete.precio
+    })
+
     // Animación de salida del panel
     if (rightPanelRef.current) {
       gsap.to(rightPanelRef.current, {
