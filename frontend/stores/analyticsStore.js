@@ -17,6 +17,63 @@ import { trackFromAnalytics } from '@/lib/metaPixel'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
 
+/**
+ * Extraer parámetros UTM de la URL
+ * Estos parámetros son CRÍTICOS para atribución de campañas de marketing
+ */
+function getUTMParams() {
+  if (typeof window === 'undefined') return {}
+
+  const params = new URLSearchParams(window.location.search)
+
+  return {
+    utm_source: params.get('utm_source') || null,
+    utm_medium: params.get('utm_medium') || null,
+    utm_campaign: params.get('utm_campaign') || null,
+    utm_content: params.get('utm_content') || null,
+    utm_term: params.get('utm_term') || null,
+  }
+}
+
+/**
+ * Detectar dispositivo y navegador
+ * Útil para optimización mobile vs desktop
+ */
+function getDeviceInfo() {
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') return {}
+
+  const ua = navigator.userAgent
+
+  // Detectar dispositivo
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)
+  const isTablet = /iPad|Android(?!.*Mobile)/i.test(ua)
+  const isDesktop = !isMobile && !isTablet
+
+  // Detectar OS
+  let os = 'Unknown'
+  if (/Windows/i.test(ua)) os = 'Windows'
+  else if (/Mac/i.test(ua)) os = 'macOS'
+  else if (/iPhone|iPad|iPod/i.test(ua)) os = 'iOS'
+  else if (/Android/i.test(ua)) os = 'Android'
+  else if (/Linux/i.test(ua)) os = 'Linux'
+
+  // Detectar navegador
+  let browser = 'Unknown'
+  if (/Chrome/i.test(ua) && !/Edge|Edg/i.test(ua)) browser = 'Chrome'
+  else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = 'Safari'
+  else if (/Firefox/i.test(ua)) browser = 'Firefox'
+  else if (/Edge|Edg/i.test(ua)) browser = 'Edge'
+  else if (/MSIE|Trident/i.test(ua)) browser = 'Internet Explorer'
+
+  return {
+    device: isMobile ? 'mobile' : isTablet ? 'tablet' : 'desktop',
+    os,
+    browser,
+    screen_width: window.screen.width,
+    screen_height: window.screen.height,
+  }
+}
+
 const useAnalyticsStore = create(
   persist(
     (set, get) => ({
@@ -58,14 +115,24 @@ const useAnalyticsStore = create(
           lastActivityTime: now,
         })
 
-        // Track session start
+        // Capturar UTM params y device info
+        const utmParams = getUTMParams()
+        const deviceInfo = getDeviceInfo()
+
+        // Track session start con datos completos
         get().track({
           event_type: 'session_start',
           metadata: {
             referrer: typeof document !== 'undefined' ? document.referrer : '',
             landing_page: typeof window !== 'undefined' ? window.location.href : '',
+            // UTM Parameters (CRÍTICO para marketing)
+            ...utmParams,
+            // Device & Browser info
+            ...deviceInfo,
           },
         })
+
+        console.log('📊 Analytics: Sesión iniciada con UTMs:', utmParams)
 
         console.log('📊 Analytics: Nueva sesión creada', newSessionId)
         return newSessionId
