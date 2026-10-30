@@ -2,6 +2,7 @@ import './globals.css'
 import '@/components/artefacto/artefacto.css'
 import FloatingRegistrationButton from '@/components/shared/FloatingRegistrationButton'
 import MetaPixel from '@/components/analytics/MetaPixel'
+import GoogleAnalytics from '@/components/analytics/GoogleAnalytics'
 import AnalyticsProvider from '@/components/analytics/AnalyticsProvider'
 import { Inter_Tight, EB_Garamond } from 'next/font/google'
 
@@ -216,6 +217,7 @@ export default function RootLayout({ children }) {
     <html lang="es" className={`${interTight.variable} ${ebGaramond.variable}`}>
       <body className="antialiased">
         <MetaPixel />
+        <GoogleAnalytics />
         <AnalyticsProvider>
           {children}
         </AnalyticsProvider>

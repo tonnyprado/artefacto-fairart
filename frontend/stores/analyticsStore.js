@@ -14,6 +14,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { v4 as uuidv4 } from 'uuid'
 import { trackFromAnalytics } from '@/lib/metaPixel'
+import { trackGA4FromInternal } from '@/components/analytics/GoogleAnalytics'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
 
@@ -228,12 +229,21 @@ const useAnalyticsStore = create(
 
           console.log(`✅ Analytics: ${queue.length} eventos enviados exitosamente`)
 
-          // Enviar eventos a Meta Pixel automáticamente
+          // Enviar eventos a Meta Pixel y Google Analytics 4 automáticamente
           queue.forEach((event) => {
             try {
+              // Meta Pixel
               trackFromAnalytics(event)
             } catch (error) {
               console.warn('⚠️ Error enviando evento a Meta Pixel:', error)
+              // No re-lanzar el error, solo logear
+            }
+
+            try {
+              // Google Analytics 4
+              trackGA4FromInternal(event)
+            } catch (error) {
+              console.warn('⚠️ Error enviando evento a GA4:', error)
               // No re-lanzar el error, solo logear
             }
           })

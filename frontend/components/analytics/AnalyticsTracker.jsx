@@ -9,6 +9,7 @@
 import { useEffect } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useAnalytics, useScrollTracking, useTimeTracking } from '@/hooks/useAnalytics'
+import { trackGA4PageView } from './GoogleAnalytics'
 
 export default function AnalyticsTracker() {
   const pathname = usePathname()
@@ -23,7 +24,11 @@ export default function AnalyticsTracker() {
     const url = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '')
     const title = document.title
 
+    // Trackear en nuestro sistema interno
     trackPageView(url, title)
+
+    // Trackear en Google Analytics 4
+    trackGA4PageView(url, title)
   }, [pathname, searchParams, trackPageView])
 
   // =====================================================
