@@ -37,6 +37,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { PulseIndicator } from '@/components/ui/pulse-indicator'
 import Badge from '@/components/ui/Badge'
 import EventsDocModal from './EventsDocModal'
+import ErrorsModal from './ErrorsModal'
 import { exportToPDF, exportToExcel, exportToCSV } from '@/lib/analyticsExport'
 
 const COLORS = {
@@ -62,6 +63,7 @@ export default function AnalyticsDashboard() {
   const [isLoading, setIsLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [showEventsDoc, setShowEventsDoc] = useState(false)
+  const [showErrorsModal, setShowErrorsModal] = useState(false)
   const [showExportMenu, setShowExportMenu] = useState(false)
 
   // Fetch all data
@@ -192,6 +194,13 @@ export default function AnalyticsDashboard() {
     <div className="space-y-6 w-full">
       {/* Events Documentation Modal */}
       <EventsDocModal isOpen={showEventsDoc} onClose={() => setShowEventsDoc(false)} />
+
+      {/* Errors Modal */}
+      <ErrorsModal
+        isOpen={showErrorsModal}
+        onClose={() => setShowErrorsModal(false)}
+        dateRange={dateRange}
+      />
 
       {/* Header - Floating */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -578,18 +587,26 @@ export default function AnalyticsDashboard() {
             className="text-3xl font-bold text-blue-900"
           />
         </div>
-        <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border border-red-200 hover:border-red-300 transition-all hover:shadow-md">
+        <button
+          onClick={() => setShowErrorsModal(true)}
+          className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border border-red-200 hover:border-red-300 transition-all hover:shadow-md text-left w-full cursor-pointer hover:scale-105 transform"
+        >
           <p className="text-sm text-red-700 font-semibold mb-2 uppercase tracking-wide flex items-center gap-2">
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
             Errores
+            {stats?.total_errors > 0 && (
+              <span className="text-xs bg-red-200 text-red-800 px-2 py-0.5 rounded-full ml-auto">
+                Click para ver detalles
+              </span>
+            )}
           </p>
           <AnimatedCounter
             value={stats?.total_errors || 0}
             className="text-3xl font-bold text-red-900"
           />
-        </div>
+        </button>
         <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200 hover:border-purple-300 transition-all hover:shadow-md">
           <p className="text-sm text-purple-700 font-semibold mb-2 uppercase tracking-wide flex items-center gap-2">
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

@@ -21,6 +21,7 @@ import {
   getConversionFunnel,
   getEventDistribution,
   getConversionMetrics,
+  getErrors,
 } from '../services/analytics.service.js'
 
 /**
@@ -289,6 +290,41 @@ export const conversions = async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Error al obtener métricas de conversión',
+    })
+  }
+}
+
+/**
+ * GET /api/analytics/errors
+ * Obtener lista de errores detectados
+ * Admin only
+ */
+export const errors = async (req, res) => {
+  try {
+    const { start_date, end_date, limit } = req.query
+
+    // Defaults: últimos 7 días
+    const defaultStartDate = new Date()
+    defaultStartDate.setDate(defaultStartDate.getDate() - 7)
+
+    const errorsList = await getErrors(
+      start_date || defaultStartDate,
+      end_date || new Date(),
+      parseInt(limit) || 100
+    )
+
+    res.json({
+      success: true,
+      data: {
+        errors: errorsList,
+        total: errorsList.length,
+      },
+    })
+  } catch (error) {
+    console.error('❌ Error getting errors list:', error)
+    res.status(500).json({
+      success: false,
+      error: 'Error al obtener lista de errores',
     })
   }
 }

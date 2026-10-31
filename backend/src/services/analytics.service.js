@@ -452,6 +452,46 @@ export async function getConversionMetrics(startDate, endDate) {
   }
 }
 
+/**
+ * Obtener lista de errores detectados
+ * @param {Date} startDate - Fecha inicio
+ * @param {Date} endDate - Fecha fin
+ * @param {number} limit - Cantidad de resultados
+ * @returns {Array} Lista de errores con detalles
+ */
+export async function getErrors(startDate, endDate, limit = 100) {
+  try {
+    const result = await pool.query(
+      `
+      SELECT
+        id,
+        session_id,
+        user_id,
+        event_name,
+        page_url,
+        page_title,
+        element_id,
+        element_text,
+        value,
+        metadata,
+        created_at
+      FROM analytics_events
+      WHERE event_type = 'error'
+        AND created_at >= $1
+        AND created_at <= $2
+      ORDER BY created_at DESC
+      LIMIT $3
+    `,
+      [startDate, endDate, limit]
+    )
+
+    return result.rows
+  } catch (error) {
+    console.error('❌ Error obteniendo errores:', error)
+    throw error
+  }
+}
+
 // =====================================================
 // EXPORTS
 // =====================================================
@@ -472,4 +512,5 @@ export default {
   getRecentEvents,
   getEventDistribution,
   getConversionMetrics,
+  getErrors,
 }

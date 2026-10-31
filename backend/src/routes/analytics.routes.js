@@ -13,6 +13,7 @@ import {
   funnel,
   distribution,
   conversions,
+  errors,
 } from '../controllers/analytics.controller.js'
 
 const router = express.Router()
@@ -86,5 +87,11 @@ router.get('/distribution', verifyToken, isAdmin, distribution)
  * Métricas de conversión
  */
 router.get('/conversions', verifyToken, isAdmin, conversions)
+
+/**
+ * GET /api/analytics/errors
+ * Lista de errores detectados
+ */
+router.get('/errors', verifyToken, isAdmin, errors)
 
 export default router
