@@ -58,7 +58,7 @@ function Flujo({ api, token, ctx, firmaDireccionUrl }) {
     switch (s.paso) {
       case 9: return <PasoFiscal estado={s.estadoFiscal} constancia={s.constancia}
         onElegir={v => dispatch({ tipo: 'FISCAL', valor: v })} onArchivo={f.subirConstancia} />;
-      case 10: return <PasoObras obras={ctx.obras} ganancias={s.ganancias} descuento={s.descuentoMax}
+      case 10: return <PasoObras obras={ctx.obras} ganancias={s.ganancias} touched={s.touched} descuento={s.descuentoMax}
         onGanancia={(obraId, valor) => dispatch({ tipo: 'GANANCIA', obraId, valor })}
         onDescuento={v => dispatch({ tipo: 'DESCUENTO', valor: v })} />;
       case 11: return <PasoFirma nombre={ctx.artista.nombre} acepto={s.acepto} firma={s.firma}

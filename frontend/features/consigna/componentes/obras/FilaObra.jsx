@@ -28,9 +28,10 @@ const estilosSpinner = `
  * @param {Object} props
  * @param {any} props.obra
  * @param {number} props.ganancia
+ * @param {boolean} props.touched
  * @param {(g: number) => void} props.onGanancia
  */
-export function FilaObra({ obra, ganancia, onGanancia }) {
+export function FilaObra({ obra, ganancia, touched, onGanancia }) {
   // Borrador local del precio público: se aplica al hacer clic en "Aplicar"
   const [borrador, setBorrador] = useState(null);
 
@@ -49,7 +50,12 @@ export function FilaObra({ obra, ganancia, onGanancia }) {
       setBorrador(null);
     }
   };
-  const modificada = Math.round(ganancia) !== obra.gananciaRegistrada;
+
+  // Determinar estado de la pastilla
+  const ajustada = Math.round(ganancia) !== obra.gananciaRegistrada;
+  const mostrarPastilla = touched || ajustada;
+  const esAjusteAutomatico = !touched && ajustada;
+  const esModificacionManual = touched;
 
   return (
     <>
@@ -58,8 +64,10 @@ export function FilaObra({ obra, ganancia, onGanancia }) {
         <td style={{ padding: '12px 14px', minWidth: 180 }}>
           <b style={{ fontSize: 14 }}>{obra.titulo}</b><br />
           <span style={{ fontSize: 11.5, color: 'rgba(0,0,0,0.6)' }}>{obra.tecnica} · {obra.medida}</span>
-          {modificada && (<><br /><span style={{ display: 'inline-block', marginTop: 4, background: color.rojo, color: color.crema, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', padding: '2px 7px', borderRadius: 4 }}>
-            Ajustada · antes {formatoMXN(obra.gananciaRegistrada)}</span></>)}
+          {mostrarPastilla && (<><br /><span style={{ display: 'inline-block', marginTop: 4, background: esAjusteAutomatico ? '#e8a700' : color.rojo, color: esAjusteAutomatico ? '#000' : color.crema, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', padding: '2px 7px', borderRadius: 4 }}>
+            {esAjusteAutomatico && `Ajuste automático · registraste ${formatoMXN(obra.gananciaRegistrada)}`}
+            {esModificacionManual && `Registraste inicialmente ${formatoMXN(obra.gananciaRegistrada)}`}
+          </span></>)}
         </td>
         <td style={{ padding: 10, textAlign: 'right' }}>
           <input type="number" min={0} step={100} value={Math.round(ganancia)} aria-label={`Ganancia ${obra.titulo}`}

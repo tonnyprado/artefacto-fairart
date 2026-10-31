@@ -43,6 +43,7 @@
  * @property {{ key: string; nombre: string } | null} constancia
  * @property {number | null} descuentoMax
  * @property {Record<string, number>} ganancias - obraId → ganancia editada
+ * @property {Record<string, boolean>} touched - obraId → si el artista editó manualmente
  * @property {boolean} acepto
  */
 

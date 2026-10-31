@@ -8,11 +8,12 @@ import { SelectorDescuento } from '../obras/SelectorDescuento';
  * @param {Object} props
  * @param {any[]} props.obras
  * @param {Record<string, number>} props.ganancias
+ * @param {Record<string, boolean>} props.touched
  * @param {number | null} props.descuento
  * @param {(obraId: string, g: number) => void} props.onGanancia
  * @param {(v: number | null) => void} props.onDescuento
  */
-export function PasoObras({ obras, ganancias, descuento, onGanancia, onDescuento }) {
+export function PasoObras({ obras, ganancias, touched, descuento, onGanancia, onDescuento }) {
   return (
     <div>
       <TituloPaso numero="10" titulo="Tus obras en consignación" />
@@ -23,7 +24,7 @@ export function PasoObras({ obras, ganancias, descuento, onGanancia, onDescuento
       <p style={{ fontSize: 13, maxWidth: 660, lineHeight: 1.45, color: color.rojo, fontWeight: 600, margin: '0 0 16px' }}>
         Edita tu precio ya considerando IVA y gastos de gestión administrativa. Lo demás se recalcula y registramos la diferencia.
       </p>
-      <TablaObras obras={obras} ganancias={ganancias} onGanancia={onGanancia} />
+      <TablaObras obras={obras} ganancias={ganancias} touched={touched} onGanancia={onGanancia} />
       <SelectorDescuento valor={descuento} onCambiar={onDescuento} />
     </div>
   );

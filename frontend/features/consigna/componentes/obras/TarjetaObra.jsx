@@ -20,9 +20,10 @@ const estilosSpinner = `
  * @param {Object} props
  * @param {any} props.obra
  * @param {number} props.ganancia
+ * @param {boolean} props.touched
  * @param {(g: number) => void} props.onGanancia
  */
-export function TarjetaObra({ obra, ganancia, onGanancia }) {
+export function TarjetaObra({ obra, ganancia, touched, onGanancia }) {
   const [borrador, setBorrador] = useState(null);
 
   // Cuando hay borrador activo, calculamos desde precio público (sin redondeo)
@@ -40,7 +41,13 @@ export function TarjetaObra({ obra, ganancia, onGanancia }) {
       setBorrador(null);
     }
   };
-  const modificada = Math.round(ganancia) !== obra.gananciaRegistrada;
+
+  // Determinar estado de la pastilla
+  const ajustada = Math.round(ganancia) !== obra.gananciaRegistrada;
+  const mostrarPastilla = touched || ajustada;
+  const esAjusteAutomatico = !touched && ajustada;
+  const esModificacionManual = touched;
+
   const input = { width: 130, textAlign: 'right', padding: '10px 12px', borderRadius: 8, fontSize: 16, background: '#fff', boxSizing: 'border-box' };
   const fila = (k, v, fuerte = false) => (<>
     <span style={{ fontSize: fuerte ? 13 : 12.5, fontWeight: fuerte ? 800 : 400, color: fuerte ? color.rojoOscuro : 'rgba(0,0,0,0.62)' }}>{k}</span>
@@ -53,7 +60,10 @@ export function TarjetaObra({ obra, ganancia, onGanancia }) {
       <div style={{ padding: '14px 16px 10px' }}>
         <b style={{ fontSize: 15 }}>{obra.titulo}</b>
         <div style={{ fontSize: 12, color: 'rgba(0,0,0,0.6)', marginTop: 2 }}>{obra.tecnica} · {obra.medida}</div>
-        {modificada && <span style={{ display: 'inline-block', marginTop: 6, background: color.rojo, color: color.crema, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', padding: '2px 7px', borderRadius: 4 }}>Ajustada · antes {formatoMXN(obra.gananciaRegistrada)}</span>}
+        {mostrarPastilla && <span style={{ display: 'inline-block', marginTop: 6, background: esAjusteAutomatico ? '#e8a700' : color.rojo, color: esAjusteAutomatico ? '#000' : color.crema, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', padding: '2px 7px', borderRadius: 4 }}>
+          {esAjusteAutomatico && `Ajuste automático · registraste ${formatoMXN(obra.gananciaRegistrada)}`}
+          {esModificacionManual && `Registraste inicialmente ${formatoMXN(obra.gananciaRegistrada)}`}
+        </span>}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px 12px', alignItems: 'center', padding: '12px 16px', borderTop: '1px solid rgba(0,0,0,0.08)' }}>
         <label style={{ fontSize: 13, fontWeight: 700, color: color.rojo }}>Tu ganancia 75%</label>

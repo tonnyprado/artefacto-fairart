@@ -2,6 +2,7 @@ import { color } from '../../tema';
 import { FilaObra } from './FilaObra';
 import { TarjetaObra } from './TarjetaObra';
 import { useEsAngosto } from '../../hooks/useEsVertical';
+import { desglosar, formatoMXN } from '../../shared/precios';
 
 const COLUMNAS = [
   ['Obra'],
@@ -17,16 +18,34 @@ const COLUMNAS = [
  * @param {Object} props
  * @param {any[]} props.obras
  * @param {Record<string, number>} props.ganancias
+ * @param {Record<string, boolean>} props.touched
  * @param {(obraId: string, g: number) => void} props.onGanancia
  */
-export function TablaObras({ obras, ganancias, onGanancia }) {
+export function TablaObras({ obras, ganancias, touched, onGanancia }) {
   const angosto = useEsAngosto();
   const cambios = obras.filter(o => Math.round(ganancias[o.id]) !== o.gananciaRegistrada).length;
+
+  // Calcular totales
+  const totales = obras.reduce(
+    (acc, obra) => {
+      const d = desglosar(ganancias[obra.id] ?? obra.gananciaRegistrada);
+      return {
+        ganancia: acc.ganancia + d.ganancia,
+        comision: acc.comision + d.comision,
+        precioBase: acc.precioBase + d.precioBase,
+        iva: acc.iva + d.iva,
+        gestionAdmin: acc.gestionAdmin + d.gestionAdmin,
+        precioPublico: acc.precioPublico + d.precioPublico,
+      };
+    },
+    { ganancia: 0, comision: 0, precioBase: 0, iva: 0, gestionAdmin: 0, precioPublico: 0 }
+  );
+
   return (
     <>
       {angosto ? (
         <div style={{ display: 'grid', gap: 12 }}>
-          {obras.map(o => <TarjetaObra key={o.id} obra={o} ganancia={ganancias[o.id]} onGanancia={g => onGanancia(o.id, g)} />)}
+          {obras.map(o => <TarjetaObra key={o.id} obra={o} ganancia={ganancias[o.id]} touched={touched[o.id]} onGanancia={g => onGanancia(o.id, g)} />)}
         </div>
       ) : (
       <div style={{ overflowX: 'auto', background: '#fff', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 12 }}>
@@ -39,7 +58,16 @@ export function TablaObras({ obras, ganancias, onGanancia }) {
             </tr>
           </thead>
           <tbody>
-            {obras.map(o => <FilaObra key={o.id} obra={o} ganancia={ganancias[o.id]} onGanancia={g => onGanancia(o.id, g)} />)}
+            {obras.map(o => <FilaObra key={o.id} obra={o} ganancia={ganancias[o.id]} touched={touched[o.id]} onGanancia={g => onGanancia(o.id, g)} />)}
+            <tr style={{ borderTop: '2px solid rgba(0,0,0,0.2)', background: 'rgba(0,0,0,0.02)' }}>
+              <td style={{ padding: '12px 14px', fontWeight: 800, fontSize: 14 }}>TOTALES</td>
+              <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 800 }}>{formatoMXN(totales.ganancia)}</td>
+              <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 800 }}>{formatoMXN(totales.comision)}</td>
+              <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 800, color: color.rojoOscuro, background: 'rgba(185,50,50,0.06)' }}>{formatoMXN(totales.precioBase)}</td>
+              <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 800 }}>{formatoMXN(totales.iva)}</td>
+              <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 800 }}>{formatoMXN(totales.gestionAdmin)}</td>
+              <td style={{ padding: '10px 14px', textAlign: 'right', background: 'rgba(0,0,0,0.04)', fontWeight: 800, fontSize: 15 }}>{formatoMXN(totales.precioPublico)}</td>
+            </tr>
           </tbody>
         </table>
       </div>
