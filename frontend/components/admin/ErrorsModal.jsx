@@ -237,11 +237,74 @@ export default function ErrorsModal({ isOpen, onClose, dateRange }) {
 
                           {/* Metadata */}
                           {error.metadata && Object.keys(error.metadata).length > 0 && (
-                            <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
-                              <p className="text-xs text-gray-400 mb-2">Metadata</p>
-                              <pre className="text-xs text-green-400 font-mono">
-                                {JSON.stringify(error.metadata, null, 2)}
-                              </pre>
+                            <div>
+                              {/* Performance Breakdown (si es performance_warning) */}
+                              {error.metadata.performance_breakdown && (
+                                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-4 mb-4 border border-yellow-200">
+                                  <p className="text-sm font-semibold text-yellow-900 mb-3 flex items-center gap-2">
+                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                                    </svg>
+                                    Desglose de Performance
+                                  </p>
+                                  <div className="grid grid-cols-2 gap-3">
+                                    <div className="bg-white rounded p-2">
+                                      <p className="text-xs text-gray-500">Tiempo Total</p>
+                                      <p className="text-lg font-bold text-yellow-900">
+                                        {Math.round(error.metadata.page_load_time_ms)}ms
+                                      </p>
+                                    </div>
+                                    <div className="bg-white rounded p-2">
+                                      <p className="text-xs text-gray-500">DOM Loaded</p>
+                                      <p className="text-lg font-bold text-yellow-900">
+                                        {Math.round(error.metadata.dom_content_loaded_ms)}ms
+                                      </p>
+                                    </div>
+                                    <div className="bg-white rounded p-2">
+                                      <p className="text-xs text-gray-500">DNS</p>
+                                      <p className="text-sm font-medium text-gray-700">
+                                        {error.metadata.dns_time_ms}ms ({error.metadata.performance_breakdown.dns})
+                                      </p>
+                                    </div>
+                                    <div className="bg-white rounded p-2">
+                                      <p className="text-xs text-gray-500">TCP</p>
+                                      <p className="text-sm font-medium text-gray-700">
+                                        {error.metadata.tcp_time_ms}ms ({error.metadata.performance_breakdown.tcp})
+                                      </p>
+                                    </div>
+                                    <div className="bg-white rounded p-2">
+                                      <p className="text-xs text-gray-500">Request</p>
+                                      <p className="text-sm font-medium text-gray-700">
+                                        {error.metadata.request_time_ms}ms ({error.metadata.performance_breakdown.request})
+                                      </p>
+                                    </div>
+                                    <div className="bg-white rounded p-2">
+                                      <p className="text-xs text-gray-500">Render</p>
+                                      <p className="text-sm font-medium text-gray-700">
+                                        {error.metadata.render_time_ms}ms ({error.metadata.performance_breakdown.render})
+                                      </p>
+                                    </div>
+                                  </div>
+                                  {error.metadata.has_utm_params && (
+                                    <div className="mt-3 px-3 py-2 bg-blue-100 rounded text-xs text-blue-800">
+                                      ℹ️ URL contiene parámetros UTM de campaña
+                                    </div>
+                                  )}
+                                  {error.metadata.has_fbclid && (
+                                    <div className="mt-2 px-3 py-2 bg-blue-100 rounded text-xs text-blue-800">
+                                      ℹ️ URL contiene fbclid (tráfico de Facebook)
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Raw Metadata */}
+                              <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
+                                <p className="text-xs text-gray-400 mb-2">Metadata Completa</p>
+                                <pre className="text-xs text-green-400 font-mono">
+                                  {JSON.stringify(error.metadata, null, 2)}
+                                </pre>
+                              </div>
                             </div>
                           )}
 

@@ -103,21 +103,50 @@ export default function AnalyticsTracker() {
         const perfData = window.performance.timing
         const pageLoadTime = perfData.loadEventEnd - perfData.navigationStart
         const domContentLoaded = perfData.domContentLoadedEventEnd - perfData.navigationStart
+        const dnsTime = perfData.domainLookupEnd - perfData.domainLookupStart
+        const tcpTime = perfData.connectEnd - perfData.connectStart
+        const requestTime = perfData.responseEnd - perfData.requestStart
+        const renderTime = perfData.loadEventEnd - perfData.responseEnd
 
         // Solo log en desarrollo para evitar spam
         if (process.env.NODE_ENV === 'development') {
           console.log('📊 Performance:', {
             pageLoadTime: `${pageLoadTime}ms`,
             domContentLoaded: `${domContentLoaded}ms`,
+            dnsTime: `${dnsTime}ms`,
+            tcpTime: `${tcpTime}ms`,
+            requestTime: `${requestTime}ms`,
+            renderTime: `${renderTime}ms`,
           })
         }
 
-        // Opcional: Trackear performance si es muy lenta
-        if (pageLoadTime > 3000) {
-          trackError('Slow page load', 'performance_warning', {
-            pageLoadTime,
-            url: window.location.href,
-          })
+        // Trackear performance si es muy lenta (>5 segundos)
+        // IMPORTANTE: Cambiado de 3000ms a 5000ms para reducir falsos positivos
+        if (pageLoadTime > 5000) {
+          const urlObj = new URL(window.location.href)
+          const cleanUrl = `${urlObj.origin}${urlObj.pathname}` // Sin query params para mejor agrupación
+
+          trackError(
+            `Página tardó ${Math.round(pageLoadTime / 1000)}s en cargar`,
+            'performance_warning',
+            {
+              page_load_time_ms: pageLoadTime,
+              dom_content_loaded_ms: domContentLoaded,
+              dns_time_ms: dnsTime,
+              tcp_time_ms: tcpTime,
+              request_time_ms: requestTime,
+              render_time_ms: renderTime,
+              url_path: urlObj.pathname,
+              has_utm_params: urlObj.searchParams.has('utm_source'),
+              has_fbclid: urlObj.searchParams.has('fbclid'),
+              performance_breakdown: {
+                dns: `${Math.round((dnsTime / pageLoadTime) * 100)}%`,
+                tcp: `${Math.round((tcpTime / pageLoadTime) * 100)}%`,
+                request: `${Math.round((requestTime / pageLoadTime) * 100)}%`,
+                render: `${Math.round((renderTime / pageLoadTime) * 100)}%`,
+              },
+            }
+          )
         }
       } catch (error) {
         console.warn('Error logging performance metrics:', error)
