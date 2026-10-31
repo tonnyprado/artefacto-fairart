@@ -14,8 +14,7 @@ const punto = (activo) => ({
 const sub = (activo) => ({ fontSize: 12.5, color: activo ? color.crema : 'rgba(0,0,0,0.62)' });
 
 const OPCIONES = [
-  { id: 'pendiente', titulo: 'Queda pendiente', sub: 'La enviaré después; sé que es necesaria para mi factura y para mi liquidación.' },
-  { id: 'tercero_sin_datos', titulo: 'Facturará un tercero, pero aún no tengo sus datos', sub: 'Otra persona o empresa emitirá la factura; enviaré su constancia en cuanto la tenga.' },
+  { id: 'pendiente', titulo: 'La envío después', sub: 'La enviaré más adelante; sé que es necesaria para mi factura y para mi liquidación.' },
 ];
 
 /**
