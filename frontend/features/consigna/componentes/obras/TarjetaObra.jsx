@@ -65,9 +65,9 @@ export function TarjetaObra({ obra, ganancia, onGanancia }) {
           }}
           style={{ ...input, border: `1.5px solid ${color.rojo}`, fontWeight: 600 }} />
         {fila('Comisión 25%', formatoMXN(d.comision))}
-        {fila('= Precio base', formatoMXN(d.precioVenta), true)}
+        {fila('= Precio base', formatoMXN(d.precioBase), true)}
         {fila('+ IVA 16%', formatoMXN(d.iva))}
-        {fila('+ Gestión adm. 3%', formatoMXN(d.gestionAdmin))}
+        {fila('+ Gestión administrativa 3%', formatoMXN(d.gestionAdmin))}
       </div>
       <div style={{ padding: '12px 16px', background: '#000' }}>
         <label style={{ fontSize: 13, fontWeight: 800, fontStyle: 'italic', textTransform: 'uppercase', color: color.crema, display: 'block', marginBottom: 8 }}>Precio público</label>
@@ -96,10 +96,6 @@ export function TarjetaObra({ obra, ganancia, onGanancia }) {
               Aplicar
             </button>
           )}
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 12, marginTop: 12, fontSize: 12 }}>
-          <span style={{ color: 'rgba(255,255,255,0.8)' }}>+ Ajuste</span>
-          <span style={{ textAlign: 'right', fontWeight: 600 }}>{formatoMXN(d.ajuste)}</span>
         </div>
       </div>
     </div>

@@ -89,7 +89,7 @@ export function DocumentoAcuerdo(p) {
               return (
                 <tr key={o.id} style={{ breakInside: 'avoid' }}>
                   <td style={td}><b>{o.titulo}</b></td><td style={td}>{o.tecnica}</td><td style={td}>{o.medida}</td>
-                  <td style={{ ...td, textAlign: 'right' }}>{formatoMXN(d.precioVenta)}</td>
+                  <td style={{ ...td, textAlign: 'right' }}>{formatoMXN(d.precioBase)}</td>
                   <td style={{ ...td, textAlign: 'right', fontWeight: 800 }}>{formatoMXN(d.precioPublico)}</td>
                 </tr>
               );
