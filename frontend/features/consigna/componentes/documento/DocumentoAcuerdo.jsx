@@ -78,18 +78,27 @@ export function DocumentoAcuerdo(p) {
       <b style={{ display: 'block', color: color.rojo }}>1 · Obra en consignación</b>
       <p style={{ margin: '2px 0 8px' }}>{CLAUSULA_1_DOCUMENTO.intro}</p>
       <div style={{ overflowX: 'auto' }}>
-        <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: 10.5, marginBottom: 8 }}>
+        <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: 10, marginBottom: 8 }}>
           <thead style={{ display: 'table-header-group' }}><tr>
-            <th style={th}>Título</th><th style={th}>Técnica y año</th><th style={th}>Medida (con marco)</th>
-            <th style={{ ...th, textAlign: 'right' }}>Precio de venta</th><th style={{ ...th, textAlign: 'right' }}>Precio público con IVA</th>
+            <th style={th}>Título</th>
+            <th style={{ ...th, textAlign: 'right' }}>Ganancia 75%</th>
+            <th style={{ ...th, textAlign: 'right' }}>Comisión 25%</th>
+            <th style={{ ...th, textAlign: 'right' }}>= Precio de venta</th>
+            <th style={{ ...th, textAlign: 'right' }}>+ IVA 16%</th>
+            <th style={{ ...th, textAlign: 'right' }}>+ Gestión 3%</th>
+            <th style={{ ...th, textAlign: 'right' }}>Precio público</th>
           </tr></thead>
           <tbody>
             {p.obras.map(o => {
               const d = desglosar(p.ganancias[o.id] ?? o.gananciaRegistrada);
               return (
                 <tr key={o.id} style={{ breakInside: 'avoid' }}>
-                  <td style={td}><b>{o.titulo}</b></td><td style={td}>{o.tecnica}</td><td style={td}>{o.medida}</td>
-                  <td style={{ ...td, textAlign: 'right' }}>{formatoMXN(d.precioBase)}</td>
+                  <td style={td}><b>{o.titulo}</b></td>
+                  <td style={{ ...td, textAlign: 'right' }}>{formatoMXN(d.ganancia)}</td>
+                  <td style={{ ...td, textAlign: 'right' }}>{formatoMXN(d.comision)}</td>
+                  <td style={{ ...td, textAlign: 'right', fontWeight: 700, color: color.rojoOscuro }}>{formatoMXN(d.precioBase)}</td>
+                  <td style={{ ...td, textAlign: 'right' }}>{formatoMXN(d.iva)}</td>
+                  <td style={{ ...td, textAlign: 'right' }}>{formatoMXN(d.gestionAdmin)}</td>
                   <td style={{ ...td, textAlign: 'right', fontWeight: 800 }}>{formatoMXN(d.precioPublico)}</td>
                 </tr>
               );

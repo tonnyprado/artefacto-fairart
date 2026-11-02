@@ -412,7 +412,7 @@ export class PdfKitGenerador extends GeneradorPdf {
    */
   _generarTablaObras(doc, obras, ganancias) {
     const tableTop = doc.y;
-    const colWidths = [140, 100, 90, 75, 90];
+    const colWidths = [110, 55, 55, 70, 55, 60, 90];
     const colPositions = [50];
     for (let i = 0; i < colWidths.length - 1; i++) {
       colPositions.push(colPositions[i] + colWidths[i]);
@@ -420,17 +420,25 @@ export class PdfKitGenerador extends GeneradorPdf {
 
     // Encabezados
     doc
-      .fontSize(8)
+      .fontSize(7.5)
       .font('Helvetica-BoldOblique')
       .rect(50, tableTop, 495, 16)
       .fillAndStroke(COLOR_ROJO, COLOR_ROJO)
       .fillColor(COLOR_CREMA); // Restablecer color para el texto
 
-    const headers = ['Título', 'Técnica y año', 'Medida (con marco)', 'Precio de venta', 'Precio público'];
+    const headers = [
+      'Título',
+      'Ganancia 75%',
+      'Comisión 25%',
+      '= Precio de venta',
+      '+ IVA 16%',
+      '+ Gestión 3%',
+      'Precio público'
+    ];
     headers.forEach((header, i) => {
-      const align = i >= 3 ? 'right' : 'left';
-      doc.text(header, colPositions[i] + 4, tableTop + 5, {
-        width: colWidths[i] - 8,
+      const align = i >= 1 ? 'right' : 'left';
+      doc.text(header, colPositions[i] + 3, tableTop + 5, {
+        width: colWidths[i] - 6,
         align,
       });
     });
@@ -450,27 +458,56 @@ export class PdfKitGenerador extends GeneradorPdf {
 
       // Fondo alternado
       if (idx % 2 === 0) {
-        doc.rect(50, y, 495, 18).fillAndStroke('#FAFAFA', '#EEE');
+        doc.rect(50, y, 495, 16).fillAndStroke('#FAFAFA', '#EEE');
       } else {
-        doc.rect(50, y, 495, 18).stroke('#EEE');
+        doc.rect(50, y, 495, 16).stroke('#EEE');
       }
 
-      doc.fontSize(8.5).font('Helvetica-Bold').fillColor('#111');
-      doc.text(o.titulo, colPositions[0] + 4, y + 5, { width: colWidths[0] - 8 });
+      // Título
+      doc.fontSize(8).font('Helvetica-Bold').fillColor('#111');
+      doc.text(o.titulo, colPositions[0] + 3, y + 4, { width: colWidths[0] - 6, lineBreak: false });
 
+      // Ganancia
       doc.font('Helvetica');
-      doc.text(o.tecnica, colPositions[1] + 4, y + 5, { width: colWidths[1] - 8 });
-      doc.text(o.medida, colPositions[2] + 4, y + 5, { width: colWidths[2] - 8 });
-      doc.text(formatoMXN(d.precioBase), colPositions[3] + 4, y + 5, {
-        width: colWidths[3] - 8,
-        align: 'right',
-      });
-      doc.font('Helvetica-Bold').text(formatoMXN(d.precioPublico), colPositions[4] + 4, y + 5, {
-        width: colWidths[4] - 8,
+      doc.text(formatoMXN(d.ganancia), colPositions[1] + 3, y + 4, {
+        width: colWidths[1] - 6,
         align: 'right',
       });
 
-      y += 18;
+      // Comisión
+      doc.text(formatoMXN(d.comision), colPositions[2] + 3, y + 4, {
+        width: colWidths[2] - 6,
+        align: 'right',
+      });
+
+      // Precio de venta (destacado)
+      doc.font('Helvetica-Bold').fillColor(COLOR_ROJO);
+      doc.text(formatoMXN(d.precioBase), colPositions[3] + 3, y + 4, {
+        width: colWidths[3] - 6,
+        align: 'right',
+      });
+
+      // IVA
+      doc.font('Helvetica').fillColor('#111');
+      doc.text(formatoMXN(d.iva), colPositions[4] + 3, y + 4, {
+        width: colWidths[4] - 6,
+        align: 'right',
+      });
+
+      // Gestión administrativa
+      doc.text(formatoMXN(d.gestionAdmin), colPositions[5] + 3, y + 4, {
+        width: colWidths[5] - 6,
+        align: 'right',
+      });
+
+      // Precio público (destacado)
+      doc.font('Helvetica-Bold');
+      doc.text(formatoMXN(d.precioPublico), colPositions[6] + 3, y + 4, {
+        width: colWidths[6] - 6,
+        align: 'right',
+      });
+
+      y += 16;
     });
 
     doc.y = y + 5;
