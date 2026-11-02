@@ -7,8 +7,8 @@ import { numeroPaso, titularGrande } from '../../tema';
  */
 export function TituloPaso({ numero, titulo }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, flexWrap: 'wrap', marginBottom: 6 }}>
-      <div style={numeroPaso}>{numero}</div>
+    <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, flexWrap: 'wrap', marginBottom: 6, overflow: 'visible' }}>
+      <div style={{ ...numeroPaso, marginLeft: -4 }}>{numero}</div>
       <h2 style={titularGrande}>{titulo}</h2>
     </div>
   );
