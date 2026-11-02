@@ -412,17 +412,17 @@ export class PdfKitGenerador extends GeneradorPdf {
    */
   _generarTablaObras(doc, obras, ganancias) {
     const tableTop = doc.y;
-    const colWidths = [110, 55, 55, 70, 55, 60, 90];
+    const colWidths = [100, 65, 65, 80, 55, 60, 70];
     const colPositions = [50];
     for (let i = 0; i < colWidths.length - 1; i++) {
       colPositions.push(colPositions[i] + colWidths[i]);
     }
 
-    // Encabezados
+    // Encabezados (altura aumentada para permitir wrap)
     doc
       .fontSize(7.5)
       .font('Helvetica-BoldOblique')
-      .rect(50, tableTop, 495, 16)
+      .rect(50, tableTop, 495, 18)
       .fillAndStroke(COLOR_ROJO, COLOR_ROJO)
       .fillColor(COLOR_CREMA); // Restablecer color para el texto
 
@@ -437,13 +437,14 @@ export class PdfKitGenerador extends GeneradorPdf {
     ];
     headers.forEach((header, i) => {
       const align = i >= 1 ? 'right' : 'left';
-      doc.text(header, colPositions[i] + 3, tableTop + 5, {
+      doc.text(header, colPositions[i] + 3, tableTop + 4, {
         width: colWidths[i] - 6,
         align,
+        lineGap: -1,
       });
     });
 
-    let y = tableTop + 16;
+    let y = tableTop + 18;
 
     // Filas de obras
     obras.forEach((o, idx) => {
