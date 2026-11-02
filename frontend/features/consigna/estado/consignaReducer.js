@@ -33,14 +33,18 @@ export function estadoInicial(ctx) {
   const b = ctx.borrador;
   const ganancias = Object.fromEntries(ctx.obras.map(o => [o.id, b?.ganancias?.[o.id] ?? o.gananciaRegistrada]));
   const touched = Object.fromEntries(ctx.obras.map(o => [o.id, b?.touched?.[o.id] ?? false]));
+
+  // Migración: tercero_sin_datos → pendiente (opción eliminada)
+  const estadoFiscalMigrado = b?.estadoFiscal === 'tercero_sin_datos' ? 'pendiente' : b?.estadoFiscal ?? null;
+
   if (ctx.enviado) {
-    return { paso: 12, maxPaso: 12, estadoFiscal: b?.estadoFiscal ?? null, constancia: b?.constancia ?? null,
+    return { paso: 12, maxPaso: 12, estadoFiscal: estadoFiscalMigrado, constancia: b?.constancia ?? null,
       descuentoMax: b?.descuentoMax ?? null, ganancias, touched, acepto: true, firma: null, enviado: true };
   }
   // Si regresa con borrador, lo devolvemos como máximo al paso 11 (debe volver a firmar).
   return {
     paso: b ? Math.min(b.paso, 11) : 0, maxPaso: b ? Math.min(b.maxPaso, 11) : 0,
-    estadoFiscal: b?.estadoFiscal ?? null, constancia: b?.constancia ?? null,
+    estadoFiscal: estadoFiscalMigrado, constancia: b?.constancia ?? null,
     descuentoMax: b?.descuentoMax ?? null, ganancias, touched, acepto: b?.acepto ?? false, firma: null, enviado: false,
   };
 }

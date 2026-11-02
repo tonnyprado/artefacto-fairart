@@ -427,7 +427,7 @@ export class PdfKitGenerador extends GeneradorPdf {
       .fillAndStroke(COLOR_ROJO, COLOR_ROJO)
       .fillColor(COLOR_CREMA); // Restablecer color para el texto
 
-    const headers = ['Título', 'Técnica y año', 'Medida (con marco)', 'Precio de venta', 'Precio público con IVA'];
+    const headers = ['Título', 'Técnica y año', 'Medida (con marco)', 'Precio base', 'Precio público'];
     headers.forEach((header, i) => {
       const align = i >= 3 ? 'right' : 'left';
       doc.text(header, colPositions[i] + 4, tableTop + 5, {
@@ -462,7 +462,7 @@ export class PdfKitGenerador extends GeneradorPdf {
       doc.font('Helvetica');
       doc.text(o.tecnica, colPositions[1] + 4, y + 5, { width: colWidths[1] - 8 });
       doc.text(o.medida, colPositions[2] + 4, y + 5, { width: colWidths[2] - 8 });
-      doc.text(formatoMXN(d.precioVenta), colPositions[3] + 4, y + 5, {
+      doc.text(formatoMXN(d.precioBase), colPositions[3] + 4, y + 5, {
         width: colWidths[3] - 8,
         align: 'right',
       });
