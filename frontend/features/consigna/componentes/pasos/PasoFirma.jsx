@@ -16,7 +16,7 @@ export function PasoFirma({ nombre, acepto, firma, onAcepto, onFirma }) {
   const [abierto, setAbierto] = useState(false);
   return (
     <div>
-      <TituloPaso numero="11" titulo="Aceptación y firma" />
+      <TituloPaso numero="13" titulo="Aceptación y firma" />
       <p style={{ fontSize: 14.5, maxWidth: 580, color: 'rgba(0,0,0,0.75)', margin: '12px 0 14px' }}>Al firmar declaras que:</p>
       <div style={{ display: 'grid', gap: 8, maxWidth: 580, marginBottom: 18 }}>
         {DECLARACIONES_PANTALLA.map(d => (
@@ -27,7 +27,7 @@ export function PasoFirma({ nombre, acepto, firma, onAcepto, onFirma }) {
       </div>
       <label style={{ display: 'flex', gap: 12, alignItems: 'flex-start', background: '#fff', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 10, padding: '16px 18px', maxWidth: 580, cursor: 'pointer', marginBottom: 20 }}>
         <input type="checkbox" checked={acepto} onChange={e => onAcepto(e.target.checked)} style={{ width: 20, height: 20, accentColor: color.rojo, flex: 'none' }} />
-        <span style={{ fontSize: 14, lineHeight: 1.4 }}>He leído y acepto el Acuerdo de Consignación de Obra de ARTE FACTO · Segunda Edición, las condiciones de los pasos 1 a 8 y los precios de la tabla de obras.</span>
+        <span style={{ fontSize: 14, lineHeight: 1.4 }}>He leído y acepto el Acuerdo de Consignación de Obra de ARTE FACTO · Segunda Edición, las condiciones de los pasos 1 a 10 y los precios de la tabla de obras.</span>
       </label>
 
       {!firma ? (

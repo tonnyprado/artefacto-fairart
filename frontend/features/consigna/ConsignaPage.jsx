@@ -47,7 +47,7 @@ function Flujo({ api, token, ctx, firmaDireccionUrl }) {
   const f = useFlujoConsigna(api, token, ctx);
   const { s, dispatch, ir } = f;
   const clausulas = useMemo(() => clausulasConDescuento(s.descuentoMax), [s.descuentoMax]);
-  const etiquetaSiguiente = s.paso === 10 ? 'Confirmar precios →' : s.paso === 11 ? 'Ver documento →' : 'Siguiente →';
+  const etiquetaSiguiente = s.paso === 12 ? 'Confirmar precios →' : s.paso === 13 ? 'Ver documento →' : 'Siguiente →';
 
   const contenido = (() => {
     if (s.paso === 0) return <PasoBienvenida artista={ctx.artista} numObras={ctx.obras.length} onComenzar={() => ir(1)} />;
@@ -56,21 +56,21 @@ function Flujo({ api, token, ctx, firmaDireccionUrl }) {
       return <PasoClausula clausula={clausulas[s.paso - 1]} extra={extra} />;
     }
     switch (s.paso) {
-      case 9: return <PasoFiscal estado={s.estadoFiscal} constancia={s.constancia}
+      case 11: return <PasoFiscal estado={s.estadoFiscal} constancia={s.constancia}
         onElegir={v => dispatch({ tipo: 'FISCAL', valor: v })} onArchivo={f.subirConstancia} />;
-      case 10: return <PasoObras obras={ctx.obras} ganancias={s.ganancias} touched={s.touched} descuento={s.descuentoMax}
+      case 12: return <PasoObras obras={ctx.obras} ganancias={s.ganancias} touched={s.touched} descuento={s.descuentoMax}
         onGanancia={(obraId, valor) => dispatch({ tipo: 'GANANCIA', obraId, valor })}
         onDescuento={v => dispatch({ tipo: 'DESCUENTO', valor: v })} />;
-      case 11: return <PasoFirma nombre={ctx.artista.nombre} acepto={s.acepto} firma={s.firma}
+      case 13: return <PasoFirma nombre={ctx.artista.nombre} acepto={s.acepto} firma={s.firma}
         onAcepto={v => dispatch({ tipo: 'ACEPTO', valor: v })}
-        onFirma={png => { dispatch({ tipo: 'FIRMA', valor: png }); ir(12); }} />;
-      case 12: return <PasoRevision enviado={s.enviado} enviando={f.enviando} error={f.error}
+        onFirma={png => { dispatch({ tipo: 'FIRMA', valor: png }); ir(14); }} />;
+      case 14: return <PasoRevision enviado={s.enviado} enviando={f.enviando} error={f.error}
         onEnviar={f.enviar} onDescargar={f.descargar}
         documento={{ artista: ctx.artista, obras: ctx.obras, ganancias: s.ganancias, descuentoMax: s.descuentoMax,
           estadoFiscal: s.estadoFiscal, constanciaNombre: s.constancia?.nombre ?? null, datosPago: ctx.datosPago,
           firmaArtista: s.firma, firmaDireccionUrl, fecha: new Date() }} />;
       case PASO_ENVIADO: return <PasoEnviado nombrePila={ctx.artista.nombrePila} correo={ctx.artista.correo}
-        onRevisar={() => ir(12)} onDescargar={f.descargar} />;
+        onRevisar={() => ir(14)} onDescargar={f.descargar} />;
     }
     return null;
   })();
@@ -78,13 +78,13 @@ function Flujo({ api, token, ctx, firmaDireccionUrl }) {
   return (
     <>
       <Encabezado />
-      {s.paso >= 1 && s.paso <= 12 && <BarraProgreso paso={s.paso} maxPaso={s.maxPaso} onIr={ir} />}
+      {s.paso >= 1 && s.paso <= 14 && <BarraProgreso paso={s.paso} maxPaso={s.maxPaso} onIr={ir} />}
       <main style={{ flex: 1, width: '100%', maxWidth: 900, margin: '0 auto', padding: '28px 20px 40px', boxSizing: 'border-box' }}>
         <div key={s.paso} style={{ animation: 'afFadeUp .35s ease both' }}>{contenido}</div>
-        {f.error && s.paso !== 12 && <p role="alert" style={{ color: color.rojo, fontWeight: 700, fontSize: 13 }}>{f.error}</p>}
-        {s.paso >= 1 && s.paso <= 12 && (
+        {f.error && s.paso !== 14 && <p role="alert" style={{ color: color.rojo, fontWeight: 700, fontSize: 13 }}>{f.error}</p>}
+        {s.paso >= 1 && s.paso <= 14 && (
           <NavegacionPasos onAtras={() => ir(s.paso - 1)}
-            onSiguiente={s.paso < 12 ? () => ir(s.paso + 1) : undefined}
+            onSiguiente={s.paso < 14 ? () => ir(s.paso + 1) : undefined}
             deshabilitado={!f.puedeAvanzar} etiqueta={etiquetaSiguiente} />
         )}
       </main>

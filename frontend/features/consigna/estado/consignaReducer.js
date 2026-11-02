@@ -1,10 +1,11 @@
-export const TOTAL_PASOS = 12;
-export const PASO_ENVIADO = 13;
+export const TOTAL_PASOS = 14;
+export const PASO_ENVIADO = 15;
 
 export const ETIQUETAS_PASO = [
   'Bienvenida', 'Obra en consignación', 'Tarifa de participación', 'Recepción, montaje y devolución',
   'Responsabilidades', 'Venta y comisión', 'Pagos, facturación e IVA', 'Curaduría, imagen y catálogo',
-  'Resolución de conflictos', 'Situación fiscal', 'Tus obras', 'Aceptación y firma', 'Revisar y enviar',
+  'Notificaciones', 'Disposiciones finales', 'Resolución de conflictos', 'Situación fiscal', 'Tus obras',
+  'Aceptación y firma', 'Revisar y enviar',
 ];
 
 /**
@@ -38,12 +39,12 @@ export function estadoInicial(ctx) {
   const estadoFiscalMigrado = b?.estadoFiscal === 'tercero_sin_datos' ? 'pendiente' : b?.estadoFiscal ?? null;
 
   if (ctx.enviado) {
-    return { paso: 12, maxPaso: 12, estadoFiscal: estadoFiscalMigrado, constancia: b?.constancia ?? null,
+    return { paso: 14, maxPaso: 14, estadoFiscal: estadoFiscalMigrado, constancia: b?.constancia ?? null,
       descuentoMax: b?.descuentoMax ?? null, ganancias, touched, acepto: true, firma: null, enviado: true };
   }
-  // Si regresa con borrador, lo devolvemos como máximo al paso 11 (debe volver a firmar).
+  // Si regresa con borrador, lo devolvemos como máximo al paso 13 (debe volver a firmar).
   return {
-    paso: b ? Math.min(b.paso, 11) : 0, maxPaso: b ? Math.min(b.maxPaso, 11) : 0,
+    paso: b ? Math.min(b.paso, 13) : 0, maxPaso: b ? Math.min(b.maxPaso, 13) : 0,
     estadoFiscal: estadoFiscalMigrado, constancia: b?.constancia ?? null,
     descuentoMax: b?.descuentoMax ?? null, ganancias, touched, acepto: b?.acepto ?? false, firma: null, enviado: false,
   };
@@ -80,9 +81,9 @@ export function consignaReducer(s, a) {
  * @returns {boolean}
  */
 export function puedeAvanzar(s) {
-  if (s.paso === 9) return s.estadoFiscal !== null && (s.estadoFiscal !== 'cargada' || !!s.constancia);
-  if (s.paso === 10) return s.descuentoMax !== null;
-  if (s.paso === 11) return s.acepto && !!s.firma;
+  if (s.paso === 11) return s.estadoFiscal !== null && (s.estadoFiscal !== 'cargada' || !!s.constancia);
+  if (s.paso === 12) return s.descuentoMax !== null;
+  if (s.paso === 13) return s.acepto && !!s.firma;
   return true;
 }
 
@@ -91,6 +92,6 @@ export function puedeAvanzar(s) {
  * @returns {any}
  */
 export function aBorrador(s) {
-  return { paso: Math.min(s.paso, 12), maxPaso: s.maxPaso, estadoFiscal: s.estadoFiscal, constancia: s.constancia,
+  return { paso: Math.min(s.paso, 14), maxPaso: s.maxPaso, estadoFiscal: s.estadoFiscal, constancia: s.constancia,
     descuentoMax: s.descuentoMax, ganancias: s.ganancias, touched: s.touched, acepto: s.acepto };
 }

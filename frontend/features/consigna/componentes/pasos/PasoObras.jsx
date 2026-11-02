@@ -16,7 +16,7 @@ import { SelectorDescuento } from '../obras/SelectorDescuento';
 export function PasoObras({ obras, ganancias, touched, descuento, onGanancia, onDescuento }) {
   return (
     <div>
-      <TituloPaso numero="10" titulo="Tus obras en consignación" />
+      <TituloPaso numero="12" titulo="Tus obras en consignación" />
       <p style={{ fontSize: 14.5, maxWidth: 660, lineHeight: 1.45, color: 'rgba(0,0,0,0.75)', margin: '12px 0 14px' }}>
         Estas son las obras que postulaste en tu registro, ahora con el desglose completo. La última columna es el <b>precio que verá el público</b>.
       </p>

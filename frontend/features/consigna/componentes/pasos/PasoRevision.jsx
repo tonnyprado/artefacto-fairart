@@ -14,7 +14,7 @@ import { botonPrimario, botonSecundario } from '../../tema';
 export function PasoRevision({ documento, enviado, enviando, error, onEnviar, onDescargar }) {
   return (
     <div>
-      <TituloPaso numero="12" titulo="Revisa y envía" />
+      <TituloPaso numero="14" titulo="Revisa y envía" />
       {enviado && (
         <div style={{ background: '#000', color: '#E8DED0', borderRadius: 10, padding: '12px 16px', fontSize: 13, margin: '8px 0 14px' }}>
           Ya enviaste este acuerdo. Si necesitas cambiar algo, escríbenos por WhatsApp.
