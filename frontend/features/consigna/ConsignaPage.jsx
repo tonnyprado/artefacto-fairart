@@ -79,7 +79,7 @@ function Flujo({ api, token, ctx, firmaDireccionUrl }) {
     <>
       <Encabezado />
       {s.paso >= 1 && s.paso <= 14 && <BarraProgreso paso={s.paso} maxPaso={s.maxPaso} onIr={ir} />}
-      <main style={{ flex: 1, width: '100%', maxWidth: 900, margin: '0 auto', padding: '28px 20px 40px', boxSizing: 'border-box' }}>
+      <main style={{ flex: 1, width: '100%', maxWidth: 1200, margin: '0 auto', padding: '28px 20px 40px', boxSizing: 'border-box' }}>
         <div key={s.paso} style={{ animation: 'afFadeUp .35s ease both' }}>{contenido}</div>
         {f.error && s.paso !== 14 && <p role="alert" style={{ color: color.rojo, fontWeight: 700, fontSize: 13 }}>{f.error}</p>}
         {s.paso >= 1 && s.paso <= 14 && (
