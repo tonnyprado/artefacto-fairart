@@ -82,7 +82,7 @@ export const CLAUSULAS = [
     "n": "6",
     "titulo": "Pagos, facturación e IVA",
     "resumen": [
-      "Tu paquete lo transfieres a la cuenta de abajo: 50% en las 48 h posteriores a tu firma y el saldo restante antes del 24 de octubre de 2026.",
+      "Tu paquete lo transfieres a la cuenta de abajo: 50% en las 48 h posteriores a tu firma y el saldo restante antes del 27 de noviembre de 2026.",
       "Obra vendida durante la feria: te pagamos por transferencia dentro de los 15 días posteriores a la venta o a más tardar el 10 de marzo de 2027. Obra vendida después (dentro de los 6 meses post-evento): dentro de los 15 días posteriores a cada venta.",
       "Nos emites una factura por tu 75% del precio de venta, con IVA desglosado. Puede emitirla un tercero, siempre que ampare la operación. No te preocupes: no tiene que quedar definido ahora, pero sí será necesaria para pagarte.",
       "La factura es requisito para pagarte. Si no facturas, autorizas que el IVA de tu venta se retenga de tu liquidación.",
