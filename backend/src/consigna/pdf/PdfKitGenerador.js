@@ -17,7 +17,6 @@ const COLOR_CREMA_PAPEL = '#FAF8F5';
 const ETIQUETA_FISCAL = {
   cargada: 'Cargada',
   pendiente: 'Pendiente de entrega',
-  tercero_sin_datos: 'Facturará un tercero — datos pendientes',
 };
 
 /**

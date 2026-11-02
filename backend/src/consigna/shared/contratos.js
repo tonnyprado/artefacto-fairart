@@ -1,7 +1,7 @@
 // Contratos HTTP compartidos (DTOs). ⚠ Mantener IDÉNTICO en backend y frontend.
 
 /**
- * @typedef {'cargada' | 'pendiente' | 'tercero_sin_datos'} EstadoFiscal
+ * @typedef {'cargada' | 'pendiente'} EstadoFiscal
  */
 
 /**
