@@ -1467,8 +1467,8 @@ export const getArtistasForExport = async (req, res) => {
             ac.firmado_en as consigna_firmado_en,
             ac.descuento_max as consigna_descuento_max
           FROM obras o
-          LEFT JOIN consigna.acuerdos ac ON ac.artista_id = o.artista_id
-          LEFT JOIN consigna.acuerdo_obras ao ON ao.acuerdo_id = ac.id AND ao.obra_id = o.id
+          LEFT JOIN consigna.acuerdos ac ON ac.artista_id = o.artista_id::text
+          LEFT JOIN consigna.acuerdo_obras ao ON ao.acuerdo_id = ac.id AND ao.obra_id = o.id::text
           WHERE o.artista_id = ANY($1)
           ORDER BY o.artista_id, o.created_at DESC`,
           [artistaIds]
