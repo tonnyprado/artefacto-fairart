@@ -8,7 +8,7 @@ const COLUMNAS = [
   ['Obra'],
   ['Ganancia artista 75%'],
   ['Comisión 25%'],
-  ['= Precio base', color.rojoOscuro],
+  ['= Precio de venta', color.rojoOscuro],
   ['+ IVA 16%'],
   ['+ Gestión administrativa 3%'],
   ['Precio público (con IVA)', '#000'],
@@ -74,7 +74,7 @@ export function TablaObras({ obras, ganancias, touched, onGanancia }) {
       )}
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap', marginTop: 12, fontSize: 12.5, color: 'rgba(0,0,0,0.62)', lineHeight: 1.45 }}>
         <span style={{ maxWidth: 560 }}>
-          El precio público se cierra al múltiplo de $100 superior más cercano. Ese ajuste se distribuye en todo el desglose (75/25), por lo que tu ganancia puede subir ligeramente. El IVA y la gestión administrativa los paga el comprador; tú recibes el 75% del precio base más su IVA.
+          El precio público se cierra al múltiplo de $100 superior más cercano. Ese ajuste se distribuye en todo el desglose (75/25), por lo que tu ganancia puede subir ligeramente. El IVA y la gestión administrativa los paga el comprador; tú recibes el 75% del precio de venta más su IVA.
         </span>
         <b style={{ color: '#000' }}>
           {cambios ? cambios === 1 ? 'Precio ajustado — registraremos la diferencia' : 'Precios ajustados — registraremos las diferencias' : 'Sin cambios sobre tu registro'}

@@ -1343,7 +1343,7 @@ export default function ArtistasTable() {
         'Técnica', 'Año', 'Notas de Montaje',
         // Columnas de consigna
         'Consigna Firmada', 'Fecha Firma', 'Descuento Máx.',
-        'Ganancia Final (Consigna)', 'Comisión (Consigna)', 'Precio Base (Consigna)',
+        'Ganancia Final (Consigna)', 'Comisión (Consigna)', 'Precio de Venta (Consigna)',
         'IVA 16% (Consigna)', 'Gestión Admin 3% (Consigna)', 'Precio Público Final (Consigna)'
       ]
 

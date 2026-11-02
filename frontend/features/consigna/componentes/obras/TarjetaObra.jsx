@@ -75,7 +75,7 @@ export function TarjetaObra({ obra, ganancia, touched, onGanancia }) {
           }}
           style={{ ...input, border: `1.5px solid ${color.rojo}`, fontWeight: 600 }} />
         {fila('Comisión 25%', formatoMXN(d.comision))}
-        {fila('= Precio base', formatoMXN(d.precioBase), true)}
+        {fila('= Precio de venta', formatoMXN(d.precioBase), true)}
         {fila('+ IVA 16%', formatoMXN(d.iva))}
         {fila('+ Gestión administrativa 3%', formatoMXN(d.gestionAdmin))}
       </div>

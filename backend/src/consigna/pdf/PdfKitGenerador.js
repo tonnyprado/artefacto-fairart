@@ -426,7 +426,7 @@ export class PdfKitGenerador extends GeneradorPdf {
       .fillAndStroke(COLOR_ROJO, COLOR_ROJO)
       .fillColor(COLOR_CREMA); // Restablecer color para el texto
 
-    const headers = ['Título', 'Técnica y año', 'Medida (con marco)', 'Precio base', 'Precio público'];
+    const headers = ['Título', 'Técnica y año', 'Medida (con marco)', 'Precio de venta', 'Precio público'];
     headers.forEach((header, i) => {
       const align = i >= 3 ? 'right' : 'left';
       doc.text(header, colPositions[i] + 4, tableTop + 5, {
