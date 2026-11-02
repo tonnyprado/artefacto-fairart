@@ -1221,18 +1221,36 @@ export default function ArtistasTable() {
       resumenCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1a1a1a' } }
       resumenCell.alignment = { horizontal: 'center' }
 
+      // Calcular estadísticas de consigna
+      const totalObras = artistasCompletos.reduce((sum, a) => sum + (a.obras?.length || 0), 0)
+      const obrasConConsigna = artistasCompletos.reduce((sum, a) => {
+        return sum + (a.obras?.filter(o => o.tiene_consigna).length || 0)
+      }, 0)
+      const artistasConConsigna = artistasCompletos.filter(a => a.obras?.some(o => o.tiene_consigna)).length
+
       const stats = [
         ['Total de artistas:', artistasCompletos.length],
         ['Pendientes:', artistasCompletos.filter(a => a.estado === 'pendiente').length],
         ['Aprobados:', artistasCompletos.filter(a => a.estado === 'aprobado').length],
         ['Rechazados:', artistasCompletos.filter(a => a.estado === 'rechazado').length],
-        ['Total de obras:', artistasCompletos.reduce((sum, a) => sum + (a.obras?.length || 0), 0)],
+        ['Total de obras:', totalObras],
+        ['', ''], // Espacio en blanco
+        ['Artistas con consigna firmada:', artistasConConsigna],
+        ['Obras con consigna firmada:', obrasConConsigna],
+        ['Obras sin consigna:', totalObras - obrasConConsigna],
       ]
 
       stats.forEach((stat, idx) => {
         wsResumen.getCell(`A${10 + idx}`).value = stat[0]
         wsResumen.getCell(`B${10 + idx}`).value = stat[1]
         wsResumen.getCell(`B${10 + idx}`).font = { bold: true, size: 14 }
+
+        // Resaltar filas de consigna
+        if (idx >= 7) {
+          wsResumen.getCell(`A${10 + idx}`).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF9C3' } }
+          wsResumen.getCell(`B${10 + idx}`).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF9C3' } }
+          wsResumen.getCell(`A${10 + idx}`).font = { bold: true, color: { argb: 'FF854D0E' } }
+        }
       })
 
       wsResumen.getColumn('A').width = 25
@@ -1322,7 +1340,11 @@ export default function ArtistasTable() {
         'Folio Artista', 'Artista', 'Email', 'No.', 'Título de la Obra',
         'Ganancia Artista (75%)', 'Comisión (25%)', 'Precio Público', 'Precio Sugerido',
         'Alto (cm)', 'Ancho (cm)', 'Largo (cm)', 'Tipo',
-        'Técnica', 'Año', 'Notas de Montaje'
+        'Técnica', 'Año', 'Notas de Montaje',
+        // Columnas de consigna
+        'Consigna Firmada', 'Fecha Firma', 'Descuento Máx.',
+        'Ganancia Final (Consigna)', 'Comisión (Consigna)', 'Precio Base (Consigna)',
+        'IVA 16% (Consigna)', 'Gestión Admin 3% (Consigna)', 'Precio Público Final (Consigna)'
       ]
 
       const obrasHeaderRow = wsObras.addRow(obrasHeaders)
@@ -1354,15 +1376,36 @@ export default function ArtistasTable() {
               obra.tipo_obra || '2D',
               obra.tecnica || '',
               obra.anio || '',
-              obra.notas_montaje || ''
+              obra.notas_montaje || '',
+              // Datos de consigna
+              obra.tiene_consigna ? 'SÍ' : 'NO',
+              obra.consigna_firmado_en ? new Date(obra.consigna_firmado_en).toLocaleDateString('es-MX') : '',
+              obra.consigna_descuento_max ? `${obra.consigna_descuento_max}%` : '',
+              obra.consigna_ganancia_final ? `$${Number(obra.consigna_ganancia_final).toLocaleString('es-MX')}` : '',
+              obra.consigna_comision ? `$${Number(obra.consigna_comision).toLocaleString('es-MX')}` : '',
+              obra.consigna_precio_base ? `$${Number(obra.consigna_precio_base).toLocaleString('es-MX')}` : '',
+              obra.consigna_iva ? `$${Number(obra.consigna_iva).toLocaleString('es-MX')}` : '',
+              obra.consigna_gastos_admin ? `$${Number(obra.consigna_gastos_admin).toLocaleString('es-MX')}` : '',
+              obra.consigna_precio_publico ? `$${Number(obra.consigna_precio_publico).toLocaleString('es-MX')}` : ''
             ])
 
             const bgColor = obraIdx % 2 === 0 ? 'FFFFFFFF' : 'FFF0FDF4'
-            row.eachCell(cell => {
+            row.eachCell((cell, colNumber) => {
               cell.font = cellStyle.font
               cell.alignment = cellStyle.alignment
               cell.border = cellStyle.border
-              cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bgColor } }
+
+              // Resaltar columnas de consigna con fondo amarillo claro si tiene datos
+              if (colNumber >= 17 && obra.tiene_consigna) {
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF9C3' } }
+                // Columna "Consigna Firmada" en verde si es SÍ
+                if (colNumber === 17) {
+                  cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD1FAE5' } }
+                  cell.font = { ...cellStyle.font, bold: true, color: { argb: 'FF166534' } }
+                }
+              } else {
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bgColor } }
+              }
             })
             row.height = 22
             obraIdx++
@@ -1371,8 +1414,13 @@ export default function ArtistasTable() {
       })
 
       // Anchos de columnas para obras
-      // Folio, Artista, Email, No., Título, Ganancia, Comisión, Precio Público, Precio Sugerido, Alto, Ancho, Largo, Tipo, Técnica, Año, Notas
-      const obrasWidths = [14, 28, 28, 6, 35, 16, 14, 16, 16, 10, 10, 10, 8, 20, 8, 35]
+      // Folio, Artista, Email, No., Título, Ganancia, Comisión, Precio Público, Precio Sugerido, Alto, Ancho, Largo, Tipo, Técnica, Año, Notas,
+      // Consigna Firmada, Fecha Firma, Descuento, Ganancia Final, Comisión, Precio Base, IVA, Gestión Admin, Precio Público Final
+      const obrasWidths = [
+        14, 28, 28, 6, 35, 16, 14, 16, 16, 10, 10, 10, 8, 20, 8, 35,
+        // Columnas de consigna
+        14, 14, 12, 18, 16, 16, 14, 18, 20
+      ]
       obrasWidths.forEach((width, idx) => {
         wsObras.getColumn(idx + 1).width = width
       })

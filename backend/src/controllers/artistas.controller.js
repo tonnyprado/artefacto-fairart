@@ -1448,13 +1448,29 @@ export const getArtistasForExport = async (req, res) => {
 
       const artistasResult = await pool.query(query, params)
 
-      // Obtener todas las obras de todos los artistas
+      // Obtener todas las obras de todos los artistas con datos de consigna
       const artistaIds = artistasResult.rows.map(a => a.id)
 
       let obrasResult = { rows: [] }
       if (artistaIds.length > 0) {
+        // JOIN con acuerdo_obras para incluir precios finales de consigna
         obrasResult = await pool.query(
-          `SELECT * FROM obras WHERE artista_id = ANY($1) ORDER BY artista_id, created_at DESC`,
+          `SELECT
+            o.*,
+            ac.id as consigna_acuerdo_id,
+            ao.ganancia_final as consigna_ganancia_final,
+            ao.comision as consigna_comision,
+            ao.precio_base as consigna_precio_base,
+            ao.iva as consigna_iva,
+            ao.gastos_admin as consigna_gastos_admin,
+            ao.precio_publico as consigna_precio_publico,
+            ac.firmado_en as consigna_firmado_en,
+            ac.descuento_max as consigna_descuento_max
+          FROM obras o
+          LEFT JOIN consigna.acuerdos ac ON ac.artista_id = o.artista_id
+          LEFT JOIN consigna.acuerdo_obras ao ON ao.acuerdo_id = ac.id AND ao.obra_id = o.id
+          WHERE o.artista_id = ANY($1)
+          ORDER BY o.artista_id, o.created_at DESC`,
           [artistaIds]
         )
       }
@@ -1465,7 +1481,11 @@ export const getArtistasForExport = async (req, res) => {
         if (!obrasPorArtista[obra.artista_id]) {
           obrasPorArtista[obra.artista_id] = []
         }
-        obrasPorArtista[obra.artista_id].push(obra)
+        // Agregar flag de si tiene datos de consigna
+        obrasPorArtista[obra.artista_id].push({
+          ...obra,
+          tiene_consigna: !!obra.consigna_acuerdo_id
+        })
       })
 
       // Combinar datos
