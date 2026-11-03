@@ -60,7 +60,7 @@ export function TarjetaObra({ obra, ganancia, touched, onGanancia }) {
       <div style={{ padding: '14px 16px 10px' }}>
         <b style={{ fontSize: 15 }}>{obra.titulo}</b>
         <div style={{ fontSize: 12, color: 'rgba(0,0,0,0.6)', marginTop: 2 }}>{obra.tecnica} · {obra.medida}</div>
-        {mostrarPastilla && <span style={{ display: 'inline-block', marginTop: 6, background: esAjusteAutomatico ? '#e8a700' : color.rojo, color: esAjusteAutomatico ? '#000' : color.crema, fontSize: 9.5, fontWeight: 700, textTransform: 'uppercase', padding: '5px 11px', borderRadius: 6 }}>
+        {mostrarPastilla && <span style={{ display: 'inline-block', marginTop: 4, background: esAjusteAutomatico ? '#e8a700' : color.rojo, color: esAjusteAutomatico ? '#000' : color.crema, fontSize: 8, fontWeight: 700, textTransform: 'uppercase', padding: '3px 8px', borderRadius: 4, whiteSpace: 'nowrap' }}>
           {esAjusteAutomatico && `Ajuste automático · registraste ${formatoMXN(obra.gananciaRegistrada)}`}
           {esModificacionManual && `Registraste inicialmente ${formatoMXN(obra.gananciaRegistrada)}`}
         </span>}

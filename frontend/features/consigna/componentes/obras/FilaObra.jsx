@@ -78,7 +78,7 @@ export function FilaObra({ obra, ganancia, touched, onGanancia }) {
         <td style={{ padding: '12px 14px', minWidth: 180 }}>
           <b style={{ fontSize: 12.5 }}>{obra.titulo}</b><br />
           <span style={{ fontSize: 10.5, color: 'rgba(0,0,0,0.6)' }}>{obra.tecnica} · {obra.medida}</span>
-          {mostrarPastilla && (<><br /><span style={{ display: 'inline-block', marginTop: 6, background: color.rojo, color: color.crema, fontSize: 9.5, fontWeight: 700, textTransform: 'uppercase', padding: '5px 11px', borderRadius: 6, whiteSpace: 'normal', textAlign: 'center', lineHeight: 1.35, maxWidth: 215 }}>
+          {mostrarPastilla && (<><br /><span style={{ display: 'inline-block', marginTop: 4, background: color.rojo, color: color.crema, fontSize: 8, fontWeight: 700, textTransform: 'uppercase', padding: '3px 8px', borderRadius: 4, whiteSpace: 'nowrap' }}>
             Registraste inicialmente {formatoMXN(obra.gananciaRegistrada)}
           </span></>)}
         </td>
