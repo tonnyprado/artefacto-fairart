@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { desglosar, desglosarDesdePublico, gananciaDesdePublico, formatoMXN } from '../../shared/precios';
+import { desglosar, desglosarDesdePublico, ingresoDesdePublico, formatoMXN } from '../../shared/precios';
 import { color } from '../../tema';
 
 // CSS para ocultar spinners de input number
@@ -36,7 +36,7 @@ export function TarjetaObra({ obra, ganancia, touched, onGanancia }) {
     if (borrador !== null) {
       const valorNumerico = parseFloat(borrador);
       if (!isNaN(valorNumerico) && valorNumerico >= 0) {
-        onGanancia(gananciaDesdePublico(valorNumerico));
+        onGanancia(ingresoDesdePublico(valorNumerico));
       }
       setBorrador(null);
     }
@@ -49,9 +49,9 @@ export function TarjetaObra({ obra, ganancia, touched, onGanancia }) {
   const esModificacionManual = touched;
 
   const input = { width: 130, textAlign: 'right', padding: '10px 12px', borderRadius: 8, fontSize: 16, background: '#fff', boxSizing: 'border-box' };
-  const fila = (k, v, fuerte = false) => (<>
-    <span style={{ fontSize: fuerte ? 13 : 12.5, fontWeight: fuerte ? 800 : 400, color: fuerte ? color.rojoOscuro : 'rgba(0,0,0,0.62)' }}>{k}</span>
-    <span style={{ fontSize: fuerte ? 14 : 13.5, fontWeight: fuerte ? 800 : 400, color: fuerte ? color.rojoOscuro : undefined, textAlign: 'right' }}>{v}</span>
+  const fila = (k, v, fuerte = false, subtotal = false) => (<>
+    <span style={{ fontSize: fuerte ? 13 : 12.5, fontWeight: fuerte || subtotal ? 700 : 400, color: fuerte ? color.vino : 'rgba(0,0,0,0.62)' }}>{k}</span>
+    <span style={{ fontSize: fuerte ? 14 : 13.5, fontWeight: fuerte || subtotal ? 700 : 400, color: fuerte ? color.vino : undefined, textAlign: 'right' }}>{v}</span>
   </>);
   return (
     <>
@@ -66,18 +66,19 @@ export function TarjetaObra({ obra, ganancia, touched, onGanancia }) {
         </span>}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px 12px', alignItems: 'center', padding: '12px 16px', borderTop: '1px solid rgba(0,0,0,0.08)' }}>
-        <label style={{ fontSize: 13, fontWeight: 700, color: color.rojo }}>Tu ganancia 75%</label>
-        <input type="number" inputMode="numeric" min={0} step={100} value={Math.round(ganancia)} aria-label={`Ganancia ${obra.titulo}`}
+        <label style={{ fontSize: 13, fontWeight: 700, color: color.rojo }}>Ingreso del artista · 75%</label>
+        <input type="number" inputMode="numeric" min={0} step={100} value={Math.round(ganancia)} aria-label={`Ingreso ${obra.titulo}`}
           className="input-sin-spinner"
           onChange={e => {
             const valor = parseFloat(e.target.value);
             onGanancia(!isNaN(valor) && valor >= 0 ? valor : 0);
           }}
           style={{ ...input, border: `1.5px solid ${color.rojo}`, fontWeight: 600 }} />
-        {fila('Comisión 25%', formatoMXN(d.comision))}
-        {fila('= Precio de venta', formatoMXN(d.precioBase), true)}
-        {fila('+ IVA 16%', formatoMXN(d.iva))}
-        {fila('+ Gestión administrativa 3%', formatoMXN(d.gestionAdmin))}
+        {fila('Comisión ARTE FACTO · 25%', formatoMXN(d.comision))}
+        {fila('= Precio base', formatoMXN(d.precioBase), true)}
+        {fila('+ Gestión administrativa · 4%', formatoMXN(d.gestion))}
+        {fila('= Subtotal', formatoMXN(d.subtotal), false, true)}
+        {fila('+ IVA · 16%', formatoMXN(d.iva))}
       </div>
       <div style={{ padding: '12px 16px', background: '#000' }}>
         <label style={{ fontSize: 13, fontWeight: 800, fontStyle: 'italic', textTransform: 'uppercase', color: color.crema, display: 'block', marginBottom: 8 }}>Precio público</label>

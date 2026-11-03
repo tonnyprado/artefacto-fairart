@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { desglosar, desglosarDesdePublico, gananciaDesdePublico, formatoMXN } from '../../shared/precios';
+import { desglosar, desglosarDesdePublico, ingresoDesdePublico, formatoMXN } from '../../shared/precios';
 import { color } from '../../tema';
 
 const celda = { padding: '12px 10px', textAlign: 'right', color: 'rgba(0,0,0,0.75)' };
@@ -45,7 +45,7 @@ export function FilaObra({ obra, ganancia, touched, onGanancia }) {
     if (borrador !== null) {
       const valorNumerico = parseFloat(borrador);
       if (!isNaN(valorNumerico) && valorNumerico >= 0) {
-        onGanancia(gananciaDesdePublico(valorNumerico));
+        onGanancia(ingresoDesdePublico(valorNumerico));
       }
       setBorrador(null);
     }
@@ -70,7 +70,7 @@ export function FilaObra({ obra, ganancia, touched, onGanancia }) {
           </span></>)}
         </td>
         <td style={{ padding: 10, textAlign: 'right' }}>
-          <input type="number" min={0} step={100} value={Math.round(ganancia)} aria-label={`Ganancia ${obra.titulo}`}
+          <input type="number" min={0} step={100} value={Math.round(ganancia)} aria-label={`Ingreso ${obra.titulo}`}
             className="input-sin-spinner"
             onChange={e => {
               const valor = parseFloat(e.target.value);
@@ -79,9 +79,10 @@ export function FilaObra({ obra, ganancia, touched, onGanancia }) {
             style={{ ...input, width: 96, border: `1.5px solid ${color.rojo}`, fontWeight: 600 }} />
         </td>
         <td style={celda}>{formatoMXN(d.comision)}</td>
-        <td style={{ ...celda, fontWeight: 800, color: color.rojoOscuro, background: 'rgba(185,50,50,0.06)' }}>{formatoMXN(d.precioBase)}</td>
+        <td style={{ ...celda, fontWeight: 800, color: color.vino, background: 'rgba(115,0,0,0.10)' }}>{formatoMXN(d.precioBase)}</td>
+        <td style={celda}>{formatoMXN(d.gestion)}</td>
+        <td style={{ ...celda, fontWeight: 600, background: 'rgba(115,0,0,0.05)' }}>{formatoMXN(d.subtotal)}</td>
         <td style={celda}>{formatoMXN(d.iva)}</td>
-        <td style={celda}>{formatoMXN(d.gestionAdmin)}</td>
         <td style={{ padding: '10px 14px', textAlign: 'right', background: 'rgba(0,0,0,0.04)' }}>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center', justifyContent: 'flex-end' }}>
             <input type="number" min={0} step={100} aria-label={`Precio público ${obra.titulo}`}
