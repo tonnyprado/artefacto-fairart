@@ -6,8 +6,9 @@ export function FormulaPrecio() {
   );
   return (
     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginBottom: 14, fontSize: 12.5 }}>
-      {chip('Tu ganancia')}<span>+</span>{chip('Comisión 25%')}<span>=</span>
-      {chip('Precio de venta', color.rojo, color.crema, false)}<span>+ IVA 16% + gestión administrativa 3% +</span>{chip('Ajuste a cifra cerrada')}<span>=</span>
+      {chip('Ingreso del artista · 75%')}<span>+</span>{chip('Comisión ARTE FACTO · 25%')}<span>=</span>
+      {chip('Precio base', color.rojo, color.crema, false)}<span>+</span>{chip('Gestión administrativa · 4%')}<span>=</span>
+      {chip('Subtotal')}<span>+</span>{chip('IVA · 16%')}<span>=</span>
       {chip('Precio público', '#000', color.crema, false)}
     </div>
   );

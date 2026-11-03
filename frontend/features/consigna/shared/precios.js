@@ -1,19 +1,20 @@
 // ⚠ Mantener IDÉNTICO en backend/src/consigna/shared y frontend/features/consigna/shared.
 // El backend SIEMPRE recalcula: nunca confiar en montos enviados por el cliente.
 
-export const ARTISTA = 0.75;        // 75% para el artista
+export const ARTISTA = 0.75;        // 75% para el artista (ingreso)
 export const COMISION = 0.25;       // 25% comisión ARTE FACTO
-export const IVA = 0.16;            // 16% IVA (se aplica sobre la base)
-export const GESTION = 0.03;        // 3% gestión administrativa (se aplica sobre base + IVA)
+export const GESTION = 0.04;        // 4% gestión administrativa (sobre el precio base)
+export const IVA = 0.16;            // 16% IVA (sobre el subtotal = base + gestión)
 export const PASO = 100;            // redondeo al múltiplo de 100
 
 /**
  * @typedef {Object} Desglose
- * @property {number} ganancia - Lo que recibe el artista (75% de la base) - YA AJUSTADO
+ * @property {number} ingreso - Lo que recibe el artista (75% de la base) - YA AJUSTADO
  * @property {number} comision - 25% comisión ARTE FACTO
- * @property {number} precioBase - Base (100%) = ganancia + comisión
- * @property {number} iva - 16% sobre precio base
- * @property {number} gestionAdmin - 3% sobre (precio base + IVA)
+ * @property {number} precioBase - Base (100%) = ingreso + comisión
+ * @property {number} gestion - 4% gestión administrativa sobre precio base
+ * @property {number} subtotal - Base + gestión
+ * @property {number} iva - 16% IVA sobre el subtotal
  * @property {number} precioPublico - Precio que ve el comprador (cerrado a múltiplo de 100)
  */
 
@@ -25,46 +26,14 @@ export const PASO = 100;            // redondeo al múltiplo de 100
 const r2 = (n) => Math.round(n * 100) / 100;
 
 /**
- * Calcula precio público desde precio base (forward direction)
- * ORDEN: base → +IVA (sobre base) → +gestión (sobre base+IVA)
- *
- * @param {number} base - Precio base (100%)
- * @returns {number} Precio público bruto (antes de redondear)
- */
-function calcularPrecioPublicoBruto(base) {
-  const baseConIva = base * (1 + IVA);           // base + 16%
-  const publico = baseConIva * (1 + GESTION);    // (base + IVA) + 3%
-  return publico;
-}
-
-/**
- * Calcula precio base desde precio público (inverse direction)
- * Invierte el cálculo: publico → base
- *
- * @param {number} publico - Precio público final
- * @returns {number} Precio base calculado
- */
-function calcularBaseDesdePublico(publico) {
-  const baseConIva = publico / (1 + GESTION);    // quitar gestión 3%
-  const base = baseConIva / (1 + IVA);           // quitar IVA 16%
-  return base;
-}
-
-/**
- * Redondea precio público al múltiplo de PASO superior
- *
- * @param {number} publico - Precio público bruto
- * @returns {number} Precio redondeado hacia arriba
- */
-function redondearPrecioPublico(publico) {
-  if (!PASO) return publico;
-  return Math.ceil(publico / PASO) * PASO;
-}
-
-/**
  * Calcula el desglose completo desde precio público (FUNCIÓN INVERSA MAESTRA)
  * Esta es la función que SIEMPRE se usa para generar el desglose final.
  * El ajuste del redondeo queda ABSORBIDO en todas las cifras.
+ *
+ * Orden inverso:
+ * 1. publico → subtotal (quita IVA 16%)
+ * 2. subtotal → base (quita gestión 4%)
+ * 3. base → ingreso (75%) + comisión (25%)
  *
  * @param {number} publico - Precio público final (ya redondeado)
  * @returns {Desglose}
@@ -72,44 +41,48 @@ function redondearPrecioPublico(publico) {
 function desglosarDesdePublicoFinal(publico) {
   const publicoFinal = Math.max(0, publico);
 
-  // Calcular base desde público (inverso)
-  const base = calcularBaseDesdePublico(publicoFinal);
+  // Inverso: quitar IVA 16% para obtener el subtotal
+  const subtotal = publicoFinal / (1 + IVA);
+
+  // Inverso: quitar gestión 4% para obtener el base
+  const base = subtotal / (1 + GESTION);
 
   // Calcular componentes
-  const baseConIva = base * (1 + IVA);
-  const gananciaArtista = base * ARTISTA;      // 75% - YA incluye ajuste distribuido
-  const comision = base * COMISION;             // 25%
-  const iva = base * IVA;                       // 16% sobre base
-  const gestion = baseConIva * GESTION;         // 3% sobre (base + IVA)
+  const ingreso = base * ARTISTA;           // 75%
+  const comision = base * COMISION;         // 25%
+  const gestion = subtotal - base;          // 4% sobre base
+  const iva = publicoFinal - subtotal;      // 16% sobre subtotal
 
   return {
-    ganancia: r2(gananciaArtista),
+    ingreso: r2(ingreso),
     comision: r2(comision),
     precioBase: r2(base),
+    gestion: r2(gestion),
+    subtotal: r2(subtotal),
     iva: r2(iva),
-    gestionAdmin: r2(gestion),
     precioPublico: r2(publicoFinal),
   };
 }
 
 /**
- * Calcula el desglose completo a partir de la ganancia del artista
- * Flujo: ganancia → base → público bruto → redondeo → desglose inverso
+ * Calcula el desglose completo a partir del ingreso del artista
+ * Flujo: ingreso → base → gestión → subtotal → IVA → público bruto → redondeo → desglose inverso
  *
- * @param {number} ganancia - Ganancia deseada del artista (lo que quiere recibir)
+ * @param {number} ingreso - Ingreso deseado del artista (lo que quiere recibir, su 75%)
  * @returns {Desglose}
  */
-export function desglosar(ganancia) {
-  const gananciaInput = Math.max(0, ganancia);
+export function desglosar(ingreso) {
+  const ingresoInput = Math.max(0, ingreso);
 
-  // 1. Calcular base desde ganancia
-  const base = gananciaInput / ARTISTA;
+  // 1. Calcular base desde ingreso (ingreso es 75% de la base)
+  const base = ingresoInput / ARTISTA;
 
   // 2. Calcular precio público bruto
-  const publicoBruto = calcularPrecioPublicoBruto(base);
+  // base → +gestión 4% → subtotal → +IVA 16% → público
+  const publicoBruto = base * (1 + GESTION) * (1 + IVA);
 
-  // 3. Redondear hacia arriba
-  const publicoFinal = redondearPrecioPublico(publicoBruto);
+  // 3. Redondear hacia arriba al múltiplo de 100
+  const publicoFinal = Math.ceil(publicoBruto / PASO) * PASO;
 
   // 4. Recalcular TODO desde el público final (inverso)
   //    El ajuste queda absorbido en el desglose
@@ -130,24 +103,31 @@ export function desglosarDesdePublico(precioPublico) {
 }
 
 /**
- * Calcula la ganancia del artista desde el precio público
+ * Calcula el ingreso del artista desde el precio público
  * Usado cuando el artista edita el precio público y necesitamos actualizar el estado
  *
  * @param {number} precioPublico - Precio público final
- * @returns {number} Ganancia calculada (con decimales para exactitud)
+ * @returns {number} Ingreso calculado (con decimales para exactitud)
  */
-export function gananciaDesdePublico(precioPublico) {
+export function ingresoDesdePublico(precioPublico) {
   const publicoFinal = Math.max(0, precioPublico);
 
-  // Calcular base desde público (inverso)
-  const base = calcularBaseDesdePublico(publicoFinal);
+  // Calcular subtotal desde público (inverso - quita IVA)
+  const subtotal = publicoFinal / (1 + IVA);
 
-  // La ganancia es el 75% de la base
+  // Calcular base desde subtotal (inverso - quita gestión)
+  const base = subtotal / (1 + GESTION);
+
+  // El ingreso es el 75% de la base
   // ⚠️ NO redondear - mantener decimales para exactitud en recálculos
-  const ganancia = base * ARTISTA;
+  const ingreso = base * ARTISTA;
 
-  return ganancia;
+  return ingreso;
 }
+
+// Alias para compatibilidad (algunos componentes usan ganancia/gananciaDesdePublico)
+export const ganancia = ingreso;
+export const gananciaDesdePublico = ingresoDesdePublico;
 
 /**
  * Formatea un número como moneda MXN
