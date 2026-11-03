@@ -412,7 +412,7 @@ export class PdfKitGenerador extends GeneradorPdf {
    */
   _generarTablaObras(doc, obras, ganancias) {
     const tableTop = doc.y;
-    const colWidths = [90, 58, 58, 70, 50, 60, 50, 59];
+    const colWidths = [85, 56, 56, 70, 60, 56, 50, 62];
     const colPositions = [50];
     for (let i = 0; i < colWidths.length - 1; i++) {
       colPositions.push(colPositions[i] + colWidths[i]);
@@ -420,9 +420,9 @@ export class PdfKitGenerador extends GeneradorPdf {
 
     // Encabezados (altura aumentada para permitir wrap)
     doc
-      .fontSize(7.5)
+      .fontSize(7)
       .font('Helvetica-BoldOblique')
-      .rect(50, tableTop, 495, 18)
+      .rect(50, tableTop, 495, 20)
       .fillAndStroke(COLOR_ROJO, COLOR_ROJO)
       .fillColor(COLOR_CREMA); // Restablecer color para el texto
 
@@ -438,14 +438,14 @@ export class PdfKitGenerador extends GeneradorPdf {
     ];
     headers.forEach((header, i) => {
       const align = i >= 1 ? 'right' : 'left';
-      doc.text(header, colPositions[i] + 3, tableTop + 4, {
+      doc.text(header, colPositions[i] + 3, tableTop + 5, {
         width: colWidths[i] - 6,
         align,
-        lineGap: -1,
+        lineGap: 0,
       });
     });
 
-    let y = tableTop + 18;
+    let y = tableTop + 20;
 
     // Filas de obras
     obras.forEach((o, idx) => {
@@ -466,11 +466,11 @@ export class PdfKitGenerador extends GeneradorPdf {
       }
 
       // Título
-      doc.fontSize(8).font('Helvetica-Bold').fillColor('#111');
+      doc.fontSize(7.5).font('Helvetica-Bold').fillColor('#111');
       doc.text(o.titulo, colPositions[0] + 3, y + 4, { width: colWidths[0] - 6, lineBreak: false });
 
       // Ingreso 75%
-      doc.font('Helvetica');
+      doc.fontSize(7.5).font('Helvetica');
       doc.text(formatoMXN(d.ingreso), colPositions[1] + 3, y + 4, {
         width: colWidths[1] - 6,
         align: 'right',
