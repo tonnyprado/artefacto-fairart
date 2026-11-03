@@ -6,12 +6,12 @@ import { desglosar, formatoMXN, formatoMXNPublico } from '../../shared/precios';
 
 const COLUMNAS = [
   ['Obra'],
-  ['Ingreso del artista · 75%'],
-  ['Comisión ARTE FACTO · 25%'],
+  ['Ingreso del artista 75%'],
+  ['Comisión ARTE FACTO 25%'],
   ['= Precio base', color.vino],
-  ['+ Gestión administrativa · 4%'],
+  ['+ Gestión administrativa 4%'],
   ['= Subtotal', '#8a1a1a'],
-  ['+ IVA · 16%'],
+  ['+ IVA 16%'],
   ['Precio público', '#000'],
 ];
 
