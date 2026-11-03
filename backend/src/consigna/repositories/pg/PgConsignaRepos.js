@@ -205,8 +205,8 @@ export class PgAcuerdosRepo {
         await this.pool.query(
           `INSERT INTO consigna.acuerdo_obras
            (acuerdo_id, obra_id, titulo, tecnica, medida, ganancia_original, ganancia_final,
-            comision, precio_base, iva, gastos_admin, precio_publico)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+            comision, precio_base, gestion, subtotal, iva, precio_publico)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
           [
             acuerdoId,
             o.obraId,
@@ -214,11 +214,12 @@ export class PgAcuerdosRepo {
             o.tecnica,
             o.medida,
             o.gananciaOriginal,
-            o.desglose.ganancia,
+            o.desglose.ingreso,
             o.desglose.comision,
             o.desglose.precioBase,
+            o.desglose.gestion,
+            o.desglose.subtotal,
             o.desglose.iva,
-            o.desglose.gestionAdmin,
             o.desglose.precioPublico,
           ]
         );

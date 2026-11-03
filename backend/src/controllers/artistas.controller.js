@@ -1461,8 +1461,9 @@ export const getArtistasForExport = async (req, res) => {
             ao.ganancia_final as consigna_ganancia_final,
             ao.comision as consigna_comision,
             ao.precio_base as consigna_precio_base,
+            ao.gestion as consigna_gestion,
+            ao.subtotal as consigna_subtotal,
             ao.iva as consigna_iva,
-            ao.gastos_admin as consigna_gastos_admin,
             ao.precio_publico as consigna_precio_publico,
             ac.firmado_en as consigna_firmado_en,
             ac.descuento_max as consigna_descuento_max
