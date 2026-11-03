@@ -24,12 +24,9 @@ export function PasoRevision({ documento, enviado, enviando, error, onEnviar, on
       {error && <p role="alert" style={{ color: '#B93232', fontWeight: 700, fontSize: 13, marginTop: 14 }}>{error}</p>}
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 22 }}>
         {!enviado ? (
-          <>
-            <button type="button" onClick={onEnviar} disabled={enviando} style={{ ...botonPrimario(enviando), padding: '15px 32px' }}>
-              {enviando ? 'Enviando…' : 'Enviar acuerdo firmado'}
-            </button>
-            <button type="button" onClick={onDescargar} style={{ ...botonSecundario, padding: '15px 26px' }}>Descargar PDF (testing)</button>
-          </>
+          <button type="button" onClick={onEnviar} disabled={enviando} style={{ ...botonPrimario(enviando), padding: '15px 32px' }}>
+            {enviando ? 'Enviando…' : 'Enviar acuerdo firmado'}
+          </button>
         ) : (
           <button type="button" onClick={onDescargar} style={{ ...botonSecundario, padding: '15px 26px' }}>Descargar PDF</button>
         )}
