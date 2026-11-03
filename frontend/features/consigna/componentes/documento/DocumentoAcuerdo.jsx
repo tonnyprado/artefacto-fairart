@@ -81,11 +81,12 @@ export function DocumentoAcuerdo(p) {
         <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: 10, marginBottom: 8 }}>
           <thead style={{ display: 'table-header-group' }}><tr>
             <th style={th}>Título</th>
-            <th style={{ ...th, textAlign: 'right' }}>Ganancia 75%</th>
+            <th style={{ ...th, textAlign: 'right' }}>Ingreso 75%</th>
             <th style={{ ...th, textAlign: 'right' }}>Comisión 25%</th>
-            <th style={{ ...th, textAlign: 'right' }}>= Precio de venta</th>
+            <th style={{ ...th, textAlign: 'right' }}>= Precio base</th>
+            <th style={{ ...th, textAlign: 'right' }}>+ Gestión 4%</th>
+            <th style={{ ...th, textAlign: 'right' }}>= Subtotal</th>
             <th style={{ ...th, textAlign: 'right' }}>+ IVA 16%</th>
-            <th style={{ ...th, textAlign: 'right' }}>+ Gestión 3%</th>
             <th style={{ ...th, textAlign: 'right' }}>Precio público</th>
           </tr></thead>
           <tbody>
@@ -94,11 +95,12 @@ export function DocumentoAcuerdo(p) {
               return (
                 <tr key={o.id} style={{ breakInside: 'avoid' }}>
                   <td style={td}><b>{o.titulo}</b></td>
-                  <td style={{ ...td, textAlign: 'right' }}>{formatoMXN(d.ganancia)}</td>
+                  <td style={{ ...td, textAlign: 'right' }}>{formatoMXN(d.ingreso)}</td>
                   <td style={{ ...td, textAlign: 'right' }}>{formatoMXN(d.comision)}</td>
                   <td style={{ ...td, textAlign: 'right', fontWeight: 700, color: color.rojoOscuro }}>{formatoMXN(d.precioBase)}</td>
+                  <td style={{ ...td, textAlign: 'right' }}>{formatoMXN(d.gestion)}</td>
+                  <td style={{ ...td, textAlign: 'right', fontWeight: 700 }}>{formatoMXN(d.subtotal)}</td>
                   <td style={{ ...td, textAlign: 'right' }}>{formatoMXN(d.iva)}</td>
-                  <td style={{ ...td, textAlign: 'right' }}>{formatoMXN(d.gestionAdmin)}</td>
                   <td style={{ ...td, textAlign: 'right', fontWeight: 800 }}>{formatoMXN(d.precioPublico)}</td>
                 </tr>
               );

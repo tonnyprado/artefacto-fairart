@@ -412,7 +412,7 @@ export class PdfKitGenerador extends GeneradorPdf {
    */
   _generarTablaObras(doc, obras, ganancias) {
     const tableTop = doc.y;
-    const colWidths = [100, 65, 65, 80, 55, 60, 70];
+    const colWidths = [90, 58, 58, 70, 50, 60, 50, 59];
     const colPositions = [50];
     for (let i = 0; i < colWidths.length - 1; i++) {
       colPositions.push(colPositions[i] + colWidths[i]);
@@ -428,11 +428,12 @@ export class PdfKitGenerador extends GeneradorPdf {
 
     const headers = [
       'Título',
-      'Ganancia 75%',
+      'Ingreso 75%',
       'Comisión 25%',
-      '= Precio de venta',
+      '= Precio base',
+      '+ Gestión 4%',
+      '= Subtotal',
       '+ IVA 16%',
-      '+ Gestión 3%',
       'Precio público'
     ];
     headers.forEach((header, i) => {
@@ -468,43 +469,51 @@ export class PdfKitGenerador extends GeneradorPdf {
       doc.fontSize(8).font('Helvetica-Bold').fillColor('#111');
       doc.text(o.titulo, colPositions[0] + 3, y + 4, { width: colWidths[0] - 6, lineBreak: false });
 
-      // Ganancia
+      // Ingreso 75%
       doc.font('Helvetica');
-      doc.text(formatoMXN(d.ganancia), colPositions[1] + 3, y + 4, {
+      doc.text(formatoMXN(d.ingreso), colPositions[1] + 3, y + 4, {
         width: colWidths[1] - 6,
         align: 'right',
       });
 
-      // Comisión
+      // Comisión 25%
       doc.text(formatoMXN(d.comision), colPositions[2] + 3, y + 4, {
         width: colWidths[2] - 6,
         align: 'right',
       });
 
-      // Precio de venta (destacado)
+      // Precio base (destacado)
       doc.font('Helvetica-Bold').fillColor(COLOR_ROJO);
       doc.text(formatoMXN(d.precioBase), colPositions[3] + 3, y + 4, {
         width: colWidths[3] - 6,
         align: 'right',
       });
 
-      // IVA
+      // Gestión administrativa 4%
       doc.font('Helvetica').fillColor('#111');
-      doc.text(formatoMXN(d.iva), colPositions[4] + 3, y + 4, {
+      doc.text(formatoMXN(d.gestion), colPositions[4] + 3, y + 4, {
         width: colWidths[4] - 6,
         align: 'right',
       });
 
-      // Gestión administrativa
-      doc.text(formatoMXN(d.gestionAdmin), colPositions[5] + 3, y + 4, {
+      // Subtotal (destacado)
+      doc.font('Helvetica-Bold');
+      doc.text(formatoMXN(d.subtotal), colPositions[5] + 3, y + 4, {
         width: colWidths[5] - 6,
+        align: 'right',
+      });
+
+      // IVA 16%
+      doc.font('Helvetica').fillColor('#111');
+      doc.text(formatoMXN(d.iva), colPositions[6] + 3, y + 4, {
+        width: colWidths[6] - 6,
         align: 'right',
       });
 
       // Precio público (destacado)
       doc.font('Helvetica-Bold');
-      doc.text(formatoMXN(d.precioPublico), colPositions[6] + 3, y + 4, {
-        width: colWidths[6] - 6,
+      doc.text(formatoMXN(d.precioPublico), colPositions[7] + 3, y + 4, {
+        width: colWidths[7] - 6,
         align: 'right',
       });
 
