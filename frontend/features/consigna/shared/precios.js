@@ -125,9 +125,8 @@ export function ingresoDesdePublico(precioPublico) {
   return ingreso;
 }
 
-// Alias para compatibilidad (algunos componentes usan ganancia/gananciaDesdePublico)
-export const ganancia = ingreso;
-export const gananciaDesdePublico = ingresoDesdePublico;
+// Alias para compatibilidad (algunos componentes usan gananciaDesdePublico)
+export { ingresoDesdePublico as gananciaDesdePublico };
 
 /**
  * Formatea un número como moneda MXN
