@@ -83,7 +83,7 @@ export function FilaObra({ obra, ganancia, touched, onGanancia }) {
         <td style={celda}>{formatoMXN(d.gestion)}</td>
         <td style={{ ...celda, fontWeight: 600, background: 'rgba(115,0,0,0.05)' }}>{formatoMXN(d.subtotal)}</td>
         <td style={celda}>{formatoMXN(d.iva)}</td>
-        <td style={{ padding: '10px 14px', textAlign: 'right', background: 'rgba(0,0,0,0.04)' }}>
+        <td style={{ padding: '10px 14px', textAlign: 'right', background: '#E3DCCF' }}>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center', justifyContent: 'flex-end' }}>
             <input type="number" min={0} step={100} aria-label={`Precio público ${obra.titulo}`}
               className="input-sin-spinner"

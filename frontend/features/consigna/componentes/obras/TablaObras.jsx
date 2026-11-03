@@ -25,6 +25,8 @@ const COLUMNAS = [
 export function TablaObras({ obras, ganancias, touched, onGanancia }) {
   const angosto = useEsAngosto();
   const cambios = obras.filter(o => Math.round(ganancias[o.id]) !== o.gananciaRegistrada).length;
+  const modificacionesManual = obras.filter(o => touched[o.id]).length;
+  const ajustesAutomaticos = cambios - modificacionesManual;
 
   // Calcular totales
   const totales = obras.reduce(
@@ -69,7 +71,7 @@ export function TablaObras({ obras, ganancias, touched, onGanancia }) {
               <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 800 }}>{formatoMXN(totales.gestion)}</td>
               <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 800, background: 'rgba(115,0,0,0.05)' }}>{formatoMXN(totales.subtotal)}</td>
               <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 800 }}>{formatoMXN(totales.iva)}</td>
-              <td style={{ padding: '10px 14px', textAlign: 'right', background: 'rgba(0,0,0,0.04)', fontWeight: 800, fontSize: 15 }}>{formatoMXN(totales.precioPublico)}</td>
+              <td style={{ padding: '10px 14px', textAlign: 'right', background: '#E3DCCF', fontWeight: 800, fontSize: 15 }}>{formatoMXN(totales.precioPublico)}</td>
             </tr>
           </tbody>
         </table>
@@ -77,10 +79,13 @@ export function TablaObras({ obras, ganancias, touched, onGanancia }) {
       )}
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap', marginTop: 12, fontSize: 12.5, color: 'rgba(0,0,0,0.62)', lineHeight: 1.45 }}>
         <span style={{ maxWidth: 560 }}>
-          El precio público se cierra al múltiplo de $100 superior más cercano. Ese ajuste se distribuye en todo el desglose (75/25), por lo que tu ingreso puede subir ligeramente. La gestión administrativa y el IVA los paga el comprador; tú recibes el 75% del precio base más su IVA.
+          <b style={{ color: color.vino }}>¿Por qué cambió tu ingreso?</b> Si ves que tu ingreso sube un poco respecto a lo que registraste, es por el ajuste que hacemos para que el precio final al público cierre en un número redondo (el múltiplo de $100 superior más cercano) y no quede en una cifra irregular. Ese ajuste se distribuye en todo el desglose, así que recibes un poco más de lo que pusiste. La Gestión administrativa y el IVA los paga el comprador y no reducen lo que recibes.
         </span>
         <b style={{ color: '#000' }}>
-          {cambios ? cambios === 1 ? 'Precio ajustado — registraremos la diferencia' : 'Precios ajustados — registraremos las diferencias' : 'Sin cambios sobre tu registro'}
+          {modificacionesManual > 0
+            ? (modificacionesManual === 1 ? 'Precio ajustado — registraremos la diferencia' : 'Precios ajustados — registraremos las diferencias')
+            : (ajustesAutomaticos > 0 ? 'Ajuste automático para cerrar el precio al público' : 'Sin cambios sobre tu registro')
+          }
         </b>
       </div>
     </>
