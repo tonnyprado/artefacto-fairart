@@ -1338,13 +1338,13 @@ export default function ArtistasTable() {
 
       const obrasHeaders = [
         'Folio Artista', 'Artista', 'Email', 'No.', 'Título de la Obra',
-        'Ganancia Artista (75%)', 'Comisión (25%)', 'Precio Público', 'Precio Sugerido',
+        'Ingreso Artista (75%)', 'Comisión (25%)', 'Precio Público', 'Precio Sugerido',
         'Alto (cm)', 'Ancho (cm)', 'Largo (cm)', 'Tipo',
         'Técnica', 'Año', 'Notas de Montaje',
         // Columnas de consigna
         'Consigna Firmada', 'Fecha Firma', 'Descuento Máx.',
-        'Ganancia Final (Consigna)', 'Comisión (Consigna)', 'Precio de Venta (Consigna)',
-        'IVA 16% (Consigna)', 'Gestión Admin 3% (Consigna)', 'Precio Público Final (Consigna)'
+        'Ingreso Final (Consigna)', 'Comisión (Consigna)', 'Precio Base (Consigna)',
+        'Gestión Admin 4% (Consigna)', 'Subtotal (Consigna)', 'IVA 16% (Consigna)', 'Precio Público Final (Consigna)'
       ]
 
       const obrasHeaderRow = wsObras.addRow(obrasHeaders)
@@ -1377,15 +1377,16 @@ export default function ArtistasTable() {
               obra.tecnica || '',
               obra.anio || '',
               obra.notas_montaje || '',
-              // Datos de consigna
+              // Datos de consigna (nuevo orden: ingreso, comision, base, gestion, subtotal, iva, publico)
               obra.tiene_consigna ? 'SÍ' : 'NO',
               obra.consigna_firmado_en ? new Date(obra.consigna_firmado_en).toLocaleDateString('es-MX') : '',
               obra.consigna_descuento_max ? `${obra.consigna_descuento_max}%` : '',
               obra.consigna_ganancia_final ? `$${Number(obra.consigna_ganancia_final).toLocaleString('es-MX')}` : '',
               obra.consigna_comision ? `$${Number(obra.consigna_comision).toLocaleString('es-MX')}` : '',
               obra.consigna_precio_base ? `$${Number(obra.consigna_precio_base).toLocaleString('es-MX')}` : '',
+              obra.consigna_gestion ? `$${Number(obra.consigna_gestion).toLocaleString('es-MX')}` : '',
+              obra.consigna_subtotal ? `$${Number(obra.consigna_subtotal).toLocaleString('es-MX')}` : '',
               obra.consigna_iva ? `$${Number(obra.consigna_iva).toLocaleString('es-MX')}` : '',
-              obra.consigna_gastos_admin ? `$${Number(obra.consigna_gastos_admin).toLocaleString('es-MX')}` : '',
               obra.consigna_precio_publico ? `$${Number(obra.consigna_precio_publico).toLocaleString('es-MX')}` : ''
             ])
 
@@ -1414,12 +1415,12 @@ export default function ArtistasTable() {
       })
 
       // Anchos de columnas para obras
-      // Folio, Artista, Email, No., Título, Ganancia, Comisión, Precio Público, Precio Sugerido, Alto, Ancho, Largo, Tipo, Técnica, Año, Notas,
-      // Consigna Firmada, Fecha Firma, Descuento, Ganancia Final, Comisión, Precio Base, IVA, Gestión Admin, Precio Público Final
+      // Folio, Artista, Email, No., Título, Ingreso, Comisión, Precio Público, Precio Sugerido, Alto, Ancho, Largo, Tipo, Técnica, Año, Notas,
+      // Consigna Firmada, Fecha Firma, Descuento, Ingreso Final, Comisión, Precio Base, Gestión Admin, Subtotal, IVA, Precio Público Final
       const obrasWidths = [
         14, 28, 28, 6, 35, 16, 14, 16, 16, 10, 10, 10, 8, 20, 8, 35,
         // Columnas de consigna
-        14, 14, 12, 18, 16, 16, 14, 18, 20
+        14, 14, 12, 18, 16, 16, 14, 16, 14, 20
       ]
       obrasWidths.forEach((width, idx) => {
         wsObras.getColumn(idx + 1).width = width
