@@ -185,7 +185,7 @@ export class PdfKitGenerador extends GeneradorPdf {
     doc.moveDown(0.5);
 
     // Nota: el descuento ahora se muestra después de la tabla
-    const parrafoDescuento = `${CLAUSULA_1_DOCUMENTO.descuento} ${formatearDescuento(datos.descuentoMax)} sobre el precio de venta (conforme a lo capturado en la plataforma).`;
+    const parrafoDescuento = `${CLAUSULA_1_DOCUMENTO.descuento} ${formatearDescuento(datos.descuentoMax)} sobre el precio público (conforme a lo capturado en la plataforma).`;
     doc
       .fontSize(9)
       .font('Helvetica')
@@ -378,17 +378,18 @@ export class PdfKitGenerador extends GeneradorPdf {
    */
   _generarTablaObras(doc, obras, ganancias) {
     const tableTop = doc.y;
-    const colWidths = [85, 56, 56, 70, 60, 56, 50, 62];
+    // Anchos ajustados para que "Comisión ARTE FACTO 25%" y "Gestión administrativa 4%" se vean completos
+    const colWidths = [80, 56, 62, 68, 65, 54, 48, 62];
     const colPositions = [50];
     for (let i = 0; i < colWidths.length - 1; i++) {
       colPositions.push(colPositions[i] + colWidths[i]);
     }
 
-    // Encabezados (altura aumentada para permitir wrap)
+    // Encabezados (altura aumentada a 26 para permitir wrap de 2-3 líneas)
     doc
-      .fontSize(7)
+      .fontSize(6.5)
       .font('Helvetica-BoldOblique')
-      .rect(50, tableTop, 495, 20)
+      .rect(50, tableTop, 495, 26)
       .fillAndStroke(COLOR_ROJO, COLOR_ROJO)
       .fillColor(COLOR_CREMA); // Restablecer color para el texto
 
@@ -404,14 +405,14 @@ export class PdfKitGenerador extends GeneradorPdf {
     ];
     headers.forEach((header, i) => {
       const align = i >= 1 ? 'right' : 'left';
-      doc.text(header, colPositions[i] + 3, tableTop + 5, {
+      doc.text(header, colPositions[i] + 3, tableTop + 4, {
         width: colWidths[i] - 6,
         align,
-        lineGap: 0,
+        lineGap: 0.5,
       });
     });
 
-    let y = tableTop + 20;
+    let y = tableTop + 26;
 
     // Filas de obras
     obras.forEach((o, idx) => {
