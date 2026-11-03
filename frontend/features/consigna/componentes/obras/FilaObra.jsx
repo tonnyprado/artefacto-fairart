@@ -62,8 +62,8 @@ export function FilaObra({ obra, ganancia, touched, onGanancia }) {
       <style dangerouslySetInnerHTML={{ __html: estilosSpinner }} />
       <tr style={{ borderTop: '1px solid rgba(0,0,0,0.08)' }}>
         <td style={{ padding: '12px 14px', minWidth: 180 }}>
-          <b style={{ fontSize: 14 }}>{obra.titulo}</b><br />
-          <span style={{ fontSize: 11.5, color: 'rgba(0,0,0,0.6)' }}>{obra.tecnica} · {obra.medida}</span>
+          <b style={{ fontSize: 12.5 }}>{obra.titulo}</b><br />
+          <span style={{ fontSize: 10.5, color: 'rgba(0,0,0,0.6)' }}>{obra.tecnica} · {obra.medida}</span>
           {mostrarPastilla && (<><br /><span style={{ display: 'inline-block', marginTop: 4, background: esAjusteAutomatico ? '#e8a700' : color.rojo, color: esAjusteAutomatico ? '#000' : color.crema, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', padding: '2px 7px', borderRadius: 4 }}>
             {esAjusteAutomatico && `Ajuste automático · registraste ${formatoMXN(obra.gananciaRegistrada)}`}
             {esModificacionManual && `Registraste inicialmente ${formatoMXN(obra.gananciaRegistrada)}`}

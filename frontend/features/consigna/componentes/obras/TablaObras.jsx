@@ -53,25 +53,25 @@ export function TablaObras({ obras, ganancias, touched, onGanancia }) {
         </div>
       ) : (
       <div style={{ overflowX: 'auto', background: '#fff', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 12 }}>
-        <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 1100, fontSize: 13 }}>
+        <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 1250, fontSize: 11.5 }}>
           <thead>
             <tr>
               {COLUMNAS.map(([t, fondo], i) => (
-                <th key={t} style={{ textAlign: i === 0 ? 'left' : 'right', padding: '12px 10px', background: fondo ?? color.rojo, color: color.crema, fontWeight: 800, fontStyle: 'italic', textTransform: 'uppercase', fontSize: 11 }}>{t}</th>
+                <th key={t} style={{ textAlign: i === 0 ? 'left' : 'right', padding: '14px 8px', background: fondo ?? color.rojo, color: color.crema, fontWeight: 800, fontStyle: 'italic', textTransform: 'uppercase', fontSize: 9.5, lineHeight: 1.3, whiteSpace: 'normal' }}>{t}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {obras.map(o => <FilaObra key={o.id} obra={o} ganancia={ganancias[o.id]} touched={touched[o.id]} onGanancia={g => onGanancia(o.id, g)} />)}
             <tr style={{ borderTop: '2px solid rgba(0,0,0,0.2)', background: 'rgba(0,0,0,0.02)' }}>
-              <td style={{ padding: '12px 14px', fontWeight: 800, fontSize: 14 }}>TOTALES</td>
+              <td style={{ padding: '12px 14px', fontWeight: 800, fontSize: 12.5 }}>TOTALES</td>
               <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 800 }}>{formatoMXN(totales.ingreso)}</td>
               <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 800 }}>{formatoMXN(totales.comision)}</td>
               <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 800, color: color.vino, background: 'rgba(115,0,0,0.10)' }}>{formatoMXN(totales.precioBase)}</td>
               <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 800 }}>{formatoMXN(totales.gestion)}</td>
               <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 800, background: 'rgba(115,0,0,0.05)' }}>{formatoMXN(totales.subtotal)}</td>
               <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 800 }}>{formatoMXN(totales.iva)}</td>
-              <td style={{ padding: '10px 14px', textAlign: 'right', background: '#E3DCCF', fontWeight: 800, fontSize: 15 }}>{formatoMXNPublico(totales.precioPublico)}</td>
+              <td style={{ padding: '10px 14px', textAlign: 'right', background: '#E3DCCF', fontWeight: 800, fontSize: 13 }}>{formatoMXNPublico(totales.precioPublico)}</td>
             </tr>
           </tbody>
         </table>
