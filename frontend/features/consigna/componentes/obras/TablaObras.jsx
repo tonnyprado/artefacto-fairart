@@ -2,7 +2,7 @@ import { color } from '../../tema';
 import { FilaObra } from './FilaObra';
 import { TarjetaObra } from './TarjetaObra';
 import { useEsAngosto } from '../../hooks/useEsVertical';
-import { desglosar, formatoMXN } from '../../shared/precios';
+import { desglosar, formatoMXN, formatoMXNPublico } from '../../shared/precios';
 
 const COLUMNAS = [
   ['Obra'],
@@ -71,7 +71,7 @@ export function TablaObras({ obras, ganancias, touched, onGanancia }) {
               <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 800 }}>{formatoMXN(totales.gestion)}</td>
               <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 800, background: 'rgba(115,0,0,0.05)' }}>{formatoMXN(totales.subtotal)}</td>
               <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 800 }}>{formatoMXN(totales.iva)}</td>
-              <td style={{ padding: '10px 14px', textAlign: 'right', background: '#E3DCCF', fontWeight: 800, fontSize: 15 }}>{formatoMXN(totales.precioPublico)}</td>
+              <td style={{ padding: '10px 14px', textAlign: 'right', background: '#E3DCCF', fontWeight: 800, fontSize: 15 }}>{formatoMXNPublico(totales.precioPublico)}</td>
             </tr>
           </tbody>
         </table>

@@ -3,7 +3,7 @@ import {
   PREAMBULO, CLAUSULA_1_DOCUMENTO, CIERRE_DOCUMENTO, DECLARACIONES_DOCUMENTO,
   clausulasConDescuento, formatearDescuento,
 } from '../../shared/acuerdo';
-import { desglosar, formatoMXN } from '../../shared/precios';
+import { desglosar, formatoMXN, formatoMXNPublico } from '../../shared/precios';
 import { color } from '../../tema';
 
 const ETIQUETA_FISCAL = {
@@ -101,7 +101,7 @@ export function DocumentoAcuerdo(p) {
                   <td style={{ ...td, textAlign: 'right' }}>{formatoMXN(d.gestion)}</td>
                   <td style={{ ...td, textAlign: 'right', fontWeight: 700 }}>{formatoMXN(d.subtotal)}</td>
                   <td style={{ ...td, textAlign: 'right' }}>{formatoMXN(d.iva)}</td>
-                  <td style={{ ...td, textAlign: 'right', fontWeight: 800 }}>{formatoMXN(d.precioPublico)}</td>
+                  <td style={{ ...td, textAlign: 'right', fontWeight: 800 }}>{formatoMXNPublico(d.precioPublico)}</td>
                 </tr>
               );
             })}

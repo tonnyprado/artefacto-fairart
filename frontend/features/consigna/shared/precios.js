@@ -129,9 +129,17 @@ export function ingresoDesdePublico(precioPublico) {
 export { ingresoDesdePublico as gananciaDesdePublico };
 
 /**
- * Formatea un número como moneda MXN
+ * Formatea un número como moneda MXN con 2 decimales (para desglose)
  * @param {number} n - Número a formatear
  * @returns {string}
  */
 export const formatoMXN = (n) =>
-  new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n);
+  new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+
+/**
+ * Formatea precio público sin decimales (siempre múltiplo de $100)
+ * @param {number} n - Número a formatear
+ * @returns {string}
+ */
+export const formatoMXNPublico = (n) =>
+  new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n);

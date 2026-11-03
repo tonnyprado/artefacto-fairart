@@ -8,7 +8,7 @@ import {
   clausulasConDescuento,
   formatearDescuento,
 } from '../shared/acuerdo.js';
-import { desglosar, formatoMXN } from '../shared/precios.js';
+import { desglosar, formatoMXN, formatoMXNPublico } from '../shared/precios.js';
 
 const COLOR_ROJO = '#B93232';
 const COLOR_CREMA = '#E8DED0';
@@ -512,7 +512,7 @@ export class PdfKitGenerador extends GeneradorPdf {
 
       // Precio público (destacado)
       doc.font('Helvetica-Bold');
-      doc.text(formatoMXN(d.precioPublico), colPositions[7] + 3, y + 4, {
+      doc.text(formatoMXNPublico(d.precioPublico), colPositions[7] + 3, y + 4, {
         width: colWidths[7] - 6,
         align: 'right',
       });
