@@ -1338,21 +1338,26 @@ export default function ArtistasTable() {
 
       const obrasHeaders = [
         'Folio Artista', 'Artista', 'Email', 'No.', 'Título de la Obra',
-        'Ingreso Artista (75%)', 'Comisión (25%)', 'Precio Público', 'Precio Sugerido',
+        'Ingreso del artista (75%)', 'Comisión ARTE FACTO (25%)', 'Precio base', 'Precio base sugerido',
         'Alto (cm)', 'Ancho (cm)', 'Largo (cm)', 'Tipo',
         'Técnica', 'Año', 'Notas de Montaje',
         // Columnas de consigna
-        'Consigna Firmada', 'Fecha Firma', 'Descuento Máx.',
-        'Ingreso Final (Consigna)', 'Comisión (Consigna)', 'Precio Base (Consigna)',
-        'Gestión Admin 4% (Consigna)', 'Subtotal (Consigna)', 'IVA 16% (Consigna)', 'Precio Público Final (Consigna)'
+        'Consigna Firmada', 'Fecha Firma', 'Descuento Máx. (%)',
+        'Ingreso del artista (Consigna)', 'Comisión ARTE FACTO (Consigna)', 'Precio base (Consigna)',
+        'Gestión administrativa 4% (Consigna)', 'Subtotal (Consigna)', 'IVA 16% (Consigna)', 'Precio público (Consigna)'
       ]
 
       const obrasHeaderRow = wsObras.addRow(obrasHeaders)
       obrasHeaderRow.height = 30
-      obrasHeaderRow.eachCell(cell => {
-        cell.font = headerStyle.font
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF16a34a' } }
-        cell.alignment = headerStyle.alignment
+      obrasHeaderRow.eachCell((cell, colNumber) => {
+        cell.font = { bold: true, size: 9, color: { argb: '00FFFFFF' } }
+        // Columnas 1-16: rojo, 17-26: vino
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: colNumber <= 16 ? '00B93232' : '00730000' }
+        }
+        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true }
         cell.border = headerStyle.border
       })
 
@@ -1366,10 +1371,10 @@ export default function ArtistasTable() {
               artista.email,
               index + 1,
               obra.titulo || 'Sin título',
-              obra.precio_mxn || obra.precio ? `$${Number(obra.precio_mxn || obra.precio).toLocaleString('es-MX')}` : '',
-              obra.comision_artefacto ? `$${Number(obra.comision_artefacto).toLocaleString('es-MX')}` : '',
-              obra.precio_publico ? `$${Number(obra.precio_publico).toLocaleString('es-MX')}` : '',
-              obra.precio_sugerido ? `$${Number(obra.precio_sugerido).toLocaleString('es-MX')}` : '',
+              obra.precio_mxn || obra.precio || '',
+              obra.comision_artefacto || '',
+              obra.precio_publico || '',
+              obra.precio_sugerido || '',
               obra.alto_cm || '',
               obra.ancho_cm || '',
               obra.largo_cm || '',
@@ -1380,14 +1385,14 @@ export default function ArtistasTable() {
               // Datos de consigna (nuevo orden: ingreso, comision, base, gestion, subtotal, iva, publico)
               obra.tiene_consigna ? 'SÍ' : 'NO',
               obra.consigna_firmado_en ? new Date(obra.consigna_firmado_en).toLocaleDateString('es-MX') : '',
-              obra.consigna_descuento_max ? `${obra.consigna_descuento_max}%` : '',
-              obra.consigna_ganancia_final ? `$${Number(obra.consigna_ganancia_final).toLocaleString('es-MX')}` : '',
-              obra.consigna_comision ? `$${Number(obra.consigna_comision).toLocaleString('es-MX')}` : '',
-              obra.consigna_precio_base ? `$${Number(obra.consigna_precio_base).toLocaleString('es-MX')}` : '',
-              obra.consigna_gestion ? `$${Number(obra.consigna_gestion).toLocaleString('es-MX')}` : '',
-              obra.consigna_subtotal ? `$${Number(obra.consigna_subtotal).toLocaleString('es-MX')}` : '',
-              obra.consigna_iva ? `$${Number(obra.consigna_iva).toLocaleString('es-MX')}` : '',
-              obra.consigna_precio_publico ? `$${Number(obra.consigna_precio_publico).toLocaleString('es-MX')}` : ''
+              obra.consigna_descuento_max || '',
+              obra.consigna_ganancia_final || '',
+              obra.consigna_comision || '',
+              obra.consigna_precio_base || '',
+              obra.consigna_gestion || '',
+              obra.consigna_subtotal || '',
+              obra.consigna_iva || '',
+              obra.consigna_precio_publico || ''
             ])
 
             const bgColor = obraIdx % 2 === 0 ? 'FFFFFFFF' : 'FFF0FDF4'
@@ -1395,6 +1400,16 @@ export default function ArtistasTable() {
               cell.font = cellStyle.font
               cell.alignment = cellStyle.alignment
               cell.border = cellStyle.border
+
+              // Formato numérico para columnas de precios
+              // Cols 6-9: Ingreso, Comisión, Precio base, Precio sugerido (registro inicial)
+              if ([6, 7, 8, 9].includes(colNumber)) {
+                cell.numFmt = '#,##0.00'
+              }
+              // Cols 20-26: Valores numéricos de consigna
+              if ([20, 21, 22, 23, 24, 25, 26].includes(colNumber)) {
+                cell.numFmt = '#,##0.00'
+              }
 
               // Resaltar columnas de consigna con fondo amarillo claro si tiene datos
               if (colNumber >= 17 && obra.tiene_consigna) {
@@ -1414,13 +1429,10 @@ export default function ArtistasTable() {
         }
       })
 
-      // Anchos de columnas para obras
-      // Folio, Artista, Email, No., Título, Ingreso, Comisión, Precio Público, Precio Sugerido, Alto, Ancho, Largo, Tipo, Técnica, Año, Notas,
-      // Consigna Firmada, Fecha Firma, Descuento, Ingreso Final, Comisión, Precio Base, Gestión Admin, Subtotal, IVA, Precio Público Final
+      // Anchos de columnas para obras (según esquema ARTEFACTO_Obras_Esquema_Nuevo.xlsx)
       const obrasWidths = [
-        14, 28, 28, 6, 35, 16, 14, 16, 16, 10, 10, 10, 8, 20, 8, 35,
-        // Columnas de consigna
-        14, 14, 12, 18, 16, 16, 14, 16, 14, 20
+        13, 24, 22, 5, 22, 15, 17, 12, 15, 8, 8, 8, 6, 16, 6, 16,  // Cols 1-16: Registro inicial
+        11, 12, 12, 18, 18, 16, 19, 15, 15, 18                      // Cols 17-26: Consigna
       ]
       obrasWidths.forEach((width, idx) => {
         wsObras.getColumn(idx + 1).width = width
