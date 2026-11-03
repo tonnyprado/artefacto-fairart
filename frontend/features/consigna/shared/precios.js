@@ -16,6 +16,7 @@ export const PASO = 100;            // redondeo al múltiplo de 100
  * @property {number} subtotal - Base + gestión
  * @property {number} iva - 16% IVA sobre el subtotal
  * @property {number} precioPublico - Precio que ve el comprador (cerrado a múltiplo de 100)
+ * @property {Desglose} [crudo] - Desglose sin redondeo (solo presente cuando viene de desglosar())
  */
 
 /**
@@ -86,7 +87,13 @@ export function desglosar(ingreso) {
 
   // 4. Recalcular TODO desde el público final (inverso)
   //    El ajuste queda absorbido en el desglose
-  return desglosarDesdePublicoFinal(publicoFinal);
+  const desglose = desglosarDesdePublicoFinal(publicoFinal);
+
+  // 5. Calcular el desglose SIN redondeo (crudo) para mostrar los ajustes
+  //    Esto permite que la UI muestre "ajustado +$X.XX" debajo de cada número
+  desglose.crudo = desglosarDesdePublicoFinal(publicoBruto);
+
+  return desglose;
 }
 
 /**

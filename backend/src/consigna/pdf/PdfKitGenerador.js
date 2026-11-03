@@ -184,33 +184,21 @@ export class PdfKitGenerador extends GeneradorPdf {
 
     doc.moveDown(0.5);
 
+    // Nota: el descuento ahora se muestra después de la tabla
+    const parrafoDescuento = `${CLAUSULA_1_DOCUMENTO.descuento} ${formatearDescuento(datos.descuentoMax)} sobre el precio de venta (conforme a lo capturado en la plataforma).`;
     doc
       .fontSize(9)
-      .font('Helvetica-Bold')
-      .text(`Descuento máximo autorizado: ${formatearDescuento(datos.descuentoMax)}`, 50, doc.y, {
-        width: 495,
-        continued: true,
-      })
       .font('Helvetica')
-      .text(' sobre el precio de venta.');
+      .fillColor('#111')
+      .text(parrafoDescuento, 50, doc.y, { width: 495, lineGap: 1.5 });
 
     doc.moveDown(0.3);
     doc.text(CLAUSULA_1_DOCUMENTO.estado, 50, doc.y, { width: 495, lineGap: 1.5 });
-    doc.moveDown(0.3);
-
-    // Dividir cierre en párrafos (tiene \n)
-    const parrafosCierre = CLAUSULA_1_DOCUMENTO.cierre.split('\n');
-    parrafosCierre.forEach((parrafo, idx) => {
-      doc.text(parrafo, 50, doc.y, { width: 495, lineGap: 1.5 });
-      if (idx < parrafosCierre.length - 1) {
-        doc.moveDown(0.3);
-      }
-    });
 
     doc.moveDown(0.8);
 
     // ══════════════════════════════════════════════════════════════
-    // CLÁUSULAS 2-8
+    // CLÁUSULAS 2-11
     // ══════════════════════════════════════════════════════════════
     clausulas.slice(1).forEach(c => {
       // Verificar si necesitamos nueva página
@@ -241,28 +229,6 @@ export class PdfKitGenerador extends GeneradorPdf {
 
       doc.moveDown(0.7);
     });
-
-    // ══════════════════════════════════════════════════════════════
-    // CLÁUSULA 9 · ACEPTACIÓN DE RIESGO
-    // ══════════════════════════════════════════════════════════════
-    if (doc.y > 650) {
-      doc.addPage();
-    }
-
-    doc
-      .fontSize(10)
-      .font('Helvetica-Bold')
-      .fillColor(COLOR_ROJO)
-      .text('9 · Aceptación de riesgo', 50, doc.y, { width: 495, continued: false });
-
-    doc.fontSize(9).font('Helvetica').fillColor('#111').text('El/la artista declara que:', 50, doc.y, { width: 495 });
-
-    DECLARACIONES_DOCUMENTO.forEach(d => {
-      doc.text(`— ${d}`, 50, doc.y, { width: 495, indent: 12, lineGap: 1 });
-    });
-
-    doc.moveDown(0.3);
-    doc.text(CIERRE_DOCUMENTO, 50, doc.y, { width: 495, lineGap: 1.5 });
 
     doc.moveDown(1);
 
@@ -397,7 +363,7 @@ export class PdfKitGenerador extends GeneradorPdf {
     doc
       .fontSize(8.5)
       .font('Helvetica')
-      .text('Dirección de ARTE FACTO', 315, firmaDireccionBorderY + 17, {
+      .text('Por ARTE FACTO ÉTICAS CREATIVAS, S. de R.L. de C.V. · Gerente Único', 315, firmaDireccionBorderY + 17, {
         width: 200,
         align: 'center',
       });
@@ -428,12 +394,12 @@ export class PdfKitGenerador extends GeneradorPdf {
 
     const headers = [
       'Título',
-      'Ingreso 75%',
-      'Comisión 25%',
-      '= Precio base',
-      '+ Gestión 4%',
-      '= Subtotal',
-      '+ IVA 16%',
+      'Ingreso del artista 75%',
+      'Comisión ARTE FACTO 25%',
+      'Precio base',
+      'Gestión administrativa 4%',
+      'Subtotal',
+      'IVA 16%',
       'Precio público'
     ];
     headers.forEach((header, i) => {
