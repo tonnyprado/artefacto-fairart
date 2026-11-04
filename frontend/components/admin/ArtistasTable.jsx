@@ -1063,6 +1063,8 @@ export default function ArtistasTable() {
       const result = await response.json()
 
       if (response.ok && result.success) {
+        const artistaId = result.data?.id
+
         alert('Artista creado exitosamente')
         setShowAddModal(false)
         // Limpiar formulario
@@ -1084,6 +1086,11 @@ export default function ArtistasTable() {
         })
         // Refrescar lista
         fetchArtistas()
+
+        // Abrir página de detalles del artista recién creado
+        if (artistaId) {
+          window.open(`/admin/artistas/${artistaId}`, '_blank')
+        }
       } else {
         alert('Error al crear artista: ' + (result.error || 'Error desconocido'))
       }
