@@ -83,6 +83,10 @@ export class S3Almacenamiento {
       Key: this.k(key),
       ContentType: contentType,
       ServerSideEncryption: 'AES256',
-    }), { expiresIn: segundos });
+      ChecksumAlgorithm: undefined,  // Deshabilitar checksums automáticos para evitar conflictos CORS
+    }), {
+      expiresIn: segundos,
+      unhoistableHeaders: new Set(),  // No incluir headers adicionales en la URL firmada
+    });
   }
 }
