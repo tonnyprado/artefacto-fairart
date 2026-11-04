@@ -130,19 +130,23 @@ export class ConsignaController {
 
   /**
    * POST /api/consigna/:token/subir-constancia
-   * Genera URL presignada para subir constancia fiscal a S3
+   * Recibe archivo de constancia fiscal y lo sube a S3
+   * Cambiado de URL presignada a upload directo para evitar problemas de CORS
    */
   async subirConstancia(req, res, next) {
     try {
       const { token } = req.params;
-      const { nombre, tipo, tamano } = req.body;
-
       validarToken(token);
 
       const ip = extraerIP(req);
       const inv = await this.invitaciones.resolver(token, ip);
 
-      const resultado = await this.consigna.urlSubidaConstancia(inv, nombre, tipo, tamano);
+      // El archivo viene en req.file gracias al middleware multer
+      if (!req.file) {
+        throw Invalido('No se recibió ningún archivo.');
+      }
+
+      const resultado = await this.consigna.subirConstancia(inv, req.file);
 
       res.json({ success: true, data: resultado });
     } catch (error) {

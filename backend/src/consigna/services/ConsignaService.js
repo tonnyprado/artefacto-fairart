@@ -120,19 +120,27 @@ export class ConsignaService {
   }
 
   /**
+   * Sube constancia fiscal directamente al servidor (evita problemas de CORS)
    * @param {Invitacion} inv
-   * @param {string} nombre
-   * @param {string} tipo
-   * @param {number} tamano
-   * @returns {Promise<SubidaConstanciaDTO>}
+   * @param {any} archivo - Archivo recibido por multer (req.file)
+   * @returns {Promise<{key: string; nombre: string}>}
    */
-  async urlSubidaConstancia(inv, nombre, tipo, tamano) {
-    if (!TIPOS_CONSTANCIA.includes(tipo)) throw Invalido('Sube un PDF o una imagen (JPG/PNG).');
-    if (tamano > 10 * 1024 * 1024) throw Invalido('El archivo debe pesar menos de 10 MB.');
-    const ext = tipo === 'application/pdf' ? 'pdf' : tipo.split('/')[1];
+  async subirConstancia(inv, archivo) {
+    const ext = archivo.mimetype === 'application/pdf' ? 'pdf' : archivo.mimetype.split('/')[1];
     const key = `constancias/${inv.artistaId}/${crypto.randomUUID()}.${ext}`;
-    await this.eventos.registrar(inv.id, 'constancia_url', { nombre, tipo, tamano });
-    return { key, uploadUrl: await this.archivos.urlSubida(key, tipo) };
+
+    // Subir archivo directamente a S3
+    await this.archivos.subir(key, archivo.buffer, archivo.mimetype);
+
+    // Registrar evento
+    await this.eventos.registrar(inv.id, 'constancia_subida', {
+      nombre: archivo.originalname,
+      tipo: archivo.mimetype,
+      tamano: archivo.size,
+      key,
+    });
+
+    return { key, nombre: archivo.originalname };
   }
 
   /**

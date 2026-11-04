@@ -73,16 +73,23 @@ export class HttpConsignaApi {
    * @returns {Promise<{key: string; nombre: string}>}
    */
   async subirConstancia(token, archivo) {
-    const res = await this.req(`/${encodeURIComponent(token)}/subir-constancia`, {
-      method: 'POST', body: JSON.stringify({ nombre: archivo.name, tipo: archivo.type, tamano: archivo.size }),
+    // Enviar archivo directamente al backend con FormData (evita problemas de CORS con S3)
+    const formData = new FormData();
+    formData.append('archivo', archivo);
+
+    const response = await fetch(`${this.base}/${encodeURIComponent(token)}/subir-constancia`, {
+      method: 'POST',
+      body: formData,
+      // NO incluir Content-Type - el navegador lo establece automáticamente con el boundary correcto
     });
-    const { uploadUrl, key } = res.data;
-    const s3 = await fetch(uploadUrl, {
-      method: 'PUT', body: archivo,
-      headers: { 'Content-Type': archivo.type, 'x-amz-server-side-encryption': 'AES256' },
-    });
-    if (!s3.ok) throw new ErrorApi(s3.status, 'S3', 'No pudimos subir el archivo. Intenta de nuevo.');
-    return { key, nombre: archivo.name };
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ message: 'Error al subir el archivo' }));
+      throw new ErrorApi(response.status, err.code || 'UPLOAD', err.message || 'No pudimos subir el archivo. Intenta de nuevo.');
+    }
+
+    const res = await response.json();
+    return res.data;
   }
 
   /**

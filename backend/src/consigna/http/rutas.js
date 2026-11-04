@@ -1,5 +1,22 @@
 import { Router } from 'express';
+import multer from 'multer';
 import { ConsignaController } from './controller.js';
+
+// Configurar multer para recibir archivos en memoria
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10 MB máximo
+  },
+  fileFilter: (req, file, cb) => {
+    const tiposPermitidos = ['application/pdf', 'image/jpeg', 'image/png'];
+    if (tiposPermitidos.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Sube un PDF o una imagen (JPG/PNG).'));
+    }
+  },
+});
 
 /**
  * Crea las rutas Express para el módulo de consigna.
@@ -62,7 +79,7 @@ export function rutasConsigna(controller) {
     controller.descargarPdfEnviado(req, res, next)
   );
 
-  router.post('/:token/subir-constancia', (req, res, next) =>
+  router.post('/:token/subir-constancia', upload.single('archivo'), (req, res, next) =>
     controller.subirConstancia(req, res, next)
   );
 
