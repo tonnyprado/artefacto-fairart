@@ -26,12 +26,21 @@ const OPCIONES = [
  */
 export function PasoFiscal({ estado, constancia, onElegir, onArchivo }) {
   const cargada = estado === 'cargada';
+  const faltaArchivo = cargada && !constancia;
   return (
     <div>
       <TituloPaso numero="11" titulo="Situación fiscal" />
       <p style={{ fontSize: 14.5, maxWidth: 580, lineHeight: 1.45, color: 'rgba(0,0,0,0.75)', margin: '12px 0 20px' }}>
         Necesitamos tu constancia de situación fiscal —o la de quien facturará por ti— para emitir la factura de tu paquete y para liquidarte tus ventas. Elige tu caso:
       </p>
+      {faltaArchivo && (
+        <div role="alert" style={{ background: '#FFF4E5', border: '1.5px solid #F59E0B', borderRadius: 10, padding: '12px 16px', marginBottom: 14, maxWidth: 580 }}>
+          <b style={{ color: '#B45309', fontSize: 13.5, display: 'block', marginBottom: 4 }}>⚠️ Falta cargar el archivo</b>
+          <p style={{ color: '#92400E', fontSize: 12.5, lineHeight: 1.4, margin: 0 }}>
+            Para continuar, carga tu constancia de situación fiscal usando el botón "Seleccionar archivo" o elige la opción "La envío después".
+          </p>
+        </div>
+      )}
       <div role="radiogroup" style={{ display: 'grid', gap: 10, maxWidth: 580 }}>
         <div style={{ ...tarjeta(cargada), flexDirection: 'column', gap: 0, cursor: 'default' }}>
           <button type="button" role="radio" aria-checked={cargada} onClick={() => onElegir('cargada')}
