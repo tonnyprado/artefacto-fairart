@@ -16,7 +16,7 @@ export function PasoFirma({ nombre, acepto, firma, onAcepto, onFirma }) {
   const [abierto, setAbierto] = useState(false);
   return (
     <div>
-      <TituloPaso numero="13" titulo="Aceptación y firma" />
+      <TituloPaso numero="14" titulo="Aceptación y firma" />
       <p style={{ fontSize: 14.5, maxWidth: 580, color: 'rgba(0,0,0,0.75)', margin: '12px 0 14px' }}>Al firmar declaras que:</p>
       <div style={{ display: 'grid', gap: 8, maxWidth: 580, marginBottom: 18 }}>
         {DECLARACIONES_PANTALLA.map(d => (

@@ -29,7 +29,7 @@ export function PasoFiscal({ estado, constancia, onElegir, onArchivo }) {
   const faltaArchivo = cargada && !constancia;
   return (
     <div>
-      <TituloPaso numero="11" titulo="Situación fiscal" />
+      <TituloPaso numero="12" titulo="Situación fiscal" />
       <p style={{ fontSize: 14.5, maxWidth: 580, lineHeight: 1.45, color: 'rgba(0,0,0,0.75)', margin: '12px 0 20px' }}>
         Necesitamos tu constancia de situación fiscal —o la de quien facturará por ti— para emitir la factura de tu paquete y para liquidarte tus ventas. Elige tu caso:
       </p>
