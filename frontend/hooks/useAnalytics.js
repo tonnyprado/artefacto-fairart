@@ -99,14 +99,14 @@ export function useAnalytics() {
 
   /**
    * Track conversión
-   * @param {string} conversionType - Tipo de conversión
+   * @param {string} conversionType - Tipo de conversión (ej: 'registro_complete')
    * @param {number} value - Valor de la conversión
    * @param {Object} metadata - Datos adicionales
    */
   const trackConversion = useCallback(
     (conversionType, value, metadata = {}) => {
       track({
-        event_type: 'conversion',
+        event_type: conversionType, // FIX: Usar conversionType directamente para que coincida con el mapeo
         event_name: conversionType,
         value,
         metadata: {
@@ -115,10 +115,10 @@ export function useAnalytics() {
         },
       })
 
-      // Track en Meta Pixel
-      if (window.fbq) {
-        window.fbq('track', 'Lead', { value, currency: 'MXN' })
-      }
+      // NOTA: No trackeamos aquí directamente a Meta Pixel
+      // El mapeo automático en analyticsStore se encargará de enviar
+      // 'registro_complete' → 'SubmitApplication' a Meta
+      // 'registro_complete' → 'purchase' a GA4
     },
     [track]
   )
